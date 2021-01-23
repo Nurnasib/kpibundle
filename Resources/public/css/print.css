@@ -1,0 +1,108 @@
+body{
+    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+#print-container{
+    margin: 0 auto;
+    display: block;
+    font-size: 14px;
+    color: #0A0302;
+    padding: 5px;
+}
+
+.table{
+    margin-bottom: 0!important;
+    border: none!important;
+}
+
+.table th, .table td{
+    border-top: none;
+}
+
+
+.table-head{
+    height: 35px!important;
+    line-height: 35px;
+}
+
+.table, .table tbody , .table tr, .table thead tr , .table tbody tr {
+    width: 100%;
+    display: table;
+}
+.table tbody{
+    width: 100%;
+}
+.table td, .table th{
+    padding:3px;
+}
+
+thead.table-head th, tbody.table-body td, tbody.table-body th{
+    padding:3px;
+    border-right: 1px solid silver;
+    border-bottom: 1px silver solid;
+}
+thead.table-head tr th:nth-child(1),
+thead.table-head tr th:nth-child(2),
+thead.table-head tr th:nth-child(3),
+thead.table-head tr th:nth-child(4),
+thead.table-head tr th:nth-child(5),
+thead.table-head tr th:nth-child(6),
+thead.table-head tr th:nth-child(7),
+thead.table-head tr th:nth-child(8)
+{
+    background: #777575 !important;
+    height: 25px!important;
+    line-height: 25px!important;
+    border-top: #000000 solid 1px;
+    border-bottom: #000000 solid 1px;
+}
+
+
+thead.table-head tr th:nth-child(1) , tbody.table-body tr td:nth-child(1){
+    width: 35px!important;
+    text-align: center;
+    background: #b3b3b3 !important;
+}
+
+.table-body thead th:nth-child(2), tbody.table-body td:nth-child(2){
+
+}
+
+
+thead.table-head tr th:nth-child(3) , tbody.table-body tr td:nth-child(3){
+    width: 50px!important;
+}
+
+
+thead.table-head tr th:nth-child(4) , tbody.table-body tr td:nth-child(4){
+    width: 50px!important;
+}
+
+
+thead.table-head tr th:nth-child(5) , tbody.table-body tr td:nth-child(5){
+    width: 60px!important;
+}
+
+
+thead.table-head tr th:nth-child(6) , tbody.table-body tr td:nth-child(6){
+    width: 50px!important;
+}
+
+thead.table-head tr th:nth-child(7) , tbody.table-body tr td:nth-child(7){
+    width: 50px!important;
+}
+
+thead.table-head tr th:nth-child(8) , tbody.table-body tr td:nth-child(8){
+    background: #DDDDDD !important;
+    width: 70px!important;
+    border-right:none;
+    padding-right: 10px;
+}
+
+.table h4{
+    text-decoration: underline!important;
+    font-weight: bold;
+}
+.caption strong{
+    display: inline-block;
+    margin-top: 30px;
+}

@@ -1,0 +1,87 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block body %}
+    <div class="pcoded-inner-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                        <li class="breadcrumb-item"> <a href="{{ path('kpi_markchart') }}">  {{ 'Location base Sales Target'|trans }}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="card">
+                <div class="card-header">
+                    <h5>{{ 'Location base Sales Target'|trans }}</h5>
+                    <div class="card-header-right">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
+                            <a href="{{ path('kpi_markchart') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>{{ 'KPI Mark Chart'|trans }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card">
+                <div class="card-block">
+                    <table class="table table-striped table-bordered table-hover" id="datatable">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">S/N</th>
+                            <th scope="col">Zone</th>
+                            <th scope="col">Region</th>
+                            <th scope="col">District</th>
+                            <th scope="col">Upozila</th>
+                            {% for product in products %}
+                            <th scope="col">{{ product.name }}</th>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                        <tbody id="inputform">
+                        {% set aa = 0 %}
+                        {% for entity in entities %}
+                            <tr>
+                                <td>{{ loop.index }}.</td>
+                                <td>{{ entity.parent.parent.parent.name }}</td>
+                                <td>{{ entity.parent.parent.name }}</td>
+                                <td>{{ entity.parent.name }}</td>
+                                <td>{{ entity.name }}</td>
+                                {% for product in products %}
+                                <td>
+                                    {% set ids = entity.id~'-'~product.id %}
+                                    <input type="text" data-action="{{ path('kpi_markchart_location_sales_target',{'id':matrixArr[ids]['matrixId']}) }}" data-index="{{ matrixArr[ids]['matrixId'] }}" class="form-control matrixId" data-id="{{ matrixArr[ids]['matrixId'] }}"  id="amount-{{ matrixArr[ids]['matrixId'] }}" name="amount-{{ matrixArr[ids]['matrixId'] }}" value="{% if matrixArr[ids] is defined and  matrixArr[ids].upozilaId ==  entity.id and  matrixArr[ids].markId == product.id %}{{ matrixArr[ids]['amount'] }}{% endif %}" >
+                                </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
+{% endblock %}
+{% block cssBlock %}
+    <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+{% endblock  %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/kpi/script.js') }}"></script>
+{% endblock  %}
+{% block documentready %}
+    {{ parent() }}
+    {#$('#datatable').DataTable( {
+    "pageLength": 25,
+    'columnDefs': [ {
+    'targets': [0,4],
+    'orderable': false
+    }]
+    });#}
+{% endblock %}

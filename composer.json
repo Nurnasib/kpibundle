@@ -1,0 +1,19 @@
+{
+    "name": "terminalbd/kpibundle",
+    "description": "Kpi Bundle",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "role": "Developer",
+    "authors": [
+        {
+            "name": "Md Shafiqul Islam",
+            "email": "shafiqabs@gmail.com"
+        }
+    ],
+    "autoload" : {
+        "psr-4" : {
+            "Terminalbd\\KpiBundle\\" : ""
+        }
+    },
+    "minimum-stability": "stable"
+}

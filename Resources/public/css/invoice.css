@@ -1,0 +1,296 @@
+#cartMethod , #bkashMethod{
+    display: none;
+}
+#hide{
+    display: none;
+}
+.customer{
+    display: none;
+}
+.btn-ajax-loading {
+    position:inherit;
+}
+
+.dropdown-menu .divider{
+    margin: 0;
+}
+#showPayment{
+    display: none;
+}
+.particular-info{
+    background: #333333;
+    padding: 10px;
+    padding-left:0;
+    padding-right: 4px;
+    border-bottom: 2px solid #9e9521fc;
+    border-top: 2px solid #9e9521fc;
+}
+
+div.checker {
+    border: 3px solid red;
+    margin-top: -4px;
+}
+
+.btn-show{
+    display: block!important;
+}
+
+.table-striped tbody>tr.min:nth-child(odd)>td, .table-striped tbody>tr.min:nth-child(odd)>th{
+    background-color: yellow;
+}
+
+input.m-wrap.input-error , select.m-wrap.input-error{
+    border: 1px solid red !important;
+}
+
+.input-error{
+    border: 1px solid red !important;
+}
+
+.controls ul li , .control-group ul li {
+    list-style: none;
+    color: #f0262f;
+    padding-left: 6px;
+    line-height: 24px;
+}
+
+#particular-table .table-fixed {
+    width: 100%;
+}
+
+#particular-table  thead tr th{
+    background-color: #a48334;
+    border-color:#dbb233;
+}
+.referred-add{
+    display: none;
+}
+
+.referred-add{
+    display: none;
+}
+.select2Item{
+    border: 5px solid #4b8df8
+}
+.sales-right{
+    padding-right: 10px;
+    float: right;
+    text-align: right;
+    width: 190px;
+}
+.sales-right input[class*="span"].m-wrap{
+    font-weight: bold;
+    margin-top: -1px;
+    text-align: right;
+    border: 2px solid #4b8df8!important;
+    height: 23px!important;
+}
+.select2-search{
+    padding-left: 0;
+    padding-right: 0;
+}
+.select2-search input{
+    border: 1px solid #35aa47!important;
+}
+.patient-info{
+
+}
+.form-horizontal .patient-info .control-group{
+    margin-bottom: 0!important;
+}
+.form-horizontal .patient-info .control-label{
+    float: left;
+    text-align: left;
+    background: #8a8a8a;
+    color: #fff;
+    margin:0!important;
+    width: 99.5%;
+    font-size: 14px;
+    border: 1px solid #888888;
+}
+
+.referred-info{
+    border: 1px solid #D7EAE5;
+}
+.form-horizontal .referred-info .control-group{
+    margin-bottom: 0!important;
+}
+.form-horizontal .referred-info .control-label{
+    float: left;
+    text-align: left;
+    background: #F1F9F7;
+    color: #000;
+    line-height:20px;
+    height: 25px;
+    margin:0!important;
+    width: 100%;
+    font-size: 14px;
+}
+.form-horizontal .payment-info .control-group{
+    margin-bottom: 0!important;
+    border-bottom: 1px solid #2e2e2e;
+}
+.form-horizontal .payment-info .control-label{
+    float: left;
+    text-align: left;
+    background: #f9f9f9;
+    color: #000;
+    font-weight: bold;
+    line-height: 32px;
+    height: 33px;
+    margin:0!important;
+    width: 100%;
+    font-size: 14px;
+}
+
+.form-horizontal .payment-info .control-label .label {
+    padding-left: 8px!important;
+    background: none;
+    font-weight: bold;
+    color: #000;
+    font-size: 14px;
+}
+
+.form-horizontal .patient-info .control-label span ,  .form-horizontal .referred-info .control-label span {
+    padding-left: 8px;
+}
+
+.form-horizontal .controls{
+    margin-left: 0;
+}
+
+input[class*="span"].m-wrap  {
+    height: 34px!important;
+    background: #ffffff;
+}
+
+.select-custom{
+    height: 33px!important;
+}
+
+.payment-info{
+    border: 1px solid #222;
+}
+
+.select2-container .select2-choice {
+    height: 30px!important;
+}
+.grandTotal{
+    font-weight: bold;
+    font-size:15px;
+}
+
+.yellow-alert td{
+    background-color: yellow!important;
+}
+
+.tooltip-inner{
+    background-color: #d12610;
+}
+.tooltip.top .tooltip-arrow{
+    color: #d12610 !important;
+}
+.close{
+    background-image: none!important;
+}
+.dialogModal .dialogModal_top .dialogModal_header{
+    width: 100%!important;
+}
+.dialogModal .dialogModal_body{
+    width: 100%!important;
+}
+.dialogModal .dialogModal_content{
+
+}
+.dialogModal_content .mini{
+    height: 20px!important;
+}
+
+.check-list label{
+    width: 97%;
+}
+.feeds .col1 .cont .cont-col2 .desc{
+    margin-left: 10px;
+}
+.portlet.box .form .form-actions, .portlet.solid .form .form-actions {
+    margin-top: -9px !important;
+}
+.row-fluid label{
+    line-height: 30px!important;
+}
+
+input[class*="span"].wrap-custom{
+    height: 30px!important;
+}
+
+li.active > a {
+    color: #d12610 !important;
+}
+.tabs-right.tabbable-custom .nav-tabs > li a, .tabs-left.tabbable-custom .nav-tabs > li a {
+    padding: 8px 10px;
+    font-weight: bold;
+}
+
+.select2-container-multi .select2-choices {
+    min-height: 30px;
+}
+.select2-container-multi .select2-choices .select2-search-choice div {
+    color: #000!important;
+    text-align: center;
+}
+.form-control-select{
+    width: 100%;
+    overflow-y:scroll;
+}
+#project-label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 1em;
+}
+#project-icon {
+    float: left;
+    height: 32px;
+    width: 32px;
+}
+#project-description {
+    margin: 0;
+    padding: 0;
+}
+
+.checkbox-custom.focus{
+    border:red 1px solid ;
+}
+.preview-print{
+    float: right;
+}
+
+.sales-right .discount-type {
+    height: 20px!important;
+    border: 2px solid red !important;
+    margin-top: -4px!important;
+}
+
+.td-inline-input{
+    height: 15px!important;
+    line-height: 13px!important;
+    font-size: 13px!important;
+    border: 2px solid #4d90fe!important;
+    width: 60px;
+    margin-bottom:0!important;
+}
+.td-inline-input-qnt{
+    height: 15px!important;
+    line-height: 13px!important;
+    font-size: 13px!important;
+    border: 2px solid #4d90fe!important;
+    width: 40px;
+    margin-bottom:0!important;
+}
+.error ul li{
+    list-style: none;
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    line-height: 15px;
+    padding-top: 10px;
+}

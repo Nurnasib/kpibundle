@@ -1,0 +1,95 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block body %}
+    <div class="pcoded-inner-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                        <li class="breadcrumb-item"> <a href="{{ path('crm_employee') }}">  {{ 'CRM Employee'|trans }}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="card">
+                <div class="card-header">
+                    <h5>{{ 'KPI Employee'|trans }}</h5>
+                    <div class="card-header-right">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
+                            <a href="{{ path('kpi_employee_register') }}"   class="btn btn-sm  green-bg white-font"><i class="fa fa-plus"></i>{{ 'New Employee'|trans }}</a>
+                            <a href="{{ path('kpi_employee') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-large"></i>{{ 'Employee'|trans }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card">
+                <div class="card-block">
+                    <table class="table table-striped table-bordered table-hover" id="datatable">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">ZONE</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">User</th>
+                            <th scope="col">Designation</th>
+                            <th scope="col">Mobile</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Department</th>
+                            <th scope="col">Status</th>
+                            <th scope="col text-center"><i class="feather icon-settings"></i></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for entity in entities %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{% if entity.zonal is not empty %}{{ entity.zonal.name }}{% endif %}</td>
+                                <td>{{ entity.name }}</td>
+                                <td>{{ entity.username }}</td>
+                                <td>{{ entity.designation.name|default('') }}</td>
+                                <td>{{ entity.mobile }}</td>
+                                <td>{{ entity.email }}</td>
+                                <td>{{ entity.department.name|default('') }}</td>
+                                <td>{{ entity.enabled == 1 ? "Enabled":"Disabled" }}</td>
+                                {#<td>{{ entity.customerGroup.name }}</td>#}
+                                {#<td>{% if entity.agent is not empty %}{{ entity.agent.name }}{% endif %}</td>#}
+                                {#<td>{% if  entity.location is not empty %}{{ entity.location.name }}{% endif %}</td>#}
+                                <td>
+                                    <a class="btn btn-mini yellow-bg white-font" href="{{ path('kpi_employee_edit',{'id':entity.id}) }}"><i class="feather icon-edit"></i> Edit</a>
+                                    <a class="btn btn-mini purple-bg white-font" href="{{ path('kpi_employee_password',{'id':entity.id}) }}"><i class="feather icon-lock"></i> Chhange Password</a>
+                                </td>
+
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
+{% endblock %}
+{% block cssBlock %}
+    <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+{% endblock  %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+{% endblock  %}
+{% block documentready %}
+    {{ parent() }}
+    $('#datatable').DataTable( {
+    "pageLength": 25,
+    'columnDefs': [ {
+    'targets': [0,8],
+    'orderable': false
+    }]
+    });
+{% endblock %}

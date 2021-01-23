@@ -1,0 +1,169 @@
+{% extends 'admin/layout.html.twig' %}
+{% block body_id 'kpi_domain_new' %}
+{% block body %}
+    <div class="pcoded-inner-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                        <li class="breadcrumb-item"> <a href="{{ path('kpi_employee_board') }}">  {{ 'KPI Employee Board'|trans }}</a></li>
+                        <li class="breadcrumb-item"> <a href="javascript:">{{ 'Employee KPI Summary'|trans }}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="card">
+                <div class="card-header">
+                    <h5>{{ 'KPI Summary for '|trans }}: {{ entity.employeeSetup.employee.name }}</h5>
+                    <div class="card-header-right">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
+                            <a href="{{ path('kpi_employee_board') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>{{ 'Employee Board'|trans }}</a>
+                            <a href="{{ path('kpi_details_report',{'id':entity.id}) }}" class="btn btn-sm green-bg white-font"><i class="fa fa-th-list"></i>{{ 'KPI Details'|trans }}</a>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card">
+                <div class="portlet box green ">
+                    <div class="portlet-title">
+                        <div class="caption">{{ 'KPI Summary for '|trans }}: {{ entity.employeeSetup.employee.name }} </div>
+                    </div>
+                      <div class="portlet-body form">
+                        <div class="row form-body">
+                            <div class="form-inner-no-space">
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label"><strong>Employee Name</strong></label>
+                                    <label class="col-md-10 control-label">{{ entity.employeeSetup.employee.name }}</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label"><strong>Month & Year</strong></label>
+                                    <label class="col-md-10 control-label">{{ entity.month }},{{ entity.year }}</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label"><strong>Designation</strong></label>
+                                    <label class="col-md-10 control-label">{{ entity.employeeSetup.employee.designation.name }}</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label"><strong>Working Area</strong></label>
+                                    <label class="col-md-10 control-label">{{ entity.employeeSetup.employee.area }}</label>
+                                </div>
+                                {% if entity.employeeSetup.employee.department is not empty %}
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label"><strong>Department</strong></label>
+                                    <label class="col-md-10 control-label">{{ entity.employeeSetup.employee.department.name }}</label>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <table class="table table-striped table-bordered table-hover" id="datatable">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col" style="width: 22%">Activity</th>
+                                    <th scope="col">Marks</th>
+                                    <th scope="col">Rating</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% set totalMark = 0 %}
+                                {% set totalActualMark = 0 %}
+                                {% for entity in entities %}
+                                    {% set totalMark = totalMark + entity.mark %}
+                                    {% set totalActualMark = totalActualMark + entity.actualMark %}
+                                    <tr>
+                                        <td>{{ loop.index }}</td>
+                                        <td>{{ entity.activity }}</td>
+                                        <td>{{ entity.mark }}</td>
+                                        <td>{{ entity.actualMark }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                <tr>
+                                    <th colspan="2" class="text-right">Total</th>
+                                    <th>{{ totalMark }}</th>
+                                    <th>{{ totalActualMark }}</th>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                      </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
+<style>
+.activity li{
+
+}
+.activity li .attribute{
+
+}
+.activity li .attribute li .markDistribution{
+
+}
+
+.parameter{
+    position: relative;
+    border-left: 34px solid #369;
+    padding-left: 10px;
+    width: 50px;
+}
+
+.parameter span {
+    position: absolute;
+    top: 50%;
+    left: 30px;
+    background: none;
+    transform-origin: 0 0;
+    transform: rotate(-90deg);
+    width: 200px;
+}
+
+
+.attribute-markDistribution{
+    width: 220px;
+}
+
+.markDistribution{
+    padding-left: 15px;
+    width: 220px;
+}
+.markDistribution li{
+    margin-left: 0;
+    padding-left: 0;
+}
+
+.activity-name{
+    width: 120px;
+}
+
+.activity-attribute{
+    width: 220px;
+}
+.attribute-name{
+    width: 480px;
+}
+.attribute-mark{
+    width: 70px;
+}
+.attribute-score{
+    width: 70px;
+}
+</style>
+{% endblock %}
+ {% block cssBlock %}
+     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+ {% endblock  %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+{% endblock  %}

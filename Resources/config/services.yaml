@@ -1,0 +1,14 @@
+#File: config/services.yaml
+
+services:
+#    setting_tool.example:
+#        class: %setting_tool.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]
+
+      Terminalbd\KpiBundle\Controller\:
+          resource: '../../Controller'
+          tags: ['controller.service_arguments']
+          calls:
+            - [setContainer, ['@service_container']]
+
+      
