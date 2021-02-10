@@ -1,0 +1,89 @@
+<?php
+
+namespace Terminalbd\KpiBundle\Controller\FileUpload;
+
+
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+
+/**
+ * Class FileUploadController
+ * @package Terminalbd\KpiBundle\Controller\FileUpload
+ * @Route("/kpi/file-upload", name="")
+ */
+class FileUploadController extends AbstractController
+{
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @Route("/", name="kpi_file_upload_index")
+     */
+    public function fileUpload(Request $request)
+    {
+        $allowFileType = ['xlsx'];
+        $data = [];
+        $form = $this->createFormBuilder()
+            ->add('Title', ChoiceType::class,[
+                'choices'=>[
+                    'Select Type' => null,
+                    'Agent' => 'agent',
+                    'Sale' => 'sale',
+                    'Employee' => 'employee'
+                ],
+                'required' => true,
+            ])
+            ->add('UploadFile', FileType::class,[
+                'help' =>'Please upload only excel file!'
+            ])
+            ->add('Submit', SubmitType::class)
+            ->getForm();
+        $form->handleRequest($request);
+        if($form->isSubmitted()){
+//            $formData = $form->getData();
+            $file = $request->files->get('form')['UploadFile'];
+//            dd($file);
+            if ($file){
+                $fileExt = $file->getClientOriginalExtension();
+                $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) .'_'. date('d-m-Y') . '_' . time() . '.' . $fileExt;
+//                dd($fileName);
+                if (in_array($fileExt, $allowFileType)){
+                    $uploadDir = $this->get('kernel')->getProjectDir().'/public/uploads/excel/';
+                    $file->move($uploadDir, $fileName);
+                    $reader = new Xlsx();
+                    $spreadSheet = $reader->load($uploadDir.$fileName);
+                    $excelSheet = $spreadSheet->getActiveSheet();
+                    $allData = $excelSheet->toArray();
+                    $keys = [
+                        0 => 'id',
+                        1 => 'Broiler',
+                        2 => 'Sonali',
+                        3 => 'Layer',
+                        4 => 'Sinking',
+                        5 => 'Floating',
+                        6 => 'Total Fish',
+                        7 => 'Cattle',
+                        8 => 'Total Feed'
+                    ];
+                    $detail = [];
+                    foreach ($allData as $key => $data){
+                        if ($key>0){
+                            $detail[] = array_combine($keys, $data);
+//                            echo '<pre>';
+//                            print_r($data);
+//                            echo '</pre>';
+                        }
+                    }
+                    dd($detail);
+                }
+            }
+        }
+        return $this->render('@TerminalbdKpi/fileUpload/index.html.twig',[
+            'form' => $form->createView()
+        ]);
+    }
+}

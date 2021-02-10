@@ -1,0 +1,21 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-6 offset-3">
+            <div class="card">
+                <div class="card-body">
+                    {{ form_start(form) }}
+                    {{ form_label(form.Title) }}
+                    {{ form_widget(form.Title,{'attr':{'class':'form-select form-select-lg mb-3'}}) }}
+                    {{ form_label(form.UploadFile) }}
+                    {{ form_widget(form.UploadFile,{'attr':{'class':'form-control form-control-sm','style':'padding-top: 7px !important; padding-bottom: 30px !important;'}}) }}
+                    {{ form_help(form.UploadFile,{'help_attr':{'class':'text-secondary'}}) }}
+                    {{ form_widget(form.Submit,{'attr':{'class':'btn btn-block btn-info mt-3'},'label':'Upload'}) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
