@@ -113,7 +113,7 @@
                                         <tfoot><tr>
                                             <th colspan="4">Total Amount</th>
                                             {% for product in products %}
-                                                <th scope="col">{% if totalMarks['markIds'] is defined and  totalMarks['markIds'] is not empty  %}{{ totalMarks['markIds'][product.id]['amount']|number_format(2) }}{% endif %}</th>
+                                                <th scope="col">{% if totalMarks['markIds'] is defined and  totalMarks['markIds'] is not empty  %}{{ totalMarks['markIds'][product.id]['amount'] }}{% endif %}</th>
                                             {% endfor %}
                                             <th>{{ total|number_format(2) }}</th></tr></tfoot>
                                     </table>

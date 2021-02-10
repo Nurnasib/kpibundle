@@ -58,18 +58,14 @@ class EmployeeController extends AbstractController
         $locationRepo = $this->getDoctrine()->getRepository(Location::class);
         $form = $this->createForm(EmployeeFormType::class, $user, array('terminal' => $terminal,'userRepo'=>$userRepo , 'locationRepo' => $locationRepo))
             ->add('SaveAndCreate', SubmitType::class);
-
-
         $form->handleRequest($request);
         $errors = $this->getErrorsFromForm($form);
         $em = $this->getDoctrine()->getManager();
         if ($form->isSubmitted() && $form->isValid()) {
-
             $this->get('kpi_bundle.user_manager')->setUserPassword($user, $form->get('password')->getData());
             $user->setTerminal($terminal);
             $em->persist($user);
             $em->flush();
-            $this->getDoctrine()->getRepository(ItemKeyValue::class)->insertUserKeyValue($user,$data);
             return $this->redirectToRoute('kpi_employee');
         }
         return $this->render('@TerminalbdKpi/employee/register.html.twig', [

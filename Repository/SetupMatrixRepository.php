@@ -93,7 +93,10 @@ class SetupMatrixRepository extends EntityRepository
         $qb->groupBy('d.id');
         if($pram == "sales"){
             $qb->where("e.employeeSetup = {$setup->getId()}");
-        }elseif ($pram == "regional"){
+        }elseif ($pram == "district"){
+            $regional = $setup ->getEmployee()->getDistrict()->getId();
+            $qb->where("e.district = {$regional}");
+         }elseif ($pram == "regional"){
             $regional = $setup ->getEmployee()->getRegional()->getId();
             $qb->where("e.regional = {$regional}");
         }elseif ($pram == "zonal"){

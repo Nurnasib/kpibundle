@@ -40,7 +40,7 @@ class KpiController extends AbstractController
 
      */
     function locationMark() {
-        $entities = $this->getDoctrine()->getRepository(Location::class)->findBy(array('level'=> 5),array('parent' => 'ASC'));
+        $entities = $this->getDoctrine()->getRepository(Location::class)->findBy(array('level'=> 4),array('parent' => 'ASC'));
         $products = $this->getDoctrine()->getRepository(MarkChart::class)->getChildRecords('product-wise-sales-achievement');
         $locationMarks = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->processLocationPrice($entities,$products);
         return $this->render('@TerminalbdKpi/markchart/location.html.twig',['entities' => $entities,'products' => $products , 'matrixArr' => $locationMarks]);

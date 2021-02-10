@@ -104,6 +104,12 @@ class EmployeeSetupController extends AbstractController
             $entities = $this->getDoctrine()->getRepository(SetupMatrix::class)->getUpozilaMatrix($entity,'sales');
             $locationMarks = $this->getDoctrine()->getRepository(SetupMatrix::class)->itemWithLocationMatrix($entity,'sales');
             $totalMarks = $this->getDoctrine()->getRepository(SetupMatrix::class)->getUozilaMatrix($entity,'sales');
+        }elseif($workingArea == "District"){
+            $entities = $this->getDoctrine()->getRepository(SetupMatrix::class)->getUpozilaMatrix($entity,'district');
+            dd($entities);
+            $locationMarks = $this->getDoctrine()->getRepository(SetupMatrix::class)->itemWithLocationMatrix($entity,'district');
+            $totalMarks = $this->getDoctrine()->getRepository(SetupMatrix::class)->getUozilaMatrix($entity,'district');
+
         }elseif($workingArea == "Regional"){
             $entities = $this->getDoctrine()->getRepository(SetupMatrix::class)->getUpozilaMatrix($entity,'regional');
             $locationMarks = $this->getDoctrine()->getRepository(SetupMatrix::class)->itemWithLocationMatrix($entity,'regional');

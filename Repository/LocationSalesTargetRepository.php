@@ -35,7 +35,7 @@ class LocationSalesTargetRepository extends EntityRepository
 
             foreach ($locations as $location ){
 
-                $exist = $this->findOneBy(array('markDistribution' => $chart, 'upozila' => $location));
+                $exist = $this->findOneBy(array('markDistribution' => $chart, 'district' => $location));
                 if(empty($exist)){
                     $entity = new LocationSalesTarget();
                     $entity->setMarkDistribution($chart);

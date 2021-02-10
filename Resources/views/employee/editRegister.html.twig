@@ -146,28 +146,16 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-md-6">&nbsp;</div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        {{ form_label(form.district, 'District Area'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
-                                                        <div class="col-md-8">
-                                                            {{ form_widget(form.district) }}
-                                                            {{ form_errors(form.district) }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="form-group">
-                                                        <label for="{{ form.upozila.vars.id }}" class="control-label col-md-2">
-                                                            Select Upozila
+                                                        <label for="{{ form.district.vars.id }}" class="control-label col-md-2">
+                                                            Select District
                                                         </label>
                                                         <div class="col-md-10">
                                                             <div class="input-icon right">
                                                                 <div class="controls">
-                                                                    {{ form_errors(form.upozila) }}
-                                                                    {{ form_widget(form.upozila, {'attr': {'class': 'form-control multi-select2 span6 m-wrap'}}) }}
+                                                                    {{ form_errors(form.district) }}
+                                                                    {{ form_widget(form.district, {'attr': {'class': 'form-control multi-select2 span6 m-wrap'}}) }}
                                                                 </div>
                                                             </div>
                                                         </div>
