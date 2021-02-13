@@ -3,13 +3,16 @@
 namespace Terminalbd\KpiBundle\Controller\FileUpload;
 
 
+use App\Entity\Core\Agent;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Terminalbd\KpiBundle\Entity\AgentOrder;
 
 /**
  * Class FileUploadController
@@ -37,6 +40,12 @@ class FileUploadController extends AbstractController
                 ],
                 'required' => true,
             ])
+            ->add('month',TextType::class,[
+                'attr' =>[
+                    'placeholder'=> 'Select Month',
+                    'autocomplete'=> 'off'
+                ]
+            ])
             ->add('UploadFile', FileType::class,[
                 'help' =>'Please upload only excel file!'
             ])
@@ -44,7 +53,12 @@ class FileUploadController extends AbstractController
             ->getForm();
         $form->handleRequest($request);
         if($form->isSubmitted()){
-//            $formData = $form->getData();
+            $formData = $form->getData();
+            $monthYear = explode(' ',$formData['month']);
+            $month = $monthYear[0];
+            $year = $monthYear[1];
+
+
             $file = $request->files->get('form')['UploadFile'];
 //            dd($file);
             if ($file){
@@ -58,7 +72,7 @@ class FileUploadController extends AbstractController
                     $spreadSheet = $reader->load($uploadDir.$fileName);
                     $excelSheet = $spreadSheet->getActiveSheet();
                     $allData = $excelSheet->toArray();
-                    $keys = [
+/*                    $keys = [
                         0 => 'id',
                         1 => 'Broiler',
                         2 => 'Sonali',
@@ -69,16 +83,39 @@ class FileUploadController extends AbstractController
                         7 => 'Cattle',
                         8 => 'Total Feed'
                     ];
-                    $detail = [];
+                    $detail = [];*/
+
+                    $em = $this->getDoctrine()->getManager();
+
                     foreach ($allData as $key => $data){
                         if ($key>0){
-                            $detail[] = array_combine($keys, $data);
+//                            dd($data);
+                            $findAgent = $this->getDoctrine()->getRepository(Agent::class)->find($data[0]);
+
+                            if ($findAgent !== Null){
+                                foreach ($data as $k=>$d){
+                                    if($k>0){
+                                        $agentOrder = new AgentOrder();
+                                        $agentOrder->setAgent($findAgent);
+                                        $agentOrder->setQuantity($d);
+                                        $agentOrder->setMonth($month);
+                                        $agentOrder->setYear($year);
+                                        $em->persist($agentOrder);
+                                        $em->flush();
+                                    }
+                                }
+                            }
+//                            dd($findAgent);
+//                            $detail[]['month'] = $month;
+//                            $detail[] = array_combine($keys, $data);
 //                            echo '<pre>';
 //                            print_r($data);
 //                            echo '</pre>';
                         }
                     }
-                    dd($detail);
+//                    dd($detail);
+//                    $findAgent = $this->getDoctrine()->getRepository(Agent::class)->find();
+                    $this->addFlash('message', 'Record updated successfully into Database!');
                 }
             }
         }
