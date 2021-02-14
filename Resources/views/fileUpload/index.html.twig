@@ -15,9 +15,9 @@
                     {{ form_widget(form.Title,{'attr':{'class':'form-select form-select-lg mb-3'}}) }}
 
                     {{ form_label(form.month,'Select Month') }}
-                    {{ form_widget(form.month,{'attr':{'style':'height:36px !important'},'id':'input-month'}) }}
+                    {{ form_widget(form.month,{'attr':{'class':'mb-3','style':'height:36px !important'},'id':'input-month'}) }}
                     {{ form_label(form.UploadFile) }}
-                    {{ form_widget(form.UploadFile,{'attr':{'class':'form-control','style':'padding-top: 7px !important; padding-bottom: 30px !important;'}}) }}
+                    {{ form_widget(form.UploadFile,{'attr':{'class':'form-control mb-3','style':'padding-top: 7px !important; padding-bottom: 30px !important;'}}) }}
                     {{ form_help(form.UploadFile,{'help_attr':{'class':'text-secondary'}}) }}
                     {{ form_widget(form.Submit,{'attr':{'class':'btn btn-block btn-info mt-3'},'label':'Upload'}) }}
                 </div>

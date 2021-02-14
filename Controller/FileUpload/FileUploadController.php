@@ -13,6 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
+use Terminalbd\KpiBundle\Entity\MarkChart;
 
 /**
  * Class FileUploadController
@@ -29,7 +30,7 @@ class FileUploadController extends AbstractController
     public function fileUpload(Request $request)
     {
         $allowFileType = ['xlsx'];
-        $data = [];
+//        $data = [];
         $form = $this->createFormBuilder()
             ->add('Title', ChoiceType::class,[
                 'choices'=>[
@@ -60,62 +61,61 @@ class FileUploadController extends AbstractController
 
 
             $file = $request->files->get('form')['UploadFile'];
-//            dd($file);
             if ($file){
                 $fileExt = $file->getClientOriginalExtension();
                 $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) .'_'. date('d-m-Y') . '_' . time() . '.' . $fileExt;
-//                dd($fileName);
+
                 if (in_array($fileExt, $allowFileType)){
                     $uploadDir = $this->get('kernel')->getProjectDir().'/public/uploads/excel/';
                     $file->move($uploadDir, $fileName);
+
+                    //Read uploaded Excel File
                     $reader = new Xlsx();
                     $spreadSheet = $reader->load($uploadDir.$fileName);
                     $excelSheet = $spreadSheet->getActiveSheet();
                     $allData = $excelSheet->toArray();
-/*                    $keys = [
-                        0 => 'id',
-                        1 => 'Broiler',
-                        2 => 'Sonali',
-                        3 => 'Layer',
-                        4 => 'Sinking',
-                        5 => 'Floating',
-                        6 => 'Total Fish',
-                        7 => 'Cattle',
-                        8 => 'Total Feed'
-                    ];
-                    $detail = [];*/
+
+                    //Remove Excell column heading
+                    $keys = array_shift($allData);
 
                     $em = $this->getDoctrine()->getManager();
+                    $addedId=[];
+                    foreach ($allData as $data){
 
-                    foreach ($allData as $key => $data){
-                        if ($key>0){
-//                            dd($data);
-                            $findAgent = $this->getDoctrine()->getRepository(Agent::class)->find($data[0]);
+                        //Marge Excel heading and value in one array as key and value
+                        $detail = array_combine($keys, $data);
 
-                            if ($findAgent !== Null){
-                                foreach ($data as $k=>$d){
-                                    if($k>0){
-                                        $agentOrder = new AgentOrder();
+                        //Find agent
+                        $findAgent = $this->getDoctrine()->getRepository(Agent::class)->find($detail['Id']);
+
+                        if ($findAgent !== Null){
+                            foreach ($detail as $productName => $quantity){
+                                if($productName !== 'Id'){
+                                    $agentOrder = new AgentOrder();
+
+                                    //Find product
+                                    $product = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['name'=>$productName]);
+                                    if ($product){
                                         $agentOrder->setAgent($findAgent);
-                                        $agentOrder->setQuantity($d);
+                                        $agentOrder->setProduct($product);
+                                        $agentOrder->setQuantity($quantity);
                                         $agentOrder->setMonth($month);
                                         $agentOrder->setYear($year);
                                         $em->persist($agentOrder);
                                         $em->flush();
+
+                                        $addedId[]=$agentOrder->getId();
                                     }
                                 }
                             }
-//                            dd($findAgent);
-//                            $detail[]['month'] = $month;
-//                            $detail[] = array_combine($keys, $data);
-//                            echo '<pre>';
-//                            print_r($data);
-//                            echo '</pre>';
                         }
                     }
-//                    dd($detail);
-//                    $findAgent = $this->getDoctrine()->getRepository(Agent::class)->find();
-                    $this->addFlash('message', 'Record updated successfully into Database!');
+                    if($addedId){
+//                        dd($addedId);
+                        $this->addFlash('success', 'Record updated successfully into Database!');
+                    }else{
+                        $this->addFlash('error', 'Something wrong!');
+                    }
                 }
             }
         }
