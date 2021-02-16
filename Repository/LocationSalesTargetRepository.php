@@ -17,6 +17,7 @@ use Doctrine\ORM\EntityRepository;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
 use Terminalbd\KpiBundle\Entity\LocationSalesTarget;
 use Terminalbd\KpiBundle\Entity\MarkChart;
+use function Doctrine\ORM\QueryBuilder;
 
 /**
  * This custom Doctrine repository contains some methods which are useful when
@@ -35,7 +36,7 @@ class LocationSalesTargetRepository extends EntityRepository
 
             foreach ($locations as $location ){
 
-                $exist = $this->findOneBy(array('markDistribution' => $chart, 'district' => $location));
+                $exist = $this->findOneBy(array('markDistribution' => $chart, 'upozila' => $location));
                 if(empty($exist)){
                     $entity = new LocationSalesTarget();
                     $entity->setMarkDistribution($chart);
@@ -96,6 +97,31 @@ class LocationSalesTargetRepository extends EntityRepository
             $em->persist($entity);
             $em->flush();
         }
+    }
+
+    public function getProductTarget()
+    {
+        $qb = $this->createQueryBuilder('e');
+
+        $qb->select('e.amount AS targetAmount');
+        $qb->addSelect('markDistribution.name AS breedType');
+
+        $qb->where('regional.id = :regionalId')->setParameter('regionalId', 11);
+//        $qb->where('district.id = :districtId')->setParameter('districtId', 18);
+        $qb->andWhere($qb->expr()->isNotNull('e.amount'));
+
+        $qb->leftJoin('e.markDistribution','markDistribution');
+        $qb->leftJoin('e.regional','regional');
+        $qb->leftJoin('e.district','district');
+
+        $results = $qb->getQuery()->getArrayResult();
+
+        $data = [];
+        foreach ($results as $result){
+            $data[$result['breedType']] = $result['targetAmount'];
+        }
+//        dd($data);
+        return $results;
     }
 
 }

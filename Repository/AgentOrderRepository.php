@@ -42,5 +42,21 @@ class AgentOrderRepository extends EntityRepository
 
     }
 
+    public function getCompletedAmount($breedType)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->select('e.quantity AS completedAmount');
+        $qb->select('product.name AS breedType');
+        $qb->where('product.name = :breedType')->setParameter('breedType', $breedType);
+
+        $qb->leftJoin('e.product', 'product');
+
+
+        $results = $qb->getQuery()->getArrayResult();
+
+        return $results;
+
+    }
+
 
 }

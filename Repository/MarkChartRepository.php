@@ -196,6 +196,42 @@ class MarkChartRepository extends MaterializedPathRepository
         return $result;
     }
 
+    public function getAttributes()
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->select('e.name AS attributesName', 'e.mark AS attributesMark');
+        $qb->where('settingGroup.slug = :settingGroupSlug')->setParameter('settingGroupSlug', 'attributes');
+//        $qb->where('parent.slug = :slug')->setParameter('slug', 'product-wise-sales-achievement');
+        $qb->orderBy('e.name','ASC');
+
+//        $qb->leftJoin('e.parent','parent');
+        $qb->leftJoin('e.settingGroup','settingGroup');
+
+        $results = $qb->getQuery()->getArrayResult();
+//        dd($results);
+        return $results;
+    }
+
+    public function getMarkDistribution($breedType)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->select('e.name AS markDistribution');
+        $qb->where('parentParent.slug = :parentParentslug')->setParameter('parentParentslug','product-wise-sales-achievement');
+        $qb->andWhere('parent.name = :breedType')->setParameter('breedType',$breedType);
+
+        $qb->leftJoin('e.parent','parent');
+        $qb->leftJoin('parent.parent','parentParent');
+
+        $results = $qb->getQuery()->getArrayResult();
+        $data = [];
+        foreach ($results as $result){
+            $data[] = $result;
+        }
+//        dd($data);
+        return $results;
+
+    }
+
 
 
 }

@@ -1,0 +1,52 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block body %}
+    {{ dump(attributesAndMarks) }}
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered table-striped">
+                <thead class="thead-dark">
+                <tr>
+                    <th style="text-align: center">{{ 'Parameter'|trans }}</th>
+                    <th style="text-align: center">{{ 'Activity'|trans }}</th>
+                    <th style="text-align: center">{{ 'Attributes'|trans }}</th>
+                    <th style="text-align: center">{{ 'Marks'|trans }}</th>
+                    <th style="text-align: center">{{ 'Mark Distribution'|trans }}</th>
+                    <th style="text-align: center">{{ 'Obtain Marks'|trans }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for detail in attributesAndMarks %}
+                    <tr>
+                        {% if loop.index == 1 %}
+                            <td rowspan="{{ loop.index == 1 ? attributesAndMarks|length : '' }}">{{ 'Core Resposibilities'|trans }}</td>
+                        {% endif %}
+                        {% if loop.index == 1 %}
+                            <td rowspan="{{ loop.index == 1 ? attributesAndMarks|length : '' }}">{{ 'Sales'|trans }}</td>
+                        {% endif %}
+                        <td>{{ range('a','z')[loop.index0] }}. {{ detail.attributesName }}</td>
+                        <td style="text-align: center">{{ detail.attributesMark }} </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+{% block cssBlock %}
+    <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+{% endblock  %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+{% endblock  %}
+{% block documentready %}
+    {{ parent() }}
+    $('#datatable').DataTable( {
+    "pageLength": 25,
+    'columnDefs': [ {
+    'targets': [0,4],
+    'orderable': false
+    }]
+    });
+{% endblock %}
