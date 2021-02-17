@@ -3,6 +3,7 @@
 namespace Terminalbd\KpiBundle\Controller\FileUpload;
 
 
+use App\Entity\Admin\Location;
 use App\Entity\Core\Agent;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,11 +30,15 @@ class FileUploadController extends AbstractController
      */
     public function fileUpload(Request $request)
     {
+        set_time_limit(0);
+        ini_set('memory_limit', '1024M');
+        $fileName = '';
+        $uploadDir = '';
         $allowFileType = ['xlsx'];
 //        $data = [];
         $form = $this->createFormBuilder()
-            ->add('Title', ChoiceType::class,[
-                'choices'=>[
+            ->add('Title', ChoiceType::class, [
+                'choices' => [
                     'Select Type' => null,
                     'Agent' => 'agent',
                     'Sale' => 'sale',
@@ -41,86 +46,97 @@ class FileUploadController extends AbstractController
                 ],
                 'required' => true,
             ])
-            ->add('month',TextType::class,[
-                'attr' =>[
-                    'placeholder'=> 'Select Month',
-                    'autocomplete'=> 'off'
-                ]
-            ])
-            ->add('UploadFile', FileType::class,[
-                'help' =>'Please upload only excel file!'
+            ->add('UploadFile', FileType::class, [
+                'help' => 'Please upload only excel file!'
             ])
             ->add('Submit', SubmitType::class)
             ->getForm();
         $form->handleRequest($request);
-        if($form->isSubmitted()){
+        if ($form->isSubmitted()) {
             $formData = $form->getData();
-            $monthYear = explode(' ',$formData['month']);
-            $month = $monthYear[0];
-            $year = $monthYear[1];
-
 
             $file = $request->files->get('form')['UploadFile'];
-            if ($file){
+            if ($file) {
                 $fileExt = $file->getClientOriginalExtension();
-                $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) .'_'. date('d-m-Y') . '_' . time() . '.' . $fileExt;
+                $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '_' . date('d-m-Y') . '_' . time() . '.' . $fileExt;
 
-                if (in_array($fileExt, $allowFileType)){
-                    $uploadDir = $this->get('kernel')->getProjectDir().'/public/uploads/excel/';
+                if (in_array($fileExt, $allowFileType)) {
+                    $uploadDir = $this->get('kernel')->getProjectDir() . '/public/uploads/excel/';
                     $file->move($uploadDir, $fileName);
+                }
+            }
+        }
+        return $this->render('@TerminalbdKpi/fileUpload/index.html.twig', [
+            'form' => $form->createView(),
+            'fileName' => $fileName,
+            'uploadDir' => $uploadDir
+        ]);
+    }
 
-                    //Read uploaded Excel File
-                    $reader = new Xlsx();
-                    $spreadSheet = $reader->load($uploadDir.$fileName);
-                    $excelSheet = $spreadSheet->getActiveSheet();
-                    $allData = $excelSheet->toArray();
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @Route("/insert-data", name="kpi_file_upload_insert_data")
+     */
+    public function insertDataFromUploadedFile(Request $request)
+    {
+        $fileInfo = $request->query->all();
+        //Read uploaded Excel File
+        $reader = new Xlsx();
+        $spreadSheet = $reader->load($fileInfo['uploadDir'] . $fileInfo['fileName']);
+        $excelSheet = $spreadSheet->getActiveSheet();
+        $allData = $excelSheet->toArray();
 
-                    //Remove Excell column heading
-                    $keys = array_shift($allData);
+        //Remove Excel column heading
+        $keys = array_shift($allData);
+//        dd($keys);
+//        list($agentId, $agentName, $thana, $district, $broiler, $sonali, $layer, $fish, $cattle, $month, $year) = $keys;
+//        $breedTypes = [$broiler, $sonali, $layer, $fish, $cattle];
+        $breedTypes = [$keys[4], $keys[5], $keys[6], $keys[7], $keys[8]];
+//        dd($breedTypes);
 
-                    $em = $this->getDoctrine()->getManager();
-                    $addedId=[];
-                    foreach ($allData as $data){
+        $em = $this->getDoctrine()->getManager();
+        $addedId = [];
+        foreach ($allData as $data) {
+            //Marge Excel heading and value in one array as key and value
+            $details = array_combine($keys, $data);
+//            dd($details);
+            list($agentIdValue, $agentNameValue, $upozilaValue, $districtValue, $broilerValue, $sonaliValue, $layerValue, $fishValue, $cattleValue, $monthValue, $yearValue) = $data;
 
-                        //Marge Excel heading and value in one array as key and value
-                        $detail = array_combine($keys, $data);
+            $breedValues = [$broilerValue, $sonaliValue, $layerValue, $fishValue, $cattleValue];
 
-                        //Find agent
-                        $findAgent = $this->getDoctrine()->getRepository(Agent::class)->find($detail['Id']);
+            $breedArrays = array_combine($breedTypes,$breedValues);
+//            dd($breedArr);
 
-                        if ($findAgent !== Null){
-                            foreach ($detail as $productName => $quantity){
-                                if($productName !== 'Id'){
-                                    $agentOrder = new AgentOrder();
+            //Find agent
+            $findAgent = $this->getDoctrine()->getRepository(Agent::class)->findOneBy(['agentId' => (int)$agentIdValue]);
+            if ($findAgent !== null){
+                foreach ($breedArrays as $breedType => $value){
+                    $agentOrder = new AgentOrder();
+                    $product = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['name' => $breedType]);
+                    $district = $this->getDoctrine()->getRepository(Location::class)->findOneBy(['name' => $districtValue]);
+                    $upozila = $this->getDoctrine()->getRepository(Location::class)->findOneBy(['name' => $upozilaValue]);
+                    if ($product) {
+                        $agentOrder->setAgent($findAgent);
+                        $agentOrder->setDistrict($district);
+                        $agentOrder->setUpozila($upozila);
+                        $agentOrder->setProduct($product);
+                        $agentOrder->setQuantity($value);
+                        $agentOrder->setMonth($monthValue);
+                        $agentOrder->setYear($yearValue);
+                        $em->persist($agentOrder);
+                        $em->flush();
 
-                                    //Find product
-                                    $product = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['name'=>$productName]);
-                                    if ($product){
-                                        $agentOrder->setAgent($findAgent);
-                                        $agentOrder->setProduct($product);
-                                        $agentOrder->setQuantity($quantity);
-                                        $agentOrder->setMonth($month);
-                                        $agentOrder->setYear($year);
-                                        $em->persist($agentOrder);
-                                        $em->flush();
-
-                                        $addedId[]=$agentOrder->getId();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if($addedId){
-//                        dd($addedId);
-                        $this->addFlash('success', 'Record updated successfully into Database!');
-                    }else{
-                        $this->addFlash('error', 'Something wrong!');
+                        $addedId[] = $agentOrder->getId();
                     }
                 }
             }
         }
-        return $this->render('@TerminalbdKpi/fileUpload/index.html.twig',[
-            'form' => $form->createView()
-        ]);
+        if ($addedId) {
+            $this->addFlash('success', 'Record updated successfully into Database!');
+        } else {
+            $this->addFlash('error', 'Something wrong!');
+        }
+        return $this->redirectToRoute('kpi_file_upload_index');
     }
 }

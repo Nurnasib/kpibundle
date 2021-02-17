@@ -35,6 +35,26 @@ class AgentOrder
      */
     private $upozila;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Admin\Location")
+     */
+    protected $district;
+
+    /**
+     * @return mixed
+     */
+    public function getDistrict()
+    {
+        return $this->district;
+    }
+
+    /**
+     * @param mixed $district
+     */
+    public function setDistrict($district)
+    {
+        $this->district = $district;
+    }
 
     /**
      * @var Agent
