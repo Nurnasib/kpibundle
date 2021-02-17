@@ -10,16 +10,23 @@
                     </div>
                 {% endfor %}
                 <div class="card-body">
+
                     {{ form_start(form) }}
                     {{ form_label(form.Title) }}
                     {{ form_widget(form.Title,{'attr':{'class':'form-select form-select-lg mb-3'}}) }}
 
-                    {{ form_label(form.month,'Select Month') }}
-                    {{ form_widget(form.month,{'attr':{'class':'mb-3','style':'height:36px !important'},'id':'input-month'}) }}
                     {{ form_label(form.UploadFile) }}
-                    {{ form_widget(form.UploadFile,{'attr':{'class':'form-control mb-3','style':'padding-top: 7px !important; padding-bottom: 30px !important;'}}) }}
+                    {% if fileName is empty %}
+                        {{ form_widget(form.UploadFile,{'attr':{'class':'form-control','style':'padding-top: 7px !important; padding-bottom: 30px !important;'}}) }}
+                        {% else %}
+                            {{ form_widget(form.UploadFile,{'attr':{'class':'form-control','style':'padding-top: 7px !important; padding-bottom: 30px !important;','disabled':'disabled'}}) }}
+                    {% endif %}
                     {{ form_help(form.UploadFile,{'help_attr':{'class':'text-secondary'}}) }}
-                    {{ form_widget(form.Submit,{'attr':{'class':'btn btn-block btn-info mt-3'},'label':'Upload'}) }}
+                    {% if fileName is not empty %}
+                        <a href="{{ path('kpi_file_upload_insert_data',{uploadDir, fileName}) }}" class="btn btn-block btn-primary">Migrate Data</a>
+                        {% else %}
+                            {{ form_widget(form.Submit,{'attr':{'class':'btn btn-block btn-info mt-3'},'label':'Upload'}) }}
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -40,7 +47,7 @@
 {% endblock  %}
 {% block documentready %}
     {{ parent() }}
-
+{#
     $('#input-month').datepicker({
     changeMonth: true,
     changeYear: true,
@@ -61,5 +68,5 @@
     $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
     }
     }
-    });
+    });#}
 {% endblock %}
