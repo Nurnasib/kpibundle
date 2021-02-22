@@ -86,11 +86,9 @@
                                                                              {% endif %}
                                                                          {% endif %}
                                                                     </td>
-                                                                    {% if marks[attribute.id]['id'] is not empty %}
                                                                     <td class="attribute-score" id="markDistribution-{{ marks[attribute.id]['id'] }}">
                                                                         {% if marks[attribute.id] is defined and marks[attribute.id]['mark'] is not empty  %}{{ marks[attribute.id]['mark'] }}{% endif %}
                                                                     </td>
-                                                                    {% endif %}
                                                                 </tr>
                                                             {% endfor %}
                                                         </table>

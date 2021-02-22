@@ -11,14 +11,12 @@
 
 namespace Terminalbd\KpiBundle\Repository;
 
-use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
 use Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute;
 use Terminalbd\KpiBundle\Entity\EmployeeBoardSubAttribute;
 use Terminalbd\KpiBundle\Entity\EmployeeSetup;
-use Terminalbd\KpiBundle\Entity\LocationSalesTarget;
 use Terminalbd\KpiBundle\Entity\MarkChart;
 
 /**
@@ -62,6 +60,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     public function insertMarkDistribution(EmployeeSetup $setup , EmployeeBoard $board , $entities)
     {
+
         $em = $this->_em;
         foreach ($entities as $parameter):
             if(!empty($parameter->getChildren())){
@@ -103,40 +102,52 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     {
         $em = $this->_em;
         $entities = "";
-        /** @var $employee User */
-        $employee = $setup->getEmployee();
-        $districts = array();
-        if($employee->getDistrict()) {
-            foreach ($employee->getDistrict() as $id) {
-                $districts[] = $id->getId();
+        $arae = $setup->getEmployee()->getArea();
+        if($setup->getEmployee()->getArea() == "Upozila"){
+            $entities = $em->getRepository(EmployeeSetup::class)->getItemWiseSalesAmount($setup->getId());
+        }else if($arae == "Regional"){
+            $entities = $em->getRepository(EmployeeSetup::class)->getRegionalItemWiseSalesAmount($setup);
+        }else if($arae == "Zonal"){
+            $entities = $em->getRepository(EmployeeSetup::class)->getZonalItemWiseSalesAmount($setup);
+        }
+        $locations = $em->getRepository(EmployeeSetup::class)->processSetup($setup->getId());
+        $arrs = array();
+        if(!empty($locations)){
+            foreach ($locations as $location){
+                $arrs[] = $location['upozila'];
             }
         }
 
-        $entities = $em->getRepository(LocationSalesTarget::class)->getDistrictWiseSalesTarget($districts);
-        $orders = $em->getRepository(AgentOrder::class)->getLocationWiseTotalProductSales($districts);
+
+        $orders = $em->getRepository(AgentOrder::class)->getLocationWiseTotalProductSales($arrs);
+
+
         if(!empty($entities)){
+
             foreach ($entities as $parameter):
+
+
                 $distribution = $em->getRepository(MarkChart::class)->find($parameter['id']);
                 $exist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard'=> $board,'markDistribution'=> $parameter['id']));
                 if(empty($exist)){
                     $entity = new EmployeeBoardSubAttribute();
                     $entity->setEmployeeBoard($board);
                     $entity->setMarkDistribution($distribution);
-                    $entity->setTargetQuantity($parameter['quantity']);
+                    $entity->setSalesTargetAmount($parameter['amount']);
                     if(isset($orders[$parameter['id']]) and !empty($orders[$parameter['id']])){
-                        $entity->setSalesQuantity($orders[$parameter['id']]['quantity']);
+                        $entity->setSalesAmount($orders[$parameter['id']]['amount']);
                     }
-                    $mark = $this->salesTargetCalculation($entity->getTargetQuantity(),$entity->getSalesQuantity());
+                    $mark = $this->salesTargetCalculation($entity->getSalesTargetAmount(),$entity->getSalesAmount());
                     $entity->setMark($mark);
                     $em->persist($entity);
 
                 }else{
 
-                    $exist->setTargetQuantity($parameter['quantity']);
+                    $exist->setSalesTargetAmount($parameter['amount']);
                     if(isset($orders[$parameter['id']]) and !empty($orders[$parameter['id']])){
-                        $exist->setSalesQuantity($orders[$parameter['id']]['quantity']);
+                        $exist->setSalesAmount($orders[$parameter['id']]['amount']);
                     }
-                    $mark = $this->salesTargetCalculation($exist->getTargetQuantity(),$exist->getSalesQuantity());
+                    $mark = $this->salesTargetCalculation($exist->getSalesTargetAmount(),$exist->getSalesAmount());
                     $exist->setMark($mark);
                 }
                 $em->flush();

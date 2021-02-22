@@ -39,16 +39,15 @@ class EmployeeBoardAttribute
      * @var MarkChart
      *
      * @ORM\ManyToOne(targetEntity="MarkChart")
-     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $parameter;
+
 
 
     /**
      * @var MarkChart
      *
      * @ORM\ManyToOne(targetEntity="MarkChart")
-     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $activity;
 
@@ -58,7 +57,6 @@ class EmployeeBoardAttribute
      * @var MarkChart
      *
      * @ORM\ManyToOne(targetEntity="MarkChart")
-     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $attribute;
 
@@ -66,21 +64,9 @@ class EmployeeBoardAttribute
      * @var MarkChart
      *
      * @ORM\ManyToOne(targetEntity="MarkChart")
-     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $markDistribution;
 
-    /**
-     * @var float
-     * @ORM\Column(type="float", nullable=true)
-     */
-    private $targetQuantity;
-
-    /**
-     * @var float
-     * @ORM\Column(type="float", nullable=true)
-     */
-    private $achiveQuantity;
 
 
     /**

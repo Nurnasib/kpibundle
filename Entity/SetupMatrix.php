@@ -95,14 +95,6 @@ class SetupMatrix
 
 
     /**
-     * @var float
-     *
-     * @ORM\Column(type="float",nullable=true)
-     */
-    private $quantity;
-
-
-    /**
      * @var boolean
      *
      * @ORM\Column(type="boolean", nullable=true)
@@ -286,24 +278,6 @@ class SetupMatrix
     {
         $this->sales = $sales;
     }
-
-    /**
-     * @return float
-     */
-    public function getQuantity()
-    {
-        return $this->quantity;
-    }
-
-    /**
-     * @param float $quantity
-     */
-    public function setQuantity($quantity)
-    {
-        $this->quantity = $quantity;
-    }
-
-
 
 
 }

@@ -58,7 +58,7 @@ class EmployeeSetupRepository extends EntityRepository
         $qb = $this->createQueryBuilder('e');
         $qb->leftJoin('e.setupMatrix','p');
         $qb->leftJoin('p.sales','s');
-        $qb->select('e.id as id','SUM(s.quantity) as quantity','SUM(s.amount) as amount');
+        $qb->select('e.id as id','SUM(s.amount) as amount');
         $qb->groupBy('e.id');
         $result = $qb->getQuery()->getArrayResult();
         $data = array();
@@ -74,14 +74,14 @@ class EmployeeSetupRepository extends EntityRepository
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.setupMatrix','p');
         $qb->leftJoin('p.sales','s');
-        $qb->join('p.district','u');
-        $qb->select('u.id as district','SUM(s.quantity) as quantity','SUM(s.amount) as amount');
+        $qb->join('p.upozila','u');
+        $qb->select('u.id as upozila','SUM(s.amount) as amount');
         $qb->where('e.id = :entity')->setParameter('entity',$entity);
         $qb->groupBy('u.id');
         $result = $qb->getQuery()->getArrayResult();
         $data = array();
         foreach ($result as $row){
-            $data[$row['district']] = $row;
+            $data[$row['upozila']] = $row;
         }
         return $data;
     }
@@ -92,7 +92,7 @@ class EmployeeSetupRepository extends EntityRepository
         $qb->leftJoin('e.setupMatrix','p');
         $qb->leftJoin('p.sales','s');
         $qb->leftJoin('s.markDistribution','d');
-        $qb->select('d.id as id','d.name as name','SUM(s.quantity) as quantity','SUM(s.amount) as amount');
+        $qb->select('d.id as id','d.name as name','SUM(s.amount) as amount');
         $qb->groupBy('d.id');
         $qb->where("e.id = {$setup}");
         $result = $qb->getQuery()->getArrayResult();
@@ -100,18 +100,16 @@ class EmployeeSetupRepository extends EntityRepository
 
     }
 
-
-    public function getDistrictWiseSalesAmount($districts)
+    public function getRegionalItemWiseSalesAmount(EmployeeSetup $setup)
     {
-
+        $regional = $setup->getEmployee()->getRegional()->getId();
         $qb = $this->createQueryBuilder('e');
         $qb->leftJoin('e.setupMatrix','p');
         $qb->leftJoin('p.sales','s');
-        $qb->leftJoin('p.district','district');
         $qb->leftJoin('s.markDistribution','d');
-        $qb->select('d.id as id','d.name as name','SUM(s.quantity) as quantity');
+        $qb->select('d.id as id','d.name as name','SUM(s.amount) as amount');
         $qb->groupBy('d.id');
-        $qb->where('district.id IN (:ids)')->setParameter('ids', $districts);
+        $qb->where("p.regional = {$regional}");
         $result = $qb->getQuery()->getArrayResult();
         return $result;
 
