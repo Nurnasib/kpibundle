@@ -70,12 +70,6 @@ class LocationSalesTarget
      */
     private $amount;
 
-    /**
-     * @var float
-     * @ORM\Column(name="quantity", type="float", nullable=true)
-     */
-    private $quantity;
-
 
     private $status = true;
 
@@ -191,26 +185,6 @@ class LocationSalesTarget
     {
         $this->markDistribution = $markDistribution;
     }
-
-    /**
-     * @return float
-     */
-    public function getQuantity()
-    {
-        return $this->quantity;
-    }
-
-    /**
-     * @param float $quantity
-     */
-    public function setQuantity($quantity)
-    {
-        $this->quantity = $quantity;
-    }
-
-
-
-
 
 
 }

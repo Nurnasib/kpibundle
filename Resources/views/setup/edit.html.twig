@@ -95,15 +95,15 @@
                                                 {% for product in products %}
                                                     <td>
                                                         {% set ids = entity.id~'-'~product.id %}
-                                                        <input type="hidden" id="" name="chartIds[{{ entity.id }}][]" value="{% if matrixArr[ids] is defined and  matrixArr[ids].districtId ==  entity.id and  matrixArr[ids].markId == product.id %}{{ matrixArr[ids].markId }}{% endif %}">
-                                                        {% if matrixArr[ids] is defined and  matrixArr[ids].districtId ==  entity.id and  matrixArr[ids].markId == product.id %}{{ matrixArr[ids]['quantity']|number_format(2) }}{% endif %}
+                                                        <input type="hidden" id="" name="chartIds[{{ entity.id }}][]" value="{% if matrixArr[ids] is defined and  matrixArr[ids].upozilaId ==  entity.id and  matrixArr[ids].markId == product.id %}{{ matrixArr[ids].markId }}{% endif %}">
+                                                        {% if matrixArr[ids] is defined and  matrixArr[ids].upozilaId ==  entity.id and  matrixArr[ids].markId == product.id %}{{ matrixArr[ids]['amount']|number_format(2) }}{% endif %}
                                                     </td>
                                                 {% endfor %}
                                                 <td>
                                                     <strong>
-                                                        {% if totalMarks['districtIds'][entity.id]  is defined and totalMarks['districtIds'][entity.id]['amount'] is not empty %}
-                                                            {% set total = total + totalMarks['districtIds'][entity.id]['amount'] %}
-                                                        {{ totalMarks['districtIds'][entity.id]['amount']|number_format(2) }} {% endif %}
+                                                        {% if totalMarks['upozilaIds'][entity.id]  is defined and totalMarks['upozilaIds'][entity.id]['amount'] is not empty %}
+                                                            {% set total = total + totalMarks['upozilaIds'][entity.id]['amount'] %}
+                                                        {{ totalMarks['upozilaIds'][entity.id]['amount']|number_format(2) }} {% endif %}
                                                     </strong>
                                                 </td>
                                             </tr>

@@ -36,11 +36,12 @@ class LocationSalesTargetRepository extends EntityRepository
 
             foreach ($locations as $location ){
 
-                $exist = $this->findOneBy(array('markDistribution' => $chart, 'district' => $location));
+                $exist = $this->findOneBy(array('markDistribution' => $chart, 'upozila' => $location));
                 if(empty($exist)){
                     $entity = new LocationSalesTarget();
                     $entity->setMarkDistribution($chart);
-                    $entity->setDistrict($location);
+                    $entity->setUpozila($location);
+                    $entity->setDistrict($location->getParent());
                     $entity->setRegional($location->getParent()->getParent());
                     $entity->setZone($location->getParent()->getParent()->getParent());
                     $this->_em->persist($entity);
@@ -50,13 +51,13 @@ class LocationSalesTargetRepository extends EntityRepository
         }
 
         $qb = $this->createQueryBuilder('e');
-        $qb->join('e.district','l');
+        $qb->join('e.upozila','l');
         $qb->join('e.markDistribution','m');
-        $qb->select('e.id as matrixId','e.quantity as quantity','l.id as districtId','m.id as markId','m.name as martDistribution');
+        $qb->select('e.id as matrixId','e.amount as amount','l.id as upozilaId','l.name as upozila','m.id as markId','m.name as martDistribution');
         $result = $qb->getQuery()->getArrayResult();
         $array = array();
         foreach ($result as $item):
-            $id = "{$item['districtId']}-{$item['markId']}";
+            $id = "{$item['upozilaId']}-{$item['markId']}";
             $array[$id] = $item;
         endforeach;
         return $array;
@@ -107,7 +108,7 @@ class LocationSalesTargetRepository extends EntityRepository
 
         $qb->where('regional.id = :regionalId')->setParameter('regionalId', 11);
 //        $qb->where('district.id = :districtId')->setParameter('districtId', 18);
-        $qb->andWhere($qb->expr()->isNotNull('e.quantity'));
+        $qb->andWhere($qb->expr()->isNotNull('e.amount'));
 
         $qb->leftJoin('e.markDistribution','markDistribution');
         $qb->leftJoin('e.regional','regional');
@@ -122,22 +123,5 @@ class LocationSalesTargetRepository extends EntityRepository
 //        dd($data);
         return $results;
     }
-
-
-
-    public function getDistrictWiseSalesTarget($districts)
-    {
-
-        $qb = $this->createQueryBuilder('e');
-        $qb->leftJoin('e.district','district');
-        $qb->leftJoin('e.markDistribution','d');
-        $qb->select('d.id as id','d.name as name','SUM(e.quantity) as quantity');
-        $qb->groupBy('d.id');
-        $qb->where('district.id IN (:ids)')->setParameter('ids', $districts);
-        $result = $qb->getQuery()->getArrayResult();
-        return $result;
-
-    }
-
 
 }

@@ -1,32 +1,67 @@
 {% extends 'admin/layout.html.twig' %}
 
 {% block body %}
+
+{#    <div class="row">
+        <div class="card">
+            <div class="card-header">
+                <h5>{{ 'Manage Import File'|trans }}</h5>
+            </div>
+        </div>
+    </div>#}
     <div class="row">
-        <div class="col-md-6 offset-3">
+        <div class="col-md-9">
+            <div class="card p-3">
+                <table class="table table-bordered table-striped" id="datatable">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th width="40" class="text-center">{{ 'S/N'|trans }}</th>
+                        <th>{{ 'Title'|trans }}</th>
+                        <th>{{ 'File Name'|trans }}</th>
+                        <th width="100" class="text-center">{{ 'Status'|trans }}</th>
+                        <th class="text-center" width="100"><i class="feather icon-settings"></i></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% if entities is not empty %}
+                        {% for entity in entities %}
+                            <tr>
+                                <td class="text-center">{{ loop.index }}</td>
+                                <td>{{ entity.title|default('') }}</td>
+                                <td>{{ entity.fileName|default('') }}</td>
+                                <td class="text-center">{{ entity.status == 1 ? 'Yes' : 'No' }}</td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group" aria-label="Basic example">
+                                        <a class="btn btn-mini bg-primary white-font" href="{{ path('kpi_file_upload_insert_data',{'id':entity.id}) }}"><i class="feather icon-upload"></i> Import</a>
+                                        <a class="btn  btn-transparent btn-mini red-font" href="{{ path('kpi_file_upload_file_delete',{'id':entity.id}) }}"><i class="fa fa-remove"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center font-weight-bold">{{ "No record Found!"|trans }}</td>
+                            </tr>
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-3">
             <div class="card">
-                {% for message in app.flashes('success') %}
-                    <div class="card-header">
-                        {{ message }}
-                    </div>
-                {% endfor %}
+{#                <div class="card-header text-white text-center text-uppercase font-weight-bold" style="background: #3699FF">
+                    <p class="mb-0">{{ 'Add New File'|trans }}</p>
+                </div>#}
                 <div class="card-body">
 
                     {{ form_start(form) }}
-                    {{ form_label(form.Title) }}
-                    {{ form_widget(form.Title,{'attr':{'class':'form-select form-select-lg mb-3'}}) }}
 
-                    {{ form_label(form.UploadFile) }}
-                    {% if fileName is empty %}
-                        {{ form_widget(form.UploadFile,{'attr':{'class':'form-control','style':'padding-top: 7px !important; padding-bottom: 30px !important;'}}) }}
-                        {% else %}
-                            {{ form_widget(form.UploadFile,{'attr':{'class':'form-control','style':'padding-top: 7px !important; padding-bottom: 30px !important;','disabled':'disabled'}}) }}
-                    {% endif %}
+                    {{ form_label(form.title,'Title:') }}
+                    {{ form_widget(form.title,{'attr':{'class':'mb-3'}}) }}
+{#                    {{ form_label(form.UploadFile) }}#}
+                    {{ form_widget(form.UploadFile,{'attr':{'class':'form-control','style':'padding-top: 7px !important; padding-bottom: 30px !important;'}}) }}
                     {{ form_help(form.UploadFile,{'help_attr':{'class':'text-secondary'}}) }}
-                    {% if fileName is not empty %}
-                        <a href="{{ path('kpi_file_upload_insert_data',{uploadDir, fileName}) }}" class="btn btn-block btn-primary">Migrate Data</a>
-                        {% else %}
-                            {{ form_widget(form.Submit,{'attr':{'class':'btn btn-block btn-info mt-3'},'label':'Upload'}) }}
-                    {% endif %}
+                    {{ form_widget(form.Submit,{'attr':{'class':'btn btn-block btn-info mt-3'},'label':'Upload'}) }}
                 </div>
             </div>
         </div>
@@ -47,6 +82,17 @@
 {% endblock  %}
 {% block documentready %}
     {{ parent() }}
+
+    $('#datatable').DataTable( {
+    "pageLength": 10,
+    "order": [[ 2, "desc" ]],
+    'columnDefs': [ {
+    'targets': [0,4,5,6,12],
+    'orderable': false
+    }],
+    "responsive": false,
+    "scrollX": true
+    });
 {#
     $('#input-month').datepicker({
     changeMonth: true,

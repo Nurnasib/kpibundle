@@ -1,0 +1,81 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block body %}
+    <div class="row">
+        <div class="card">
+            <div class="card-header">
+                <h5>{{ 'Evaluation Criteria For CSO'|trans }}</h5>
+                <div class="card-header-right">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
+                        <a href="javascript:" class="btn btn-sm  green-bg white-font"><i class="fas fa-plus"></i>Add New</a>
+                        <a href="{{ path('evaluation_criteria_index') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>Records</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 offset-3">
+            <div class="card">
+{#                <div class="card-header bg-success py-2">
+                    <h2 class="h2 text-center text-white">Evaluation Criteria For CSO</h2>
+                </div>#}
+                <div class="card-body">
+                    {{ form_start(form) }}
+
+                    {{ form_label(form.type,'Report Type:') }}
+                    {{ form_widget(form.type) }}
+                    {{ form_help(form.type) }}
+                    {{ form_errors(form.type) }}
+                    <br>
+                    {{ form_label(form.name,'Report Name:') }}
+                    {{ form_widget(form.name) }}
+                    {{ form_errors(form.name) }}
+                    <div class="form-row mt-2">
+                        <div class="form-group col-md-6">
+                            {{ form_label(form.reportTarget,'Report Target:') }}
+                            {{ form_widget(form.reportTarget,{'type':'number'}) }}
+                            {{ form_errors(form.reportTarget) }}
+                        </div>
+                        <div class="form-group col-md-6">
+                            {{ form_label(form.marksTarget,'Marks Target:') }}
+                            {{ form_widget(form.marksTarget,{'type':'number'}) }}
+                            {{ form_errors(form.marksTarget) }}
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col text-center">
+                            {{ form_widget(form.save,{'label':'SaveAndCreate','attr':{'class':'btn-info form-submit'}}) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+{% block cssBlock %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+    <style>
+        .ui-datepicker-calendar{display: none}
+    </style>
+{% endblock  %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+{% endblock  %}
+{% block documentready %}
+    {{ parent() }}
+    $('#datatable').DataTable( {
+    "pageLength": 10,
+    "order": [[ 2, "desc" ]],
+    'columnDefs': [ {
+    'targets': [0,4,5,6,12],
+    'orderable': false
+    }],
+    "responsive": false,
+    "scrollX": true
+    });
+{% endblock %}

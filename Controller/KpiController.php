@@ -37,6 +37,7 @@ class KpiController extends AbstractController
 
      * @Route("kpi/location-mark-chart", name="kpi_mark_location")
      * @return \Symfony\Component\HttpFoundation\Response
+
      */
     function locationMark() {
         $entities = $this->getDoctrine()->getRepository(Location::class)->findBy(array('level'=> 4),array('parent' => 'ASC'));

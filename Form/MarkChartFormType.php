@@ -19,7 +19,6 @@ use PhpOffice\PhpSpreadsheet\RichText\RichText;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -59,15 +58,6 @@ class MarkChartFormType extends AbstractType
                 'required' => false,
                 'row_attr' => ['class' => 'textarea', 'rows'=>5],
 
-            ])
-            ->add('salesMode', ChoiceType::class, [
-                'attr' => ['autofocus' => true],
-                'required' => false,
-                'placeholder' => 'Choose one for Sales',
-                'choices'  => [
-                    'Feed' => 'feed',
-                    'Growth' => 'growth'
-                ],
             ])
             ->add('parent', EntityType::class, [
                 'class' => MarkChart::class,

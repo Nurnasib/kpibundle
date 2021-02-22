@@ -47,12 +47,6 @@ class MarkChart
      */
     private $name;
 
-    /**
-     * @var string
-     * @ORM\Column(name="salesMode", type="string", length=255)
-     */
-    private $salesMode;
-
 
      /**
      * @var float
@@ -353,24 +347,6 @@ class MarkChart
     {
         $this->systemEntry = $systemEntry;
     }
-
-    /**
-     * @return string
-     */
-    public function getSalesMode()
-    {
-        return $this->salesMode;
-    }
-
-    /**
-     * @param string $salesMode
-     */
-    public function setSalesMode($salesMode)
-    {
-        $this->salesMode = $salesMode;
-    }
-
-
 
 
 }
