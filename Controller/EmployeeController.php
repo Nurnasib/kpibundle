@@ -50,7 +50,7 @@ class EmployeeController extends AbstractController
      */
     public function register(Request $request): Response
     {
-//        $passwordEncoder = UserPasswordEncoderInterface::class;
+
         $user = new User();
         $data = $request->request->all();
         $terminal = $this->getUser()->getTerminal();

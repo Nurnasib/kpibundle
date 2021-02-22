@@ -188,10 +188,20 @@ class MarkChartRepository extends MaterializedPathRepository
 
     public function getChildRecords($parent)
     {
-
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.parent','p');
         $qb->where('p.slug = :slug')->setParameter('slug',$parent);
+        $result = $qb->getQuery()->getResult();
+        return $result;
+    }
+
+    public function salesProductItems()
+    {
+        $em = $this->_em;
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.parent','p');
+        $qb->where('p.slug = :slug')->setParameter('slug','sales');
+        $qb->andWhere('e.salesMode = :mode')->setParameter('mode','feed');
         $result = $qb->getQuery()->getResult();
         return $result;
     }

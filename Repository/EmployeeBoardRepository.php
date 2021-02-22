@@ -75,14 +75,14 @@ class EmployeeBoardRepository extends EntityRepository
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.setupMatrix','p');
         $qb->leftJoin('p.sales','s');
-        $qb->join('p.upozila','u');
+        $qb->join('p.district','u');
         $qb->select('u.id as upozila','SUM(s.amount) as amount');
         $qb->where('e.id = :entity')->setParameter('entity',$entity);
         $qb->groupBy('u.id');
         $result = $qb->getQuery()->getArrayResult();
         $data = array();
         foreach ($result as $row){
-            $data[$row['upozila']] = $row;
+            $data[$row['district']] = $row;
         }
         return $data;
     }

@@ -36,25 +36,12 @@ class AgentOrder
     private $upozila;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Admin\Location")
+     * @var Location
+     *
+     * @ORM\ManyToOne(targetEntity="App\Entity\Admin\Location" , inversedBy="agentOrder")
      */
-    protected $district;
+    private $district;
 
-    /**
-     * @return mixed
-     */
-    public function getDistrict()
-    {
-        return $this->district;
-    }
-
-    /**
-     * @param mixed $district
-     */
-    public function setDistrict($district)
-    {
-        $this->district = $district;
-    }
 
     /**
      * @var Agent
@@ -280,6 +267,24 @@ class AgentOrder
     {
         $this->year = $year;
     }
+
+    /**
+     * @return Location
+     */
+    public function getDistrict()
+    {
+        return $this->district;
+    }
+
+    /**
+     * @param Location $district
+     */
+    public function setDistrict($district)
+    {
+        $this->district = $district;
+    }
+
+
 
 
 }

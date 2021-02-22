@@ -89,6 +89,13 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
+                                            {{ form_label(form.salesMode, 'Sales Mode'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
+                                            <div class="col-md-4">
+                                                {{ form_widget(form.salesMode) }}
+                                                {{ form_errors(form.salesMode) }}
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
                                             <label class="col-md-4"></label>
                                             <div class="col-md-6">
                                                 {{ form_widget(form.systemEntry) }}

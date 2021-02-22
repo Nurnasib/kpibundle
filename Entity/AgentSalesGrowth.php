@@ -53,7 +53,7 @@ class AgentSalesGrowth
 
     /**
      * @var float
-     * @ORM\Column(name="quantity", type="float", nullable=true)
+     * @ORM\Column(type="float", nullable=true)
      */
     private $quantity;
 

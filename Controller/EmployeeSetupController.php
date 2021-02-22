@@ -71,10 +71,7 @@ class EmployeeSetupController extends AbstractController
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($entity);
                 $em->flush();
-                $designation = $entity->getEmployee()->getDesignation()->getSlug();
-                if($designation == "sales-force" || $designation == "doctor"){
-                    $this->getDoctrine()->getRepository(SetupMatrix::class)->processEmployeeSetup($entity);
-                }
+                $this->getDoctrine()->getRepository(SetupMatrix::class)->processEmployeeSetup($entity);
                 return $this->redirectToRoute('kpi_setup');
             }
         }
@@ -93,35 +90,15 @@ class EmployeeSetupController extends AbstractController
     public function edit(Request $request, EmployeeSetup $entity): Response
     {
 
-        $products = $this->getDoctrine()->getRepository(MarkChart::class)->getChildRecords('product-wise-sales-achievement');
+        $products = $this->getDoctrine()->getRepository(MarkChart::class)->salesProductItems();
         $workingArea =  $entity->getEmployee()->getArea();
         $entities = "";
         $locationMarks ="";
         $totalMarks = "";
-
-        if($workingArea == "Upozila"){
-            $this->getDoctrine()->getRepository(SetupMatrix::class)->processEmployeeSetup($entity);
-            $entities = $this->getDoctrine()->getRepository(SetupMatrix::class)->getUpozilaMatrix($entity,'sales');
-            $locationMarks = $this->getDoctrine()->getRepository(SetupMatrix::class)->itemWithLocationMatrix($entity,'sales');
-            $totalMarks = $this->getDoctrine()->getRepository(SetupMatrix::class)->getUozilaMatrix($entity,'sales');
-        }elseif($workingArea == "District"){
-            $entities = $this->getDoctrine()->getRepository(SetupMatrix::class)->getUpozilaMatrix($entity,'district');
-            dd($entities);
-            $locationMarks = $this->getDoctrine()->getRepository(SetupMatrix::class)->itemWithLocationMatrix($entity,'district');
-            $totalMarks = $this->getDoctrine()->getRepository(SetupMatrix::class)->getUozilaMatrix($entity,'district');
-
-        }elseif($workingArea == "Regional"){
-            $entities = $this->getDoctrine()->getRepository(SetupMatrix::class)->getUpozilaMatrix($entity,'regional');
-            $locationMarks = $this->getDoctrine()->getRepository(SetupMatrix::class)->itemWithLocationMatrix($entity,'regional');
-            $totalMarks = $this->getDoctrine()->getRepository(SetupMatrix::class)->getUozilaMatrix($entity,'regional');
-
-        }elseif($workingArea == "Zonal"){
-            $entities = $this->getDoctrine()->getRepository(SetupMatrix::class)->getUpozilaMatrix($entity,'zonal');
-            $locationMarks = $this->getDoctrine()->getRepository(SetupMatrix::class)->itemWithLocationMatrix($entity,'zonal');
-            $totalMarks = $this->getDoctrine()->getRepository(SetupMatrix::class)->getUozilaMatrix($entity,'zonal');
-
-        }
-
+        $this->getDoctrine()->getRepository(SetupMatrix::class)->processEmployeeSetup($entity);
+        $entities = $this->getDoctrine()->getRepository(SetupMatrix::class)->getDistrictMatrix($entity);
+        $locationMarks = $this->getDoctrine()->getRepository(SetupMatrix::class)->itemWithLocationMatrix($entity,'district');
+        $totalMarks = $this->getDoctrine()->getRepository(SetupMatrix::class)->getUozilaMatrix($entity,'district');
         return $this->render('@TerminalbdKpi/setup/edit.html.twig', [
             'setup' => $entity,
             'entities' => $entities,
@@ -190,14 +167,12 @@ class EmployeeSetupController extends AbstractController
      * @Route("/{setup}/{upozila}/sales-matrix", methods={"GET"}, name="kpi_setup_sales_matrix")
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
      */
-    public function salesMatrix($setup , $upozila): Response
+    public function salesMatrix($setup , $district): Response
     {
         if($_REQUEST['status'] == 'true'){
-
-            $this->getDoctrine()->getRepository(SetupMatrix::class)->insertUpdateSalesPrice($setup,$upozila);
+            $this->getDoctrine()->getRepository(SetupMatrix::class)->insertUpdateSalesPrice($setup,$district);
         }else{
-            $this->getDoctrine()->getRepository(SetupMatrix::class)->deleteRow($setup,$upozila);
-
+            $this->getDoctrine()->getRepository(SetupMatrix::class)->deleteRow($setup,$district);
         }
         $this->addFlash('success', 'post.status_successfully');
         return new Response('Success');

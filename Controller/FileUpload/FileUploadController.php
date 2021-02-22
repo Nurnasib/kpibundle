@@ -54,12 +54,10 @@ class FileUploadController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             $formData = $form->getData();
-
             $file = $request->files->get('form')['UploadFile'];
             if ($file) {
                 $fileExt = $file->getClientOriginalExtension();
                 $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '_' . date('d-m-Y') . '_' . time() . '.' . $fileExt;
-
                 if (in_array($fileExt, $allowFileType)) {
                     $uploadDir = $this->get('kernel')->getProjectDir() . '/public/uploads/excel/';
                     $file->move($uploadDir, $fileName);
@@ -80,6 +78,8 @@ class FileUploadController extends AbstractController
      */
     public function insertDataFromUploadedFile(Request $request)
     {
+        set_time_limit(0);
+        ini_set('memory_limit', '1024M');
         $fileInfo = $request->query->all();
         //Read uploaded Excel File
         $reader = new Xlsx();
@@ -100,33 +100,26 @@ class FileUploadController extends AbstractController
         foreach ($allData as $data) {
             //Marge Excel heading and value in one array as key and value
             $details = array_combine($keys, $data);
-//            dd($details);
             list($agentIdValue, $agentNameValue, $upozilaValue, $districtValue, $broilerValue, $sonaliValue, $layerValue, $fishValue, $cattleValue, $monthValue, $yearValue) = $data;
-
             $breedValues = [$broilerValue, $sonaliValue, $layerValue, $fishValue, $cattleValue];
-
             $breedArrays = array_combine($breedTypes,$breedValues);
-//            dd($breedArr);
-
-            //Find agent
             $findAgent = $this->getDoctrine()->getRepository(Agent::class)->findOneBy(['agentId' => (int)$agentIdValue]);
             if ($findAgent !== null){
                 foreach ($breedArrays as $breedType => $value){
                     $agentOrder = new AgentOrder();
-                    $product = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['name' => $breedType]);
-                    $district = $this->getDoctrine()->getRepository(Location::class)->findOneBy(['name' => $districtValue]);
-                    $upozila = $this->getDoctrine()->getRepository(Location::class)->findOneBy(['name' => $upozilaValue]);
+                    $product = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['salesMode'=>'feed','name' => trim($breedType)]);
                     if ($product) {
-                        $agentOrder->setAgent($findAgent);
-                        $agentOrder->setDistrict($district);
-                        $agentOrder->setUpozila($upozila);
+                        if(!empty($agentOrder)){
+                            $agentOrder->setAgent($findAgent);
+                            $agentOrder->setUpozila($findAgent->getUpozila());
+                            $agentOrder->setDistrict($findAgent->getUpozila()->getParent());
+                        }
                         $agentOrder->setProduct($product);
                         $agentOrder->setQuantity($value);
                         $agentOrder->setMonth($monthValue);
                         $agentOrder->setYear($yearValue);
                         $em->persist($agentOrder);
                         $em->flush();
-
                         $addedId[] = $agentOrder->getId();
                     }
                 }

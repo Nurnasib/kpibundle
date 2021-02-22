@@ -10,6 +10,7 @@
  */
 
 namespace Terminalbd\KpiBundle\Repository;
+use App\Entity\User;
 use Doctrine\DBAL\DriverManager;
 use App\Entity\Admin\Location;
 use Doctrine\ORM\EntityRepository;
@@ -81,12 +82,25 @@ class SetupMatrixRepository extends EntityRepository
 
     }
 
+    public function  getDistrictMatrix(EmployeeSetup $setup)
+    {
+
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.district','d');
+        $qb->leftJoin('e.zonal','z');
+        $qb->leftJoin('e.regional','r');
+        $qb->select('d.id as id','d.name as name','z.name as zonalName','r.name as regionalName','d.name as districtName');
+        $qb->groupBy('d.id');
+        $qb->where("e.employeeSetup = {$setup->getId()}");
+        $result = $qb->getQuery()->getArrayResult();
+        return $result;
+    }
+
 
     public function  getUpozilaMatrix(EmployeeSetup $setup,$pram)
     {
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.district','d');
-      //  $qb->join('e.district','up');
         $qb->leftJoin('e.zonal','z');
         $qb->leftJoin('e.regional','r');
         $qb->select('d.id as id','d.name as name','z.name as zonalName','r.name as regionalName','d.name as districtName');
@@ -112,22 +126,14 @@ class SetupMatrixRepository extends EntityRepository
     {
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.sales','s');
-        $qb->join('e.upozila','l');
+        $qb->join('e.district','l');
         $qb->join('e.markDistribution','m');
-        $qb->select('s.amount as amount','l.id as upozilaId','m.id as markId','m.name as martDistribution');
-        if($pram == "sales"){
-            $qb->where("e.employeeSetup = {$setup->getId()}");
-        }elseif ($pram == "regional"){
-            $regional = $setup ->getEmployee()->getRegional()->getId();
-            $qb->where("e.regional = {$regional}");
-        }elseif ($pram == "zonal"){
-            $zonal = $setup ->getEmployee()->getZonal()->getId();
-            $qb->where("e.zonal = {$zonal}");
-        }
+        $qb->select('s.amount as amount','l.id as districtId','m.id as markId','m.name as martDistribution');
+        $qb->where("e.employeeSetup = {$setup->getId()}");
         $result = $qb->getQuery()->getArrayResult();
         $array = array();
         foreach ($result as $item):
-            $id = "{$item['upozilaId']}-{$item['markId']}";
+            $id = "{$item['districtId']}-{$item['markId']}";
             $array[$id] = $item;
         endforeach;
         return $array;
@@ -137,53 +143,36 @@ class SetupMatrixRepository extends EntityRepository
     {
 
         $markIds = array();
-        $upozilaIds = array();
 
         $qb = $this->createQueryBuilder('e');
         $qb->leftJoin('e.sales','s');
         $qb->leftJoin('s.markDistribution','d');
-        $qb->select('d.id as markId','SUM(s.amount) as amount');
+        $qb->select('d.id as markId','SUM(s.quantity) as quantity');
         $qb->groupBy('markId');
-        if($pram == "sales"){
-            $qb->where("e.employeeSetup = {$setup->getId()}");
-        }elseif ($pram == "regional"){
-            $regional = $setup ->getEmployee()->getRegional()->getId();
-            $qb->where("e.regional = {$regional}");
-        }elseif ($pram == "zonal"){
-            $zonal = $setup ->getEmployee()->getZonal()->getId();
-            $qb->where("e.zonal = {$zonal}");
-        }
+        $qb->where("e.employeeSetup = {$setup->getId()}");
         $result1 = $qb->getQuery()->getArrayResult();
         foreach ($result1 as $item):
             $markIds[$item['markId']] = $item;
         endforeach;;
 
         $qb = $this->createQueryBuilder('e');
-        $qb->join('e.upozila','l');
+        $qb->join('e.district','l');
         $qb->leftJoin('e.sales','s');
-        $qb->select('l.id as upozilaId','SUM(s.amount) as amount');
+        $qb->select('l.id as districtId','SUM(s.amount) as amount');
         $qb->groupBy('upozilaId');
-        if($pram == "sales"){
-            $qb->where("e.employeeSetup = {$setup->getId()}");
-        }elseif ($pram == "regional"){
-            $regional = $setup ->getEmployee()->getRegional()->getId();
-            $qb->where("e.regional = {$regional}");
-        }elseif ($pram == "zonal"){
-            $zonal = $setup ->getEmployee()->getZonal()->getId();
-            $qb->where("e.zonal = {$zonal}");
-        }
+        $qb->where("e.employeeSetup = {$setup->getId()}");
         $result = $qb->getQuery()->getArrayResult();
         foreach ($result as $item):
-            $upozilaIds[$item['upozilaId']] = $item;
+            $districtIds[$item['districtId']] = $item;
         endforeach;
-        return $vars = array('markIds' => $markIds ,'upozilaIds' => $upozilaIds );
+        return $vars = array('markIds' => $markIds ,'districtIds' => $districtIds );
     }
 
 
     public function processUpdateEmployeeSetup(EmployeeSetup $setup , $data )
     {
         $em = $this->_em;
-        foreach ($data['upozila'] as $key => $value ){
+        foreach ($data['district'] as $key => $value ){
             if($data['chartIds'][$value]){
                 foreach ($data['chartIds'][$value] as $item => $row){
                     $exist = $this->findOneBy(array('employeeSetup' => $setup, 'markChart' => $row));
@@ -192,7 +181,7 @@ class SetupMatrixRepository extends EntityRepository
                         $entity = new SetupMatrix();
                         $entity->setEmployeeSetup($setup);
                         $entity->setSales($sales);
-                        $entity->setUpozila($sales->getUpozila());
+                        $entity->setDistrict($sales->getUpozila());
                         $em->persist($entity);
                         $em->flush();
                     }
@@ -214,7 +203,6 @@ class SetupMatrixRepository extends EntityRepository
                 $entity = new SetupMatrix();
                 $entity->setEmployeeSetup($setup);
                 $entity->setSales($row);
-                $entity->setUpozila($upozila);
                 $entity->setDistrict($upozila->getParent());
                 $entity->setRegional($upozila->getParent()->getParent());
                 $entity->setZonal($upozila->getParent()->getParent()->getParent());

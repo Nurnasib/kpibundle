@@ -57,6 +57,18 @@ class EmployeeBoardSubAttribute
      */
     private $salesAmount;
 
+    /**
+     * @var float
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $targetQuantity;
+
+    /**
+     * @var float
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $salesQuantity;
+
 
     /**
      * @var float
@@ -186,6 +198,40 @@ class EmployeeBoardSubAttribute
     {
         $this->mark = $mark;
     }
+
+    /**
+     * @return float
+     */
+    public function getTargetQuantity()
+    {
+        return $this->targetQuantity;
+    }
+
+    /**
+     * @param float $targetQuantity
+     */
+    public function setTargetQuantity($targetQuantity)
+    {
+        $this->targetQuantity = $targetQuantity;
+    }
+
+    /**
+     * @return float
+     */
+    public function getSalesQuantity()
+    {
+        return $this->salesQuantity;
+    }
+
+    /**
+     * @param float $salesQuantity
+     */
+    public function setSalesQuantity($salesQuantity)
+    {
+        $this->salesQuantity = $salesQuantity;
+    }
+
+
 
 
 }

@@ -1,0 +1,112 @@
+
+<div class="portlet box blue ">
+    <div class="portlet-title">
+        <div class="caption"><i class="fa fa-th-large"></i> {{ 'Create New Agent'|trans }}</div>
+    </div>
+    <div class="portlet-body form">
+        <form action="{{ actionUrl }}" novalidate="novalidate" method="post" class="form-horizontal" id="postForm">
+        <div class="row form-body">
+            <div class="col-md-12"></div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form_label(form.name, 'label.name', {'label_attr': {'class': 'col-md-4'}}) }}
+                    <div class="col-md-8">
+                        <span class="not-blank"> {{ 'Required'|trans }}</span>
+                        {{ form_widget(form.name) }}
+                        {{ form_errors(form.name) }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.mobile, 'label.mobile', {'label_attr': {'class': 'col-md-4'}}) }}
+                    <div class="col-md-8">
+                        <span class="not-blank"> {{ 'Required'|trans }}</span>
+                        {{ form_widget(form.mobile) }}
+                        {{ form_errors(form.mobile) }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.phone, 'label.phone', {'label_attr': {'class': 'col-md-4'}}) }}
+                    <div class="col-md-8">
+                        {{ form_widget(form.phone) }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.binNo, 'label.binNo', {'label_attr': {'class': 'col-md-4'}}) }}
+                    <div class="col-md-8">
+                        {{ form_widget(form.binNo) }}
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form_label(form.agentGroup, 'label.business.type', {'label_attr': {'class': 'col-md-4'}}) }}
+                    <div class="col-md-8">
+                        {{ form_widget(form.agentGroup) }}
+                    </div>
+                </div>
+                <div class="form-group">
+
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.upozila, 'label.location', {'label_attr': {'class': 'col-md-4'}}) }}
+                    <div class="col-md-8">
+                        {{ form_widget(form.upozila) }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.email, 'label.email', {'label_attr': {'class': 'col-md-4'}}) }}
+                    <div class="col-md-8">
+                        {{ form_widget(form.email) }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.nid, 'label.nid', {'label_attr': {'class': 'col-md-4'}}) }}
+                    <div class="col-md-8">
+                        {{ form_widget(form.nid) }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.address, 'label.address', {'label_attr': {'class': 'col-md-4'}}) }}
+                    <div class="col-md-8">
+                        {{ form_widget(form.address) }}
+                    </div>
+                </div>
+
+            </div>
+            <div style="width: 100%">
+                <div class="text-right col-md-12">
+                    {{ form_widget(form._token) }}
+                    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                        <button type="reset"  class="btn btn-sm yellow-bg white-font"><i class="fa fa-refresh"></i>{{ 'label.reset'|trans }}</button>
+                        {{ form_widget(form.SaveAndCreate, {label: 'label.save.continue', attr: { class: 'btn btn-info form-submit'}}) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+<style>
+    .btn{
+        border-radius: 0!important;
+    }
+    .form-body{
+        display: flex;
+        align-items: center;
+    }
+    .form-control{
+        position: relative;
+    }
+    label.error{
+        position: absolute;
+        top: -3px;
+        font-size: 12px;
+        left: 14px;
+        color: #ff2515;
+    }
+</style>
