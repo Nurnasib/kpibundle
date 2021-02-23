@@ -195,7 +195,7 @@ class EmployeeBoardAttribute
     /**
      * @param float $mark
      */
-    public function setMark(float $mark)
+    public function setMark($mark)
     {
         $this->mark = $mark;
     }

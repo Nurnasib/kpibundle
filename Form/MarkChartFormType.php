@@ -13,19 +13,20 @@ namespace Terminalbd\KpiBundle\Form;
 
 
 use App\Entity\Admin\Terminal;
+use App\Entity\Core\Setting;
 use Doctrine\ORM\EntityRepository;
 use Mpdf\Tag\TextArea;
 use PhpOffice\PhpSpreadsheet\RichText\RichText;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Terminalbd\KpiBundle\Entity\MarkChart;
-use Terminalbd\KpiBundle\Entity\Setting;
 use Terminalbd\KpiBundle\Entity\SettingType;
 use Terminalbd\KpiBundle\Repository\MarkChartRepository;
 
@@ -81,7 +82,7 @@ class MarkChartFormType extends AbstractType
                 'placeholder' => 'Choose a setting group',
             ])
 
-            ->add('designation', EntityType::class, [
+/*            ->add('designation', EntityType::class, [
                 'class' => \App\Entity\Core\Setting::class,
                 'required' => false,
                 'expanded' => true,
@@ -96,7 +97,7 @@ class MarkChartFormType extends AbstractType
                 },
                 'attr'=>['class'=>'span12'],
                 'placeholder' => 'Choose a setting group',
-            ])
+            ])*/
 
             ->add('status',CheckboxType::class,[
                 'required' => false,
@@ -121,6 +122,18 @@ class MarkChartFormType extends AbstractType
                     'data-on' => "Yes",
                     'data-off'=> "No"
                 ],
+            ])
+            ->add('reportMode', EntityType::class,[
+                'class' => Setting::class,
+                'choice_label' => 'name',
+                'query_builder' => function(EntityRepository $er){
+                    return $er->createQueryBuilder('e')
+                        ->join('e.settingType', 'settingType')
+                        ->where('settingType.slug = :slug')->setParameter('slug', 'report-mode')
+                        ->orderBy('e.name', 'ASC');
+                },
+                'expanded' => true,
+                'multiple' => true
             ])
         ;
     }
