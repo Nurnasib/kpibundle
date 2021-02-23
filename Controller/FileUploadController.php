@@ -78,9 +78,12 @@ class FileUploadController extends AbstractController
      */
     public function insertDataFromUploadedFile(Request $request)
     {
-        $fileInfo = $request->query->all();
-        $file = $this->getDoctrine()->getRepository(DocumentUpload::class)->find($fileInfo['id']);
-        $monthYear = explode(' ', $file->getMonthYear());
+//        $fileInfo = $request->query->all();
+        $fileId = $request->query->get('id');
+//        dd($fileInfo);
+        $file = $this->getDoctrine()->getRepository(DocumentUpload::class)->find($fileId);
+        $monthYear = explode(',', $file->getMonthYear());
+//        dd($monthYear);
         $month = $monthYear[0];
         $year = $monthYear[1];
 //        dd($monthYear[1]);
@@ -165,8 +168,8 @@ class FileUploadController extends AbstractController
      */
     public function deleteUploadedFile(Request $request, TranslatorInterface $translator)
     {
-        $fileInfo = $request->query->all();
-        $file = $this->getDoctrine()->getRepository(DocumentUpload::class)->find($fileInfo['id']);
+        $fileId = $request->query->get('id');
+        $file = $this->getDoctrine()->getRepository(DocumentUpload::class)->find($fileId);
         $uploadDir = $this->get('kernel')->getProjectDir() . '/public/uploads/excel/';
         unlink($uploadDir.$file->getFileName());
 

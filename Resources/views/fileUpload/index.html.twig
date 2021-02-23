@@ -28,7 +28,7 @@
                         {% for entity in entities %}
                             <tr>
                                 <td class="text-center">{{ loop.index }}</td>
-                                <td>{{ entity.title|default('') }}</td>
+                                <td>{{ entity.title|capitalize|default('') }}</td>
                                 <td>{{ entity.fileName|default('') }}</td>
                                 <td>{{ entity.monthYear|default('') }}</td>
                                 <td class="text-center">{{ entity.status == 1 ? 'Yes' : 'No' }}</td>
@@ -86,6 +86,7 @@
 {% endblock  %}
 {% block documentready %}
     {{ parent() }}
+{#
 
     $('#datatable').DataTable( {
     "pageLength": 10,
@@ -97,11 +98,12 @@
     "responsive": false,
     "scrollX": true
     });
+#}
 
     $('#inputMonth').datepicker({
     changeMonth: true,
     changeYear: true,
-    dateFormat: 'MM yy',
+    dateFormat: 'MM,yy',
 
     onClose: function() {
     var iMonth = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
