@@ -35,6 +35,7 @@
                                 <td class="text-center">
                                     <div class="btn-group" role="group" aria-label="Basic example">
                                         <a class="btn btn-mini bg-primary white-font" href="{{ path('kpi_file_upload_insert_data',{'id':entity.id}) }}"><i class="feather icon-upload"></i> Import</a>
+                                        <a class="btn btn-mini bg-success white-font" href="{{ path('kpi_insert_data_district_wise',{'id':entity.id}) }}"><i class="feather icon-upload"></i> Migrate</a>
                                         <a class="btn  btn-transparent btn-mini red-font" href="{{ path('kpi_file_upload_file_delete',{'id':entity.id}) }}"><i class="fa fa-remove"></i></a>
                                     </div>
                                 </td>

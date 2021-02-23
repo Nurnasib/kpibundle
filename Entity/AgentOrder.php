@@ -41,27 +41,18 @@ class AgentOrder
     protected $district;
 
     /**
-     * @return mixed
-     */
-    public function getDistrict()
-    {
-        return $this->district;
-    }
-
-    /**
-     * @param mixed $district
-     */
-    public function setDistrict($district)
-    {
-        $this->district = $district;
-    }
-
-    /**
      * @var Agent
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Agent" , inversedBy="agentOrder")
      */
     private $agent;
+    
+    /**
+     * @var DocumentUpload
+     *
+     * @ORM\ManyToOne(targetEntity="Terminalbd\KpiBundle\Entity\DocumentUpload" , inversedBy="agentOrder")
+     */
+    private $documentUpload;
 
 
     /**
@@ -135,7 +126,21 @@ class AgentOrder
     {
         return $this->id;
     }
+    /**
+     * @return mixed
+     */
+    public function getDistrict()
+    {
+        return $this->district;
+    }
 
+    /**
+     * @param mixed $district
+     */
+    public function setDistrict($district)
+    {
+        $this->district = $district;
+    }
 
     /**
      * @return Location
@@ -146,9 +151,9 @@ class AgentOrder
     }
 
     /**
-     * @param Location $upozila
+     * @param mixed $upozila
      */
-    public function setUpozila(Location $upozila)
+    public function setUpozila($upozila)
     {
         $this->upozila = $upozila;
     }
@@ -279,6 +284,38 @@ class AgentOrder
     public function setYear($year)
     {
         $this->year = $year;
+    }
+
+    /**
+     * @return DocumentUpload
+     */
+    public function getDocumentUpload()
+    {
+        return $this->documentUpload;
+    }
+
+    /**
+     * @param mixed $documentUpload
+     */
+    public function setDocumentUpload($documentUpload)
+    {
+        $this->documentUpload = $documentUpload;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param bool $status
+     */
+    public function setStatus(bool $status): void
+    {
+        $this->status = $status;
     }
 
 

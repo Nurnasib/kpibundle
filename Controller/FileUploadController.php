@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
+use Terminalbd\KpiBundle\Entity\DistrictOrder;
 use Terminalbd\KpiBundle\Entity\DocumentUpload;
 use Terminalbd\KpiBundle\Entity\MarkChart;
 use Terminalbd\KpiBundle\Form\FileUploadFormType;
@@ -73,12 +74,13 @@ class FileUploadController extends AbstractController
     /**
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
-     * @Route("/insert-data", name="kpi_file_upload_insert_data")
+     * @Route("/{id}/insert-data", name="kpi_file_upload_insert_data")
      */
-    public function insertDataFromUploadedFile(Request $request)
+    public function insertDataFromUploadedFile(Request $request, DocumentUpload $file)
     {
-        $fileInfo = $request->query->all();
-        $file = $this->getDoctrine()->getRepository(DocumentUpload::class)->find($fileInfo['id']);
+        $monthYear = explode(',', $file->getMonthYear());
+        $month = $monthYear[0];
+        $year = $monthYear[1];
         //Read uploaded Excel File
         $reader = new Xlsx();
         $spreadSheet = $reader->load($this->get('kernel')->getProjectDir() . '/public/uploads/excel/' . $file->getFileName());
@@ -103,34 +105,39 @@ class FileUploadController extends AbstractController
 
             $breedArrays = array_combine($breedTypes, $breedValues);
 
+            $district = $this->getDoctrine()->getRepository(Location::class)->findOneBy(['level'=>4,'name' => $districtValue]);
+            $upozila = $this->getDoctrine()->getRepository(Location::class)->findOneBy(['level'=>5,'name' => $upozilaValue]);
+
+
             //Find agent
-            $findAgent = $this->getDoctrine()->getRepository(Agent::class)->findOneBy(['agentId' => (int)$agentIdValue]);
-            if ($findAgent == null) {
+            $findAgent = $this->getDoctrine()->getRepository(Agent::class)->findOneBy(['agentId' =>$agentIdValue]);
+            if (!$findAgent) {
                 $agent = new Agent();
                 $agent->setAgentId($agentIdValue);
-                $agent->setUpozila($upozila);
-                $agent->setDistrict($district);
+                $agent->setUpozila($upozila?$upozila:null);
+                $agent->setDistrict($district?$district:null);
                 $agent->setName($agentNameValue);
+                $agent->setAgentGroup($em->getRepository(Setting::class)->findOneBy(array('slug' => 'feed')));
                 $agent->setCreated(new \DateTime());
                 $em->persist($agent);
                 $em->flush();
-                $findAgent = $this->getDoctrine()->getRepository(Agent::class)->findOneBy(['agentId' => (int)$agentIdValue]);
+                $findAgent = $agent;
             }
             foreach ($breedArrays as $breedType => $value) {
+                
                 $agentOrder = new AgentOrder();
                 $product = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['name' => $breedType]);
-                $district = $this->getDoctrine()->getRepository(Location::class)->findOneBy(['name' => $districtValue]);
-                $upozila = $this->getDoctrine()->getRepository(Location::class)->findOneBy(['name' => $upozilaValue]);
-                if ($product) {
+                 if ($product) {
                     $agentOrder->setAgent($findAgent);
-                    $agentOrder->setDistrict($district);
-                    $agentOrder->setUpozila($upozila);
+                    $agentOrder->setDistrict($district?$district:null);
+                    $agentOrder->setUpozila($upozila?$upozila:null);
                     $agentOrder->setProduct($product);
                     $agentOrder->setQuantity($value);
                     $agentOrder->setCreated(new \DateTime());
                     $agentOrder->setUpdated(new \DateTime());
-                    $agentOrder->setMonth($monthValue);
-                    $agentOrder->setYear($yearValue);
+                    $agentOrder->setMonth($month);
+                    $agentOrder->setYear($year);
+                    $agentOrder->setDocumentUpload($file);
                     $em->persist($agentOrder);
                     $em->flush();
 
@@ -148,6 +155,50 @@ class FileUploadController extends AbstractController
 
         $em->persist($file);
         $em->flush();
+
+        return $this->redirectToRoute('kpi_file_upload_index');
+    }
+
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @Route("/{id}/insert-data-district-wise", name="kpi_insert_data_district_wise")
+     */
+    public function insertDataDistrictWise(DocumentUpload $file)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $monthYear = explode(',', $file->getMonthYear());
+        $month = $monthYear[0];
+        $year = $monthYear[1];
+        $agentOrders = $this->getDoctrine()->getRepository(AgentOrder::class)->getDistrictWiseTotalProductSales($month, $year);
+        
+        foreach ($agentOrders as $key=> $agentOrder){
+
+            $district = $this->getDoctrine()->getRepository(Location::class)->find($agentOrder['dId']);
+            $product = $this->getDoctrine()->getRepository(MarkChart::class)->find($agentOrder['pId']);
+
+
+
+            $districtOrder = new DistrictOrder();
+
+            $existingDistrictOrder = $this->getDoctrine()->getRepository(DistrictOrder::class)->findOneBy(array('district'=>$district, 'product'=>$product, 'year'=>$agentOrder['oYear'],'month'=>$agentOrder['oMonth']));
+            if($existingDistrictOrder){
+                $districtOrder= $existingDistrictOrder;
+            }
+
+
+            $districtOrder->setYear($agentOrder['oYear']);
+            $districtOrder->setMonth($agentOrder['oMonth']);
+            $districtOrder->setQuantity($agentOrder['totalQty']);
+            $districtOrder->setDistrict($district?$district:null);
+            $districtOrder->setProduct($product?$product:null);
+            $districtOrder->setCreated(new \DateTime());
+            $districtOrder->setUpdated(new \DateTime());
+            $districtOrder->setStatus(1);
+            $em->persist($districtOrder);
+            $em->flush();
+        }
+
 
         return $this->redirectToRoute('kpi_file_upload_index');
     }
