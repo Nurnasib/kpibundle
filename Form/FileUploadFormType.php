@@ -34,12 +34,6 @@ class FileUploadFormType extends AbstractType
                     'Sales' => 'sales'
                 ]
             ])
-            ->add('monthYear',TextType::class,[
-                'attr' => [
-                    'autocomplete' => 'off',
-                    'placeholder' => 'Month,Year'
-                ]
-            ])
             ->add('UploadFile', FileType::class, [
                 'help' => 'Please upload only excel file!',
                 'mapped' => false,

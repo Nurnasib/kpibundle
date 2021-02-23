@@ -42,7 +42,6 @@ class FileUploadController extends AbstractController
         if ($form->isSubmitted()) {
 
             $uploadedFile = $form['UploadFile']->getData();
-//            dd($uploadedFile->getClientOriginalExtension());
             if (in_array($uploadedFile->getClientOriginalExtension(), $allowFileType)){
                 $em = $this->getDoctrine()->getManager();
                 $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
@@ -55,7 +54,6 @@ class FileUploadController extends AbstractController
                 );
                 $uploadFile->setFileName($newFileName);
                 $uploadFile->setTitle($form['title']->getData());
-                $uploadFile->setMonthYear($form['monthYear']->getData());
                 $em->persist($uploadFile);
                 $em->flush();
                 $this->addFlash('success', $translator->trans('File Uploaded Successfully!'));
@@ -78,15 +76,8 @@ class FileUploadController extends AbstractController
      */
     public function insertDataFromUploadedFile(Request $request)
     {
-//        $fileInfo = $request->query->all();
-        $fileId = $request->query->get('id');
-//        dd($fileInfo);
-        $file = $this->getDoctrine()->getRepository(DocumentUpload::class)->find($fileId);
-        $monthYear = explode(',', $file->getMonthYear());
-//        dd($monthYear);
-        $month = $monthYear[0];
-        $year = $monthYear[1];
-//        dd($monthYear[1]);
+        $fileInfo = $request->query->all();
+        $file = $this->getDoctrine()->getRepository(DocumentUpload::class)->find($fileInfo['id']);
         //Read uploaded Excel File
         $reader = new Xlsx();
         $spreadSheet = $reader->load($this->get('kernel')->getProjectDir() . '/public/uploads/excel/' . $file->getFileName());
@@ -137,8 +128,8 @@ class FileUploadController extends AbstractController
                     $agentOrder->setQuantity($value);
                     $agentOrder->setCreated(new \DateTime());
                     $agentOrder->setUpdated(new \DateTime());
-                    $agentOrder->setMonth($month);
-                    $agentOrder->setYear($year);
+                    $agentOrder->setMonth($monthValue);
+                    $agentOrder->setYear($yearValue);
                     $em->persist($agentOrder);
                     $em->flush();
 
@@ -168,8 +159,8 @@ class FileUploadController extends AbstractController
      */
     public function deleteUploadedFile(Request $request, TranslatorInterface $translator)
     {
-        $fileId = $request->query->get('id');
-        $file = $this->getDoctrine()->getRepository(DocumentUpload::class)->find($fileId);
+        $fileInfo = $request->query->all();
+        $file = $this->getDoctrine()->getRepository(DocumentUpload::class)->find($fileInfo['id']);
         $uploadDir = $this->get('kernel')->getProjectDir() . '/public/uploads/excel/';
         unlink($uploadDir.$file->getFileName());
 
