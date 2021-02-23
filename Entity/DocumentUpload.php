@@ -40,6 +40,26 @@ class DocumentUpload
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $title;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $monthYear;
+
+    /**
+     * @return mixed
+     */
+    public function getMonthYear()
+    {
+        return $this->monthYear;
+    }
+
+    /**
+     * @param mixed $monthYear
+     */
+    public function setMonthYear($monthYear)
+    {
+        $this->monthYear = $monthYear;
+    }
 
     /**
      * @var \DateTime

@@ -42,10 +42,11 @@ class FileUploadController extends AbstractController
         if ($form->isSubmitted()) {
 
             $uploadedFile = $form['UploadFile']->getData();
-            if (in_array($uploadedFile->guessExtension(), $allowFileType)){
+//            dd($uploadedFile->getClientOriginalExtension());
+            if (in_array($uploadedFile->getClientOriginalExtension(), $allowFileType)){
                 $em = $this->getDoctrine()->getManager();
                 $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $newFileName = $form['title']->getData() . '_' . $originalFilename . '-' . date('d-m-Y') . '-' . time() . '.' . $uploadedFile->guessExtension();
+                $newFileName = $form['title']->getData() . '_' . $originalFilename . '-' . date('d-m-Y') . '-' . time() . '.' . $uploadedFile->getClientOriginalExtension();
                 $uploadDir = $this->get('kernel')->getProjectDir() . '/public/uploads/excel/';
 
                 $uploadedFile->move(
@@ -54,6 +55,7 @@ class FileUploadController extends AbstractController
                 );
                 $uploadFile->setFileName($newFileName);
                 $uploadFile->setTitle($form['title']->getData());
+                $uploadFile->setMonthYear($form['monthYear']->getData());
                 $em->persist($uploadFile);
                 $em->flush();
                 $this->addFlash('success', $translator->trans('File Uploaded Successfully!'));
@@ -78,6 +80,10 @@ class FileUploadController extends AbstractController
     {
         $fileInfo = $request->query->all();
         $file = $this->getDoctrine()->getRepository(DocumentUpload::class)->find($fileInfo['id']);
+        $monthYear = explode(' ', $file->getMonthYear());
+        $month = $monthYear[0];
+        $year = $monthYear[1];
+//        dd($monthYear[1]);
         //Read uploaded Excel File
         $reader = new Xlsx();
         $spreadSheet = $reader->load($this->get('kernel')->getProjectDir() . '/public/uploads/excel/' . $file->getFileName());
@@ -128,8 +134,8 @@ class FileUploadController extends AbstractController
                     $agentOrder->setQuantity($value);
                     $agentOrder->setCreated(new \DateTime());
                     $agentOrder->setUpdated(new \DateTime());
-                    $agentOrder->setMonth($monthValue);
-                    $agentOrder->setYear($yearValue);
+                    $agentOrder->setMonth($month);
+                    $agentOrder->setYear($year);
                     $em->persist($agentOrder);
                     $em->flush();
 

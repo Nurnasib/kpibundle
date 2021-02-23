@@ -18,6 +18,7 @@
                         <th width="40" class="text-center">{{ 'S/N'|trans }}</th>
                         <th>{{ 'Title'|trans }}</th>
                         <th>{{ 'File Name'|trans }}</th>
+                        <th>{{ 'Month'|trans }}</th>
                         <th width="100" class="text-center">{{ 'Status'|trans }}</th>
                         <th class="text-center" width="100"><i class="feather icon-settings"></i></th>
                     </tr>
@@ -29,6 +30,7 @@
                                 <td class="text-center">{{ loop.index }}</td>
                                 <td>{{ entity.title|default('') }}</td>
                                 <td>{{ entity.fileName|default('') }}</td>
+                                <td>{{ entity.monthYear|default('') }}</td>
                                 <td class="text-center">{{ entity.status == 1 ? 'Yes' : 'No' }}</td>
                                 <td class="text-center">
                                     <div class="btn-group" role="group" aria-label="Basic example">
@@ -40,7 +42,7 @@
                         {% endfor %}
                     {% else %}
                             <tr>
-                                <td colspan="4" class="text-center font-weight-bold">{{ "No record Found!"|trans }}</td>
+                                <td colspan="5" class="text-center font-weight-bold">{{ "No record Found!"|trans }}</td>
                             </tr>
                     {% endif %}
                     </tbody>
@@ -58,7 +60,9 @@
 
                     {{ form_label(form.title,'Title:') }}
                     {{ form_widget(form.title,{'attr':{'class':'mb-3'}}) }}
-{#                    {{ form_label(form.UploadFile) }}#}
+                    {{ form_label(form.monthYear,'Month:') }}
+                    {{ form_widget(form.monthYear,{'id':'inputMonth','attr':{'class':'mb-3'}}) }}
+                    {{ form_label(form.UploadFile,'Upload File Here:') }}
                     {{ form_widget(form.UploadFile,{'attr':{'class':'form-control','style':'padding-top: 7px !important; padding-bottom: 30px !important;'}}) }}
                     {{ form_help(form.UploadFile,{'help_attr':{'class':'text-secondary'}}) }}
                     {{ form_widget(form.Submit,{'attr':{'class':'btn btn-block btn-info mt-3'},'label':'Upload'}) }}
@@ -93,8 +97,8 @@
     "responsive": false,
     "scrollX": true
     });
-{#
-    $('#input-month').datepicker({
+
+    $('#inputMonth').datepicker({
     changeMonth: true,
     changeYear: true,
     dateFormat: 'MM yy',
@@ -114,5 +118,5 @@
     $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
     }
     }
-    });#}
+    });
 {% endblock %}
