@@ -54,6 +54,7 @@ class FileUploadController extends AbstractController
                 );
                 $uploadFile->setFileName($newFileName);
                 $uploadFile->setTitle($form['title']->getData());
+                $uploadFile->setMonthYear($form['monthYear']->getData());
                 $em->persist($uploadFile);
                 $em->flush();
                 $this->addFlash('success', $translator->trans('File Uploaded Successfully!'));
