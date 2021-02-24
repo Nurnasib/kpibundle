@@ -120,7 +120,8 @@
                                             <h5>Employee Working Area</h5>
                                         </div>
                                         <div class="card-body card-body-inner">
-                                            <div class="row">
+
+                                               <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         {{ form_label(form.area, 'Working Area'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
@@ -198,6 +199,15 @@
                                                 </div>
                                             </div>
                                             <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        {{ form_label(form.lineManager, 'Line Manager'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
+                                                        <div class="col-md-8">
+                                                            {{ form_widget(form.lineManager) }}
+                                                            {{ form_errors(form.lineManager) }}
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         {{ form_label(form.designation, 'Responsible Of', {'label_attr': {'class': 'col-md-4'}}) }}

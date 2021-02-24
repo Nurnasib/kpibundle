@@ -47,6 +47,12 @@ class MarkChart
      */
     private $name;
 
+    /**
+     * @var string
+     * @ORM\Column(name="salesMode", type="string", length=100)
+     */
+    private $salesMode;
+
 
      /**
      * @var float
@@ -82,13 +88,6 @@ class MarkChart
      **/
     private $children;
 
-    /**
-     * @var \App\Entity\Core\Setting
-     *
-     * @ORM\ManyToMany(targetEntity="App\Entity\Core\Setting" , inversedBy="markChart")
-     */
-    private $designation;
-
 
     /**
      * @Gedmo\TreePath(separator="/")
@@ -116,6 +115,14 @@ class MarkChart
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $systemEntry = false;
+
+    /**
+     * @var Setting
+     *
+     * @ORM\ManyToMany(targetEntity="App\Entity\Core\Setting")
+     */
+    private $reportMode;
+
 
 
     public function setId($id)
@@ -300,21 +307,6 @@ class MarkChart
         $this->description = $description;
     }
 
-    /**
-     * @return \App\Entity\Core\Setting
-     */
-    public function getDesignation()
-    {
-        return $this->designation;
-    }
-
-    /**
-     * @param \App\Entity\Core\Setting $designation
-     */
-    public function setDesignation($designation)
-    {
-        $this->designation = $designation;
-    }
 
     /**
      * @return float
@@ -347,6 +339,42 @@ class MarkChart
     {
         $this->systemEntry = $systemEntry;
     }
+
+    /**
+     * @return Setting
+     */
+    public function getReportMode()
+    {
+        return $this->reportMode;
+    }
+
+    /**
+     * @param Setting $reportMode
+     */
+    public function setReportMode($reportMode)
+    {
+        $this->reportMode = $reportMode;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSalesMode()
+    {
+        return $this->salesMode;
+    }
+
+    /**
+     * @param string $salesMode
+     */
+    public function setSalesMode($salesMode)
+    {
+        $this->salesMode = $salesMode;
+    }
+
+
+
+
 
 
 }

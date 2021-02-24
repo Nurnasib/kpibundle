@@ -1,5 +1,5 @@
 <?php
-namespace Terminalbd\CrmBundle\Service;
+namespace Terminalbd\KpiBundle\Service;
 
 class Api
 {

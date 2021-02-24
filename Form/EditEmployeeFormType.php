@@ -62,7 +62,18 @@ class EditEmployeeFormType extends AbstractType
                 'attr' => ['autofocus' => true],
                 'required' => true,
             ])
-
+            ->add('lineManager', EntityType::class, array(
+                'required'    => true,
+                'class' => User::class,
+                'placeholder' => 'Choose a  line manager',
+                'choice_label' => 'name',
+                'attr'=>array('class'=>'span12 m-wrap'),
+                'query_builder' => function(EntityRepository $er){
+                    return $er->createQueryBuilder('e')
+                        ->where("e.enabled =1")
+                        ->orderBy('e.name', 'ASC');
+                },
+            ))
             ->add('mobile', TextType::class, [
                 'attr' => ['autofocus' => true,'class'=>'mobileLocal'],
                 'required' => true,

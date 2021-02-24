@@ -74,7 +74,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                                 $entity->setParameter($parameter);
                                 $entity->setActivity($activity);
                                 $entity->setAttribute($attribute);
-                                $entity->setActualMark(0);
+                                $entity->setActualMark(10);
                                 $entity->setMark($attribute->getMark());
                                 $em->persist($entity);
                                 $em->flush();
@@ -90,7 +90,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         foreach ($subAttrs as $sub):
             $exist = $this->findOneBy(array('employeeBoard'=> $board,'attribute' => $sub['parentId']));
             if(!empty($exist)){
-                $exist->setActualMark($sub['mark']);
+                $exist->setActualMark(5);
                 $em->persist($exist);
                 $em->flush();
             }
@@ -102,16 +102,9 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     {
         $em = $this->_em;
         $entities = "";
-        $arae = $setup->getEmployee()->getArea();
-        if($setup->getEmployee()->getArea() == "Upozila"){
-            $entities = $em->getRepository(EmployeeSetup::class)->getItemWiseSalesAmount($setup->getId());
-        }else if($arae == "Regional"){
-            $entities = $em->getRepository(EmployeeSetup::class)->getRegionalItemWiseSalesAmount($setup);
-        }else if($arae == "Zonal"){
-            $entities = $em->getRepository(EmployeeSetup::class)->getZonalItemWiseSalesAmount($setup);
-        }
         $locations = $em->getRepository(EmployeeSetup::class)->processSetup($setup->getId());
         $arrs = array();
+        dd($locations);
         if(!empty($locations)){
             foreach ($locations as $location){
                 $arrs[] = $location['upozila'];

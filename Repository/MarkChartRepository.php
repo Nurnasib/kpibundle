@@ -203,12 +203,9 @@ class MarkChartRepository extends MaterializedPathRepository
         $qb->where('settingGroup.slug = :settingGroupSlug')->setParameter('settingGroupSlug', 'attributes');
 //        $qb->where('parent.slug = :slug')->setParameter('slug', 'product-wise-sales-achievement');
         $qb->orderBy('e.name','ASC');
-
-//        $qb->leftJoin('e.parent','parent');
         $qb->leftJoin('e.settingGroup','settingGroup');
 
         $results = $qb->getQuery()->getArrayResult();
-//        dd($results);
         return $results;
     }
 
@@ -227,9 +224,19 @@ class MarkChartRepository extends MaterializedPathRepository
         foreach ($results as $result){
             $data[] = $result;
         }
-//        dd($data);
         return $results;
 
+    }
+
+    public function salesProductItems()
+    {
+        $em = $this->_em;
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.parent','p');
+        $qb->where('p.slug = :slug')->setParameter('slug','sales');
+        $qb->andWhere('e.salesMode = :mode')->setParameter('mode','feed');
+        $result = $qb->getQuery()->getResult();
+        return $result;
     }
 
 

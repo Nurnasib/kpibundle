@@ -22,7 +22,7 @@ class ApiController extends AbstractController
 
 
     /**
-     * @Route("kpi/api/location", name="crm_api_location")
+     * @Route("kpi/api/location", name="kpi_api_location")
      */
     public function apiLocation()
     {
@@ -41,7 +41,7 @@ class ApiController extends AbstractController
 
 
     /**
-     * @Route("kpi/api/agent", name="crm_api_agent")
+     * @Route("kpi/api/agent", name="kpi_api_agent")
      */
     public function apiAgent()
     {

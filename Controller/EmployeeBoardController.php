@@ -50,7 +50,7 @@ class EmployeeBoardController extends AbstractController
      */
     public function generate(Request $request, EmployeeSetup $setup): Response
     {
-        $month = "September";
+        $month = "January";
         $year = 2020;
         $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
         $em = $this->getDoctrine()->getManager();

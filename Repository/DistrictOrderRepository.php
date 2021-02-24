@@ -21,7 +21,7 @@ use Doctrine\ORM\EntityRepository;
  *
  * @author Md Shafiqul islam <shafiqabs@gmail.com>
  */
-class AgentOrderRepository extends EntityRepository
+class DistrictOrderRepository extends EntityRepository
 {
 
     public function getLocationWiseTotalProductSales($locations)
@@ -39,23 +39,6 @@ class AgentOrderRepository extends EntityRepository
             $data[$row['distributionId']] = $row;
         }
         return $data;
-
-    }
-    public function getDistrictWiseTotalProductSales($month, $year)
-    {
-
-        $qb = $this->createQueryBuilder('e');
-        $qb->join('e.product','p');
-        $qb->join('e.district','d');
-        $qb->select('e.year as oYear','e.month as oMonth', 'SUM(e.quantity) as totalQty');
-        $qb->addSelect('p.id as pId');
-        $qb->addSelect('d.id as dId');
-        $qb->where('e.month =:month')->setParameter('month',$month);
-        $qb->andWhere('e.year =:year')->setParameter('year',$year);
-        $qb->groupBy('d.id','p.id');
-        $result = $qb->getQuery()->getArrayResult();
-        
-        return $result;
 
     }
 

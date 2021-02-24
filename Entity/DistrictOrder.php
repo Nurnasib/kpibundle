@@ -10,12 +10,12 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 
 /**
- * AgentOrder
+ * DistrictOrder
  *
- * @ORM\Table(name="kpi_agent_order")
- * @ORM\Entity(repositoryClass="Terminalbd\KpiBundle\Repository\AgentOrderRepository")
+ * @ORM\Table(name="kpi_district_order")
+ * @ORM\Entity(repositoryClass="Terminalbd\KpiBundle\Repository\DistrictOrderRepository")
  */
-class AgentOrder
+class DistrictOrder
 
 {
     /**
@@ -27,33 +27,10 @@ class AgentOrder
      */
     private $id;
 
-
-    /**
-     * @var Location
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Admin\Location" , inversedBy="agentOrder")
-     */
-    private $upozila;
-
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Admin\Location")
      */
     protected $district;
-
-    /**
-     * @var Agent
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Agent" , inversedBy="agentOrder")
-     */
-    private $agent;
-    
-    /**
-     * @var DocumentUpload
-     *
-     * @ORM\ManyToOne(targetEntity="Terminalbd\KpiBundle\Entity\DocumentUpload" , inversedBy="agentOrder")
-     */
-    private $documentUpload;
-
 
     /**
      * @var MarkChart
@@ -126,6 +103,7 @@ class AgentOrder
     {
         return $this->id;
     }
+
     /**
      * @return mixed
      */
@@ -140,38 +118,6 @@ class AgentOrder
     public function setDistrict($district)
     {
         $this->district = $district;
-    }
-
-    /**
-     * @return Location
-     */
-    public function getUpozila()
-    {
-        return $this->upozila;
-    }
-
-    /**
-     * @param mixed $upozila
-     */
-    public function setUpozila($upozila)
-    {
-        $this->upozila = $upozila;
-    }
-
-    /**
-     * @return Agent
-     */
-    public function getAgent()
-    {
-        return $this->agent;
-    }
-
-    /**
-     * @param Agent $agent
-     */
-    public function setAgent(Agent $agent)
-    {
-        $this->agent = $agent;
     }
 
     /**
@@ -193,7 +139,7 @@ class AgentOrder
     /**
      * @return float
      */
-    public function getQuantity(): float
+    public function getQuantity()
     {
         return $this->quantity;
     }
@@ -209,7 +155,7 @@ class AgentOrder
     /**
      * @return float
      */
-    public function getAmount(): float
+    public function getAmount()
     {
         return $this->amount;
     }
@@ -284,22 +230,6 @@ class AgentOrder
     public function setYear($year)
     {
         $this->year = $year;
-    }
-
-    /**
-     * @return DocumentUpload
-     */
-    public function getDocumentUpload()
-    {
-        return $this->documentUpload;
-    }
-
-    /**
-     * @param mixed $documentUpload
-     */
-    public function setDocumentUpload($documentUpload)
-    {
-        $this->documentUpload = $documentUpload;
     }
 
     /**
