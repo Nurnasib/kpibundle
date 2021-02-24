@@ -249,6 +249,17 @@ class MarkChartRepository extends MaterializedPathRepository
         return $result;
     }
 
+    public function findUserMarkAttribute($reportMode, $chart)
+    {
+        $em = $this->_em;
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.reportMode','m');
+        $qb->where('e.id = :id')->setParameter('id',$chart);
+        $qb->andWhere('m.id =:mode')->setParameter('mode',$reportMode);
+        $result = $qb->getQuery()->getOneOrNullResult();
+        return $result;
+    }
+
 
 
 }

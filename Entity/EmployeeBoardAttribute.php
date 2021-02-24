@@ -29,7 +29,7 @@ class EmployeeBoardAttribute
     /**
      * @var EmployeeBoard
      *
-     * @ORM\ManyToOne(targetEntity="EmployeeBoard", inversedBy="employeeBoardAttribute" , cascade={"detach","merge"})
+     * @ORM\ManyToOne(targetEntity="EmployeeBoard", inversedBy="employeeBoardAttributes" , cascade={"detach","merge"})
      * @ORM\JoinColumn(name="employeeBoard_id", referencedColumnName="id", nullable=true, onDelete="cascade")
      */
     private $employeeBoard;

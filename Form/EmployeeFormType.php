@@ -235,6 +235,21 @@ class EmployeeFormType extends AbstractType
                 },
             ))
 
+            ->add('reportMode', EntityType::class, array(
+                'required'    => true,
+                'class' => Setting::class,
+                'placeholder' => 'Choose a  Designation',
+                'choice_label' => 'name',
+                'attr'=>array('class'=>'span12 m-wrap'),
+                'query_builder' => function(EntityRepository $er){
+                    return $er->createQueryBuilder('e')
+                        ->join("e.settingType","st")
+                        ->where("st.slug ='report-mode'")
+                        ->orderBy('e.name', 'ASC');
+                },
+            ))
+
+
             ->add('designation', EntityType::class, array(
                 'required'    => true,
                 'class' => Setting::class,

@@ -67,13 +67,23 @@ class EmployeeBoard
      */
     private $updated;
 
+    /**
+     * @var EmployeeBoardAttribute
+     *
+     * @ORM\OneToMany(targetEntity="Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute", mappedBy="employeeBoard")
+     */
+    private $employeeBoardAttributes;
 
-     /**
+
+
+
+    /**
      * @var boolean
      *
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $status = true;
+    
 
     public function setId($id)
     {
@@ -206,6 +216,15 @@ class EmployeeBoard
     {
         $this->process = $process;
     }
+
+    /**
+     * @return EmployeeBoardAttribute
+     */
+    public function getEmployeeBoardAttributes()
+    {
+        return $this->employeeBoardAttributes;
+    }
+
 
 
 }

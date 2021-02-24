@@ -22,7 +22,7 @@
                     <div class="card-header-right">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
                             <a href="{{ path('kpi_employee_board') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>{{ 'Employee Board'|trans }}</a>
-                            <a href="{{ path('kpi_summary_report',{'id':entity.id}) }}" class="btn btn-sm green-bg white-font"><i class="fa fa-th-list"></i>{{ 'KPI Summary'|trans }}</a>
+                            <a href="{{ path('kpi_summary_report',{'id':board.id}) }}" class="btn btn-sm green-bg white-font"><i class="fa fa-th-list"></i>{{ 'KPI Summary'|trans }}</a>
                         </div>
                     </div>
                 </div>
@@ -32,7 +32,7 @@
             <div class="card">
                 <div class="portlet box green ">
                     <div class="portlet-title">
-                        <div class="caption">{{ 'Manage KPI Details for '|trans }} : {{ entity.employeeSetup.employee.name }}</div>
+                        <div class="caption">{{ 'Manage KPI Details for '|trans }} : {{ board.employeeSetup.employee.name }}</div>
                     </div>
                     <style>
                         .list-unstyled li {
@@ -44,24 +44,24 @@
                             <div class="form-inner-no-space">
                                 <div class="form-group">
                                     <label class="col-md-2 control-label"><strong>Employee Name</strong></label>
-                                    <label class="col-md-10 control-label">{{ entity.employeeSetup.employee.name }}</label>
+                                    <label class="col-md-10 control-label">{{ board.employeeSetup.employee.name }}</label>
                                 </div>
                                 <div class="form-group">
                                     <label class="col-md-2 control-label"><strong>Month & Year</strong></label>
-                                    <label class="col-md-10 control-label">{{ entity.month }},{{ entity.year }}</label>
+                                    <label class="col-md-10 control-label">{{ board.month }},{{ board.year }}</label>
                                 </div>
                                 <div class="form-group">
                                     <label class="col-md-2 control-label"><strong>Designation</strong></label>
-                                    <label class="col-md-10 control-label">{{ entity.employeeSetup.employee.designation.name }}</label>
+                                    <label class="col-md-10 control-label">{{ board.employeeSetup.employee.designation.name }}</label>
                                 </div>
                                 <div class="form-group">
                                     <label class="col-md-2 control-label"><strong>Working Area</strong></label>
-                                    <label class="col-md-10 control-label">{{ entity.employeeSetup.employee.area }}</label>
+                                    <label class="col-md-10 control-label">{{ board.employeeSetup.employee.area }}</label>
                                 </div>
-                                {% if entity.employeeSetup.employee.department is not empty %}
+                                {% if board.employeeSetup.employee.department is not empty %}
                                     <div class="form-group">
                                         <label class="col-md-2 control-label"><strong>Department</strong></label>
-                                        <label class="col-md-10 control-label">{{ entity.employeeSetup.employee.department.name }}</label>
+                                        <label class="col-md-10 control-label">{{ board.employeeSetup.employee.department.name }}</label>
                                     </div>
                                 {% endif %}
                             </div>
@@ -100,7 +100,7 @@
                                                                                 <td class="attribute-markDistribution">
                                                                                     {% if attribute.children is not empty %}
                                                                                         {% if attribute.systemEntry == 1 %}
-                                                                                            <select class="markDistribution" data-id="{{ marks[attribute.id]['id'] }}" data-action="{{ path('kpi_employee_board_attribute_update',{'id':marks[attribute.id]['id']}) }}" >
+                                                                                            <select class="markDistribution" data-id="{{ marks[attribute.id]['id'] }}" data-action="{{ path('kpi_employee_board_attribute_update',{'entity':board.id,'id':marks[attribute.id]['id']}) }}" >
                                                                                                 {% for markDistribution in attribute.children %}
                                                                                                     <option  value="{{ markDistribution.id }}" {% if  marks[attribute.id]['markDistributionId'] is defined and marks[attribute.id]['markDistributionId'] is not empty and markDistribution.id ==  marks[attribute.id]['markDistributionId'] %} selected="selected" {% endif %}>{{ markDistribution.name }}</option>
                                                                                                 {% endfor %}

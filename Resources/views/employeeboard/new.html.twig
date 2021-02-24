@@ -8,7 +8,7 @@
                 <div class="row align-items-center">
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
-                        <li class="breadcrumb-item"> <a href="{{ path('kpi_markchart') }}">  {{ 'Settings'|trans }}</a></li>
+                        <li class="breadcrumb-item"> <a href="{{ path('kpi_markchart') }}">  {{ 'KPI Board'|trans }}</a></li>
                         <li class="breadcrumb-item"> <a href="javascript:">{{ 'Add New'|trans }}</a></li>
                     </ul>
                 </div>
@@ -22,8 +22,8 @@
                     <h5>{{ 'KPI Element'|trans }}</h5>
                     <div class="card-header-right">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
-                            <a href="{{ path('kpi_markchart_new') }}" class="btn btn-sm  green-bg white-font"><i class="fas fa-plus"></i>{{ 'Add New'|trans }}</a>
-                            <a href="{{ path('kpi_markchart') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>{{ 'KPI Mark Chart'|trans }}</a>
+                            <a href="{{ path('kpi_setup_new') }}" class="btn btn-sm  green-bg white-font"><i class="fas fa-plus"></i>{{ 'Add New'|trans }}</a>
+                            <a href="{{ path('kpi_employee_board') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>{{ 'KPI Board'|trans }}</a>
                         </div>
                     </div>
                 </div>
@@ -81,66 +81,106 @@
                             <thead class="thead-dark">
                             <tr>
                                 <th scope="col">Parameter</th>
-                                <th scope="col" style="width: 22%">Activity</th>
-                                <th scope="col" style="width: 35%">Attributes</th>
+                                <th scope="col" style="width: 5%;">Activity</th>
+                                <th scope="col" style="width: 45%">Attributes</th>
                                 <th scope="col">Marks</th>
                                 <th scope="col" style="width: 27%">Mark Distribution</th>
                                 <th scope="col">Rating</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {% for entity in entities %}
-                                <tr>
-                                    <td class="parameter"><span>{{ entity.name }}</span></td>
-                                    <td colspan="5">
-                                        {% if entity.children is not empty %}
-                                        <table class="activity table">
-                                            {% for activity in entity.children %}
-                                                <tr>
-                                                    <td class="activity-name"><span>{{ activity.name }}</span></td>
-                                                    <td class="activity-attribute">
-                                                          {% if activity.children is not empty %}
-                                                              <table class="attribute table">
-                                                            {% for attribute in activity.children %}
-                                                                <tr>
-                                                                    <td class="attribute-name">
-                                                                        {{ attribute.name }}{{ attribute.id }}
-                                                                    </td>
-                                                                    <td class="attribute-mark">
-                                                                        {{ attribute.mark }}
-                                                                    </td>
-                                                                    <td class="attribute-markDistribution">
-                                                                         {% if attribute.children is not empty %}
-                                                                             {% if attribute.systemEntry == 1 %}
-                                                                                 <select class="markDistribution" data-id="{{ marks[attribute.id]['id'] }}" data-action="{{ path('kpi_employee_board_attribute_update',{'entity':board.id,'id':marks[attribute.id]['id']}) }}" >
-                                                                                {% for markDistribution in attribute.children %}
-                                                                                    <option  value="{{ markDistribution.id }}" {% if  marks[attribute.id]['markDistributionId'] is defined and marks[attribute.id]['markDistributionId'] is not empty and markDistribution.id ==  marks[attribute.id]['markDistributionId'] %} selected="selected" {% endif %}>{{ markDistribution.name }}</option>
-                                                                                {% endfor %}
-                                                                            </select>
-                                                                        {% else %}
-                                                                                 <ul class="markDistribution">
-                                                                                {% for markDistribution in attribute.children %}
-                                                                                    <li>{{ markDistribution.name }}</li>
-                                                                                {% endfor %}
-                                                                            </ul>
-                                                                             {% endif %}
-                                                                         {% endif %}
-                                                                    </td>
-                                                                    <td class="attribute-score" id="markDistribution-{{ marks[attribute.id]['id'] }}">
-                                                                        {% if marks[attribute.id] is defined and marks[attribute.id]['mark'] is not empty  %}{{ marks[attribute.id]['mark'] }}{% endif %}
-                                                                    </td>
-                                                                </tr>
-                                                            {% endfor %}
-                                                        </table>
-                                                          {% endif %}
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                        </table>
+                            {% if board.employeeBoardAttributes is not empty %}
+
+                            {% for parameters in arrayData %}
+                                {% set count=1 %}
+                                {% for activity in parameters %}
+                                    {% set countActity=1 %}
+                                    {% for entity in activity %}
+                                        <tr>
+                                        {% if(count==1) %}
+                                        <td rowspan="{{ parameters|multiArrayLength }}" class="parameter"><span>{{ entity.parameter.name }}</span></td>
                                         {% endif %}
-                                    </td>
-                                </tr>
+                                        {% if(countActity==1) %}
+                                        <td rowspan="{{ activity|length }}" class="parameter"><span>{{ entity.activity.name }}</span></td>
+                                        {% endif %}
+                                        <td>
+                                        {{ entity.attribute.name }}
+                                        </td>
+                                        <td>
+                                            {{ entity.attribute.mark }}
+                                        </td>
+                                        <td>
+                                            {% if entity.attribute.children is not empty %}
+                                                {% if entity.attribute.systemEntry == 1 %}
+                                                    <select class="markDistribution" data-id="{{ entity.attribute.id }}" data-action="{{ path('kpi_employee_board_attribute_update',{'entity':board.id,'id':entity.attribute.id}) }}" >
+                                                        {% for markDistribution in entity.attribute.children %}
+                                                            <option  value="{{ markDistribution.id }}" {% if  entity.markDistribution is not empty and markDistribution.id ==  entity.markDistribution.id %} selected="selected" {% endif %}>{{ markDistribution.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                {% else %}
+
+                                                    <ul class="markDistribution">
+                                                    {% for children in entity.attribute.children %}
+                                                        <li>{{ children.name }}</li>
+                                                    {% endfor %}
+                                                    </ul>
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ entity.mark }}
+                                        </td>
+                                    </tr>
+                                        {% set countActity=0 %}
+                                    {% set count=count+1 %}
+                                    {% endfor %}
+                                {% endfor %}
                             {% endfor %}
+                            {% endif %}
+{#                            {% for entity in entities %}#}
+{#                                <tr>#}
+{#                                    <td class="parameter"><span>{{ entity.name }}</span></td>#}
+{#                                    <td colspan="5">#}
+{#                                        {% if entity.children is not empty %}#}
+{#                                        <table class="activity table">#}
+{#                                            {% for activity in entity.children %}#}
+{#                                                <tr>#}
+{#                                                    <td class="activity-name"><span>{{ activity.name }}</span></td>#}
+{#                                                    <td class="activity-attribute">#}
+{#                                                          {% if activity.children is not empty %}#}
+{#                                                              <table class="attribute table">#}
+{#                                                            {% for attribute in activity.children %}#}
+{#                                                                {% if  marks[attribute.id] is defined and  marks[attribute.id] is not empty %}#}
+{#                                                                    <tr>#}
+{#                                                                        <td class="attribute-name">#}
+{#                                                                            {{ attribute.name }}#}
+{#                                                                        </td>#}
+{#                                                                        <td class="attribute-mark">#}
+{#                                                                            {{ attribute.mark }}#}
+{#                                                                        </td>#}
+{#                                                                        <td class="attribute-markDistribution">#}
+{#                                                                            {% if attribute.children is not empty %}#}
+
+
+{#                                                                                {% endif %}#}
+{#                                                                            {% endif %}#}
+{#                                                                        </td>#}
+{#                                                                        <td class="attribute-score" id="markDistribution-{% if  marks[attribute.id] is defined and  marks[attribute.id] is not empty %}{{ marks[attribute.id]['id'] }} {% endif %}">#}
+{#                                                                            {% if marks[attribute.id] is defined and marks[attribute.id]['mark'] is not empty  %}{{ marks[attribute.id]['mark'] }}{% endif %}#}
+{#                                                                        </td>#}
+{#                                                                    </tr>#}
+{#                                                                {% endif %}#}
+{#                                                            {% endfor %}#}
+{#                                                        </table>#}
+{#                                                          {% endif %}#}
+{#                                                    </td>#}
+{#                                                </tr>#}
+{#                                            {% endfor %}#}
+{#                                        </table>#}
+{#                                        {% endif %}#}
+{#                                    </td>#}
+{#                                </tr>#}
+{#                            {% endfor %}#}
                             </tbody>
                         </table>
                     </div>

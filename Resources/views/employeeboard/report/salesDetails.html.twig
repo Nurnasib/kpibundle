@@ -67,8 +67,8 @@
                                 <tr>
                                     <th scope="col">#</th>
                                     <th scope="col">Mark Parameter</th>
-                                    <th scope="col">Target Sales Amount</th>
-                                    <th scope="col">Sales Amount</th>
+                                    <th scope="col">Target Quantity</th>
+                                    <th scope="col">Sales Quantity</th>
                                     <th scope="col">Marks</th>
                                 </tr>
                                 </thead>
@@ -78,13 +78,13 @@
                                 {% set salesAmount = 0 %}
                                 {% for entity in entities %}
                                     {% set totalMark = totalMark + entity.mark %}
-                                    {% set targetAmount = targetAmount + entity.salesTargetAmount %}
-                                    {% set salesAmount = salesAmount + entity.salesAmount %}
+                                    {% set targetAmount = targetAmount + entity.targetQuantity %}
+                                    {% set salesAmount = salesAmount + entity.salesQuantity %}
                                     <tr>
                                         <td>{{ loop.index }}</td>
                                         <td>{{ entity.markDistribution.name }}</td>
-                                        <td>{{ entity.salesTargetAmount }}</td>
-                                        <td>{{ entity.salesAmount }}</td>
+                                        <td>{{ entity.targetQuantity }}</td>
+                                        <td>{{ entity.salesQuantity }}</td>
                                         <td>{{ entity.mark }}</td>
                                     </tr>
                                 {% endfor %}

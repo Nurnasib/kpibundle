@@ -11,6 +11,8 @@
 
 namespace Terminalbd\KpiBundle\Controller;
 
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -82,13 +84,63 @@ class EmployeeBoardController extends AbstractController
         $data = $request->request->all();
         $em = $this->getDoctrine()->getManager();
         $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
+        $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->find($entity);
         $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($entity);
         $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($entity->getEmployeeSetup(),$entity,$entities);
+        $arrayData=[];
+        /* @var EmployeeBoardAttribute $boardAttribute*/
+        foreach ($entity->getEmployeeBoardAttributes() as $boardAttribute){
+            $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][]=$boardAttribute;
+        }
+
         return $this->render('@TerminalbdKpi/employeeboard/new.html.twig', [
             'board' => $entity,
             'marks' => $marks,
             'entities' => $entities,
+            'arrayData' => $arrayData,
         ]);
+    }
+    /**
+     * @Route("/{id}/pdf", methods={"GET"}, name="kpi_employee_board_pdf")
+     */
+    public function reportPdf(Request $request, EmployeeBoard $entity): Response
+    {
+
+        $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->find($entity);
+        $arrayData=[];
+        /* @var EmployeeBoardAttribute $boardAttribute*/
+        foreach ($entity->getEmployeeBoardAttributes() as $boardAttribute){
+            $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][]=$boardAttribute;
+        }
+
+        //Need to collect values here to pass the pdf view($entities)
+
+        // Configure Dompdf according to your needs
+        $pdfOptions = new Options();
+        $pdfOptions->set('defaultFont', 'Arial');
+
+        // Instantiate Dompdf with our options
+        $dompdf = new Dompdf($pdfOptions);
+
+        // Retrieve the HTML generated in our twig file
+        $html = $this->renderView('@TerminalbdKpi/employeeboard/report/pdf.html.twig', ['board' => $entity,'arrayData' => $arrayData]);
+
+        // Load HTML to Dompdf
+        $dompdf->loadHtml($html);
+
+        // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
+        $dompdf->setPaper('legal', 'landscape');
+
+        // Render the HTML as PDF
+        $dompdf->render();
+
+        // Output the generated PDF to Browser (force download)
+        $dompdf->stream("abc" . ".pdf", [
+            "Attachment" => false
+        ]);
+        /*        $dompdf->stream($filterBy['slug'] . ".pdf", [
+                    "Attachment" => false
+                ]);*/
     }
 
     /**
@@ -135,7 +187,7 @@ class EmployeeBoardController extends AbstractController
         $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
         $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($entity);
         return $this->render('@TerminalbdKpi/employeeboard/report/details.html.twig', [
-            'entity' => $entity,
+            'board' => $entity,
             'marks' => $marks,
             'entities' => $entities,
         ]);

@@ -70,14 +70,17 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                         foreach ($activity->getChildren() as $attribute):
                             $exist = $this->findOneBy(array('employeeBoard'=> $board,'attribute'=>$attribute));
                             if(empty($exist)){
-                                $entity = new EmployeeBoardAttribute();
-                                $entity->setEmployeeBoard($board);
-                                $entity->setParameter($parameter);
-                                $entity->setActivity($activity);
-                                $entity->setAttribute($attribute);
-                                $entity->setActualMark($attribute->getMark());
-                                $em->persist($entity);
-                                $em->flush();
+                               // $markChartAttribute = $em->getRepository(MarkChart::class)->findUserMarkAttribute($board->getEmployeeSetup()->getEmployee()->getReportMode()->getId(),$attribute->getId());
+                               // if($markChartAttribute){
+                                    $entity = new EmployeeBoardAttribute();
+                                    $entity->setEmployeeBoard($board);
+                                    $entity->setParameter($parameter);
+                                    $entity->setActivity($activity);
+                                    $entity->setAttribute($attribute);
+                                    $entity->setActualMark($attribute->getMark());
+                                    $em->persist($entity);
+                                    $em->flush();
+                               // }
                             }
 
                         endforeach;
@@ -135,11 +138,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
 //                $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(['employeBoard'=>$board,'markDistribution' => $distribution]);
                 $employeeBoardAttribute = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$distribution]);
-
-                $employeeBoardAttribute->setMark($entity->getMark());
-                $em->persist($employeeBoardAttribute);
-                $em->flush();
-
+                if($employeeBoardAttribute){
+                    $employeeBoardAttribute->setMark($entity->getMark());
+                    $em->persist($employeeBoardAttribute);
+                    $em->flush();
+                }
 
             endforeach;
         }
