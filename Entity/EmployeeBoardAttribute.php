@@ -309,7 +309,7 @@ class EmployeeBoardAttribute
     /**
      * @param MarkChart $markDistribution
      */
-    public function setMarkDistribution(MarkChart $markDistribution)
+    public function setMarkDistribution($markDistribution)
     {
         $this->markDistribution = $markDistribution;
     }

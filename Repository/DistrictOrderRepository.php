@@ -28,12 +28,13 @@ class DistrictOrderRepository extends EntityRepository
     {
 
         $qb = $this->createQueryBuilder('e');
-        $qb->leftJoin('e.product','distribution');
-        $qb->join('e.upozila','u');
-        $qb->select('distribution.id as distributionId','SUM(e.amount) as amount');
-        $qb->where('u.id IN (:upozils)')->setParameter('upozils',$locations);
+        $qb->join('e.product','distribution');
+        $qb->join('e.district','u');
+        $qb->select('distribution.id as distributionId','SUM(e.quantity) as quantity');
+        $qb->where('u.id IN (:districts)')->setParameter('districts',$locations);
         $qb->groupBy('distribution.id');
         $result = $qb->getQuery()->getArrayResult();
+        dd($locations);
         $data = array();
         foreach ($result as $row){
             $data[$row['distributionId']] = $row;

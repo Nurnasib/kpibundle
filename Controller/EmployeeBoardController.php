@@ -85,7 +85,7 @@ class EmployeeBoardController extends AbstractController
         $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($entity);
         $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($entity->getEmployeeSetup(),$entity,$entities);
         return $this->render('@TerminalbdKpi/employeeboard/new.html.twig', [
-            'entity' => $entity,
+            'board' => $entity,
             'marks' => $marks,
             'entities' => $entities,
         ]);
@@ -110,17 +110,17 @@ class EmployeeBoardController extends AbstractController
     /**
      * Deletes a Setting entity.
      *
-     * @Route("/{id}/attribute-update", methods={"GET"}, name="kpi_employee_board_attribute_update")
-     * @Security("is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN')")
+     * @Route("/{entity}/{id}/attribute-update", methods={"GET"}, name="kpi_employee_board_attribute_update")
      */
     public function attributeUpdate($id): Response
     {
         $mark = $_REQUEST['mark'];
         $attribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($mark);
+        /* @var $entity EmployeeBoardAttribute */
         $entity = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->find($id);
         $em = $this->getDoctrine()->getManager();
         $entity->setMarkDistribution($attribute);
-        $entity->setActualMark($attribute->getMark());
+        $entity->setMark($attribute->getMark());
         $em->flush();
         return new Response($attribute->getMark());
     }

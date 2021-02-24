@@ -5,6 +5,7 @@ namespace Terminalbd\KpiBundle\Controller;
 
 use App\Entity\Admin\Location;
 use App\Entity\Core\Agent;
+use App\Entity\Core\Setting;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -78,6 +79,7 @@ class FileUploadController extends AbstractController
      */
     public function insertDataFromUploadedFile(Request $request, DocumentUpload $file)
     {
+        set_time_limit(0);
         $monthYear = explode(',', $file->getMonthYear());
         $month = $monthYear[0];
         $year = $monthYear[1];
@@ -126,7 +128,7 @@ class FileUploadController extends AbstractController
             foreach ($breedArrays as $breedType => $value) {
                 
                 $agentOrder = new AgentOrder();
-                $product = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['name' => $breedType]);
+                $product = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['salesMode'=>'feed','name' => $breedType]);
                  if ($product) {
                     $agentOrder->setAgent($findAgent);
                     $agentOrder->setDistrict($district?$district:null);

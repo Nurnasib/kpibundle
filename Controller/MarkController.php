@@ -58,9 +58,9 @@ class MarkController extends AbstractController
     {
         $entity = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->find($id);
         $em = $this->getDoctrine()->getManager();
-        $amount = $_REQUEST['amount'];
+        $quantity = $_REQUEST['quantity'];
         if($entity){
-            $entity->setAmount($amount);
+            $entity->setQuantity($quantity);
             $em->flush();
             return new Response('Success');
         }

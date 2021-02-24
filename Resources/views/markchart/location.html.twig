@@ -53,7 +53,7 @@
                                 {% for product in products %}
                                 <td>
                                     {% set ids = entity.id~'-'~product.id %}
-                                    <input type="number" data-action="{{ path('kpi_markchart_location_sales_target',{'id':matrixArr[ids]['matrixId']}) }}" data-index="{{ matrixArr[ids]['matrixId'] }}" class="form-control matrixId" data-id="{{ matrixArr[ids]['matrixId'] }}"  id="amount-{{ matrixArr[ids]['matrixId'] }}" name="amount-{{ matrixArr[ids]['matrixId'] }}" value="{% if matrixArr[ids] is defined and  matrixArr[ids].upozilaId ==  entity.id and  matrixArr[ids].markId == product.id %}{{ matrixArr[ids]['amount'] }}{% endif %}" >
+                                    <input type="number" data-action="{{ path('kpi_markchart_location_sales_target',{'id':matrixArr[ids]['matrixId']}) }}" data-index="{{ matrixArr[ids]['matrixId'] }}" class="form-control matrixId" data-id="{{ matrixArr[ids]['matrixId'] }}"  id="quantity-{{ matrixArr[ids]['matrixId'] }}" name="quantity-{{ matrixArr[ids]['matrixId'] }}" value="{% if matrixArr[ids] is defined and  matrixArr[ids].districtId ==  entity.id and  matrixArr[ids].markId == product.id %}{{ matrixArr[ids]['quantity'] }}{% endif %}" >
                                 </td>
                                 {% endfor %}
                             </tr>
@@ -71,7 +71,7 @@
 {% endblock  %}
 {% block javascripts %}
     {{ parent() }}
-    <script type="application/javascript" src="{{ asset('assets/module/kpi/script.js') }}"></script>
+    <script type="application/javascript" src="{{ asset('bundles/terminalbdkpi/js/script.js') }}"></script>
 {% endblock  %}
 {% block documentready %}
     {{ parent() }}

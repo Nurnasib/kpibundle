@@ -239,6 +239,16 @@ class MarkChartRepository extends MaterializedPathRepository
         return $result;
     }
 
+    public function findProduct($name)
+    {
+        $em = $this->_em;
+        $qb = $this->createQueryBuilder('e');
+        $qb->where('e.name = :name')->setParameter('name',$name);
+        $qb->andWhere('e.salesMode = :mode')->setParameter('mode','feed');
+        $result = $qb->getQuery()->getResult();
+        return $result;
+    }
+
 
 
 }

@@ -43,12 +43,27 @@ class EmployeeBoardSubAttribute
      */
     private $markDistribution;
 
+    /**
+     * @var float
+     * @ORM\Column(name="targetQuantity", type="float", nullable=true)
+     */
+    private $targetQuantity;
+
+    /**
+     * @var float
+     * @ORM\Column(name="salesQuantity", type="float", nullable=true)
+     */
+    private $salesQuantity;
+
+
 
     /**
      * @var float
      * @ORM\Column(name="salesTargetAmount", type="float", nullable=true)
      */
     private $salesTargetAmount;
+
+
 
 
     /**
@@ -166,7 +181,7 @@ class EmployeeBoardSubAttribute
     /**
      * @param float $salesTargetAmount
      */
-    public function setSalesTargetAmount(float $salesTargetAmount)
+    public function setSalesTargetAmount($salesTargetAmount)
     {
         $this->salesTargetAmount = $salesTargetAmount;
     }
@@ -182,10 +197,43 @@ class EmployeeBoardSubAttribute
     /**
      * @param float $mark
      */
-    public function setMark(float $mark)
+    public function setMark($mark)
     {
         $this->mark = $mark;
     }
+
+    /**
+     * @return float
+     */
+    public function getTargetQuantity()
+    {
+        return $this->targetQuantity;
+    }
+
+    /**
+     * @param float $targetQuantity
+     */
+    public function setTargetQuantity($targetQuantity)
+    {
+        $this->targetQuantity = $targetQuantity;
+    }
+
+    /**
+     * @return float
+     */
+    public function getSalesQuantity()
+    {
+        return $this->salesQuantity;
+    }
+
+    /**
+     * @param float $salesQuantity
+     */
+    public function setSalesQuantity($salesQuantity)
+    {
+        $this->salesQuantity = $salesQuantity;
+    }
+
 
 
 }

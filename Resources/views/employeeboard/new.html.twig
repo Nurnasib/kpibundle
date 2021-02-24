@@ -59,16 +59,16 @@
                             <tr>
                                 <th>
                                     <ul class="header-info">
-                                        <li>Name of the Employee:{{ entity.employeeSetup.employee.name }}</li>
-                                        <li>Date of Joining:{% if entity.employeeSetup.employee is not empty %}{{ entity.employeeSetup.employee.joiningDate|date('d-m-Y') }}{% endif %}</li>
-                                        <li>Line Manager:{% if entity.employeeSetup.employee.lineManager is not empty %}{{ entity.employeeSetup.employee.lineManager.name }}{% endif %}</li>
+                                        <li>Name of the Employee:{{ board.employeeSetup.employee.name }}</li>
+                                        <li>Date of Joining:{% if board.employeeSetup.employee is not empty %}{{ board.employeeSetup.employee.joiningDate|date('d-m-Y') }}{% endif %}</li>
+                                        <li>Line Manager:{% if board.employeeSetup.employee.lineManager is not empty %}{{ board.employeeSetup.employee.lineManager.name }}{% endif %}</li>
                                         <li>ZONE:</li>
                                     </ul>
                                 </th>
                                 <th>
                                     <ul class="header-info">
-                                        <li>Emp ID:{% if entity.employeeSetup.employee is not empty %}{{ entity.employeeSetup.employee.userId }}{% endif %}</li>
-                                        <li>Designation:{% if entity.employeeSetup.employee.designation is not empty %}{{ entity.employeeSetup.employee.designation.name }}{% endif %}</li>
+                                        <li>Emp ID:{% if board.employeeSetup.employee is not empty %}{{ board.employeeSetup.employee.userId }}{% endif %}</li>
+                                        <li>Designation:{% if board.employeeSetup.employee.designation is not empty %}{{ board.employeeSetup.employee.designation.name }}{% endif %}</li>
                                     </ul>
                                 </th>
                             </tr>
@@ -104,7 +104,7 @@
                                                             {% for attribute in activity.children %}
                                                                 <tr>
                                                                     <td class="attribute-name">
-                                                                        {{ attribute.name }}
+                                                                        {{ attribute.name }}{{ attribute.id }}
                                                                     </td>
                                                                     <td class="attribute-mark">
                                                                         {{ attribute.mark }}
@@ -112,7 +112,7 @@
                                                                     <td class="attribute-markDistribution">
                                                                          {% if attribute.children is not empty %}
                                                                              {% if attribute.systemEntry == 1 %}
-                                                                                 <select class="markDistribution" data-id="{{ marks[attribute.id]['id'] }}" data-action="{{ path('kpi_employee_board_attribute_update',{'id':marks[attribute.id]['id']}) }}" >
+                                                                                 <select class="markDistribution" data-id="{{ marks[attribute.id]['id'] }}" data-action="{{ path('kpi_employee_board_attribute_update',{'entity':board.id,'id':marks[attribute.id]['id']}) }}" >
                                                                                 {% for markDistribution in attribute.children %}
                                                                                     <option  value="{{ markDistribution.id }}" {% if  marks[attribute.id]['markDistributionId'] is defined and marks[attribute.id]['markDistributionId'] is not empty and markDistribution.id ==  marks[attribute.id]['markDistributionId'] %} selected="selected" {% endif %}>{{ markDistribution.name }}</option>
                                                                                 {% endfor %}

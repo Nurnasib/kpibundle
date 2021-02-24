@@ -35,15 +35,13 @@ class LocationSalesTargetRepository extends EntityRepository
         foreach ($charts as $chart){
 
             foreach ($locations as $location ){
-
-                $exist = $this->findOneBy(array('markDistribution' => $chart, 'upozila' => $location));
+                $exist = $this->findOneBy(array('markDistribution' => $chart, 'district' => $location));
                 if(empty($exist)){
                     $entity = new LocationSalesTarget();
                     $entity->setMarkDistribution($chart);
-                    $entity->setUpozila($location);
-                    $entity->setDistrict($location->getParent());
-                    $entity->setRegional($location->getParent()->getParent());
-                    $entity->setZone($location->getParent()->getParent()->getParent());
+                    $entity->setDistrict($location);
+                    $entity->setRegional($location->getParent());
+                    $entity->setZone($location->getParent()->getParent());
                     $this->_em->persist($entity);
                     $this->_em->flush();
                 }
@@ -51,16 +49,33 @@ class LocationSalesTargetRepository extends EntityRepository
         }
 
         $qb = $this->createQueryBuilder('e');
-        $qb->join('e.upozila','l');
+        $qb->join('e.district','l');
         $qb->join('e.markDistribution','m');
-        $qb->select('e.id as matrixId','e.amount as amount','l.id as upozilaId','l.name as upozila','m.id as markId','m.name as martDistribution');
+        $qb->select('e.id as matrixId','e.quantity as quantity','l.id as districtId','m.id as markId','m.name as martDistribution');
         $result = $qb->getQuery()->getArrayResult();
         $array = array();
         foreach ($result as $item):
-            $id = "{$item['upozilaId']}-{$item['markId']}";
+            $id = "{$item['districtId']}-{$item['markId']}";
             $array[$id] = $item;
         endforeach;
         return $array;
+
+    }
+
+    public function getLocationWiseTotalProductSalesTarget($locations)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.markDistribution','distribution');
+        $qb->join('e.district','u');
+        $qb->select('distribution.id as id','SUM(e.quantity) as quantity');
+        $qb->where('u.id IN (:districts)')->setParameter('districts',$locations);
+        $qb->groupBy('distribution.id');
+        $result = $qb->getQuery()->getArrayResult();
+        $data = array();
+        foreach ($result as $row){
+            $data[$row['id']] = $row;
+        }
+        return $data;
 
     }
 

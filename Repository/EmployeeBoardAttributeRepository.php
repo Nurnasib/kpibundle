@@ -17,6 +17,7 @@ use Terminalbd\KpiBundle\Entity\EmployeeBoard;
 use Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute;
 use Terminalbd\KpiBundle\Entity\EmployeeBoardSubAttribute;
 use Terminalbd\KpiBundle\Entity\EmployeeSetup;
+use Terminalbd\KpiBundle\Entity\LocationSalesTarget;
 use Terminalbd\KpiBundle\Entity\MarkChart;
 
 /**
@@ -34,7 +35,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     {
 
         $qb = $this->createQueryBuilder('e');
-        $qb->select('e.id as id','a.id as attribute','m.id as markDistributionId','e.actualMark as mark','e.targetAmount as targetAmount','e.targetAchievement as targetAchievement');
+        $qb->select('e.id as id','a.id as attribute','m.id as markDistributionId','e.mark as mark','e.targetAmount as targetAmount','e.targetAchievement as targetAchievement');
         $qb->join("e.attribute",'a');
         $qb->leftJoin("e.markDistribution",'m');
         $qb->where("e.employeeBoard = {$board->getId()}");
@@ -74,8 +75,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                                 $entity->setParameter($parameter);
                                 $entity->setActivity($activity);
                                 $entity->setAttribute($attribute);
-                                $entity->setActualMark(10);
-                                $entity->setMark($attribute->getMark());
+                                $entity->setActualMark($attribute->getMark());
                                 $em->persist($entity);
                                 $em->flush();
                             }
@@ -102,52 +102,47 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     {
         $em = $this->_em;
         $entities = "";
-        $locations = $em->getRepository(EmployeeSetup::class)->processSetup($setup->getId());
+        $locations = $board->getEmployeeSetup()->getEmployee()->getDistrict();
         $arrs = array();
-        dd($locations);
         if(!empty($locations)){
             foreach ($locations as $location){
-                $arrs[] = $location['upozila'];
+                $arrs[] = $location->getId();
             }
         }
 
-
+        $entities = $em->getRepository(LocationSalesTarget::class)->getLocationWiseTotalProductSalesTarget($arrs);
         $orders = $em->getRepository(AgentOrder::class)->getLocationWiseTotalProductSales($arrs);
-
 
         if(!empty($entities)){
 
             foreach ($entities as $parameter):
-
-
+                $entity = new EmployeeBoardSubAttribute();
                 $distribution = $em->getRepository(MarkChart::class)->find($parameter['id']);
                 $exist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard'=> $board,'markDistribution'=> $parameter['id']));
-                if(empty($exist)){
-                    $entity = new EmployeeBoardSubAttribute();
+                if($exist){
+                    $entity = $exist;
+                }
                     $entity->setEmployeeBoard($board);
                     $entity->setMarkDistribution($distribution);
-                    $entity->setSalesTargetAmount($parameter['amount']);
+                    $entity->setTargetQuantity($parameter['quantity']);
                     if(isset($orders[$parameter['id']]) and !empty($orders[$parameter['id']])){
-                        $entity->setSalesAmount($orders[$parameter['id']]['amount']);
+                        $entity->setSalesQuantity($orders[$parameter['id']]['quantity']);
                     }
-                    $mark = $this->salesTargetCalculation($entity->getSalesTargetAmount(),$entity->getSalesAmount());
+                    $mark = $this->salesTargetCalculation($entity->getTargetQuantity(),$entity->getSalesQuantity());
                     $entity->setMark($mark);
                     $em->persist($entity);
+                    $em->flush();
 
-                }else{
+//                $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(['employeBoard'=>$board,'markDistribution' => $distribution]);
+                $employeeBoardAttribute = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$distribution]);
 
-                    $exist->setSalesTargetAmount($parameter['amount']);
-                    if(isset($orders[$parameter['id']]) and !empty($orders[$parameter['id']])){
-                        $exist->setSalesAmount($orders[$parameter['id']]['amount']);
-                    }
-                    $mark = $this->salesTargetCalculation($exist->getSalesTargetAmount(),$exist->getSalesAmount());
-                    $exist->setMark($mark);
-                }
+                $employeeBoardAttribute->setMark($entity->getMark());
+                $em->persist($employeeBoardAttribute);
                 $em->flush();
+
 
             endforeach;
         }
-
 
     }
 
@@ -165,19 +160,21 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         return $result;
     }
 
-    public function salesTargetCalculation($targetAmount,$salesAmount)
+    public function salesTargetCalculation($target,$sales)
     {
-        $action = (($salesAmount * 100 )/$targetAmount);
-
-        if($action >= 100) {
-            return 5;
-        }elseif ($action < 100 and $action >= 90) {
-            return 4;
-        }elseif ($action < 90 and $action >= 70) {
-            return 3;
-        }else {
-            return 0;
+        if($target > 0){
+            $action = (($sales * 100 )/$target);
+            if($action >= 100) {
+                return 5;
+            }elseif ($action < 100 and $action >= 90) {
+                return 4;
+            }elseif ($action < 90 and $action >= 70) {
+                return 3;
+            }else {
+                return 0;
+            }
         }
+
     }
 
 
