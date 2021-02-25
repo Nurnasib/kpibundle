@@ -68,7 +68,7 @@
                                 {% for item in items %}
                                     <td scope="col">
                                         {% set salesItemId = entity.customerId~'-'~item.id %}
-                                        {{ salesItemId }}
+                                        {{ agentSalesQty[entity.customerId][item.id]['quantity']|default('') }}
                                        {#{% if salesItems.salesItemId is not empty %} {{ salesItems.salesItemId }}{% endif %}#}
                                     </td>
                                 {% endfor %}

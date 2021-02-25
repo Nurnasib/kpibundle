@@ -24,6 +24,77 @@ use Doctrine\ORM\EntityRepository;
 class AgentOrderRepository extends EntityRepository
 {
 
+    public function findWithAgentSearch($data)
+    {
+        $year = isset($data['year']) ? $data['year']:'';
+        $month = isset($data['month']) ? $data['month']:'';
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.agent','agent');
+        $qb->leftJoin('e.district','d');
+        $qb->select('agent.id as customerId','agent.agentId as agentId','agent.name as agentName');
+        $qb->addSelect('d.id as districtId','d.name as districtName');
+        $qb->addSelect('e.month as month','e.year as year');
+        $qb->groupBy('agent.id','e.month','e.year');
+//        $qb->where('e.year =:year')->setParameter('year',$year);
+//        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->orderBy('agent.name','ASC');
+        $result = $qb->getQuery();
+        return $result;
+    }
+
+    public function findWithAgentOrderOty($data)
+    {
+        $year = isset($data['year']) ? $data['year']:'';
+        $month = isset($data['month']) ? $data['month']:'';
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.agent','agent');
+        $qb->join('e.product','p');
+        $qb->leftJoin('e.district','d');
+        $qb->select('agent.id as customerId');
+        $qb->addSelect('p.id as productId');
+        $qb->addSelect('e.quantity as quantity');
+        $qb->groupBy('agent.id','p.id','e.month','e.year');
+//        $qb->where('e.year =:year')->setParameter('year',$year);
+//        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->orderBy('agent.name','ASC');
+        $results = $qb->getQuery()->getArrayResult();
+        
+        $arrayReturn=[];
+        
+        foreach ($results as $result){
+            $arrayReturn[$result['customerId']][$result['productId']]=$result;
+        }
+        
+        return $arrayReturn;
+    }
+
+    public function findSalesItems($entities, $data)
+    {
+        $ids = array();
+        foreach ($entities as $row){
+            $ids[] = $row['customerId'];
+        }
+        //dd($ids);
+        $year = isset($data['year']) ? $data['year']:'';
+        $month = isset($data['month']) ? $data['month']:'';
+        $qb = $this->createQueryBuilder('e');
+        $qb->leftJoin('e.product','distribution');
+        $qb->leftJoin('e.agent','agent');
+        $qb->select('distribution.id as distributionId','distribution.name as distributionName','e.amount as amount','e.quantity as quantity');
+        $qb->addSelect('agent.id as agentId','agent.name as agentName');
+        $qb->where('e.year =:year')->setParameter('year',$year);
+        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->andWhere('agent.id IN (:ids)')->setParameter('ids', $ids);
+        $result = $qb->getQuery()->getArrayResult();
+        $data = array();
+        foreach ($result as $row){
+            $salesId = "{$row['agentId']}-{$row['distributionId']}";
+            $data[$salesId] = $row['quantity'];
+        }
+        //  dd($data);
+        return $data;
+    }
+
     public function getLocationWiseTotalProductSales($locations)
     {
 

@@ -37,6 +37,8 @@
                             <th scope="col">S/N</th>
                             <th scope="col">Name</th>
                             <th scope="col">Designation</th>
+                            <th scope="col">Regional</th>
+                            <th scope="col">Zonal</th>
                             <th scope="col">Status</th>
                             <th scope="col text-center"><i class="feather icon-settings"></i></th>
                         </tr>
@@ -47,6 +49,8 @@
                             <td>{{ loop.index }}</td>
                             <td>{{ entity.name }}</td>
                             <td>{{ entity.designation }}</td>
+                            <td>{{ entity.regionalName|default('') }}</td>
+                            <td>{{ entity.zonalName|default('') }}</td>
                             <td><a class="btn btn-mini green-bg white-font status" href="javascript:" data-action="{{ path('kpi_setup_status',{'id':entity.id}) }}">{% if entity.status is not empty %}Yes {% else %}No {% endif %}</a></td>
                             <td>
                                 <a class="btn  yellow-bg  btn-mini white-font" href="{{ path('kpi_employee_board_generate',{'setup':entity.id}) }}">KPI Generate</a>
@@ -74,7 +78,7 @@
     $('#datatable').DataTable( {
     "pageLength": 25,
     'columnDefs': [ {
-    'targets': [0,4],
+    'targets': [0,4,5,6],
     'orderable': false
     }]
     });

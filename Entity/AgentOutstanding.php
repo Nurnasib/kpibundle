@@ -131,7 +131,7 @@ class AgentOutstanding
     /**
      * @return float
      */
-    public function getQuantity(): float
+    public function getQuantity()
     {
         return $this->quantity;
     }
@@ -139,7 +139,7 @@ class AgentOutstanding
     /**
      * @param float $quantity
      */
-    public function setQuantity(float $quantity)
+    public function setQuantity($quantity)
     {
         $this->quantity = $quantity;
     }
@@ -147,7 +147,7 @@ class AgentOutstanding
     /**
      * @return float
      */
-    public function getAmount(): float
+    public function getAmount()
     {
         return $this->amount;
     }
@@ -155,7 +155,7 @@ class AgentOutstanding
     /**
      * @param float $amount
      */
-    public function setAmount(float $amount)
+    public function setAmount($amount)
     {
         $this->amount = $amount;
     }

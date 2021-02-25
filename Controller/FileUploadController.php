@@ -91,13 +91,12 @@ class FileUploadController extends AbstractController
 
         //Remove Excel column heading
         $keys = array_shift($allData);
-//        dd($keys);
-//        list($agentId, $agentName, $thana, $district, $broiler, $sonali, $layer, $fish, $cattle, $month, $year) = $keys;
-//        $breedTypes = [$broiler, $sonali, $layer, $fish, $cattle];
+
         $breedTypes = [$keys[4], $keys[5], $keys[6], $keys[7], $keys[8]];
 
         $em = $this->getDoctrine()->getManager();
         $addedId = [];
+        $existingId = [];
         foreach ($allData as $data) {
             //Marge Excel heading and value in one array as key and value
             $details = array_combine($keys, $data);
@@ -126,30 +125,40 @@ class FileUploadController extends AbstractController
                 $findAgent = $agent;
             }
             foreach ($breedArrays as $breedType => $value) {
-                
-                $agentOrder = new AgentOrder();
-                $product = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['salesMode'=>'feed','name' => $breedType]);
-                 if ($product) {
-                    $agentOrder->setAgent($findAgent);
-                    $agentOrder->setDistrict($district?$district:null);
-                    $agentOrder->setUpozila($upozila?$upozila:null);
-                    $agentOrder->setProduct($product);
-                    $agentOrder->setQuantity($value);
-                    $agentOrder->setCreated(new \DateTime());
-                    $agentOrder->setUpdated(new \DateTime());
-                    $agentOrder->setMonth($month);
-                    $agentOrder->setYear($year);
-                    $agentOrder->setDocumentUpload($file);
-                    $em->persist($agentOrder);
-                    $em->flush();
 
-                    $addedId[] = $agentOrder->getId();
+                $product = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['name' => $breedType]);
+
+                if ($product) {
+                    $exitAgentOrder = $this->getDoctrine()->getRepository(AgentOrder::class)->findOneBy(array('agent'=>$findAgent,'product'=>$product,'month'=>$month,'year'=>$year));
+                    if(!$exitAgentOrder){
+                        $agentOrder = new AgentOrder();
+                        $agentOrder->setAgent($findAgent);
+                        $agentOrder->setDistrict($district?$district:null);
+                        $agentOrder->setUpozila($upozila?$upozila:null);
+                        $agentOrder->setProduct($product);
+                        $agentOrder->setQuantity($value);
+                        $agentOrder->setCreated(new \DateTime());
+                        $agentOrder->setUpdated(new \DateTime());
+                        $agentOrder->setMonth($month);
+                        $agentOrder->setYear($year);
+                        $agentOrder->setDocumentUpload($file);
+                        $em->persist($agentOrder);
+                        $em->flush();
+
+                        $addedId[] = $agentOrder->getId();
+                    }else{
+                        $existingId[]=$exitAgentOrder->getId();
+                    }
+
                 }
             }
         }
         if ($addedId) {
             $this->addFlash('success', 'Record updated successfully into Database!');
-        } else {
+        }elseif ($existingId){
+            $this->addFlash('error', 'Record already exit');
+        }
+        else {
             $this->addFlash('error', 'Something wrong!');
         }
 

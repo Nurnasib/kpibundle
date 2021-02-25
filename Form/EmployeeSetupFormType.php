@@ -39,19 +39,30 @@ class EmployeeSetupFormType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $user=$options['user'];
+        $userId = $user->getId();
+        $userGroup = $user->getUserGroup()?$user->getUserGroup()->getSlug():'';
         $builder
             ->add('employee', EntityType::class, [
                 'class' => User::class,
                 'required' => true,
-                'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('e')
-                        ->join('e.designation','d')
-                        ->where('e.enabled =1')
-                       // ->andWhere("d.slug IN (:slug)")->setParameter('slug', array('zonal','regional','doctor','sales-force'))
-                        ->orderBy('e.name', 'ASC');
+                'query_builder' => function (EntityRepository $er) use ($userId, $userGroup) {
+                    if($userGroup=='administrator'){
+                        return $er->createQueryBuilder('e')
+                            ->join('e.userGroup','ug')
+                            ->where('e.enabled =1')
+                            ->andWhere("ug.slug =:slug")->setParameter('slug','employee')
+                            ->orderBy('e.name', 'ASC');
+                    }else{
+                        return $er->createQueryBuilder('e')
+                            ->join('e.lineManager','lm')
+                            ->where('e.enabled =1')
+                            ->andWhere("lm.id =:lmId")->setParameter('lmId',$userId)
+                            ->orderBy('e.name', 'ASC');
+                    }
                 },
-                'attr'=>['class'=>'span12'],
-                'choice_label' => 'name',
+                'attr'=>['class'=>'select2'],
+                'choice_label' => 'nameDesignation',
                 'placeholder' => 'Choose a employee',
             ])
             ->add('status',CheckboxType::class,[
@@ -76,6 +87,7 @@ class EmployeeSetupFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => EmployeeSetup::class,
+            'user' => User::class,
         ]);
     }
 }
