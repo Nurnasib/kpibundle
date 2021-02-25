@@ -24,6 +24,51 @@ use Doctrine\ORM\EntityRepository;
 class AgentOrderRepository extends EntityRepository
 {
 
+    public function findWithAgentSearch($data)
+    {
+        $year = isset($data['year']) ? $data['year']:'';
+        $month = isset($data['month']) ? $data['month']:'';
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.agent','agent');
+        $qb->leftJoin('e.district','d');
+        $qb->select('agent.id as customerId','agent.agentId as agentId','agent.name as agentName');
+        $qb->addSelect('d.id as districtId','d.name as districtName');
+        $qb->addSelect('e.month as month','e.year as year');
+        $qb->groupBy('agent.id','e.month','e.year');
+        $qb->where('e.year =:year')->setParameter('year',$year);
+        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->orderBy('agent.name','ASC');
+        $result = $qb->getQuery()->getArrayResult();
+        return $result;
+    }
+
+    public function findSalesItems($entities, $data)
+    {
+        $ids = array();
+        foreach ($entities as $row){
+            $ids[] = $row['customerId'];
+        }
+        //dd($ids);
+        $year = isset($data['year']) ? $data['year']:'';
+        $month = isset($data['month']) ? $data['month']:'';
+        $qb = $this->createQueryBuilder('e');
+        $qb->leftJoin('e.product','distribution');
+        $qb->leftJoin('e.agent','agent');
+        $qb->select('distribution.id as distributionId','distribution.name as distributionName','e.amount as amount','e.quantity as quantity');
+        $qb->addSelect('agent.id as agentId','agent.name as agentName');
+        $qb->where('e.year =:year')->setParameter('year',$year);
+        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->andWhere('agent.id IN (:ids)')->setParameter('ids', $ids);
+        $result = $qb->getQuery()->getArrayResult();
+        $data = array();
+        foreach ($result as $row){
+            $salesId = "{$row['agentId']}-{$row['distributionId']}";
+            $data[$salesId] = $row['quantity'];
+        }
+      //  dd($data);
+        return $data;
+    }
+
     public function getLocationWiseTotalProductSales($locations)
     {
 
@@ -55,7 +100,7 @@ class AgentOrderRepository extends EntityRepository
         $qb->andWhere('e.year =:year')->setParameter('year',$year);
         $qb->groupBy('d.id','p.id');
         $result = $qb->getQuery()->getArrayResult();
-        
+
         return $result;
 
     }
