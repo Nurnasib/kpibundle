@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
+use Terminalbd\KpiBundle\Entity\AgentOutstanding;
 use Terminalbd\KpiBundle\Entity\LocationSalesTarget;
 use Terminalbd\KpiBundle\Entity\MarkChart;
 use Terminalbd\KpiBundle\Repository\LocationSalesTargetRepository;
@@ -70,6 +71,28 @@ class AgentSalesController extends AbstractController
         return $this->render('@TerminalbdKpi/agent/sales.html.twig',
             ['pagination' => $pagination,'salesItems'=>$salesItems,'items'=>$products]
         );
+    }
 
+    /**
+     * Lists all Post entities.
+     * @Route("/{id}/outstanding", methods={"GET"}, name="kpi_agent_outstanding")
+     */
+    public function agentOutstanding(Agent $agent)
+    {
+        $find = $this->getDoctrine()->getRepository(AgentOutstanding::class)->findBy(['agent'=>$agent]);
+        $em = $this->getDoctrine()->getManager();
+        if(empty($find)){
+            $products = $this->getDoctrine()->getRepository(MarkChart::class)->salesProductItems();
+            foreach ($products as $product){
+                $entity = new AgentOutstanding();
+                $entity->setAgent($agent);
+                $entity->setProduct($product);
+                $em->persist($entity);
+                $em->flush();
+            }
+        }
+        return $this->render('@TerminalbdKpi/agent/outstanding.html.twig',
+            ['agent' => $agent]
+        );
     }
 }

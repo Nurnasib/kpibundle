@@ -38,61 +38,96 @@
                     </div>
                       <div class="portlet-body form">
                         <div class="row form-body">
-                            <div class="form-inner-no-space">
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>Employee Name</strong></label>
-                                    <label class="col-md-10 control-label">{{ entity.employeeSetup.employee.name }}</label>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>Month & Year</strong></label>
-                                    <label class="col-md-10 control-label">{{ entity.month }},{{ entity.year }}</label>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>Designation</strong></label>
-                                    <label class="col-md-10 control-label">{{ entity.employeeSetup.employee.designation.name }}</label>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>Working Area</strong></label>
-                                    <label class="col-md-10 control-label">{{ entity.employeeSetup.employee.area }}</label>
-                                </div>
-                                {% if entity.employeeSetup.employee.department is not empty %}
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>Department</strong></label>
-                                    <label class="col-md-10 control-label">{{ entity.employeeSetup.employee.department.name }}</label>
-                                </div>
-                                {% endif %}
+                            <div class="portlet-title">
+                                <div class="caption">{{ 'Manage KPI Details for '|trans }} : {{ board.employeeSetup.employee.name }}</div>
                             </div>
-                            <table class="table table-striped table-bordered table-hover" id="datatable">
-                                <thead class="thead-dark">
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col" style="width: 22%">Activity</th>
-                                    <th scope="col">Marks</th>
-                                    <th scope="col">Rating</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% set totalMark = 0 %}
-                                {% set totalActualMark = 0 %}
-                                {% for entity in entities %}
-                                    {% set totalMark = totalMark + entity.mark %}
-                                    {% set totalActualMark = totalActualMark + entity.actualMark %}
-                                    <tr>
-                                        <td>{{ loop.index }}</td>
-                                        <td>{{ entity.activity }}</td>
-                                        <td>{{ entity.mark }}</td>
-                                        <td>{{ entity.actualMark }}</td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                                <tfoot>
-                                <tr>
-                                    <th colspan="2" class="text-right">Total</th>
-                                    <th>{{ totalMark }}</th>
-                                    <th>{{ totalActualMark }}</th>
-                                </tr>
-                                </tfoot>
-                            </table>
+                            <style>
+                                .list-unstyled li {
+                                    color: #2b2e38;
+                                }
+                                ul.header-info {
+                                    margin: 0;
+                                    padding: 0;
+                                    display: flex;
+                                    flex-wrap: wrap;
+                                }
+                                ul.header-info li {
+                                    list-style: none;
+                                    width: 50%;
+                                }
+                            </style>
+                            <div class="portlet-body form">
+                                <div class="row form-body">
+                                    <table class="table table-striped table-bordered">
+                                        <thead class="thead-dark">
+                                        <tr><th colspan="2" class="text-center">KPI- for {% if board.employeeSetup.employee.reportMode is not empty %}{{ board.employeeSetup.employee.reportMode.name }}{% endif %} <br>{{ board.month }},{{ board.year }}</th></tr>
+                                        <tr>
+                                            <th>
+                                                <ul class="header-info">
+                                                    <li>Name of the Employee:{{ board.employeeSetup.employee.name }}</li>
+                                                    <li>Date of Joining:{% if board.employeeSetup.employee is not empty %}{{ board.employeeSetup.employee.joiningDate|date('d-m-Y') }}{% endif %}</li>
+                                                    <li>Line Manager:{% if board.employeeSetup.employee.lineManager is not empty %}{{ board.employeeSetup.employee.lineManager.name }}{% endif %}</li>
+                                                    <li>ZONE:{% if board.employeeSetup.employee.zonal is not empty %}{{ board.employeeSetup.employee.zonal.name }}{% endif %}</li>
+                                                </ul>
+                                            </th>
+                                            <th>
+                                                <ul class="header-info">
+                                                    <li>Emp ID:{% if board.employeeSetup.employee is not empty %}{{ board.employeeSetup.employee.userId }}{% endif %}</li>
+                                                    <li>Designation:{% if board.employeeSetup.employee.designation is not empty %}{{ board.employeeSetup.employee.designation.name }}{% endif %}</li>
+                                                </ul>
+                                            </th>
+                                        </tr>
+
+                                        </thead>
+
+                                    </table>
+                                    {# New format END #}
+                                    <table class="table table-striped table-bordered table-hover" id="datatable">
+                                        <thead class="thead-dark">
+                                        <tr>
+                                            <th scope="col" style="width: 22%">Parameter</th>
+                                            <th scope="col">Activity</th>
+                                            <th scope="col">Attributes</th>
+                                            <th scope="col">Marks</th>
+                                            <th scope="col">Mark Distribution</th>
+                                            <th scope="col">Obtain Marks</th>
+                                        </tr>
+                                        <tr>
+                                            <th scope="col" style="width: 22%">Parameter</th>
+                                            <th scope="col">Marks</th>
+                                            <th scope="col">Weight</th>
+                                            <th scope="col">Obtain Marks</th>
+                                            <th scope="col" colspan="2">Grade</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% set totalMark = 0 %}
+                                        {% set totalActualMark = 0 %}
+                                        {% for entity in entities %}
+                                            {% set totalMark = totalMark + entity.mark %}
+                                            {% set totalActualMark = totalActualMark + entity.actualMark %}
+                                            <tr>
+                                                <td>{{ entity.activity }}</td>
+                                                <td>{{ entity.actualMark }}</td>
+                                                <td>{% if entity.mark > 0 %}{{ ((entity.mark*100)/entity.actualMark)|number_format(2) }}{% endif %}%</td>
+                                                <td>{{ entity.mark }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                        <tfoot>
+                                        <tr>
+                                            <th class="text-right">Total Marks</th>
+                                            <th>{{ totalActualMark }}</th>
+                                            <th>{{ ((totalMark*100)/totalActualMark)|number_format(2) }}%</th>
+                                            <th>{{ totalMark }}</th>
+                                        </tr>
+                                        <tr><th colspan="6" class="text-center"><strong>A=>29,B+>27,B>25,C>23,D<23</strong></th></tr>
+                                        </tfoot>
+                                    </table>
+
+                                </div>
+                            </div>
+
                         </div>
                       </div>
                 </div>

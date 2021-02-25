@@ -29,33 +29,32 @@ class AgentOutstanding
 
 
     /**
-     * @var Location
+     * @var MarkChart
      *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Admin\Location" , inversedBy="kpiSetup")
+     * @ORM\ManyToOne(targetEntity="MarkChart")
      */
-    private $upozila;
-
+    private $product;
 
     /**
      * @var Agent
      *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Agent" , inversedBy="kpiSetup")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Agent" , inversedBy="outstanding")
      */
     private $agent;
 
 
     /**
      * @var float
-     * @ORM\Column(name="outstanding", type="float", nullable=true)
+     * @ORM\Column(name="quantity", type="float", nullable=true)
      */
-    private $outstanding;
-
+    private $quantity;
 
     /**
      * @var float
-     * @ORM\Column(name="actualAmount", type="float", nullable=true)
+     * @ORM\Column(name="amount", type="float", nullable=true)
      */
-    private $actualAmount;
+    private $amount;
+
 
 
     /**
@@ -98,22 +97,6 @@ class AgentOutstanding
 
 
     /**
-     * @return Location
-     */
-    public function getUpozila()
-    {
-        return $this->upozila;
-    }
-
-    /**
-     * @param Location $upozila
-     */
-    public function setUpozila(Location $upozila)
-    {
-        $this->upozila = $upozila;
-    }
-
-    /**
      * @return Agent
      */
     public function getAgent()
@@ -124,7 +107,7 @@ class AgentOutstanding
     /**
      * @param Agent $agent
      */
-    public function setAgent(Agent $agent)
+    public function setAgent($agent)
     {
         $this->agent = $agent;
     }
@@ -132,7 +115,7 @@ class AgentOutstanding
     /**
      * @return MarkChart
      */
-    public function getProduct(): MarkChart
+    public function getProduct()
     {
         return $this->product;
     }
@@ -208,6 +191,27 @@ class AgentOutstanding
     {
         $this->updated = $updated;
     }
+
+
+    /**
+     * @return bool
+     */
+    public function isStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param bool $status
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+    }
+
+
+
+
 
 
 }

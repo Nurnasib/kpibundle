@@ -1,0 +1,82 @@
+{% extends 'admin/layout.html.twig' %}
+{% block body %}
+    <div class="pcoded-inner-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                        <li class="breadcrumb-item"> <a href="{{ path('core_agent_index') }}"> {{ 'Manage Agent'|trans }}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="card">
+                <div class="card-header">
+                    <h5>{{ 'Manage Agent'|trans }}</h5>
+                    <div class="card-header-right">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
+                            <a href="{{ path('core_agent_index') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-large"></i>{{ 'Agents'|trans }}</a>
+                            <a href="?process=createForm&check=new#modal" id="createForm"   data-action="{{ path('core_agent_create') }}" class="btn btn-sm  green-bg white-font"><i class="fa fa-plus"></i>{{ 'New Agent'|trans }}</a>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="card">
+                <div class="card-block">
+                    <div class="row">
+                    <table class="table table-striped table-bordered table-hover dataTable">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Product Name</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col" class=" text-center"><i class="feather icon-settings"></i></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for entity in agent.outstanding %}
+                            <tr>
+                                <td scope="col">{{ entity.agentId }}</td>
+                                <td scope="col">{{ entity.agentName }}</td>
+                                <td scope="col">{{ entity.month }}</td>
+                                <td scope="col">{{ entity.year }}</td>
+                                <td scope="col">{{ entity.districtName }}</td>
+
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
+    <style>
+
+    </style>
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+{% endblock  %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/core/js/app.js') }}"></script>
+
+{% endblock  %}
+{% block documentready %}
+    {{ parent() }}
+{% endblock %}
+

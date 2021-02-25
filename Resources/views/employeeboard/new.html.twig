@@ -24,6 +24,8 @@
                         <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
                             <a href="{{ path('kpi_setup_new') }}" class="btn btn-sm  green-bg white-font"><i class="fas fa-plus"></i>{{ 'Add New'|trans }}</a>
                             <a href="{{ path('kpi_employee_board') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>{{ 'KPI Board'|trans }}</a>
+                            <a href="{{ path('kpi_employee_board_preview',{'id':board.id,'mode':'print'}) }}" class="btn btn-sm yellow-bg white-font"><i class="fa fa-print"></i></a>
+                            {#<a href="{{ path('kpi_employee_board_preview',{'id':board.id,'mode':'print'}) }}" class="btn btn-sm purple-bg white-font"><i class="fa fa-download"></i></a>#}
                         </div>
                     </div>
                 </div>
@@ -56,13 +58,14 @@
 {#                        {{ dump(entities) }}#}
                         <table class="table table-striped table-bordered">
                             <thead class="thead-dark">
+                            <tr><th colspan="2" class="text-center">KPI- for {% if board.employeeSetup.employee.reportMode is not empty %}{{ board.employeeSetup.employee.reportMode.name }}{% endif %} <br>{{ board.month }},{{ board.year }}</th></tr>
                             <tr>
                                 <th>
                                     <ul class="header-info">
                                         <li>Name of the Employee:{{ board.employeeSetup.employee.name }}</li>
                                         <li>Date of Joining:{% if board.employeeSetup.employee is not empty %}{{ board.employeeSetup.employee.joiningDate|date('d-m-Y') }}{% endif %}</li>
                                         <li>Line Manager:{% if board.employeeSetup.employee.lineManager is not empty %}{{ board.employeeSetup.employee.lineManager.name }}{% endif %}</li>
-                                        <li>ZONE:</li>
+                                        <li>ZONE:{% if board.employeeSetup.employee.zonal is not empty %}{{ board.employeeSetup.employee.zonal.name }}{% endif %}</li>
                                     </ul>
                                 </th>
                                 <th>
@@ -85,7 +88,7 @@
                                 <th scope="col" style="width: 45%">Attributes</th>
                                 <th scope="col">Marks</th>
                                 <th scope="col" style="width: 27%">Mark Distribution</th>
-                                <th scope="col">Rating</th>
+                                <th scope="col">Obtain Marks</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -101,7 +104,7 @@
                                         <td rowspan="{{ parameters|multiArrayLength }}" class="parameter"><span>{{ entity.parameter.name }}</span></td>
                                         {% endif %}
                                         {% if(countActity==1) %}
-                                        <td rowspan="{{ activity|length }}" class="parameter"><span>{{ entity.activity.name }}</span></td>
+                                        <td rowspan="{{ activity|length }}" {#class="parameter"#}><span>{{ entity.activity.name }}</span></td>
                                         {% endif %}
                                         <td>
                                         {{ entity.attribute.name }}
@@ -127,9 +130,9 @@
                                                 {% endif %}
                                             {% endif %}
                                         </td>
-                                        <td>
-                                            {{ entity.mark }}
-                                        </td>
+                                            <td class="attribute-score" id="markDistribution-{{ entity.attribute.id }}">
+                                                {{ entity.mark }}
+                                            </td>
                                     </tr>
                                         {% set countActity=0 %}
                                     {% set count=count+1 %}
@@ -137,50 +140,6 @@
                                 {% endfor %}
                             {% endfor %}
                             {% endif %}
-{#                            {% for entity in entities %}#}
-{#                                <tr>#}
-{#                                    <td class="parameter"><span>{{ entity.name }}</span></td>#}
-{#                                    <td colspan="5">#}
-{#                                        {% if entity.children is not empty %}#}
-{#                                        <table class="activity table">#}
-{#                                            {% for activity in entity.children %}#}
-{#                                                <tr>#}
-{#                                                    <td class="activity-name"><span>{{ activity.name }}</span></td>#}
-{#                                                    <td class="activity-attribute">#}
-{#                                                          {% if activity.children is not empty %}#}
-{#                                                              <table class="attribute table">#}
-{#                                                            {% for attribute in activity.children %}#}
-{#                                                                {% if  marks[attribute.id] is defined and  marks[attribute.id] is not empty %}#}
-{#                                                                    <tr>#}
-{#                                                                        <td class="attribute-name">#}
-{#                                                                            {{ attribute.name }}#}
-{#                                                                        </td>#}
-{#                                                                        <td class="attribute-mark">#}
-{#                                                                            {{ attribute.mark }}#}
-{#                                                                        </td>#}
-{#                                                                        <td class="attribute-markDistribution">#}
-{#                                                                            {% if attribute.children is not empty %}#}
-
-
-{#                                                                                {% endif %}#}
-{#                                                                            {% endif %}#}
-{#                                                                        </td>#}
-{#                                                                        <td class="attribute-score" id="markDistribution-{% if  marks[attribute.id] is defined and  marks[attribute.id] is not empty %}{{ marks[attribute.id]['id'] }} {% endif %}">#}
-{#                                                                            {% if marks[attribute.id] is defined and marks[attribute.id]['mark'] is not empty  %}{{ marks[attribute.id]['mark'] }}{% endif %}#}
-{#                                                                        </td>#}
-{#                                                                    </tr>#}
-{#                                                                {% endif %}#}
-{#                                                            {% endfor %}#}
-{#                                                        </table>#}
-{#                                                          {% endif %}#}
-{#                                                    </td>#}
-{#                                                </tr>#}
-{#                                            {% endfor %}#}
-{#                                        </table>#}
-{#                                        {% endif %}#}
-{#                                    </td>#}
-{#                                </tr>#}
-{#                            {% endfor %}#}
                             </tbody>
                         </table>
                     </div>

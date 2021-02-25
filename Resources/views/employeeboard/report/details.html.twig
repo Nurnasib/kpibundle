@@ -38,99 +38,96 @@
                         .list-unstyled li {
                             color: #2b2e38;
                         }
+                        ul.header-info {
+                            margin: 0;
+                            padding: 0;
+                            display: flex;
+                            flex-wrap: wrap;
+                        }
+                        ul.header-info li {
+                            list-style: none;
+                            width: 50%;
+                        }
                     </style>
                     <div class="portlet-body form">
                         <div class="row form-body">
-                            <div class="form-inner-no-space">
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>Employee Name</strong></label>
-                                    <label class="col-md-10 control-label">{{ board.employeeSetup.employee.name }}</label>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>Month & Year</strong></label>
-                                    <label class="col-md-10 control-label">{{ board.month }},{{ board.year }}</label>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>Designation</strong></label>
-                                    <label class="col-md-10 control-label">{{ board.employeeSetup.employee.designation.name }}</label>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>Working Area</strong></label>
-                                    <label class="col-md-10 control-label">{{ board.employeeSetup.employee.area }}</label>
-                                </div>
-                                {% if board.employeeSetup.employee.department is not empty %}
-                                    <div class="form-group">
-                                        <label class="col-md-2 control-label"><strong>Department</strong></label>
-                                        <label class="col-md-10 control-label">{{ board.employeeSetup.employee.department.name }}</label>
-                                    </div>
-                                {% endif %}
-                            </div>
+                            <table class="table table-striped table-bordered">
+                                <thead class="thead-dark">
+                                <tr><th colspan="2" class="text-center">KPI- for {% if board.employeeSetup.employee.reportMode is not empty %}{{ board.employeeSetup.employee.reportMode.name }}{% endif %} <br>{{ board.month }},{{ board.year }}</th></tr>
+                                <tr>
+                                    <th>
+                                        <ul class="header-info">
+                                            <li>Name of the Employee:{{ board.employeeSetup.employee.name }}</li>
+                                            <li>Date of Joining:{% if board.employeeSetup.employee is not empty %}{{ board.employeeSetup.employee.joiningDate|date('d-m-Y') }}{% endif %}</li>
+                                            <li>Line Manager:{% if board.employeeSetup.employee.lineManager is not empty %}{{ board.employeeSetup.employee.lineManager.name }}{% endif %}</li>
+                                            <li>ZONE:{% if board.employeeSetup.employee.zonal is not empty %}{{ board.employeeSetup.employee.zonal.name }}{% endif %}</li>
+                                        </ul>
+                                    </th>
+                                    <th>
+                                        <ul class="header-info">
+                                            <li>Emp ID:{% if board.employeeSetup.employee is not empty %}{{ board.employeeSetup.employee.userId }}{% endif %}</li>
+                                            <li>Designation:{% if board.employeeSetup.employee.designation is not empty %}{{ board.employeeSetup.employee.designation.name }}{% endif %}</li>
+                                        </ul>
+                                    </th>
+                                </tr>
+
+                                </thead>
+
+                            </table>
+                            {# New format END #}
                             <table class="table table-striped table-bordered table-hover" id="datatable">
                                 <thead class="thead-dark">
                                 <tr>
                                     <th scope="col">Parameter</th>
-                                    <th scope="col" style="width: 22%">Activity</th>
-                                    <th scope="col" style="width: 35%">Attributes</th>
+                                    <th scope="col" style="width: 5%;">Activity</th>
+                                    <th scope="col" style="width: 45%">Attributes</th>
                                     <th scope="col">Marks</th>
                                     <th scope="col" style="width: 27%">Mark Distribution</th>
-                                    <th scope="col">Rating</th>
+                                    <th scope="col">Obtain Marks</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {% for entity in entities %}
-                                    <tr>
-                                        <td class="parameter"><span>{{ entity.name }}</span></td>
-                                        <td colspan="5">
-                                            {% if entity.children is not empty %}
-                                                <table class="activity table">
-                                                    {% for activity in entity.children %}
-                                                        <tr>
-                                                            <td class="activity-name"><span>{{ activity.name }}</span></td>
-                                                            <td class="activity-attribute">
-                                                                {% if activity.children is not empty %}
-                                                                    <table class="attribute table">
-                                                                        {% for attribute in activity.children %}
-                                                                            <tr>
-                                                                                <td class="attribute-name">
-                                                                                    {{ attribute.name }}
-                                                                                </td>
-                                                                                <td class="attribute-mark">
-                                                                                    {{ attribute.mark }}
-                                                                                </td>
-                                                                                <td class="attribute-markDistribution">
-                                                                                    {% if attribute.children is not empty %}
-                                                                                        {% if attribute.systemEntry == 1 %}
-                                                                                            <select class="markDistribution" data-id="{{ marks[attribute.id]['id'] }}" data-action="{{ path('kpi_employee_board_attribute_update',{'entity':board.id,'id':marks[attribute.id]['id']}) }}" >
-                                                                                                {% for markDistribution in attribute.children %}
-                                                                                                    <option  value="{{ markDistribution.id }}" {% if  marks[attribute.id]['markDistributionId'] is defined and marks[attribute.id]['markDistributionId'] is not empty and markDistribution.id ==  marks[attribute.id]['markDistributionId'] %} selected="selected" {% endif %}>{{ markDistribution.name }}</option>
-                                                                                                {% endfor %}
-                                                                                            </select>
-                                                                                        {% else %}
-                                                                                            <ul class="markDistribution">
-                                                                                                {% for markDistribution in attribute.children %}
-                                                                                                    <li>{{ markDistribution.name }}</li>
-                                                                                                {% endfor %}
-                                                                                            </ul>
-                                                                                        {% endif %}
-                                                                                    {% endif %}
-                                                                                </td>
-                                                                                <td class="attribute-score" id="markDistribution-{{ marks[attribute.id]['id'] }}">
-                                                                                    {% if marks[attribute.id] is defined and marks[attribute.id]['mark'] is not empty  %}{{ marks[attribute.id]['mark'] }}{% endif %}
-                                                                                </td>
-                                                                            </tr>
-                                                                        {% endfor %}
-                                                                    </table>
-                                                                {% endif %}
-                                                            </td>
-                                                        </tr>
-                                                    {% endfor %}
-                                                </table>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
+                                {% if board.employeeBoardAttributes is not empty %}
+                                    {% for parameters in arrayData %}
+                                        {% set count=1 %}
+                                        {% for activity in parameters %}
+                                            {% set countActity=1 %}
+                                            {% for entity in activity %}
+                                                <tr>
+                                                    {% if(count==1) %}
+                                                        <td rowspan="{{ parameters|multiArrayLength }}" class="parameter"><span>{{ entity.parameter.name }}</span></td>
+                                                    {% endif %}
+                                                    {% if(countActity==1) %}
+                                                        <td rowspan="{{ activity|length }}" {#class="parameter"#}><span>{{ entity.activity.name }}</span></td>
+                                                    {% endif %}
+                                                    <td>
+                                                        {{ entity.attribute.name }}
+                                                    </td>
+                                                    <td>
+                                                        {{ entity.attribute.mark }}
+                                                    </td>
+                                                    <td>
+                                                        {% if entity.attribute.children is not empty %}
+                                                            <ul class="markDistribution">
+                                                                {% for children in entity.attribute.children %}
+                                                                    <li>{{ children.name }}</li>
+                                                                {% endfor %}
+                                                            </ul>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="attribute-score" id="markDistribution-{{ entity.attribute.id }}">
+                                                        {{ entity.mark }}
+                                                    </td>
+                                                </tr>
+                                                {% set countActity=0 %}
+                                                {% set count=count+1 %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                {% endif %}
                                 </tbody>
                             </table>
+
                         </div>
                     </div>
                 </div>

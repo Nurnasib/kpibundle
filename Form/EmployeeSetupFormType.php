@@ -54,7 +54,6 @@ class EmployeeSetupFormType extends AbstractType
                 'choice_label' => 'name',
                 'placeholder' => 'Choose a employee',
             ])
-
             ->add('status',CheckboxType::class,[
                 'required' => false,
                 'attr' => [

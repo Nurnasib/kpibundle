@@ -101,9 +101,9 @@ class EmployeeBoardController extends AbstractController
         ]);
     }
     /**
-     * @Route("/{id}/pdf", methods={"GET"}, name="kpi_employee_board_pdf")
+     * @Route("/{id}/preview", methods={"GET"}, name="kpi_employee_board_preview")
      */
-    public function reportPdf(Request $request, EmployeeBoard $entity): Response
+    public function detailsPreview(Request $request, EmployeeBoard $entity): Response
     {
 
         $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->find($entity);
@@ -112,35 +112,41 @@ class EmployeeBoardController extends AbstractController
         foreach ($entity->getEmployeeBoardAttributes() as $boardAttribute){
             $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][]=$boardAttribute;
         }
+        $mode = $_REQUEST['mode'];
+        if($mode == "print"){
+            return $this->render('@TerminalbdKpi/employeeboard/report/print.html.twig', [
+                'board' => $entity,
+                'arrayData' => $arrayData,
+            ]);
+        }else{
+            //Need to collect values here to pass the pdf view($entities)
 
-        //Need to collect values here to pass the pdf view($entities)
+            // Configure Dompdf according to your needs
+            $pdfOptions = new Options();
+            $pdfOptions->set('defaultFont', 'Arial');
 
-        // Configure Dompdf according to your needs
-        $pdfOptions = new Options();
-        $pdfOptions->set('defaultFont', 'Arial');
+            // Instantiate Dompdf with our options
+            $dompdf = new Dompdf($pdfOptions);
 
-        // Instantiate Dompdf with our options
-        $dompdf = new Dompdf($pdfOptions);
+            // Retrieve the HTML generated in our twig file
+            $html = $this->renderView('@TerminalbdKpi/employeeboard/report/pdf.html.twig', ['board' => $entity,'arrayData' => $arrayData]);
 
-        // Retrieve the HTML generated in our twig file
-        $html = $this->renderView('@TerminalbdKpi/employeeboard/report/pdf.html.twig', ['board' => $entity,'arrayData' => $arrayData]);
+            // Load HTML to Dompdf
+            $dompdf->loadHtml($html);
 
-        // Load HTML to Dompdf
-        $dompdf->loadHtml($html);
+            // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
+            $dompdf->setPaper('legal', 'landscape');
 
-        // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
-        $dompdf->setPaper('legal', 'landscape');
+            // Render the HTML as PDF
+            $dompdf->render();
 
-        // Render the HTML as PDF
-        $dompdf->render();
+            // Output the generated PDF to Browser (force download)
+            $dompdf->stream("abc" . ".pdf", [
+                "Attachment" => false
+            ]);
+        }
 
-        // Output the generated PDF to Browser (force download)
-        $dompdf->stream("abc" . ".pdf", [
-            "Attachment" => false
-        ]);
-        /*        $dompdf->stream($filterBy['slug'] . ".pdf", [
-                    "Attachment" => false
-                ]);*/
+
     }
 
     /**
@@ -184,12 +190,15 @@ class EmployeeBoardController extends AbstractController
     public function reportDetails($id): Response
     {
         $entity = $this->getDoctrine()->getRepository(EmployeeBoard::class)->find($id);
-        $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
-        $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($entity);
+        $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->find($entity);
+        $arrayData=[];
+        /* @var EmployeeBoardAttribute $boardAttribute*/
+        foreach ($entity->getEmployeeBoardAttributes() as $boardAttribute){
+            $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][]=$boardAttribute;
+        }
         return $this->render('@TerminalbdKpi/employeeboard/report/details.html.twig', [
             'board' => $entity,
-            'marks' => $marks,
-            'entities' => $entities,
+            'arrayData' => $arrayData,
         ]);
 
     }
@@ -205,6 +214,7 @@ class EmployeeBoardController extends AbstractController
         $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardSummaryReport($entity);
         return $this->render('@TerminalbdKpi/employeeboard/report/summary.html.twig', [
             'entity' => $entity,
+            'board' => $entity,
             'entities' => $marks,
         ]);
 
