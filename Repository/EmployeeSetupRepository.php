@@ -30,21 +30,24 @@ class EmployeeSetupRepository extends EntityRepository
     public function getEmployeeList(User $user)
     {
 
-        $area  = $user->getArea();
+        $userId = $user->getId();
+        $userGroup = $user->getUserGroup()?$user->getUserGroup()->getSlug():'';
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.employee','u');
         $qb->leftJoin('u.designation','d');
+        $qb->leftJoin('u.zonal','z');
+        $qb->leftJoin('u.regional','r');
         $qb->select('e.id as id','e.status as status','u.name as name','d.name as designation');
-        if($area == "Zonal"){
-            $zonal = $user->getZonal()->getId();
-            $qb->where('u.zonal = :zonal')->setParameter('zonal',$zonal);
-            $qb->andWhere("u.area= 'regional'");
-            $qb->andWhere("u.id != {$user->getId()}");
-        }elseif($area == "Regional") {
-            $regional = $user->getRegional()->getId();
-            $qb->where('u.regional = :regional')->setParameter('regional', $regional);
-            $qb->andWhere("u.area = 'upozila'");
-            $qb->andWhere("u.id != {$user->getId()}");
+        $qb->addSelect('z.name as zonalName');
+        $qb->addSelect('r.name as regionalName');
+        if($userGroup=='administrator'){
+            $qb->join('u.userGroup','ug')
+                ->where('u.enabled =1')
+                ->andWhere("ug.slug =:slug")->setParameter('slug','employee');
+        }else{
+            $qb->join('u.lineManager','lm')
+                ->where('u.enabled =1')
+                ->andWhere("lm.id =:lmId")->setParameter('lmId',$userId);
         }
         $qb->orderBy('u.name','ASC');
         $result = $qb->getQuery()->getArrayResult();

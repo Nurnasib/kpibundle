@@ -35,11 +35,37 @@ class AgentOrderRepository extends EntityRepository
         $qb->addSelect('d.id as districtId','d.name as districtName');
         $qb->addSelect('e.month as month','e.year as year');
         $qb->groupBy('agent.id','e.month','e.year');
-        $qb->where('e.year =:year')->setParameter('year',$year);
-        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+//        $qb->where('e.year =:year')->setParameter('year',$year);
+//        $qb->andWhere('e.month =:month')->setParameter('month',$month);
         $qb->orderBy('agent.name','ASC');
-        $result = $qb->getQuery()->getArrayResult();
+        $result = $qb->getQuery();
         return $result;
+    }
+
+    public function findWithAgentOrderOty($data)
+    {
+        $year = isset($data['year']) ? $data['year']:'';
+        $month = isset($data['month']) ? $data['month']:'';
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.agent','agent');
+        $qb->join('e.product','p');
+        $qb->leftJoin('e.district','d');
+        $qb->select('agent.id as customerId');
+        $qb->addSelect('p.id as productId');
+        $qb->addSelect('e.quantity as quantity');
+        $qb->groupBy('agent.id','p.id','e.month','e.year');
+//        $qb->where('e.year =:year')->setParameter('year',$year);
+//        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->orderBy('agent.name','ASC');
+        $results = $qb->getQuery()->getArrayResult();
+        
+        $arrayReturn=[];
+        
+        foreach ($results as $result){
+            $arrayReturn[$result['customerId']][$result['productId']]=$result;
+        }
+        
+        return $arrayReturn;
     }
 
     public function findSalesItems($entities, $data)
@@ -65,7 +91,7 @@ class AgentOrderRepository extends EntityRepository
             $salesId = "{$row['agentId']}-{$row['distributionId']}";
             $data[$salesId] = $row['quantity'];
         }
-      //  dd($data);
+        //  dd($data);
         return $data;
     }
 
@@ -100,7 +126,7 @@ class AgentOrderRepository extends EntityRepository
         $qb->andWhere('e.year =:year')->setParameter('year',$year);
         $qb->groupBy('d.id','p.id');
         $result = $qb->getQuery()->getArrayResult();
-
+        
         return $result;
 
     }

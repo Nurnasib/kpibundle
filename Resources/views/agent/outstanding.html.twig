@@ -44,13 +44,12 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for entity in agent.outstanding %}
+                        {% for  entity in agent.outstanding %}
                             <tr>
-                                <td scope="col">{{ entity.agentId }}</td>
-                                <td scope="col">{{ entity.agentName }}</td>
-                                <td scope="col">{{ entity.month }}</td>
-                                <td scope="col">{{ entity.year }}</td>
-                                <td scope="col">{{ entity.districtName }}</td>
+                                <td>{{ loop.index }}</td>
+                                <td scope="col">{{ entity.product.name|default('') }}</td>
+                                <td scope="col"><input value="{{ entity.quantity|default('') }}" type="text" class="form-control"></td>
+                                <td scope="col"><input type="text" value="{{ entity.amount|default('') }}" class="form-control"></td>
 
                             </tr>
                         {% endfor %}

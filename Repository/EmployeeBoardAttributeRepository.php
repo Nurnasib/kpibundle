@@ -69,7 +69,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     if(!empty($activity->getChildren())){
                         foreach ($activity->getChildren() as $attribute):
                             $exist = $this->findOneBy(array('employeeBoard'=> $board,'attribute'=>$attribute));
-                            if(empty($exist)){
+                            if(empty($exist) and !empty($board->getEmployeeSetup()->getEmployee()->getReportMode())){
                                 $markChartAttribute = $em->getRepository(MarkChart::class)->findUserMarkAttribute($board->getEmployeeSetup()->getEmployee()->getReportMode()->getId(),$attribute->getId());
                                 if($markChartAttribute){
                                     $entity = new EmployeeBoardAttribute();
@@ -171,11 +171,16 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 return 5;
             }elseif ($action < 100 and $action >= 90) {
                 return 4;
-            }elseif ($action < 90 and $action >= 70) {
+            }elseif ($action < 90 and $action >= 80) {
                 return 3;
+            }elseif ($action < 80 and $action >= 70) {
+                return 2;
+            }elseif ($action < 70 and $action >= 60) {
+                return 1;
             }else {
                 return 0;
             }
+
         }
 
     }
