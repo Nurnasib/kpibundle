@@ -76,6 +76,19 @@ class LocationSalesTarget
      * @ORM\Column(name="quantity", type="float", nullable=true)
      */
     private $quantity;
+    
+    /**
+     * @var string
+     * @ORM\Column(name="month", type="string", nullable=true)
+     */
+    private $month;
+
+
+    /**
+     * @var string
+     * @ORM\Column(name="year", type="string", nullable=true)
+     */
+    private $year;
 
 
     private $status = true;
@@ -108,7 +121,7 @@ class LocationSalesTarget
     /**
      * @param Location $upozila
      */
-    public function setUpozila(Location $upozila)
+    public function setUpozila($upozila)
     {
         $this->upozila = $upozila;
     }
@@ -122,9 +135,9 @@ class LocationSalesTarget
     }
 
     /**
-     * @param Location $district
+     * @param mixed $district
      */
-    public function setDistrict(Location $district)
+    public function setDistrict($district)
     {
         $this->district = $district;
     }
@@ -138,9 +151,9 @@ class LocationSalesTarget
     }
 
     /**
-     * @param Location $regional
+     * @param mixed $regional
      */
-    public function setRegional(Location $regional)
+    public function setRegional($regional)
     {
         $this->regional = $regional;
     }
@@ -154,9 +167,9 @@ class LocationSalesTarget
     }
 
     /**
-     * @param Location $zone
+     * @param mixed $zone
      */
-    public function setZone(Location $zone)
+    public function setZone($zone)
     {
         $this->zone = $zone;
     }
@@ -172,7 +185,7 @@ class LocationSalesTarget
     /**
      * @param float $amount
      */
-    public function setAmount(float $amount)
+    public function setAmount($amount)
     {
         $this->amount = $amount;
     }
@@ -188,7 +201,7 @@ class LocationSalesTarget
     /**
      * @param MarkChart $markDistribution
      */
-    public function setMarkDistribution(MarkChart $markDistribution)
+    public function setMarkDistribution($markDistribution)
     {
         $this->markDistribution = $markDistribution;
     }
@@ -209,7 +222,37 @@ class LocationSalesTarget
         $this->quantity = $quantity;
     }
 
+    /**
+     * @return string
+     */
+    public function getMonth()
+    {
+        return $this->month;
+    }
 
+    /**
+     * @param string $month
+     */
+    public function setMonth($month)
+    {
+        $this->month = $month;
+    }
+
+    /**
+     * @return string
+     */
+    public function getYear()
+    {
+        return $this->year;
+    }
+
+    /**
+     * @param string $year
+     */
+    public function setYear($year)
+    {
+        $this->year = $year;
+    }
 
 
 }

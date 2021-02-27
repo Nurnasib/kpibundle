@@ -35,8 +35,13 @@ class AgentOrderRepository extends EntityRepository
         $qb->addSelect('d.id as districtId','d.name as districtName');
         $qb->addSelect('e.month as month','e.year as year');
         $qb->groupBy('agent.id','e.month','e.year');
-//        $qb->where('e.year =:year')->setParameter('year',$year);
-//        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->where('e.year =:year')->setParameter('year',$year);
+        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+
+        if(isset($data['agent'])){
+            $qb->andWhere('e.agent =:agent')->setParameter('agent',$data['agent']);
+        }
+
         $qb->orderBy('agent.name','ASC');
         $result = $qb->getQuery();
         return $result;
@@ -55,8 +60,11 @@ class AgentOrderRepository extends EntityRepository
         $qb->addSelect('SUM(e.quantity) as quantity');
         $qb->addSelect('e.month as month','e.year as year');
         $qb->groupBy('agent.id','p.id','e.month','e.year');
-//        $qb->where('e.year =:year')->setParameter('year',$year);
-//        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->where('e.year =:year')->setParameter('year',$year);
+        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        if(isset($data['agent'])){
+            $qb->andWhere('e.agent =:agent')->setParameter('agent',$data['agent']);
+        }
         $qb->orderBy('agent.name','ASC');
         $results = $qb->getQuery()->getArrayResult();
         

@@ -32,30 +32,43 @@ class LocationSalesTargetRepository extends EntityRepository
 
     public function processLocationPrice($locations , $charts )
     {
+        $currentYear = date('Y');
         foreach ($charts as $chart){
+            $chartId=$chart->getId();
 
             foreach ($locations as $location ){
-                $exist = $this->findOneBy(array('markDistribution' => $chart, 'district' => $location));
+                $districtId = $location->getId();
+                $regionalId = $location->getParent()->getId();
+                $zonalId = $location->getParent()->getParent()->getId();
+                $exist = $this->findOneBy(array('markDistribution' => $chart, 'district' => $location, 'year'=>$currentYear));
                 if(empty($exist)){
-                    $entity = new LocationSalesTarget();
-                    $entity->setMarkDistribution($chart);
-                    $entity->setDistrict($location);
-                    $entity->setRegional($location->getParent());
-                    $entity->setZone($location->getParent()->getParent());
-                    $this->_em->persist($entity);
-                    $this->_em->flush();
+                    for ($m=1; $m<=12; $m++) {
+                        $month = date('F', mktime(0,0,0,$m, 1, date('Y')));
+                        $year = date('Y', mktime(0,0,0,$m, 1, date('Y')));
+
+                        $exist = $this->findOneBy(array('markDistribution' => $chart, 'district' => $location, 'month'=>$month, 'year'=>$year));
+                            $sql ="INSERT INTO kpi_location_sales_target
+    (`mark_distribution_id`, `district_id`,`regional_id`, `zone_id`, `month`, `year`, `quantity`) 
+    VALUE ($chartId , $districtId , $regionalId , $zonalId , '{$month}', '{$year}', 1000)
+    ";
+                            $qb = $this->_em->getConnection()->prepare($sql);
+                            $qb->execute();
+                    }
+
                 }
+
+
             }
         }
 
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.district','l');
         $qb->join('e.markDistribution','m');
-        $qb->select('e.id as matrixId','e.quantity as quantity','l.id as districtId','m.id as markId','m.name as martDistribution');
+        $qb->select('e.id as matrixId','e.quantity as quantity','e.month as month','e.year as year','l.id as districtId','m.id as markId','m.name as martDistribution');
         $result = $qb->getQuery()->getArrayResult();
         $array = array();
         foreach ($result as $item):
-            $id = "{$item['districtId']}-{$item['markId']}";
+            $id = "{$item['year']}-{$item['month']}-{$item['districtId']}-{$item['markId']}";
             $array[$id] = $item;
         endforeach;
         return $array;

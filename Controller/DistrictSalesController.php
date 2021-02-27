@@ -50,20 +50,21 @@ class DistrictSalesController extends AbstractController
      */
     public function sales(Request $request): Response
     {
-        $data = $_REQUEST;
-        if(empty($data)){
-            $data = array('month'=>"January",'year'=>'2021');
+        $requestData = $request->query->get('monthYear');
+        $data = array('month'=>date('F'),'year'=>date('Y'));
+        if($requestData){
+            $explode= explode(',',$requestData);
+            $data = array('month'=>$explode[0],'year'=>$explode[1]);
         }
         $entities = $this->getDoctrine()->getRepository(DistrictOrder::class)->findDistrictSearch($data);
-//        dd($entities);
         $districtSalesQty = $this->getDoctrine()->getRepository(DistrictOrder::class)->findDistrictOrderOty($data);
-//        dd($districtSalesQty);
         $products = $this->getDoctrine()->getRepository(MarkChart::class)->salesProductItems();
         return $this->render('@TerminalbdKpi/district/sales.html.twig',
             [
                 'pagination' => $entities,
                 'items'=>$products,
                 'districtSalesQty'=>$districtSalesQty,
+                'selectedMonthYear'=>$requestData,
             ]
         );
     }

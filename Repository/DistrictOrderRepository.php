@@ -45,6 +45,7 @@ class DistrictOrderRepository extends EntityRepository
 
     public function findDistrictSearch($data)
     {
+//        dd($data);
         $year = isset($data['year']) ? $data['year']:'';
         $month = isset($data['month']) ? $data['month']:'';
         $qb = $this->createQueryBuilder('e');
@@ -54,8 +55,8 @@ class DistrictOrderRepository extends EntityRepository
         $qb->addSelect('d.id as districtId','d.name as districtName');
         $qb->addSelect('p.id as productId','p.name as productName');
         $qb->groupBy('d.id','e.month','e.year');
-//        $qb->where('e.year =:year')->setParameter('year',$year);
-//        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->where('e.year =:year')->setParameter('year',$year);
+        $qb->andWhere('e.month =:month')->setParameter('month',$month);
         $qb->orderBy('d.name','ASC');
         $result = $qb->getQuery()->getArrayResult();
         return $result;
@@ -73,8 +74,8 @@ class DistrictOrderRepository extends EntityRepository
         $qb->addSelect('p.id as productId');
         $qb->addSelect('SUM(e.quantity) as quantity');
         $qb->groupBy('d.id','p.id','e.month','e.year');
-//        $qb->where('e.year =:year')->setParameter('year',$year);
-//        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->where('e.year =:year')->setParameter('year',$year);
+        $qb->andWhere('e.month =:month')->setParameter('month',$month);
         $qb->orderBy('d.name','ASC');
         $results = $qb->getQuery()->getArrayResult();
 

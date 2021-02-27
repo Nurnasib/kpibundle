@@ -60,9 +60,16 @@ class AgentSalesController extends AbstractController
      */
     public function sales(Request $request): Response
     {
-        $data = $_REQUEST;
-        if(empty($data)){
-            $data = array('month'=>"January",'year'=>'2021');
+        $allData = $request->query->all();
+        $requestData = isset($allData['monthYear'])?$allData['monthYear']:'';
+        $requestAgent = isset($allData['agent'])?$allData['agent']:'';
+        $data = array('month'=>date('F'),'year'=>date('Y'),'agent'=>null);
+        if($requestData){
+            $explode= explode(',',$requestData);
+            $data = array('month'=>$explode[0],'year'=>$explode[1]);
+        }
+        if($requestAgent){
+            $data['agent'] = $requestAgent;
         }
         $entities = $this->getDoctrine()->getRepository(AgentOrder::class)->findWithAgentSearch($data);
         $agentSalesQty = $this->getDoctrine()->getRepository(AgentOrder::class)->findWithAgentOrderOty($data);
@@ -75,6 +82,7 @@ class AgentSalesController extends AbstractController
                 'salesItems'=>$salesItems,
                 'items'=>$products,
                 'agentSalesQty'=>$agentSalesQty,
+                'selectedMonthYear'=>$requestData,
             ]
         );
     }

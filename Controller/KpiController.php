@@ -35,7 +35,7 @@ class KpiController extends AbstractController
 
     /**
 
-     * @Route("kpi/location-mark-chart", name="kpi_mark_location")
+     * @Route("/kpi/location-mark-chart", name="kpi_mark_location")
      * @return \Symfony\Component\HttpFoundation\Response
 
      */
@@ -43,7 +43,18 @@ class KpiController extends AbstractController
         $entities = $this->getDoctrine()->getRepository(Location::class)->findBy(array('level'=> 4),array('parent' => 'ASC'));
         $products = $this->getDoctrine()->getRepository(MarkChart::class)->getChildRecords('product-wise-sales-achievement');
         $locationMarks = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->processLocationPrice($entities,$products);
-        return $this->render('@TerminalbdKpi/markchart/location.html.twig',['entities' => $entities,'products' => $products , 'matrixArr' => $locationMarks]);
+        $months=[];
+        for ($m=1; $m<=12; $m++) {
+            $months[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
+        }
+        return $this->render('@TerminalbdKpi/markchart/location.html.twig',[
+            'entities' => $entities,
+            'products' => $products,
+            'matrixArr' => $locationMarks,
+            'months' => $months,
+            'currentMonth' => date('F'),
+            'year' => date('Y')
+        ]);
     }
 
     /**

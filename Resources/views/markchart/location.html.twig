@@ -30,36 +30,56 @@
         <div class="row">
             <div class="card">
                 <div class="card-block">
-                    <table class="table table-striped table-bordered table-hover" id="datatable">
-                        <thead class="thead-dark">
-                        <tr>
-                            <th scope="col">S/N</th>
-                            <th scope="col">Zone</th>
-                            <th scope="col">Region</th>
-                            <th scope="col">District</th>
-                            {% for product in products %}
-                            <th scope="col">{{ product.name }}(TON)</th>
+
+                    <div id="exTab2" class="">
+                        <ul class="nav nav-tabs">
+                            {% for index, month in months %}
+                                <li class="">
+                                    <a href="#{{ month }}" class="lab_tab {{ month==currentMonth?'active':'' }}" data-toggle="tab">{{ month }}</a>
+                                </li>
                             {% endfor %}
-                        </tr>
-                        </thead>
-                        <tbody id="inputform">
-                        {% set aa = 0 %}
-                        {% for entity in entities %}
-                            <tr>
-                                <td>{{ loop.index }}.</td>
-                                <td>{{ entity.parent.parent.name }}</td>
-                                <td>{{ entity.parent.name }}</td>
-                                <td>{{ entity.name }}</td>
-                                {% for product in products %}
-                                <td>
-                                    {% set ids = entity.id~'-'~product.id %}
-                                    <input type="number" data-action="{{ path('kpi_markchart_location_sales_target',{'id':matrixArr[ids]['matrixId']}) }}" data-index="{{ matrixArr[ids]['matrixId'] }}" class="form-control matrixId" data-id="{{ matrixArr[ids]['matrixId'] }}"  id="quantity-{{ matrixArr[ids]['matrixId'] }}" name="quantity-{{ matrixArr[ids]['matrixId'] }}" value="{% if matrixArr[ids] is defined and  matrixArr[ids].districtId ==  entity.id and  matrixArr[ids].markId == product.id %}{{ matrixArr[ids]['quantity'] }}{% endif %}" >
-                                </td>
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                        </ul>
+
+                        <div class="tab-content lab_service_section">
+                            {% for index, month in months %}
+                                <div class="tab-pane {{ month==currentMonth?'active':'' }}" id="{{ month }}">
+                                    <h4 style="padding-top: 5px; text-align: center">{{ month|upper }}-{{ year }}</h4>
+                                    <table class="table table-striped table-bordered table-hover" id="datatable">
+                                        <thead class="thead-dark">
+                                        <tr>
+                                            <th scope="col">S/N</th>
+                                            <th scope="col">Zone</th>
+                                            <th scope="col">Region</th>
+                                            <th scope="col">District</th>
+                                            {% for product in products %}
+                                                <th scope="col">{{ product.name }}(TON)</th>
+                                            {% endfor %}
+                                        </tr>
+                                        </thead>
+                                        <tbody id="inputform">
+                                        {% set aa = 0 %}
+                                        {% for entity in entities %}
+                                            <tr>
+                                                <td>{{ loop.index }}.</td>
+                                                <td>{{ entity.parent.parent.name }}</td>
+                                                <td>{{ entity.parent.name }}</td>
+                                                <td>{{ entity.name }}</td>
+                                                {% for product in products %}
+                                                    <td>
+                                                        {% set ids = year~'-'~month~'-'~entity.id~'-'~product.id %}
+                                                        <input data-product-id="{{ product.id }}" type="number" data-action="{{ path('kpi_markchart_location_sales_target',{'id':matrixArr[ids]['matrixId']}) }}" data-index="{{ matrixArr[ids]['matrixId'] }}" class="form-control matrixId" data-id="{{ matrixArr[ids]['matrixId'] }}"  id="quantity-{{ matrixArr[ids]['matrixId'] }}" name="quantity-{{ matrixArr[ids]['matrixId'] }}" value="{% if matrixArr[ids] is defined and  matrixArr[ids].districtId ==  entity.id and  matrixArr[ids].markId == product.id %}{{ matrixArr[ids]['quantity'] }}{% endif %}" >
+                                                    </td>
+                                                {% endfor %}
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
         </div>
@@ -68,6 +88,7 @@
 {% endblock %}
 {% block cssBlock %}
     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('bundles/terminalbdkpi/css/kpi.css') }}">
 {% endblock  %}
 {% block javascripts %}
     {{ parent() }}
