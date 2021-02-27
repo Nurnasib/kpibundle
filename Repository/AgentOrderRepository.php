@@ -52,7 +52,8 @@ class AgentOrderRepository extends EntityRepository
         $qb->leftJoin('e.district','d');
         $qb->select('agent.id as customerId');
         $qb->addSelect('p.id as productId');
-        $qb->addSelect('e.quantity as quantity');
+        $qb->addSelect('SUM(e.quantity) as quantity');
+        $qb->addSelect('e.month as month','e.year as year');
         $qb->groupBy('agent.id','p.id','e.month','e.year');
 //        $qb->where('e.year =:year')->setParameter('year',$year);
 //        $qb->andWhere('e.month =:month')->setParameter('month',$month);
@@ -62,7 +63,7 @@ class AgentOrderRepository extends EntityRepository
         $arrayReturn=[];
         
         foreach ($results as $result){
-            $arrayReturn[$result['customerId']][$result['productId']]=$result;
+            $arrayReturn[$result['year']][$result['month']][$result['customerId']][$result['productId']]=$result;
         }
         
         return $arrayReturn;

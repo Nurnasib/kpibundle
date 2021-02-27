@@ -60,15 +60,15 @@
                         <tbody>
                         {% for entity in pagination %}
                             <tr>
-                                <td scope="col">{{ entity.agentId }}</td>
+                                <td class="customerId_{{ entity.customerId }}" scope="col">{{ entity.agentId }}</td>
                                 <td scope="col">{{ entity.agentName }}</td>
                                 <td scope="col">{{ entity.month }}</td>
                                 <td scope="col">{{ entity.year }}</td>
                                 <td scope="col">{{ entity.districtName }}</td>
                                 {% for item in items %}
-                                    <td scope="col">
+                                    <td class="productId_{{ item.id }}" scope="col">
                                         {% set salesItemId = entity.customerId~'-'~item.id %}
-                                        {{ agentSalesQty[entity.customerId][item.id]['quantity']|default('') }}
+                                        {{ agentSalesQty[entity.year][entity.month][entity.customerId][item.id]['quantity']|default('') }}
                                        {#{% if salesItems.salesItemId is not empty %} {{ salesItems.salesItemId }}{% endif %}#}
                                     </td>
                                 {% endfor %}
