@@ -260,6 +260,21 @@ class MarkChartRepository extends MaterializedPathRepository
         return $result;
     }
 
+    public function groupReportMode($reportMode)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.reportMode','m');
+        $qb->join('e.settingGroup', 's');
+        $qb->join('e.parent','p');
+        $qb->join('p.parent','gp');
+        $qb->where('m.slug =:mode')->setParameter('mode',$reportMode);
+        $qb->andWhere("s.slug = 'attributes'");
+        $qb->orderBy('gp.name','ASC');
+        $qb->addOrderBy('p.name','ASC');
+        $result = $qb->getQuery()->getResult();
+        return $result;
+    }
+
 
 
 }

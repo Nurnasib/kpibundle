@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute;
 use Terminalbd\KpiBundle\Entity\MarkChart;
 use Terminalbd\KpiBundle\Form\MarkChartFormType;
 
@@ -113,6 +114,33 @@ class MarkChartController extends AbstractController
         $em->flush();
         $this->addFlash('success', 'post.deleted_successfully');
         return new Response('Success');
+    }
+
+    /**
+     * Deletes a Setting entity.
+     *
+     * @Route("/markchart-matrix", methods={"GET"}, name="kpi_markchart_matrix")
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     */
+
+    public function markChartMatrix(Request $request)
+    {
+        $mode = $request->query->get('slug');
+        $result = $this->getDoctrine()->getRepository(MarkChart::class)->groupReportMode($mode);
+        $arrayData = [];
+        /* @var MarkChart $boardAttribute */
+        foreach ($result as $boardAttribute) {
+            if ($boardAttribute->getParent()->getParent()){
+                $arrayData[$boardAttribute->getParent()->getParent()->getId()][$boardAttribute->getParent()->getId()][] = $boardAttribute;
+            }
+        }
+        dump($arrayData);
+        return $this->render('@TerminalbdKpi/markchart/kpi-format.html.twig',[
+            'arrayData' => $arrayData
+        ]);
+
+
+
     }
 
 

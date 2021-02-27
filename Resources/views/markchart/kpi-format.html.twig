@@ -1,0 +1,186 @@
+{% extends 'admin/layout.html.twig' %}
+{% block body_id 'kpi_domain_new' %}
+{% block body %}
+    <div class="pcoded-inner-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                        <li class="breadcrumb-item"> <a href="{{ path('kpi_markchart') }}">  {{ 'KPI Board'|trans }}</a></li>
+                        <li class="breadcrumb-item"> <a href="javascript:">{{ 'Add New'|trans }}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="card">
+                <div class="card-header">
+                    <h5>{{ 'KPI Element'|trans }}</h5>
+                    <div class="card-header-right">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
+                            <a href="{{ path('kpi_markchart_matrix',{'slug': 'amg-kpi'}) }}" class="btn btn-sm bg-success white-font">{{ 'AGM kpi'|trans }}</a>
+                            <a href="{{ path('kpi_markchart_matrix',{'slug': 'rsm-arsm-kpi'}) }}" class="btn btn-sm bg-success white-font">{{ 'RSM ARSM kpi'|trans }}</a>
+                            <a href="{{ path('kpi_markchart_matrix',{'slug': 'spo-format'}) }}" class="btn btn-sm bg-success white-font">{{ 'SPO FORMAT'|trans }}</a>
+                            <a href="{{ path('kpi_markchart_matrix',{'slug': 'poultry-service'}) }}" class="btn btn-sm bg-success white-font">{{ 'POULTRY Service'|trans }}</a>
+                            <a href="{{ path('kpi_markchart_matrix',{'slug': 'aqua-service'}) }}" class="btn btn-sm bg-success white-font">{{ 'AQUA Service'|trans }}</a>
+                            <a href="{{ path('kpi_markchart_matrix',{'slug': 'cattle-service'}) }}" class="btn btn-sm bg-success white-font">{{ 'CATTLE Service'|trans }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card">
+                <div class="portlet box green ">
+                    <div class="portlet-title">
+                        <div class="caption">{{ 'Manage KPI Element'|trans }} </div>
+                    </div>
+                    <div class="portlet-body form">
+                        {# New format #}
+                        {#<div class="row">
+                            <div class="col-md-2"><img src="{{ asset('assets/images/nourish.jpg') }}" alt=""></div>
+                            <div class="col-md-10 text-center"><span class="h5 text-dark"><strong>KPI- for -AGM <br> Year 2021</strong></span></div>
+                        </div>#}
+                        <style>
+                            ul.header-info {
+                                margin: 0;
+                                padding: 0;
+                                display: flex;
+                                flex-wrap: wrap;
+                            }
+                            ul.header-info li {
+                                list-style: none;
+                                width: 50%;
+                            }
+                        </style>
+                        {% if arrayData is not empty %}
+                            <table class="table table-striped table-bordered">
+                                <thead class="thead-dark">
+                                <tr><th colspan="2" class="text-center">KPI- for AGM Kpi <br>{{ 'now'|date('F,Y') }}</th></tr>
+                                </thead>
+
+                            </table>
+                            <table class="table table-striped table-bordered" id="datatable">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">Parameter</th>
+                                    <th scope="col" style="width: 5%;">Activity</th>
+                                    <th scope="col" style="width: 45%">Attributes</th>
+                                    <th scope="col">Marks</th>
+                                    <th scope="col" style="width: 27%">Mark Distribution</th>
+                                    <th scope="col">Obtain Marks</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for parameters in arrayData %}
+                                    {% set count=1 %}
+                                    {% for activity in parameters %}
+                                        {% set countActity=1 %}
+                                        {% for entity in activity %}
+                                            <tr>
+                                                {% if(count==1) %}
+                                                    <td rowspan="{{ parameters|multiArrayLength }}" class=""><span>{{ entity.parent.parent.name }}</span></td>
+                                                {% endif %}
+                                                {% if(countActity==1) %}
+                                                    <td rowspan="{{ activity|length }}" class=""><span>{{ entity.parent.name }}</span></td>
+                                                {% endif %}
+                                                <td>
+                                                    {{ entity.name }}
+                                                </td>
+                                                <td>
+                                                    {{ entity.mark }}
+                                                </td>
+                                                <td>
+                                                    <ul class="markDistribution">
+                                                        {% for children in entity.children %}
+                                                            <li>{{ children.name }}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </td>
+                                                <td class="attribute-score" id="markDistribution">0</td>
+                                            </tr>
+                                            {% set countActity=0 %}
+                                            {% set count=count+1 %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
+<style>
+.activity li{
+
+}
+.activity li .attribute{
+
+}
+.activity li .attribute li .markDistribution{
+
+}
+
+.parameter{
+    position: relative;
+    border-left: 34px solid #369;
+    padding-left: 10px;
+    width: 50px;
+}
+
+.parameter span {
+    position: absolute;
+    top: 50%;
+    left: 30px;
+    background: none;
+    transform-origin: 0 0;
+    transform: rotate(-90deg);
+    width: 200px;
+}
+}
+
+.attribute-markDistribution{
+    width: 220px;
+}
+
+.markDistribution{
+    padding-left: 15px;
+    width: 220px;
+}
+.markDistribution li{
+    margin-left: 0;
+    padding-left: 0;
+}
+
+.activity-name{
+    width: 120px;
+}
+
+.activity-attribute{
+    width: 220px;
+}
+.attribute-name{
+    width: 480px;
+}
+.attribute-mark{
+    width: 70px;
+}
+.attribute-score{
+    width: 70px;
+}
+</style>
+{% endblock %}
+ {% block cssBlock %}
+     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+ {% endblock  %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+{% endblock  %}

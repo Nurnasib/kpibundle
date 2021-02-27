@@ -43,7 +43,7 @@ class EmployeeBoardController extends AbstractController
     {
         $user = $this->getUser();
         $entities = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getEmployeeBoardList($user);
-        return $this->render('@TerminalbdKpi/employeeboard/index.html.twig',['entities' => $entities]);
+        return $this->render('@TerminalbdKpi/employeeboard/index.html.twig', ['entities' => $entities]);
     }
 
 
@@ -54,20 +54,20 @@ class EmployeeBoardController extends AbstractController
     {
         $month = "January";
         $year = 2020;
-        $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
+        $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1, 'status' => 1]);
         $em = $this->getDoctrine()->getManager();
-        $exist = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findOneBy(array('employeeSetup' => $setup,'month'=>$month,'year'=>$year));
-        if(empty($exist)){
+        $exist = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findOneBy(array('employeeSetup' => $setup, 'month' => $month, 'year' => $year));
+        if (empty($exist)) {
             $entity = new EmployeeBoard();
             $entity->setEmployeeSetup($setup);
             $entity->setMonth((string)$month);
             $entity->setYear((string)$year);
             $em->persist($entity);
             $em->flush();
-            $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($setup,$entity,$entities);
-            return $this->redirectToRoute('kpi_employee_board_edit',array('id'=>$entity->getId()));
-        }else{
-            return $this->redirectToRoute('kpi_employee_board_edit',array('id'=>$exist->getId()));
+            $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($setup, $entity, $entities);
+            return $this->redirectToRoute('kpi_employee_board_edit', array('id' => $entity->getId()));
+        } else {
+            return $this->redirectToRoute('kpi_employee_board_edit', array('id' => $exist->getId()));
         }
 
     }
@@ -83,14 +83,14 @@ class EmployeeBoardController extends AbstractController
     {
         $data = $request->request->all();
         $em = $this->getDoctrine()->getManager();
-        $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
+        $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1, 'status' => 1]);
         $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->find($entity);
         $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($entity);
-        $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($entity->getEmployeeSetup(),$entity,$entities);
-        $arrayData=[];
-        /* @var EmployeeBoardAttribute $boardAttribute*/
-        foreach ($entity->getEmployeeBoardAttributes() as $boardAttribute){
-            $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][]=$boardAttribute;
+        $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($entity->getEmployeeSetup(), $entity, $entities);
+        $arrayData = [];
+        /* @var EmployeeBoardAttribute $boardAttribute */
+        foreach ($entity->getEmployeeBoardAttributes() as $boardAttribute) {
+            $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][] = $boardAttribute;
         }
 
         return $this->render('@TerminalbdKpi/employeeboard/new.html.twig', [
@@ -100,6 +100,7 @@ class EmployeeBoardController extends AbstractController
             'arrayData' => $arrayData,
         ]);
     }
+
     /**
      * @Route("/{id}/preview", methods={"GET"}, name="kpi_employee_board_preview")
      */
@@ -107,18 +108,18 @@ class EmployeeBoardController extends AbstractController
     {
 
         $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->find($entity);
-        $arrayData=[];
-        /* @var EmployeeBoardAttribute $boardAttribute*/
-        foreach ($entity->getEmployeeBoardAttributes() as $boardAttribute){
-            $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][]=$boardAttribute;
+        $arrayData = [];
+        /* @var EmployeeBoardAttribute $boardAttribute */
+        foreach ($entity->getEmployeeBoardAttributes() as $boardAttribute) {
+            $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][] = $boardAttribute;
         }
         $mode = $_REQUEST['mode'];
-        if($mode == "print"){
+        if ($mode == "print") {
             return $this->render('@TerminalbdKpi/employeeboard/report/print.html.twig', [
                 'board' => $entity,
                 'arrayData' => $arrayData,
             ]);
-        }else{
+        } else {
             //Need to collect values here to pass the pdf view($entities)
 
             // Configure Dompdf according to your needs
@@ -129,7 +130,7 @@ class EmployeeBoardController extends AbstractController
             $dompdf = new Dompdf($pdfOptions);
 
             // Retrieve the HTML generated in our twig file
-            $html = $this->renderView('@TerminalbdKpi/employeeboard/report/pdf.html.twig', ['board' => $entity,'arrayData' => $arrayData]);
+            $html = $this->renderView('@TerminalbdKpi/employeeboard/report/pdf.html.twig', ['board' => $entity, 'arrayData' => $arrayData]);
 
             // Load HTML to Dompdf
             $dompdf->loadHtml($html);
@@ -173,7 +174,7 @@ class EmployeeBoardController extends AbstractController
     public function attributeUpdate(EmployeeBoardAttribute $entity): Response
     {
         $mark = $_REQUEST['mark'];
-        if($mark){
+        if ($mark) {
             $attribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($mark);
             $em = $this->getDoctrine()->getManager();
             $entity->setMarkDistribution($attribute);
@@ -193,10 +194,10 @@ class EmployeeBoardController extends AbstractController
     {
         $entity = $this->getDoctrine()->getRepository(EmployeeBoard::class)->find($id);
         $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->find($entity);
-        $arrayData=[];
-        /* @var EmployeeBoardAttribute $boardAttribute*/
-        foreach ($entity->getEmployeeBoardAttributes() as $boardAttribute){
-            $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][]=$boardAttribute;
+        $arrayData = [];
+        /* @var EmployeeBoardAttribute $boardAttribute */
+        foreach ($entity->getEmployeeBoardAttributes() as $boardAttribute) {
+            $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][] = $boardAttribute;
         }
         return $this->render('@TerminalbdKpi/employeeboard/report/details.html.twig', [
             'board' => $entity,
@@ -230,13 +231,11 @@ class EmployeeBoardController extends AbstractController
     {
 
         $entity = $this->getDoctrine()->getRepository(EmployeeBoard::class)->find($id);
-        $marks = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->findBy(array('employeeBoard'=>$id));
+        $marks = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->findBy(array('employeeBoard' => $id));
         return $this->render('@TerminalbdKpi/employeeboard/report/salesDetails.html.twig', [
             'entity' => $entity,
             'entities' => $marks,
         ]);
 
     }
-
-
 }
