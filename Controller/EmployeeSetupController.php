@@ -50,7 +50,7 @@ class EmployeeSetupController extends AbstractController
     }
 
     /**
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN')")
      * @Route("/new", methods={"GET", "POST"}, name="kpi_setup_new")
      */
     public function new(Request $request): Response
@@ -58,7 +58,7 @@ class EmployeeSetupController extends AbstractController
 
         $entity = new EmployeeSetup();
 
-        $form = $this->createForm(EmployeeSetupFormType::class , $entity)
+        $form = $this->createForm(EmployeeSetupFormType::class , $entity,['user'=>$this->getUser()])
             ->add('SaveAndCreate', SubmitType::class);
         $form->handleRequest($request);
         $data = $request->request->all();
@@ -88,7 +88,7 @@ class EmployeeSetupController extends AbstractController
      * Displays a form to edit an existing Post entity.
      *
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="kpi_setup_edit")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN')")
      */
     public function edit(Request $request, EmployeeSetup $entity): Response
     {
@@ -136,7 +136,7 @@ class EmployeeSetupController extends AbstractController
      * Deletes a Setting entity.
      *
      * @Route("/{id}/delete", methods={"GET"}, name="kpi_setup_delete")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN')")
      */
     public function delete($id): Response
     {
@@ -153,7 +153,7 @@ class EmployeeSetupController extends AbstractController
      * Deletes a Setting entity.
      *
      * @Route("/{id}/{upozila}/delete-matrix", methods={"GET"}, name="kpi_setup_delete_matrix")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN')")
      */
     public function deleteMatrix($id,$upozila): Response
     {
@@ -172,7 +172,7 @@ class EmployeeSetupController extends AbstractController
      * Status a Setting entity.
      *
      * @Route("/{id}/status", methods={"GET"}, name="kpi_setup_status")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN')")
      */
     public function status($id): Response
     {
@@ -188,7 +188,7 @@ class EmployeeSetupController extends AbstractController
      * Status a Setting entity.
      *
      * @Route("/{setup}/{upozila}/sales-matrix", methods={"GET"}, name="kpi_setup_sales_matrix")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN')")
      */
     public function salesMatrix($setup , $upozila): Response
     {

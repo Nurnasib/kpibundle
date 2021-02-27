@@ -62,14 +62,20 @@ class AgentSalesController extends AbstractController
     {
         $data = $_REQUEST;
         if(empty($data)){
-            $data = array('month'=>"January",'year'=>'2020');
+            $data = array('month'=>"January",'year'=>'2021');
         }
         $entities = $this->getDoctrine()->getRepository(AgentOrder::class)->findWithAgentSearch($data);
+        $agentSalesQty = $this->getDoctrine()->getRepository(AgentOrder::class)->findWithAgentOrderOty($data);
         $pagination = $this->paginate($request,$entities);
         $salesItems = $this->getDoctrine()->getRepository(AgentOrder::class)->findSalesItems($pagination,$data);
         $products = $this->getDoctrine()->getRepository(MarkChart::class)->salesProductItems();
         return $this->render('@TerminalbdKpi/agent/sales.html.twig',
-            ['pagination' => $pagination,'salesItems'=>$salesItems,'items'=>$products]
+            [
+                'pagination' => $pagination,
+                'salesItems'=>$salesItems,
+                'items'=>$products,
+                'agentSalesQty'=>$agentSalesQty,
+            ]
         );
     }
 
@@ -79,11 +85,12 @@ class AgentSalesController extends AbstractController
      */
     public function agentOutstanding(Agent $agent)
     {
-        $find = $this->getDoctrine()->getRepository(AgentOutstanding::class)->findBy(['agent'=>$agent]);
         $em = $this->getDoctrine()->getManager();
-        if(empty($find)){
-            $products = $this->getDoctrine()->getRepository(MarkChart::class)->salesProductItems();
-            foreach ($products as $product){
+
+        $products = $this->getDoctrine()->getRepository(MarkChart::class)->salesProductItems();
+        foreach ($products as $product){
+            $find = $this->getDoctrine()->getRepository(AgentOutstanding::class)->findOneBy(['agent'=>$agent,'product'=>$product]);
+            if(empty($find)){
                 $entity = new AgentOutstanding();
                 $entity->setAgent($agent);
                 $entity->setProduct($product);

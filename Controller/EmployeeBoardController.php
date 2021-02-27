@@ -168,19 +168,21 @@ class EmployeeBoardController extends AbstractController
     /**
      * Deletes a Setting entity.
      *
-     * @Route("/{entity}/{id}/attribute-update", methods={"GET"}, name="kpi_employee_board_attribute_update")
+     * @Route("/{id}/attribute-update", methods={"GET"}, name="kpi_employee_board_attribute_update")
      */
-    public function attributeUpdate($id): Response
+    public function attributeUpdate(EmployeeBoardAttribute $entity): Response
     {
         $mark = $_REQUEST['mark'];
-        $attribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($mark);
-        /* @var $entity EmployeeBoardAttribute */
-        $entity = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->find($id);
-        $em = $this->getDoctrine()->getManager();
-        $entity->setMarkDistribution($attribute);
-        $entity->setMark($attribute->getMark());
-        $em->flush();
-        return new Response($attribute->getMark());
+        if($mark){
+            $attribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($mark);
+            $em = $this->getDoctrine()->getManager();
+            $entity->setMarkDistribution($attribute);
+            $entity->setMark($attribute->getMark());
+            $em->flush();
+            return new Response($attribute->getMark());
+        }
+        return new Response(0);
+
     }
 
     /**
