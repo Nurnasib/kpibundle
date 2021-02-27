@@ -7,7 +7,6 @@
                 <div class="row align-items-center">
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
-                        <li class="breadcrumb-item"> <a href="{{ path('core_agent_index') }}"> {{ 'Manage Agent'|trans }}</a></li>
                     </ul>
                 </div>
             </div>
@@ -17,14 +16,7 @@
         <div class="row">
             <div class="card">
                 <div class="card-header">
-                    <h5>{{ 'Manage Agent'|trans }}</h5>
-                    <div class="card-header-right">
-                        <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
-                            <a href="{{ path('core_agent_index') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-large"></i>{{ 'Agents'|trans }}</a>
-                            <a href="?process=createForm&check=new#modal" id="createForm"   data-action="{{ path('core_agent_create') }}" class="btn btn-sm  green-bg white-font"><i class="fa fa-plus"></i>{{ 'New Agent'|trans }}</a>
-                        </div>
-
-                    </div>
+                    <h5>{{ 'District Sale'|trans }}</h5>
                 </div>
 
             </div>
@@ -44,13 +36,13 @@
                             <td>
                                 <input type="text" class="form-control  input-sm" placeholder="Mobile no" name="mobile" id="mobile"> </td>
                             <td colspan="2">
-                                <input type="text" class="form-control  input-sm" placeholder="Email" name="email" id="email"> </td></tr>
+                                <input type="text" class="form-control  input-sm" placeholder="Email" name="email" id="email"> </td>
+                        </tr>
                         <tr>
-                            <th scope="col">Agent ID</th>
-                            <th scope="col">Agent Name</th>
+                            <th scope="col">SL</th>
+                            <th scope="col">District Name</th>
                             <th scope="col">Month</th>
                             <th scope="col">Year</th>
-                            <th scope="col">District</th>
                             {% for item in items %}
                             <th scope="col">{{ item.name }}</th>
                             {% endfor %}
@@ -60,33 +52,22 @@
                         <tbody>
                         {% for entity in pagination %}
                             <tr>
-                                <td class="customerId_{{ entity.customerId }}" scope="col">{{ entity.agentId }}</td>
-                                <td scope="col">{{ entity.agentName }}</td>
+                                <td scope="col">{{ loop.index }}</td>
+                                <td class="districtId_{{ entity.districtId }}" scope="col">{{ entity.districtName }}</td>
                                 <td scope="col">{{ entity.month }}</td>
                                 <td scope="col">{{ entity.year }}</td>
-                                <td scope="col">{{ entity.districtName }}</td>
                                 {% for item in items %}
                                     <td class="productId_{{ item.id }}" scope="col">
-                                        {% set salesItemId = entity.customerId~'-'~item.id %}
-                                        {{ agentSalesQty[entity.year][entity.month][entity.customerId][item.id]['quantity']|default('') }}
-                                       {#{% if salesItems.salesItemId is not empty %} {{ salesItems.salesItemId }}{% endif %}#}
+                                        {{ districtSalesQty[entity.year][entity.month][entity.districtId][item.id]['quantity']|default('') }}
                                     </td>
                                 {% endfor %}
+                                <td></td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                     </div>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="count">
-                                Total Records: {{ pagination.getTotalItemCount }}
-                            </div>
-                        </div>
-                        <div class="col-md-9 navigation">
-                            {{ knp_pagination_render(pagination) }}
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </div>
