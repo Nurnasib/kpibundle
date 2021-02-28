@@ -1,4 +1,6 @@
-
+.nav-tabs {
+    border-bottom: 3px solid #3479be;
+}
 .nav-tabs>li {
     float: left;
     margin-bottom: -1px;
@@ -6,6 +8,8 @@
 .nav>li {
     position: relative;
     display: block;
+    width: calc(100%/12);
+    text-align: center;
 }
 
 .nav>li>a {
@@ -19,12 +23,17 @@
     line-height: 1.42857143;
     border: 1px solid transparent;
     border-radius: 4px 4px 0 0;
+    text-transform: uppercase!important;
+    font-size: 13px!important;
+    font-weight: bold;
+
 }
+
 .nav-tabs>li>a.active, .nav-tabs>li>a.active:hover, .nav-tabs>li>a.active:focus {
     color: #555;
     cursor: default;
     background-color: #fff;
-    border: 1px solid #ddd;
+    border: 3px solid #3479be;
     border-bottom-color: transparent;
 }
 

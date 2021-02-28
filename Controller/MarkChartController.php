@@ -11,6 +11,7 @@
 
 namespace Terminalbd\KpiBundle\Controller;
 
+use App\Entity\Core\Setting;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -126,6 +127,7 @@ class MarkChartController extends AbstractController
     public function markChartMatrix(Request $request)
     {
         $mode = $request->query->get('slug');
+        $report = $this->getDoctrine()->getRepository(Setting::class)->findOneBy(['slug'=>$mode]);
         $result = $this->getDoctrine()->getRepository(MarkChart::class)->groupReportMode($mode);
         $arrayData = [];
         /* @var MarkChart $boardAttribute */
@@ -134,8 +136,11 @@ class MarkChartController extends AbstractController
                 $arrayData[$boardAttribute->getParent()->getParent()->getId()][$boardAttribute->getParent()->getId()][] = $boardAttribute;
             }
         }
+        $entities = $this->getDoctrine()->getRepository(Setting::class)->getChildRecords('report-mode');
         return $this->render('@TerminalbdKpi/markchart/kpi-format.html.twig',[
-            'arrayData' => $arrayData
+            'arrayData' => $arrayData,
+            'modes' => $entities,
+            'report' => $report
         ]);
 
 
