@@ -126,7 +126,7 @@ class FileUploadController extends AbstractController
             }
             foreach ($breedArrays as $breedType => $value) {
 
-                $product = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['name' => $breedType]);
+                $product = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['salesMode'=>'feed','name' => $breedType]);
 
                 if ($product) {
                     $exitAgentOrder = $this->getDoctrine()->getRepository(AgentOrder::class)->findOneBy(array('agent'=>$findAgent,'product'=>$product,'month'=>$month,'year'=>$year));
