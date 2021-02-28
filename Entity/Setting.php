@@ -71,7 +71,7 @@ class Setting
     private $description;
 
     /**
-     * @Gedmo\Slug(fields={"name"})
+     * @Gedmo\Slug(fields={"name"}, updatable=false)
      * @Doctrine\ORM\Mapping\Column(length=255,unique=false, nullable=true)
      */
     private $slug;

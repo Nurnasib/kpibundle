@@ -134,7 +134,6 @@ class MarkChartController extends AbstractController
                 $arrayData[$boardAttribute->getParent()->getParent()->getId()][$boardAttribute->getParent()->getId()][] = $boardAttribute;
             }
         }
-        dump($arrayData);
         return $this->render('@TerminalbdKpi/markchart/kpi-format.html.twig',[
             'arrayData' => $arrayData
         ]);
