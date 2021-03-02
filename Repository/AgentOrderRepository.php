@@ -11,7 +11,12 @@
 
 namespace Terminalbd\KpiBundle\Repository;
 
+use App\Entity\Admin\Location;
+use App\Entity\Core\Agent;
+use App\Entity\Core\Setting;
 use Doctrine\ORM\EntityRepository;
+use Terminalbd\KpiBundle\Entity\AgentOrder;
+use Terminalbd\KpiBundle\Entity\MarkChart;
 
 /**
  * This custom Doctrine repository contains some methods which are useful when
@@ -140,5 +145,96 @@ class AgentOrderRepository extends EntityRepository
 
     }
 
+    public function insertAgentSales($file, $keys, $allData, $month, $year)
+    {
+        $em =$this->_em;
+        $addedId = [];
+        $existingId = [];
+        $flashArray = [];
+
+        $breedTypes = [$keys[4], $keys[5], $keys[6], $keys[7], $keys[8]];
+        foreach ($allData as $data) {
+            //Marge Excel heading and value in one array as key and value
+            $details = array_combine($keys, $data);
+            list($agentIdValue, $agentNameValue, $upozilaValue, $districtValue, $broilerValue, $sonaliValue, $layerValue, $fishValue, $cattleValue, $monthValue, $yearValue) = $data;
+
+            $breedValues = [$broilerValue, $sonaliValue, $layerValue, $fishValue, $cattleValue];
+
+            $breedArrays = array_combine($breedTypes, $breedValues);
+
+            $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'name' => $districtValue]);
+            $upozila = $em->getRepository(Location::class)->findOneBy(['level'=>5,'name' => $upozilaValue]);
+
+
+            //Find agent
+            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' =>$agentIdValue]);
+            if (!$findAgent) {
+                $agent = new Agent();
+                $agent->setAgentId($agentIdValue);
+                $agent->setUpozila($upozila?$upozila:null);
+                $agent->setDistrict($district?$district:null);
+                $agent->setName($agentNameValue);
+                $agent->setAgentGroup($em->getRepository(Setting::class)->findOneBy(array('slug' => 'feed')));
+                $agent->setCreated(new \DateTime());
+                $em->persist($agent);
+                $em->flush();
+                $findAgent = $agent;
+            }
+            foreach ($breedArrays as $breedType => $value) {
+
+                $product = $em->getRepository(MarkChart::class)->findOneBy(['salesMode'=>'feed','name' => $breedType]);
+
+                if ($product) {
+                    $exitAgentOrder = $em->getRepository(AgentOrder::class)->findOneBy(array('agent'=>$findAgent,'product'=>$product,'month'=>$month,'year'=>$year));
+                    if(!$exitAgentOrder){
+                        $agentOrder = new AgentOrder();
+                        $agentOrder->setAgent($findAgent);
+                        $agentOrder->setDistrict($district?$district:null);
+                        $agentOrder->setUpozila($upozila?$upozila:null);
+                        $agentOrder->setProduct($product);
+                        $agentOrder->setQuantity($value);
+                        $agentOrder->setCreated(new \DateTime());
+                        $agentOrder->setUpdated(new \DateTime());
+                        $agentOrder->setMonth($month);
+                        $agentOrder->setYear($year);
+                        $agentOrder->setDocumentUpload($file);
+                        $em->persist($agentOrder);
+                        $em->flush();
+
+//                        $addedId[] = $agentOrder->getId();
+                        $flashArray['addedId'] = $agentOrder->getId();
+                    }else{
+//                        $existingId[]=$exitAgentOrder->getId();
+                        $flashArray['existingId'] = $exitAgentOrder->getId();
+                    }
+                }
+            }
+        }
+        $file->setStatus(1);
+
+        $em->persist($file);
+        $em->flush();
+
+        return $flashArray;
+    }
+
+    public function getOutstanding()
+    {
+        $qb = $this->createQueryBuilder('e');
+
+        $qb->select('agent.id AS agentId', 'e.month', 'e.year');
+
+        $qb->addSelect('SUM(e.quantity)*10 AS acheiveQuantity');
+        $qb->addSelect('SUM(e.quantity)*8 AS actualQuantity');
+
+        $qb->leftJoin('e.agent', 'agent');
+        $qb->where("agent.id = 1216");
+        $qb->andWhere("e.month = 'March'");
+        $qb->andWhere("e.year = 2021");
+
+        $results = $qb->getQuery()->getArrayResult();
+        return $results;
+
+    }
 
 }

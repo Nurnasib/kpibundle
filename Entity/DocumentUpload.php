@@ -46,61 +46,20 @@ class DocumentUpload
     private $monthYear;
 
     /**
-     * @return mixed
-     */
-    public function getMonthYear()
-    {
-        return $this->monthYear;
-    }
-
-    /**
-     * @param mixed $monthYear
-     */
-    public function setMonthYear($monthYear)
-    {
-        $this->monthYear = $monthYear;
-    }
-
-    /**
-     * @var \DateTime
-     * @Gedmo\Timestampable(on="create")
-     * @ORM\Column(name="created_at", type="datetime")
-     */
-    private $createdAt;
-
-    /**
-     * @var \DateTime
-     * @Gedmo\Timestampable(on="update")
-     * @ORM\Column(name="updated_at", type="datetime")
-     */
-    private $updatedAt;
-
-    /**
-     * @return mixed
-     */
-    public function getFileName()
-    {
-        return $this->fileName;
-    }
-
-    /**
-     * @param mixed $fileName
-     */
-    public function setFileName($fileName)
-    {
-        $this->fileName = $fileName;
-    }
-
-    /**
-     * Get id
-     *
-     * @return mixed
+     * @return int
      */
     public function getId()
     {
         return $this->id;
     }
 
+    /**
+     * @param int $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
 
     /**
      * @return string
@@ -121,6 +80,22 @@ class DocumentUpload
     /**
      * @return mixed
      */
+    public function getFileName()
+    {
+        return $this->fileName;
+    }
+
+    /**
+     * @param mixed $fileName
+     */
+    public function setFileName($fileName)
+    {
+        $this->fileName = $fileName;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getTitle()
     {
         return $this->title;
@@ -135,35 +110,20 @@ class DocumentUpload
     }
 
     /**
-     * @return \DateTime
+     * @return mixed
      */
-    public function getCreatedAt()
+    public function getMonthYear()
     {
-        return $this->createdAt;
+        return $this->monthYear;
     }
 
     /**
-     * @param \DateTime $createdAt
+     * @param mixed $monthYear
      */
-    public function setCreatedAt($createdAt)
+    public function setMonthYear($monthYear)
     {
-        $this->createdAt = $createdAt;
+        $this->monthYear = $monthYear;
     }
 
-    /**
-     * @return \DateTime
-     */
-    public function getUpdatedAt()
-    {
-        return $this->updatedAt;
-    }
-
-    /**
-     * @param \DateTime $updatedAt
-     */
-    public function setUpdatedAt($updatedAt)
-    {
-        $this->updatedAt = $updatedAt;
-    }
 
 }

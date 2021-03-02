@@ -11,7 +11,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Terminalbd\KpiBundle\Entity\AgentDocSaleCollection;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
+use Terminalbd\KpiBundle\Entity\AgentOutstanding;
 use Terminalbd\KpiBundle\Entity\DistrictOrder;
 use Terminalbd\KpiBundle\Entity\DocumentUpload;
 use Terminalbd\KpiBundle\Entity\LocationSalesTarget;
@@ -93,80 +95,37 @@ class FileUploadController extends AbstractController
         //Remove Excel column heading
         $keys = array_shift($allData);
 
-        $breedTypes = [$keys[4], $keys[5], $keys[6], $keys[7], $keys[8]];
+        $slug = str_replace(' ', '-', strtolower($file->getTitle()));
 
-        $em = $this->getDoctrine()->getManager();
-        $addedId = [];
-        $existingId = [];
-        foreach ($allData as $data) {
-            //Marge Excel heading and value in one array as key and value
-            $details = array_combine($keys, $data);
-            list($agentIdValue, $agentNameValue, $upozilaValue, $districtValue, $broilerValue, $sonaliValue, $layerValue, $fishValue, $cattleValue, $monthValue, $yearValue) = $data;
-
-            $breedValues = [$broilerValue, $sonaliValue, $layerValue, $fishValue, $cattleValue];
-
-            $breedArrays = array_combine($breedTypes, $breedValues);
-
-            $district = $this->getDoctrine()->getRepository(Location::class)->findOneBy(['level'=>4,'name' => $districtValue]);
-            $upozila = $this->getDoctrine()->getRepository(Location::class)->findOneBy(['level'=>5,'name' => $upozilaValue]);
-
-
-            //Find agent
-            $findAgent = $this->getDoctrine()->getRepository(Agent::class)->findOneBy(['agentId' =>$agentIdValue]);
-            if (!$findAgent) {
-                $agent = new Agent();
-                $agent->setAgentId($agentIdValue);
-                $agent->setUpozila($upozila?$upozila:null);
-                $agent->setDistrict($district?$district:null);
-                $agent->setName($agentNameValue);
-                $agent->setAgentGroup($em->getRepository(Setting::class)->findOneBy(array('slug' => 'feed')));
-                $agent->setCreated(new \DateTime());
-                $em->persist($agent);
-                $em->flush();
-                $findAgent = $agent;
-            }
-            foreach ($breedArrays as $breedType => $value) {
-
-                $product = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['salesMode'=>'feed','name' => $breedType]);
-
-                if ($product) {
-                    $exitAgentOrder = $this->getDoctrine()->getRepository(AgentOrder::class)->findOneBy(array('agent'=>$findAgent,'product'=>$product,'month'=>$month,'year'=>$year));
-                    if(!$exitAgentOrder){
-                        $agentOrder = new AgentOrder();
-                        $agentOrder->setAgent($findAgent);
-                        $agentOrder->setDistrict($district?$district:null);
-                        $agentOrder->setUpozila($upozila?$upozila:null);
-                        $agentOrder->setProduct($product);
-                        $agentOrder->setQuantity($value);
-                        $agentOrder->setCreated(new \DateTime());
-                        $agentOrder->setUpdated(new \DateTime());
-                        $agentOrder->setMonth($month);
-                        $agentOrder->setYear($year);
-                        $agentOrder->setDocumentUpload($file);
-                        $em->persist($agentOrder);
-                        $em->flush();
-
-                        $addedId[] = $agentOrder->getId();
-                    }else{
-                        $existingId[]=$exitAgentOrder->getId();
-                    }
-
+        switch ($slug){
+            case "agent-sales":
+                $flashArray = $this->getDoctrine()->getRepository(AgentOrder::class)->insertAgentSales($file, $keys, $allData, $month, $year);
+                if (in_array('addedId', $flashArray)) {
+                    $this->addFlash('success', 'Record updated successfully into Database!');
+                }elseif (in_array('existingId', $flashArray)){
+                    $this->addFlash('error', 'Record already exit');
                 }
-            }
+                else {
+                    $this->addFlash('error', 'Something wrong!');
+                }
+                break;
+            case "agent-outstanding":
+                $addedId = $this->getDoctrine()->getRepository(AgentOutstanding::class)->insertAgentOutstanding($file, $keys, $allData, $month, $year);
+                if($addedId){
+                    $this->addFlash('success', 'Data inserted successfully!');
+                }else{
+                    $this->addFlash('error', 'Something Wrong!');
+                }
+                break;
+            case "doc-sales-collection":
+                $addedId = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->insertAgentOutstanding($file, $keys, $allData, $month, $year);
+                if($addedId){
+                    $this->addFlash('success', 'Data inserted successfully!');
+                }else{
+                    $this->addFlash('error', 'Something Wrong!');
+                }
+                break;
         }
-        if ($addedId) {
-            $this->addFlash('success', 'Record updated successfully into Database!');
-        }elseif ($existingId){
-            $this->addFlash('error', 'Record already exit');
-        }
-        else {
-            $this->addFlash('error', 'Something wrong!');
-        }
-
-        $file->setStatus(1);
-
-        $em->persist($file);
-        $em->flush();
 
         return $this->redirectToRoute('kpi_file_upload_index');
     }

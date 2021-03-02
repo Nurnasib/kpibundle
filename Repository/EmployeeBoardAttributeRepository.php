@@ -185,11 +185,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
 
             endforeach;
-//dd($totalAchivementMark);
-
             $discritAchivementDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'district-achievement'));
                 $employeeBoardAttributeForDistrictAchivement = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$discritAchivementDistribution]);
-//dd($this->salesDistrictAchivementCalculation($totalActualMark, $totalAchivementMark));
                 if($employeeBoardAttributeForDistrictAchivement){
                     $employeeBoardAttributeForDistrictAchivement->setMark($this->salesDistrictAchivementCalculation($totalActualMark, $totalAchivementMark));
                     $em->persist($employeeBoardAttributeForDistrictAchivement);

@@ -11,10 +11,11 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * AgentOrder
  *
- * @ORM\Table(name="kpi_agent_outstanding")
- * @ORM\Entity(repositoryClass="Terminalbd\KpiBundle\Repository\AgentOutstandingRepository")
+ * @ORM\Table(name="kpi_agent_doc_sale_collection")
+ * @ORM\Entity(repositoryClass="Terminalbd\KpiBundle\Repository\AgentDocSaleCollectionRepository")
  */
-class AgentOutstanding
+class AgentDocSaleCollection
+
 {
     /**
      * @var integer
@@ -25,24 +26,6 @@ class AgentOutstanding
      */
     private $id;
 
-    /**
-     * @var Agent
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Agent" , inversedBy="outstanding")
-     */
-    private $agent;
-
-
-    /**
-     * @var float
-     * @ORM\Column(name="actual_amount", type="float", nullable=true)
-     */
-    private $actualAmount;
-    /**
-     * @var float
-     * @ORM\Column(name="outstanding", type="float", nullable=true)
-     */
-    private $outstanding;
 
     /**
      * @var Location
@@ -50,6 +33,28 @@ class AgentOutstanding
      * @ORM\ManyToOne(targetEntity="App\Entity\Admin\Location" , inversedBy="kpiSetup")
      */
     private $district;
+
+
+    /**
+     * @var Agent
+     *
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Agent" , inversedBy="kpiSetup")
+     */
+    private $agent;
+
+
+    /**
+     * @var float
+     * @ORM\Column(name="sales", type="float", nullable=true)
+     */
+    private $sales;
+
+
+    /**
+     * @var float
+     * @ORM\Column(name="collection", type="float", nullable=true)
+     */
+    private $collection;
 
     /**
      * @var string
@@ -63,6 +68,7 @@ class AgentOutstanding
      * @ORM\Column(name="year", type="string", nullable=true)
      */
     private $year;
+
 
     /**
      * @var \DateTime
@@ -102,6 +108,22 @@ class AgentOutstanding
     }
 
     /**
+     * @return Location
+     */
+    public function getDistrict()
+    {
+        return $this->district;
+    }
+
+    /**
+     * @param Location $district
+     */
+    public function setDistrict($district)
+    {
+        $this->district = $district;
+    }
+
+    /**
      * @return Agent
      */
     public function getAgent()
@@ -120,49 +142,33 @@ class AgentOutstanding
     /**
      * @return float
      */
-    public function getActualAmount()
+    public function getSales()
     {
-        return $this->actualAmount;
+        return $this->sales;
     }
 
     /**
-     * @param float $actualAmount
+     * @param float $sales
      */
-    public function setActualAmount($actualAmount)
+    public function setSales($sales)
     {
-        $this->actualAmount = $actualAmount;
+        $this->sales = $sales;
     }
 
     /**
      * @return float
      */
-    public function getOutstanding()
+    public function getCollection()
     {
-        return $this->outstanding;
+        return $this->collection;
     }
 
     /**
-     * @param float $outstanding
+     * @param float $collection
      */
-    public function setOutstanding($outstanding)
+    public function setCollection($collection)
     {
-        $this->outstanding = $outstanding;
-    }
-
-    /**
-     * @return Location
-     */
-    public function getDistrict()
-    {
-        return $this->district;
-    }
-
-    /**
-     * @param Location $district
-     */
-    public function setDistrict($district)
-    {
-        $this->district = $district;
+        $this->collection = $collection;
     }
 
     /**
@@ -244,8 +250,5 @@ class AgentOutstanding
     {
         $this->status = $status;
     }
-
-
-
 
 }

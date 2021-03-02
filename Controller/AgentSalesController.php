@@ -110,4 +110,13 @@ class AgentSalesController extends AbstractController
             ['agent' => $agent]
         );
     }
+
+    /**
+     * @Route("/test-outstanding")
+     */
+    public function agentOutstandingTest()
+    {
+        $result = $this->getDoctrine()->getRepository(AgentOrder::class)->getOutstanding();
+        dd($result);
+    }
 }

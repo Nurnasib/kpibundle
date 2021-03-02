@@ -29,9 +29,9 @@ class FileUploadFormType extends AbstractType
             ->add('title', ChoiceType::class,[
                 'choices' => [
                     '---Select---' => null,
-                    'Agent' => 'agent',
-                    'Employee' => 'employee',
-                    'Sales' => 'sales'
+                    'Agent Sales' => 'agent sales',
+                    'Agent Outstanding' => 'agent outstanding',
+                    'DOC Sales Collection' => 'doc sales collection',
                 ]
             ])
             ->add('monthYear',TextType::class,[
