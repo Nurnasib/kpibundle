@@ -1,0 +1,132 @@
+{% extends 'admin/layout.html.twig' %}
+{% block body_id 'kpi_domain_new' %}
+{% block body %}
+    <div class="pcoded-inner-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                        <li class="breadcrumb-item"> <a href="{{ path('kpi_employee_board') }}">  {{ 'Employee Board'|trans }}</a></li>
+                        <li class="breadcrumb-item"> <a href="javascript:">{{ 'Add New'|trans }}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="card">
+                <div class="card-header">
+                    <h5>{{ 'Employee Setup Plan'|trans }}</h5>
+                    <div class="card-header-right">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
+                            <a href="{{ path('kpi_board_new') }}" class="btn btn-sm  green-bg white-font"><i class="fas fa-plus"></i>{{ 'Add New'|trans }}</a>
+                            <a href="{{ path('kpi_employee_board') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>{{ 'Employee Board'|trans }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card">
+                <div class="portlet box green ">
+                    <div class="portlet-title">
+                        <div class="caption">{{ 'Manage Setup Plan'|trans }} </div>
+                    </div>
+                    <div class="portlet-body form">
+                        {{ form_start(form, {'attr': {'class': 'form-horizontal right'}}) }}
+                        {{ form_widget(form._token) }}
+                        <div class="row form-body">
+                            <div class="form-inner-no-space">
+                                <div class="row">
+                                    <div class="col-md-6 offset-1">
+                                        <div class="form-group">
+                                            {{ form_label(form.employee, 'Employee Name'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
+                                            <div class="col-md-8">
+                                                <span class="not-blank"> {{ 'Required'|trans }}</span>
+                                                {{ form_widget(form.employee) }}
+                                                {{ form_errors(form.employee) }}
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            {{ form_label(form.monthYear, 'Month'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
+                                            <div class="col-md-8">
+                                                <span class="not-blank"> {{ 'Required'|trans }}</span>
+                                                {{ form_widget(form.monthYear) }}
+                                                {{ form_errors(form.monthYear) }}
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-md-4"></label>
+                                            <div class="col-md-6">
+                                                {{ form_widget(form.status) }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="clearfix"></div>
+                                <div class="form-actions">
+                                    <div class="col-md-6 ">
+                                    </div>
+                                    <div class="col-md-6 text-right">
+                                        <div class="btn-group" role="group" aria-label="Button group with nested dropdown"><button type="reset" class="btn btn-sm yellow-bg white-font"><i class="fa fa-refresh"></i>Restore</button>
+                                            {{ form_widget(form.SaveAndCreate, {label: 'label.save.continue',value:'label.save.continue', attr: { class: 'btn btn-info form-submit'}}) }}
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
+{% endblock %}
+{% block cssBlock %}
+ <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+    <style>
+        .ui-datepicker-calendar{display: none}
+    </style>
+{% endblock  %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+{% endblock  %}
+{% block documentready %}
+    {{ parent() }}
+    $('#datatable').DataTable( {
+    "bPaginate": false,
+    'columnDefs': [ {
+    'targets': [0,4],
+    'orderable': false
+    }]
+    });
+    $('.inputMonth').datepicker({
+    changeMonth: true,
+    changeYear: true,
+    dateFormat: 'MM,yy',
+
+    onClose: function() {
+    var iMonth = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+    var iYear = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+    $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
+    },
+
+    beforeShow: function() {
+    if ((selDate = $(this).val()).length > 0)
+    {
+    iYear = selDate.substring(selDate.length - 4, selDate.length);
+    iMonth = jQuery.inArray(selDate.substring(0, selDate.length - 5), $(this).datepicker('option', 'monthNames'));
+    $(this).datepicker('option', 'defaultDate', new Date(iYear, iMonth, 1));
+    $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
+    }
+    }
+    });
+{% endblock %}
