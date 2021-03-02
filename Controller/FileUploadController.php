@@ -100,9 +100,9 @@ class FileUploadController extends AbstractController
         switch ($slug){
             case "agent-sales":
                 $flashArray = $this->getDoctrine()->getRepository(AgentOrder::class)->insertAgentSales($file, $keys, $allData, $month, $year);
-                if (in_array('addedId', $flashArray)) {
+                if (isset($flashArray['new']) && sizeof($flashArray['new'])>0) {
                     $this->addFlash('success', 'Record updated successfully into Database!');
-                }elseif (in_array('existingId', $flashArray)){
+                }elseif (isset($flashArray['update']) && sizeof($flashArray['update'])>0){
                     $this->addFlash('error', 'Record already exit');
                 }
                 else {
@@ -121,6 +121,17 @@ class FileUploadController extends AbstractController
                 $addedId = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->insertAgentOutstanding($file, $keys, $allData, $month, $year);
                 if($addedId){
                     $this->addFlash('success', 'Data inserted successfully!');
+                }else{
+                    $this->addFlash('error', 'Something Wrong!');
+                }
+                break;
+            case "district-sales-target":
+                $addedId = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->insertTargetAmount($file, $keys, $allData, $month, $year);
+//                dd($addedId);
+                if(isset($addedId['new']) && sizeof($addedId['new'])>0){
+                    $this->addFlash('success', 'Data inserted successfully!');
+                }elseif (isset($addedId['old']) && sizeof($addedId['old'])>0){
+                    $this->addFlash('success', 'Data updated successfully!');
                 }else{
                     $this->addFlash('error', 'Something Wrong!');
                 }

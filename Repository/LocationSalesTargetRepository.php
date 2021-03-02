@@ -152,5 +152,54 @@ class LocationSalesTargetRepository extends EntityRepository
         return $results;
     }
 
+    public function insertTargetAmount($file, $keys, $allData, $month, $year)
+    {
+        $data = [];
+        $addedId = [];
+        $em = $this->_em;
+
+        foreach ($allData as $value){
+            $data[] = array_combine($keys,$value);
+        }
+        foreach ($data as $record){
+            $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'name' => $record['District']]);
+
+            array_shift($record);     //Remove District From $record
+            array_splice($record, -2);   //Remove Last two item(month, year) from $record
+            if ($district){
+                foreach ($record as $key => $item) {
+                    $breedType = $em->getRepository(MarkChart::class)->findOneBy(['name' => $key]);   //Check if Breed Name exists or Not MarkChart
+                    if ($breedType){
+                        $districSales = new LocationSalesTarget();
+
+                        $exists = $em->getRepository(LocationSalesTarget::class)->findOneBy(['month' => $month, 'year' => $year, 'markDistribution' => $breedType, 'district'=>$district]);
+                        if ($exists){
+                            $districSales = $exists;
+                        }
+                        $districSales->setDistrict($district);
+                        $districSales->setMarkDistribution($breedType);
+                        $districSales->setQuantity($record[$key]);
+                        $districSales->setMonth($month);
+                        $districSales->setYear($year);
+
+                        $em->persist($districSales);
+                        $em->flush();
+
+                        if ($exists){
+                            $addedId['old'][] = $exists->getId();
+                        }else{
+                            $addedId['new'][] = $districSales->getId();
+                        }
+                    }
+                }
+            }
+        }
+        $file->setStatus(1);
+
+        $em->persist($file);
+        $em->flush();
+        return $addedId;
+    }
+
 
 }

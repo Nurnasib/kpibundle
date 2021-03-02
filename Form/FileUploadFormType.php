@@ -32,6 +32,7 @@ class FileUploadFormType extends AbstractType
                     'Agent Sales' => 'agent sales',
                     'Agent Outstanding' => 'agent outstanding',
                     'DOC Sales Collection' => 'doc sales collection',
+                    'District Sales Target' => 'district sales target'
                 ]
             ])
             ->add('monthYear',TextType::class,[

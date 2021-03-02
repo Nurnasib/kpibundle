@@ -29,7 +29,6 @@ class AgentOutstandingRepository extends EntityRepository
     public function insertAgentOutstanding($file, $keys,$allData, $month, $year)
     {
 
-//        dd($file);
         $data = [];
         $addedId = [];
         $em = $this->_em;
@@ -37,10 +36,8 @@ class AgentOutstandingRepository extends EntityRepository
         foreach ($allData as $value){
             $data[] = array_combine($keys,$value);
         }
-//        dd($allData);
 
         foreach ($data as $record){
-//            dump($record);
             $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'name' => $record['District']]);
             //Find agent
             $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' =>$record['AgentId']]);

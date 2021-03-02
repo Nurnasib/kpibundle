@@ -167,14 +167,16 @@ class AgentOrderRepository extends EntityRepository
 
 
             //Find agent
-            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' =>$agentIdValue]);
+            $feedAgentGroup = $em->getRepository(Setting::class)->findOneBy(array('slug' => 'feed'));
+
+            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentGroup'=>$feedAgentGroup,'agentId' =>$agentIdValue]);
             if (!$findAgent) {
                 $agent = new Agent();
                 $agent->setAgentId($agentIdValue);
                 $agent->setUpozila($upozila?$upozila:null);
                 $agent->setDistrict($district?$district:null);
                 $agent->setName($agentNameValue);
-                $agent->setAgentGroup($em->getRepository(Setting::class)->findOneBy(array('slug' => 'feed')));
+                $agent->setAgentGroup($feedAgentGroup);
                 $agent->setCreated(new \DateTime());
                 $em->persist($agent);
                 $em->flush();
@@ -202,10 +204,10 @@ class AgentOrderRepository extends EntityRepository
                         $em->flush();
 
 //                        $addedId[] = $agentOrder->getId();
-                        $flashArray['addedId'] = $agentOrder->getId();
+                        $flashArray['new'][] = $agentOrder->getId();
                     }else{
 //                        $existingId[]=$exitAgentOrder->getId();
-                        $flashArray['existingId'] = $exitAgentOrder->getId();
+                        $flashArray['update'][] = $exitAgentOrder->getId();
                     }
                 }
             }
