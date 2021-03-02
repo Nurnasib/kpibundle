@@ -14,6 +14,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
 use Terminalbd\KpiBundle\Entity\DistrictOrder;
 use Terminalbd\KpiBundle\Entity\DocumentUpload;
+use Terminalbd\KpiBundle\Entity\LocationSalesTarget;
 use Terminalbd\KpiBundle\Entity\MarkChart;
 use Terminalbd\KpiBundle\Form\FileUploadFormType;
 
@@ -181,6 +182,9 @@ class FileUploadController extends AbstractController
         $monthYear = explode(',', $file->getMonthYear());
         $month = $monthYear[0];
         $year = $monthYear[1];
+
+        $salesDate = new \DateTime("01-{$month}-{$year}");
+
         $agentOrders = $this->getDoctrine()->getRepository(AgentOrder::class)->getDistrictWiseTotalProductSales($month, $year);
         
         foreach ($agentOrders as $key=> $agentOrder){
@@ -197,13 +201,25 @@ class FileUploadController extends AbstractController
                 $districtOrder= $existingDistrictOrder;
             }
 
+            $salesTargetQty = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->findOneBy(array('district'=>$district,'markDistribution'=>$product, 'month'=>$month, 'year'=>$year));
+            $salesPriviousGrouthQty = $this->getDoctrine()->getRepository(DistrictOrder::class)->getGrouthPreviousProductQty($district, $product, $year, $month);
+            $salesCurrentGrouthQty = $this->getDoctrine()->getRepository(DistrictOrder::class)->getGrouthCurrentProductQty($district, $product, $year, $month);
+
+            $targetSalesQty =$salesTargetQty?$salesTargetQty->getQuantity():0;
 
             $districtOrder->setYear($agentOrder['oYear']);
             $districtOrder->setMonth($agentOrder['oMonth']);
             $districtOrder->setQuantity($agentOrder['totalQty']);
             $districtOrder->setDistrict($district?$district:null);
             $districtOrder->setProduct($product?$product:null);
-            $districtOrder->setCreated(new \DateTime());
+            $districtOrder->setTargetQuantity($targetSalesQty);
+            $districtOrder->setSalesGrouthPreviousQuantity($salesPriviousGrouthQty?$salesPriviousGrouthQty:0);
+            $districtOrder->setSalesGrouthCurrentQuantity($salesCurrentGrouthQty?($salesCurrentGrouthQty+$agentOrder['totalQty']):$agentOrder['totalQty']);
+
+            $districtOrder->setSalesMarkPercentage($this->salesTargetPercentageCalculation($targetSalesQty, $agentOrder['totalQty']));
+            $districtOrder->setSalesMark($this->salesTargetMarkCalculation($targetSalesQty, $agentOrder['totalQty']));
+
+            $districtOrder->setCreated($salesDate);
             $districtOrder->setUpdated(new \DateTime());
             $districtOrder->setStatus(1);
             $em->persist($districtOrder);
@@ -212,6 +228,43 @@ class FileUploadController extends AbstractController
 
 
         return $this->redirectToRoute('kpi_file_upload_index');
+    }
+
+
+    private function salesTargetPercentageCalculation($target,$sales)
+    {
+        if($target > 0){
+            $action = (($sales * 100 )/$target);
+            return $action;
+
+        }
+
+        return 0;
+
+    }
+
+    private function salesTargetMarkCalculation($target,$sales)
+    {
+        if($target > 0){
+            $action = (($sales * 100 )/$target);
+            if($action >= 100) {
+                return 5;
+            }elseif ($action < 100 and $action >= 90) {
+                return 4;
+            }elseif ($action < 90 and $action >= 80) {
+                return 3;
+            }elseif ($action < 80 and $action >= 70) {
+                return 2;
+            }elseif ($action < 70 and $action >= 60) {
+                return 1;
+            }else {
+                return 0;
+            }
+
+        }
+
+        return 0;
+
     }
 
 

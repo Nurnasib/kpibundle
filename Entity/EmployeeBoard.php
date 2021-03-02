@@ -25,14 +25,13 @@ class EmployeeBoard
      */
     private $id;
 
-
     /**
-     * @var EmployeeSetup
+     * @var User
      *
-     * @ORM\ManyToOne(targetEntity="EmployeeSetup", inversedBy="employeeBoard" , cascade={"detach","merge"})
-     * @ORM\JoinColumn(name="employeeSetup_id", referencedColumnName="id", nullable=true, onDelete="cascade")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User" , inversedBy="employeeBoard")
+     * @ORM\JoinColumn(name="employee_id", referencedColumnName="id", nullable=true)
      */
-    private $employeeSetup;
+    private $employee;
 
      /**
      * @var string
@@ -73,8 +72,6 @@ class EmployeeBoard
      * @ORM\OneToMany(targetEntity="Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute", mappedBy="employeeBoard")
      */
     private $employeeBoardAttributes;
-
-
 
 
     /**
@@ -119,22 +116,22 @@ class EmployeeBoard
         $this->status = $status;
     }
 
-
     /**
-     * @return EmployeeSetup
+     * @return User
      */
-    public function getEmployeeSetup()
+    public function getEmployee()
     {
-        return $this->employeeSetup;
+        return $this->employee;
     }
 
     /**
-     * @param EmployeeSetup $employeeSetup
+     * @param User $employee
      */
-    public function setEmployeeSetup(EmployeeSetup $employeeSetup)
+    public function setEmployee($employee)
     {
-        $this->employeeSetup = $employeeSetup;
+        $this->employee = $employee;
     }
+
 
 
     /**

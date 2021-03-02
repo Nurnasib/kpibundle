@@ -88,5 +88,66 @@ class DistrictOrderRepository extends EntityRepository
         return $arrayReturn;
     }
 
+    public function getGrouthPreviousProductQty($district, $product, $year, $month)
+    {
+        $previousYear = $year-1;
+        $startDate = date('Y-m-01', strtotime("{$previousYear}-01-01"));
+        $endDate = date('Y-m-t', strtotime("{$previousYear}-{$month}-01"));
+
+        $qb = $this->createQueryBuilder('e');
+
+        $qb->select('SUM(e.quantity) AS quantity');
+
+        $qb->where('e.district = :district');
+        $qb->andWhere('e.product = :product');
+        $qb->andWhere('e.created >= :startDate');
+        $qb->andWhere('e.created <= :endDate');
+        $qb->setParameters(array('district'=>$district,'product'=>$product,'startDate'=>$startDate, 'endDate'=>$endDate));
+
+        $results = $qb->getQuery()->getSingleScalarResult();
+//dd($results);
+        return $results;
+    }
+
+    public function getGrouthCurrentProductQty($district, $product, $year, $month)
+    {
+        $startDate = date('Y-m-01', strtotime("{$year}-01-01"));
+        $endDate = date('Y-m-t', strtotime("{$year}-{$month}-01"));
+
+        $qb = $this->createQueryBuilder('e');
+
+        $qb->select('SUM(e.quantity) AS quantity');
+
+        $qb->where('e.district = :district');
+        $qb->andWhere('e.product = :product');
+        $qb->andWhere('e.created >= :startDate');
+        $qb->andWhere('e.created <= :endDate');
+        $qb->setParameters(array('district'=>$district,'product'=>$product,'startDate'=>$startDate, 'endDate'=>$endDate));
+
+        $results = $qb->getQuery()->getSingleScalarResult();
+
+        return $results;
+    }
+
+
+    public function getLocationWiseTotalProductSalesTarget($locations, $year, $month)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.product','product');
+        $qb->join('e.district','d');
+        $qb->select('product.id as id','SUM(e.quantity) as quantity','SUM(e.targetQuantity) as targetQuantity','SUM(e.salesMark) as salesMark');
+        $qb->addSelect('SUM(e.salesMarkPercentage) as salesMarkPercentage','SUM(e.salesGrouthPreviousQuantity) as salesGrouthPreviousQuantity','SUM(e.salesGrouthCurrentQuantity) as salesGrouthCurrentQuantity');
+        $qb->where('d.id IN (:districts)')->setParameter('districts',$locations);
+        $qb->andWhere('e.year =:year')->setParameter('year',$year);
+        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->groupBy('product.id');
+        $result = $qb->getQuery()->getArrayResult();
+        $data = array();
+        foreach ($result as $row){
+            $data[$row['id']] = $row;
+        }
+        return $data;
+
+    }
 
 }

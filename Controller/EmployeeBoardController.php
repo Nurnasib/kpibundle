@@ -17,6 +17,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,6 +28,7 @@ use Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute;
 use Terminalbd\KpiBundle\Entity\EmployeeBoardSubAttribute;
 use Terminalbd\KpiBundle\Entity\EmployeeSetup;
 use Terminalbd\KpiBundle\Entity\MarkChart;
+use Terminalbd\KpiBundle\Entity\SetupMatrix;
 use Terminalbd\KpiBundle\Form\EmployeeBoardFormType;
 
 
@@ -44,6 +46,57 @@ class EmployeeBoardController extends AbstractController
         $user = $this->getUser();
         $entities = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getEmployeeBoardList($user);
         return $this->render('@TerminalbdKpi/employeeboard/index.html.twig',['entities' => $entities]);
+    }
+
+    /**
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN')")
+     * @Route("/new", methods={"GET", "POST"}, name="kpi_board_new")
+     */
+    public function new(Request $request): Response
+    {
+
+        $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
+
+        $entity = new EmployeeBoard();
+
+        $form = $this->createForm(EmployeeBoardFormType::class , $entity,['user'=>$this->getUser()])
+            ->add('monthYear', TextType::class,['attr'=>['class'=>'inputMonth','autocomplete'=>'off'],'mapped'=>false])
+            ->add('SaveAndCreate', SubmitType::class);
+        $form->handleRequest($request);
+        $data = $request->request->all();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $employee = $data['employee_board_form']['employee'];
+            $monthYear = explode(',', $data['employee_board_form']['monthYear']);
+            $month = $monthYear[0];
+            $year = $monthYear[1];
+
+
+            $exist = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findOneBy(
+                array('employee' => $employee,'month'=>$month, 'year'=>$year)
+            );
+
+            if (empty($exist)) {
+                $em = $this->getDoctrine()->getManager();
+                $entity->setYear($year);
+                $entity->setMonth($month);
+                $entity->setProcess('created');
+                $entity->setCreated(new \DateTime());
+                $entity->setUpdated(new \DateTime());
+
+                $em->persist($entity);
+                $em->flush();
+
+                $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($entity,$entities);
+                return $this->redirectToRoute('kpi_employee_board_edit',array('id'=>$entity->getId()));
+            }else{
+                return $this->redirectToRoute('kpi_employee_board_edit',array('id'=>$exist->getId()));
+            }
+
+        }
+        return $this->render('@TerminalbdKpi/employeeboard/create.html.twig', [
+            'setupEntity' => $entity,
+            'form' => $form->createView()
+        ]);
     }
 
 
@@ -86,7 +139,7 @@ class EmployeeBoardController extends AbstractController
         $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
         $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->find($entity);
         $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($entity);
-        $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($entity->getEmployeeSetup(),$entity,$entities);
+        $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($entity,$entities);
         $arrayData=[];
         /* @var EmployeeBoardAttribute $boardAttribute*/
         foreach ($entity->getEmployeeBoardAttributes() as $boardAttribute){

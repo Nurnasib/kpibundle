@@ -13,6 +13,7 @@ namespace Terminalbd\KpiBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
+use Terminalbd\KpiBundle\Entity\DistrictOrder;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
 use Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute;
 use Terminalbd\KpiBundle\Entity\EmployeeBoardSubAttribute;
@@ -59,7 +60,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         return $result;
     }
 
-    public function insertMarkDistribution(EmployeeSetup $setup , EmployeeBoard $board , $entities)
+    public function insertMarkDistribution( EmployeeBoard $board, $entities)
     {
 
         $em = $this->_em;
@@ -69,8 +70,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     if(!empty($activity->getChildren())){
                         foreach ($activity->getChildren() as $attribute):
                             $exist = $this->findOneBy(array('employeeBoard'=> $board,'attribute'=>$attribute));
-                            if(empty($exist) and !empty($board->getEmployeeSetup()->getEmployee()->getReportMode())){
-                                $markChartAttribute = $em->getRepository(MarkChart::class)->findUserMarkAttribute($board->getEmployeeSetup()->getEmployee()->getReportMode()->getId(),$attribute->getId());
+                            if(empty($exist) and !empty($board->getEmployee()->getReportMode())){
+                                $markChartAttribute = $em->getRepository(MarkChart::class)->findUserMarkAttribute($board->getEmployee()->getReportMode()->getId(),$attribute->getId());
                                 if($markChartAttribute){
                                     $entity = new EmployeeBoardAttribute();
                                     $entity->setEmployeeBoard($board);
@@ -81,14 +82,16 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                                     $em->persist($entity);
                                     $em->flush();
                                 }
+
                             }
+
 
                         endforeach;
                     }
                 endforeach;
             }
         endforeach;
-        $this->updateSalesProcess($setup,$board);
+        $this->updateSalesProcess($board);
         $subAttrs = $this->groupByAttributeMarks($board);
         foreach ($subAttrs as $sub):
             $exist = $this->findOneBy(array('employeeBoard'=> $board,'attribute' => $sub['parentId']));
@@ -101,11 +104,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     }
 
-    public function updateSalesProcess(EmployeeSetup $setup,EmployeeBoard $board)
+    public function updateSalesProcess(EmployeeBoard $board)
     {
         $em = $this->_em;
         $entities = "";
-        $locations = $board->getEmployeeSetup()->getEmployee()->getDistrict();
+        $locations = $board->getEmployee()->getDistrict();
         $arrs = array();
         if(!empty($locations)){
             foreach ($locations as $location){
@@ -113,24 +116,33 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             }
         }
 
-        $entities = $em->getRepository(LocationSalesTarget::class)->getLocationWiseTotalProductSalesTarget($arrs);
-        $orders = $em->getRepository(AgentOrder::class)->getLocationWiseTotalProductSales($arrs);
-
+        $entities = $em->getRepository(DistrictOrder::class)->getLocationWiseTotalProductSalesTarget($arrs, $board->getYear(), $board->getMonth());
+//        $orders = $em->getRepository(AgentOrder::class)->getLocationWiseTotalProductSales($arrs);
+//dd($entities);
         if(!empty($entities)){
-
+            $totalAchivementMark=0;
+            $totalActualMark=0;
             foreach ($entities as $parameter):
+
+                $totalAchivementMark=$totalAchivementMark+$parameter['salesMark'];
+
+
                 $entity = new EmployeeBoardSubAttribute();
                 $distribution = $em->getRepository(MarkChart::class)->find($parameter['id']);
+
+                $totalActualMark=$totalActualMark+$distribution->getMark();
+
                 $exist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard'=> $board,'markDistribution'=> $parameter['id']));
                 if($exist){
                     $entity = $exist;
                 }
                     $entity->setEmployeeBoard($board);
                     $entity->setMarkDistribution($distribution);
-                    $entity->setTargetQuantity($parameter['quantity']);
-                    if(isset($orders[$parameter['id']]) and !empty($orders[$parameter['id']])){
+                    $entity->setTargetQuantity($parameter['targetQuantity']);
+                    $entity->setSalesQuantity($parameter['quantity']);
+                    /*if(isset($orders[$parameter['id']]) and !empty($orders[$parameter['id']])){
                         $entity->setSalesQuantity($orders[$parameter['id']]['quantity']);
-                    }
+                    }*/
                     $mark = $this->salesTargetCalculation($entity->getTargetQuantity(),$entity->getSalesQuantity());
                     $entity->setMark($mark);
                     $em->persist($entity);
@@ -144,7 +156,45 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $em->flush();
                 }
 
+                $growthDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode'=>'growth', 'slug'=>'growth-'.$distribution->getSlug()));
+
+                $growthEntity = new EmployeeBoardSubAttribute();
+
+                $growthExist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard'=> $board,'markDistribution'=> $growthDistribution));
+                if($growthExist){
+                    $growthEntity = $growthExist;
+                }
+                $growthEntity->setEmployeeBoard($board);
+                $growthEntity->setMarkDistribution($growthDistribution);
+                $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity']);
+                $growthEntity->setSalesQuantity($parameter['salesGrouthCurrentQuantity']);
+
+//                dd($this->salesGrowthCalculation($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'] )[$growthDistribution->getSlug()]);
+                $growthEntity->setMark($this->salesGrowthCalculation($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'] )[$growthDistribution->getSlug()]);
+                $em->persist($growthEntity);
+                $em->flush();
+
+
+//                $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(['employeBoard'=>$board,'markDistribution' => $distribution]);
+                $employeeBoardAttributeForGrowth = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$growthDistribution]);
+                if($employeeBoardAttributeForGrowth){
+                    $employeeBoardAttributeForGrowth->setMark($growthEntity->getMark());
+                    $em->persist($employeeBoardAttributeForGrowth);
+                    $em->flush();
+                }
+
+
             endforeach;
+//dd($totalAchivementMark);
+
+            $discritAchivementDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'district-achievement'));
+                $employeeBoardAttributeForDistrictAchivement = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$discritAchivementDistribution]);
+//dd($this->salesDistrictAchivementCalculation($totalActualMark, $totalAchivementMark));
+                if($employeeBoardAttributeForDistrictAchivement){
+                    $employeeBoardAttributeForDistrictAchivement->setMark($this->salesDistrictAchivementCalculation($totalActualMark, $totalAchivementMark));
+                    $em->persist($employeeBoardAttributeForDistrictAchivement);
+                    $em->flush();
+                }
         }
 
     }
@@ -176,6 +226,127 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             }elseif ($action < 80 and $action >= 70) {
                 return 2;
             }elseif ($action < 70 and $action >= 60) {
+                return 1;
+            }else {
+                return 0;
+            }
+
+        }
+
+    }
+
+    private function salesGrowthCalculation($productSlug,$previousValue,$currentValue)
+    {
+        $returnValue=[];
+
+
+        if($productSlug){
+
+            if($productSlug == 'broiler') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue>0?(($increase/$previousValue)*100):0;
+                $growthSlug = 'growth-'.$productSlug;
+                if($action >= 15) {
+                    $returnValue[$growthSlug] = 5;
+                }elseif ($action < 15 and $action >= 10) {
+                    $returnValue[$growthSlug] = 4;
+                }elseif ($action < 10 and $action >= 5) {
+                    $returnValue[$growthSlug] = 3;
+                }elseif ($action < 5 and $action >= 3) {
+                    $returnValue[$growthSlug] = 2;
+                }elseif ($action < 3 and $action >= 1) {
+                    $returnValue[$growthSlug] = 1;
+                }else {
+                    $returnValue[$growthSlug] = 0;
+                }
+
+            }elseif ($productSlug == 'sonali') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue>0?(($increase/$previousValue)*100):0;
+                $growthSlug = 'growth-'.$productSlug;
+                if($action >= 8) {
+                    $returnValue[$growthSlug] = 5;
+                }elseif ($action < 8 and $action >= 7) {
+                    $returnValue[$growthSlug] = 4;
+                }elseif ($action < 7 and $action >= 6) {
+                    $returnValue[$growthSlug] = 3;
+                }elseif ($action < 6 and $action >= 5) {
+                    $returnValue[$growthSlug] = 2;
+                }elseif ($action < 5 and $action >= 1) {
+                    $returnValue[$growthSlug] = 1;
+                }else {
+                    $returnValue[$growthSlug] = 0;
+                }
+            }elseif ($productSlug == 'layer') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue>0?(($increase/$previousValue)*100):0;
+                $growthSlug = 'growth-'.$productSlug;
+                if($action >= 10) {
+                    $returnValue[$growthSlug] = 5;
+                }elseif ($action < 10 and $action >= 8) {
+                    $returnValue[$growthSlug] = 4;
+                }elseif ($action < 8 and $action >= 6) {
+                    $returnValue[$growthSlug] = 3;
+                }elseif ($action < 6 and $action >= 4) {
+                    $returnValue[$growthSlug] = 2;
+                }elseif ($action < 4 and $action >= 1) {
+                    $returnValue[$growthSlug] = 1;
+                }else {
+                    $returnValue[$growthSlug] = 0;
+                }
+            }elseif ($productSlug == 'fish') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue>0?(($increase/$previousValue)*100):0;
+                $growthSlug = 'growth-'.$productSlug;
+                if($action >= 20) {
+                    $returnValue[$growthSlug] = 5;
+                }elseif ($action < 20 and $action >= 15) {
+                    $returnValue[$growthSlug] = 4;
+                }elseif ($action < 15 and $action >= 10) {
+                    $returnValue[$growthSlug] = 3;
+                }elseif ($action < 10 and $action >= 5) {
+                    $returnValue[$growthSlug] = 2;
+                }elseif ($action < 5 and $action >= 1) {
+                    $returnValue[$growthSlug] = 1;
+                }else {
+                    $returnValue[$growthSlug] = 0;
+                }
+            }elseif ($productSlug == 'cattle') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue>0?(($increase/$previousValue)*100):0;
+                $growthSlug = 'growth-'.$productSlug;
+                if($action >= 25) {
+                    $returnValue[$growthSlug] = 5;
+                }elseif ($action < 25 and $action >= 20) {
+                    $returnValue[$growthSlug] = 4;
+                }elseif ($action < 20 and $action >= 15) {
+                    $returnValue[$growthSlug] = 3;
+                }elseif ($action < 15 and $action >= 10) {
+                    $returnValue[$growthSlug] = 2;
+                }elseif ($action < 10 and $action >= 1) {
+                    $returnValue[$growthSlug] = 1;
+                }else {
+                    $returnValue[$growthSlug] = 0;
+                }
+            }else {
+                return 0;
+            }
+           return $returnValue;
+        }
+
+    }
+
+
+
+    public function salesDistrictAchivementCalculation($target, $achivement)
+    {
+        if($target > 0){
+            $action = (($achivement * 100 )/$target);
+            if($action >= 100) {
+                return 4;
+            }elseif ($action < 100 and $action >= 50) {
+                return 3;
+            }elseif ($action < 50 and $action >= 1) {
                 return 1;
             }else {
                 return 0;

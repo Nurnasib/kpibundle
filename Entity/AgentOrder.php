@@ -51,6 +51,7 @@ class AgentOrder
      * @var DocumentUpload
      *
      * @ORM\ManyToOne(targetEntity="Terminalbd\KpiBundle\Entity\DocumentUpload" , inversedBy="agentOrder")
+     * @ORM\JoinColumn(onDelete="cascade")
      */
     private $documentUpload;
 

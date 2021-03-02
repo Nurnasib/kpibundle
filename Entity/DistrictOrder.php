@@ -62,6 +62,37 @@ class DistrictOrder
 
     /**
      * @var float
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $targetQuantity;
+
+    /**
+     * @var float
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $salesGrouthPreviousQuantity;
+
+    /**
+     * @var float
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $salesGrouthCurrentQuantity;
+
+    /**
+     * @var float
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $salesMarkPercentage;
+
+    /**
+     * @var float
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $salesMark;
+
+
+    /**
+     * @var float
      * @ORM\Column(name="amount", type="float", nullable=true)
      */
     private $amount;
@@ -147,7 +178,7 @@ class DistrictOrder
     /**
      * @param float $quantity
      */
-    public function setQuantity(float $quantity)
+    public function setQuantity($quantity)
     {
         $this->quantity = $quantity;
     }
@@ -163,7 +194,7 @@ class DistrictOrder
     /**
      * @param float $amount
      */
-    public function setAmount(float $amount)
+    public function setAmount($amount)
     {
         $this->amount = $amount;
     }
@@ -246,6 +277,86 @@ class DistrictOrder
     public function setStatus(bool $status): void
     {
         $this->status = $status;
+    }
+
+    /**
+     * @return float
+     */
+    public function getTargetQuantity()
+    {
+        return $this->targetQuantity;
+    }
+
+    /**
+     * @param float $targetQuantity
+     */
+    public function setTargetQuantity($targetQuantity): void
+    {
+        $this->targetQuantity = $targetQuantity;
+    }
+
+    /**
+     * @return float
+     */
+    public function getSalesGrouthPreviousQuantity()
+    {
+        return $this->salesGrouthPreviousQuantity;
+    }
+
+    /**
+     * @param float $salesGrouthPreviousQuantity
+     */
+    public function setSalesGrouthPreviousQuantity($salesGrouthPreviousQuantity): void
+    {
+        $this->salesGrouthPreviousQuantity = $salesGrouthPreviousQuantity;
+    }
+
+    /**
+     * @return float
+     */
+    public function getSalesGrouthCurrentQuantity()
+    {
+        return $this->salesGrouthCurrentQuantity;
+    }
+
+    /**
+     * @param float $salesGrouthCurrentQuantity
+     */
+    public function setSalesGrouthCurrentQuantity($salesGrouthCurrentQuantity): void
+    {
+        $this->salesGrouthCurrentQuantity = $salesGrouthCurrentQuantity;
+    }
+
+    /**
+     * @return float
+     */
+    public function getSalesMarkPercentage()
+    {
+        return $this->salesMarkPercentage;
+    }
+
+    /**
+     * @param float $salesMarkPercentage
+     */
+    public function setSalesMarkPercentage($salesMarkPercentage)
+    {
+        $this->salesMarkPercentage = $salesMarkPercentage;
+    }
+
+    /**
+     * @return float
+     */
+    public function getSalesMark()
+    {
+        return $this->salesMark;
+    }
+
+    /**
+     * @param float $salesMark
+     */
+    public function setSalesMark($salesMark)
+    {
+        $this->salesMark = $salesMark;
     }
 
 

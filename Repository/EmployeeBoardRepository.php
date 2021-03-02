@@ -31,11 +31,11 @@ class EmployeeBoardRepository extends EntityRepository
 
         $area  = $user->getArea();
         $qb = $this->createQueryBuilder('s');
-        $qb->join('s.employeeSetup','e');
-        $qb->join('e.employee','u');
+//        $qb->join('s.employeeSetup','e');
+        $qb->join('s.employee','u');
         $qb->leftJoin('u.designation','d');
         $qb->select('s.id as id','s.month as month','s.year as year');
-        $qb->addSelect('e.status as status','u.name as name','d.name as designation');
+        $qb->addSelect('u.name as name','d.name as designation');
         if($area == "Zonal"){
             $zonal = $user->getZonal()->getId();
             $qb->where('u.zonal = :zonal')->setParameter('zonal',$zonal);

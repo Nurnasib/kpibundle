@@ -152,4 +152,5 @@ class LocationSalesTargetRepository extends EntityRepository
         return $results;
     }
 
+
 }
