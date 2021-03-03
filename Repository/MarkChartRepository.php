@@ -270,7 +270,8 @@ class MarkChartRepository extends MaterializedPathRepository
         $qb->where('m.slug =:mode')->setParameter('mode',$reportMode);
         $qb->andWhere("s.slug = 'attributes'");
         $qb->orderBy('gp.name','ASC');
-        $qb->addOrderBy('p.name','ASC');
+        $qb->addOrderBy('p.name','DESC');
+        $qb->addOrderBy('e.ordering','ASC');
         $result = $qb->getQuery()->getResult();
         return $result;
     }

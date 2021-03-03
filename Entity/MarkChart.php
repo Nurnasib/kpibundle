@@ -123,6 +123,13 @@ class MarkChart
      */
     private $reportMode;
 
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="ordering", type="integer", nullable=true)
+     */
+    private $ordering;
+
 
 
     public function setId($id)
@@ -372,7 +379,21 @@ class MarkChart
         $this->salesMode = $salesMode;
     }
 
+    /**
+     * @return int
+     */
+    public function getOrdering()
+    {
+        return $this->ordering;
+    }
 
+    /**
+     * @param int $ordering
+     */
+    public function setOrdering($ordering)
+    {
+        $this->ordering = $ordering;
+    }
 
 
 

@@ -118,7 +118,6 @@ class MarkChartController extends AbstractController
     }
 
     /**
-     * Deletes a Setting entity.
      *
      * @Route("/markchart-matrix", methods={"GET"}, name="kpi_markchart_matrix")
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
@@ -143,8 +142,25 @@ class MarkChartController extends AbstractController
             'report' => $report
         ]);
 
+    }
 
 
+    /**
+     *
+     * @Route("/{id}/update-ordering", methods={"GET"}, name="kpi_markchart_format_ordering")
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     */
+    public function updateOrdering(Request $request, $id)
+    {
+        $sortValue = $request->query->get('position');
+        $entity = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['id' => $id]);
+        $entity->setOrdering((int)$sortValue);
+        $em = $this->getDoctrine()->getManager();
+
+        $em->persist($entity);
+        $em->flush();
+
+        return new JsonResponse(array('sotring'=>$entity->getOrdering()));
     }
 
 
