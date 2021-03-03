@@ -189,10 +189,14 @@ class AgentOrderRepository extends EntityRepository
                 if ($product) {
                     $exitAgentOrder = $em->getRepository(AgentOrder::class)->findOneBy(array('agent'=>$findAgent,'product'=>$product,'month'=>$month,'year'=>$year));
                     if(!$exitAgentOrder){
+
+                        $agentDistrict = $findAgent->getDistrict()?$findAgent->getDistrict():null;
+                        $agentUpozila = $findAgent->getUpozila()?$findAgent->getUpozila():null;
+
                         $agentOrder = new AgentOrder();
                         $agentOrder->setAgent($findAgent);
-                        $agentOrder->setDistrict($district?$district:null);
-                        $agentOrder->setUpozila($upozila?$upozila:null);
+                        $agentOrder->setDistrict($district?$district:$agentDistrict);
+                        $agentOrder->setUpozila($upozila?$upozila:$agentUpozila);
                         $agentOrder->setProduct($product);
                         $agentOrder->setQuantity($value);
                         $agentOrder->setCreated(new \DateTime());

@@ -101,7 +101,7 @@ class FileUploadController extends AbstractController
             case "agent-sales":
                 $flashArray = $this->getDoctrine()->getRepository(AgentOrder::class)->insertAgentSales($file, $keys, $allData, $month, $year);
                 if (isset($flashArray['new']) && sizeof($flashArray['new'])>0) {
-                    $this->addFlash('success', 'Record updated successfully into Database!');
+                    $this->addFlash('success', 'Record inserted successfully into Database!');
                 }elseif (isset($flashArray['update']) && sizeof($flashArray['update'])>0){
                     $this->addFlash('error', 'Record already exit');
                 }
@@ -195,7 +195,7 @@ class FileUploadController extends AbstractController
             $em->persist($districtOrder);
             $em->flush();
         }
-
+        $this->addFlash('success', 'Data migrate successfully!');
 
         return $this->redirectToRoute('kpi_file_upload_index');
     }
