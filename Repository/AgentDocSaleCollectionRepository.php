@@ -29,14 +29,12 @@ class AgentDocSaleCollectionRepository extends EntityRepository
     private function insertDocSalesCollection($file, $keys, $allData, $month, $year)
     {
 
-//        dd($file);
         $data = [];
         $addedId = [];
         $em = $this->_em;
         foreach ($allData as $value){
             $data[] = array_combine($keys,$value);
         }
-//        dd($data);
 
         foreach ($data as $record){
 //            dump($record);

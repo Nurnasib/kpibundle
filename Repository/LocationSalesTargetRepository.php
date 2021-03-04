@@ -148,7 +148,6 @@ class LocationSalesTargetRepository extends EntityRepository
         foreach ($results as $result){
             $data[$result['breedType']] = $result['targetAmount'];
         }
-//        dd($data);
         return $results;
     }
 
