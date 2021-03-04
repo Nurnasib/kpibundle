@@ -34,7 +34,6 @@ class DistrictOrderRepository extends EntityRepository
         $qb->where('u.id IN (:districts)')->setParameter('districts',$locations);
         $qb->groupBy('distribution.id');
         $result = $qb->getQuery()->getArrayResult();
-        dd($locations);
         $data = array();
         foreach ($result as $row){
             $data[$row['distributionId']] = $row;
@@ -45,7 +44,6 @@ class DistrictOrderRepository extends EntityRepository
 
     public function findDistrictSearch($data)
     {
-//        dd($data);
         $year = isset($data['year']) ? $data['year']:'';
         $month = isset($data['month']) ? $data['month']:'';
         $qb = $this->createQueryBuilder('e');
@@ -105,7 +103,6 @@ class DistrictOrderRepository extends EntityRepository
         $qb->setParameters(array('district'=>$district,'product'=>$product,'startDate'=>$startDate, 'endDate'=>$endDate));
 
         $results = $qb->getQuery()->getSingleScalarResult();
-//dd($results);
         return $results;
     }
 

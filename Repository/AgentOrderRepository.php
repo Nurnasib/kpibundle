@@ -88,7 +88,6 @@ class AgentOrderRepository extends EntityRepository
         foreach ($entities as $row){
             $ids[] = $row['customerId'];
         }
-        //dd($ids);
         $year = isset($data['year']) ? $data['year']:'';
         $month = isset($data['month']) ? $data['month']:'';
         $qb = $this->createQueryBuilder('e');
@@ -105,7 +104,6 @@ class AgentOrderRepository extends EntityRepository
             $salesId = "{$row['agentId']}-{$row['distributionId']}";
             $data[$salesId] = $row['quantity'];
         }
-        //  dd($data);
         return $data;
     }
 
