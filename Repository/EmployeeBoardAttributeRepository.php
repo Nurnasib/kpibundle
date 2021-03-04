@@ -11,6 +11,7 @@
 
 namespace Terminalbd\KpiBundle\Repository;
 
+use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
 use Terminalbd\KpiBundle\Entity\DistrictOrder;
@@ -36,16 +37,19 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     {
 
         $qb = $this->createQueryBuilder('e');
-        $qb->select('e.id as id','a.id as attribute','m.id as markDistributionId','e.mark as mark','e.targetAmount as targetAmount','e.targetAchievement as targetAchievement');
-        $qb->join("e.attribute",'a');
+        $qb->join("e.parameter",'p');
+        $qb->join("e.activity",'a');
+        $qb->join("e.attribute",'at');
+        $qb->join("e.employeeBoard",'eb');
         $qb->leftJoin("e.markDistribution",'m');
-        $qb->where("e.employeeBoard = {$board->getId()}");
-        $result = $qb->getQuery()->getArrayResult();
-        $data = array();
-        foreach ($result as $row){
-            $data[$row['attribute']] = $row;
-        }
-        return $data;
+        $qb->where("e.employeeBoard = :employeeBoard");
+        $qb->setParameter("employeeBoard", $board);
+        $qb->orderBy('p.ordering','ASC');
+        $qb->addOrderBy('a.ordering','ASC');
+        $qb->addOrderBy('at.ordering','ASC');
+        $result = $qb->getQuery()->getResult();
+
+        return $result;
     }
 
     public function EmployeeBoardSummaryReport(EmployeeBoard $board )
@@ -102,6 +106,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             }
         endforeach;
 
+//        $this->updateIndividualSales($board);
     }
 
     public function updateSalesProcess(EmployeeBoard $board)
@@ -196,6 +201,33 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     }
 
+    public function updateIndividualSales(EmployeeBoard $board)
+    {
+        $em = $this->_em;
+        $entities = "";
+        $employee = $board->getEmployee();
+
+        $getEmployeesByLineManager = $this->_em->getRepository(User::class)->findBy(['lineManager'=>$employee, 'enabled'=>1]);
+        $employeeArrs = array();
+        foreach ($getEmployeesByLineManager as $childEmployee){
+            if(!empty($childEmployee)){
+                $employeeArrs[] = $childEmployee->getId();
+            }
+        }
+        $salesDistribution = $em->getRepository(MarkChart::class)->findBy(array('salesMode'=>'feed','status'=>1));
+
+        $disdributionArrs = array();
+        foreach ($salesDistribution as $saleDistribution){
+            $disdributionArrs[] = $saleDistribution->getId();
+        }
+
+
+        $entities = $this->individualTeamMemberMarks($employeeArrs, $disdributionArrs, $board->getYear(), $board->getMonth());
+//        dd($entities);
+//        $orders = $em->getRepository(AgentOrder::class)->getLocationWiseTotalProductSales($arrs);
+
+    }
+
     public function groupByAttributeMarks(EmployeeBoard $board)
     {
         $em = $this->_em;
@@ -206,6 +238,23 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $qb->select('p.id as parentId','SUM(e.mark) as mark');
         $qb->groupBy('parentId');
         $qb->where("e.employeeBoard = {$board->getId()}");
+        $result = $qb->getQuery()->getArrayResult();
+        return $result;
+    }
+
+    public function individualTeamMemberMarks($employees, $attributes, $year, $month)
+    {
+        $em = $this->_em;
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.employeeBoard','ed');
+        $qb->join('ed.employee','em');
+        $qb->join('e.attribute','att');
+        $qb->select('SUM(e.mark) as mark', 'SUM(e.actualMark) as actualMark');
+        $qb->where('em.id IN (:employee)')->setParameter('employee',$employees);
+        $qb->andWhere('att.id IN (:attribute)')->setParameter('attribute',$attributes);
+        $qb->andWhere('ed.year =:year')->setParameter('year',$year);
+        $qb->andWhere('ed.month =:month')->setParameter('month',$month);
+//        $qb->groupBy('att.id');
         $result = $qb->getQuery()->getArrayResult();
         return $result;
     }

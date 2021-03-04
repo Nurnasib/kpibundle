@@ -137,19 +137,20 @@ class EmployeeBoardController extends AbstractController
         $data = $request->request->all();
         $em = $this->getDoctrine()->getManager();
         $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
-        $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->find($entity);
-        $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($entity);
+
         $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($entity,$entities);
+
+        $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($entity);
         $arrayData=[];
         /* @var EmployeeBoardAttribute $boardAttribute*/
-        foreach ($entity->getEmployeeBoardAttributes() as $boardAttribute){
+        foreach ($boardAttributes as $boardAttribute){
             $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][]=$boardAttribute;
         }
 
         return $this->render('@TerminalbdKpi/employeeboard/new.html.twig', [
             'board' => $entity,
-            'marks' => $marks,
-            'entities' => $entities,
+//            'marks' => $marks,
+//            'entities' => $entities,
             'arrayData' => $arrayData,
         ]);
     }
