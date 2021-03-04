@@ -106,7 +106,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             }
         endforeach;
 
-//        $this->updateIndividualSales($board);
+        $this->updateIndividualSales($board);
     }
 
     public function updateSalesProcess(EmployeeBoard $board)
@@ -122,8 +122,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         }
 
         $entities = $em->getRepository(DistrictOrder::class)->getLocationWiseTotalProductSalesTarget($arrs, $board->getYear(), $board->getMonth());
-//        $orders = $em->getRepository(AgentOrder::class)->getLocationWiseTotalProductSales($arrs);
-//dd($entities);
+
         if(!empty($entities)){
             $totalAchivementMark=0;
             $totalActualMark=0;
@@ -174,7 +173,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity']);
                 $growthEntity->setSalesQuantity($parameter['salesGrouthCurrentQuantity']);
 
-//                dd($this->salesGrowthCalculation($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'] )[$growthDistribution->getSlug()]);
                 $growthEntity->setMark($this->salesGrowthCalculation($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'] )[$growthDistribution->getSlug()]);
                 $em->persist($growthEntity);
                 $em->flush();
@@ -188,13 +186,21 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $em->flush();
                 }
 
-
             endforeach;
+
             $discritAchivementDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'district-achievement'));
                 $employeeBoardAttributeForDistrictAchivement = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$discritAchivementDistribution]);
                 if($employeeBoardAttributeForDistrictAchivement){
                     $employeeBoardAttributeForDistrictAchivement->setMark($this->salesDistrictAchivementCalculation($totalActualMark, $totalAchivementMark));
                     $em->persist($employeeBoardAttributeForDistrictAchivement);
+                    $em->flush();
+                }
+
+            $regionalAchivementDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'regional-achievement'));
+                $employeeBoardAttributeForRegionalAchivement = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$regionalAchivementDistribution]);
+                if($employeeBoardAttributeForRegionalAchivement){
+                    $employeeBoardAttributeForRegionalAchivement->setMark($this->salesRegionalAchivementCalculation($totalActualMark, $totalAchivementMark));
+                    $em->persist($employeeBoardAttributeForRegionalAchivement);
                     $em->flush();
                 }
         }
@@ -204,7 +210,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     public function updateIndividualSales(EmployeeBoard $board)
     {
         $em = $this->_em;
-        $entities = "";
         $employee = $board->getEmployee();
 
         $getEmployeesByLineManager = $this->_em->getRepository(User::class)->findBy(['lineManager'=>$employee, 'enabled'=>1]);
@@ -223,8 +228,31 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
 
         $entities = $this->individualTeamMemberMarks($employeeArrs, $disdributionArrs, $board->getYear(), $board->getMonth());
-//        dd($entities);
-//        $orders = $em->getRepository(AgentOrder::class)->getLocationWiseTotalProductSales($arrs);
+
+        $individualTeamDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'individual-team-members-achievement','status'=>1));
+
+        $individualEntity = new EmployeeBoardSubAttribute();
+
+        $individualTeamDistributionExist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard'=> $board,'markDistribution'=> $individualTeamDistribution));
+
+        if($individualTeamDistributionExist){
+            $individualEntity = $individualTeamDistributionExist;
+        }
+
+        $individualEntity->setEmployeeBoard($board);
+        $individualEntity->setMarkDistribution($individualTeamDistribution);
+
+        $individualEntity->setMark($this->individualTeamMemberCalculation($entities['actualMark'], $entities['mark'] ));
+        $em->persist($individualEntity);
+        $em->flush();
+
+
+        $employeeBoardAttributeForIndividualTeam = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$individualTeamDistribution]);
+        if($employeeBoardAttributeForIndividualTeam){
+            $employeeBoardAttributeForIndividualTeam->setMark($individualEntity->getMark());
+            $em->persist($employeeBoardAttributeForIndividualTeam);
+            $em->flush();
+        }
 
     }
 
@@ -255,7 +283,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $qb->andWhere('ed.year =:year')->setParameter('year',$year);
         $qb->andWhere('ed.month =:month')->setParameter('month',$month);
 //        $qb->groupBy('att.id');
-        $result = $qb->getQuery()->getArrayResult();
+        $result = $qb->getQuery()->getOneOrNullResult();
         return $result;
     }
 
@@ -272,6 +300,24 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             }elseif ($action < 80 and $action >= 70) {
                 return 2;
             }elseif ($action < 70 and $action >= 60) {
+                return 1;
+            }else {
+                return 0;
+            }
+
+        }
+
+    }
+
+    public function individualTeamMemberCalculation($target,$sales)
+    {
+        if($target > 0){
+            $action = (($sales * 100 )/$target);
+            if($action >= 100) {
+                return 4;
+            }elseif ($action < 100 and $action >= 50) {
+                return 2;
+            }elseif ($action < 50 and $action >= 1) {
                 return 1;
             }else {
                 return 0;
@@ -394,6 +440,24 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 return 3;
             }elseif ($action < 50 and $action >= 1) {
                 return 1;
+            }else {
+                return 0;
+            }
+
+        }
+
+    }
+
+    public function salesRegionalAchivementCalculation($target, $achivement)
+    {
+        if($target > 0){
+            $action = (($achivement * 100 )/$target);
+            if($action >= 100) {
+                return 5;
+            }elseif ($action < 100 and $action >= 50) {
+                return 3;
+            }elseif ($action < 50 and $action >= 1) {
+                return 2;
             }else {
                 return 0;
             }
