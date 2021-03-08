@@ -23,9 +23,10 @@
                         <tr>
                             <th>{{ 'Sl No'|trans }}</th>
                             <th>{{ 'Report'|trans }}</th>
-                            <th>{{ 'Target Reports'|trans }}</th>
-                            <th>{{ 'Target Marks'|trans }}</th>
-                            <th><i class="feather icon-settings"></i></th>
+                            <th>{{ 'Target (Reports)'|trans }}</th>
+                            <th>{{ 'Target (Marks)'|trans }}</th>
+                            <th>{{ 'Type'|trans }}</th>
+                            <th class="text-center"><i class="feather icon-settings"></i></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -36,7 +37,8 @@
                                     <td>{{ entity.name|default('') }}</td>
                                     <td>{{ entity.reportTarget|default('') }}</td>
                                     <td>{{ entity.marksTarget|default('') }}</td>
-                                    <td>
+                                    <td>{{ entity.type|capitalize|default('') }}</td>
+                                    <td class="text-right">
                                         <a class="btn btn-mini yellow-bg white-font" href="{{ path('evaluation_criteria_edit', {'id':entity.id}) }}"><i class="feather icon-edit"></i> Edit</a>
                                         <a class="btn  btn-transparent btn-mini red-font" href="{{ path('evaluation_criteria_delete', {'id':entity.id}) }}"><i class="fa fa-remove"></i></a>
                                     </td>
@@ -66,12 +68,10 @@
     {{ parent() }}
     $('#datatable').DataTable( {
     "pageLength": 10,
-    "order": [[ 2, "desc" ]],
-    'columnDefs': [ {
-    'targets': [0,4,5,6,12],
-    'orderable': false
-    }],
     "responsive": false,
-    "scrollX": true
+    "scrollX": true,
+    columnDefs: [
+    { orderable: false, targets: -1 }
+    ]
     });
 {% endblock %}
