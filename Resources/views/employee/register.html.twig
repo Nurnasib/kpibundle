@@ -77,6 +77,7 @@
                                                 <div class="col-md-8">
                                                     <span class="not-blank"> {{ 'Required'|trans }}</span>
                                                     {{ form_widget(form.email, {'attr': {'class': 'form-control input-lg'}}) }}
+                                                    {{ form_errors(form.email) }}
                                                 </div>
                                             </div>
                                         </div>
@@ -192,7 +193,7 @@
                                                         <div class="input-icon right">
                                                             <div class="controls">
                                                                 {{ form_errors(form.district) }}
-                                                                {{ form_widget(form.district, {'attr': {'class': 'form-control multi-select2 span6 m-wrap'}}) }}
+                                                                {{ form_widget(form.district, {'attr': {'class': 'form-control span6 m-wrap'}}) }}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -316,12 +317,51 @@
 {% endblock  %}
 {% block javascripts %}
     {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/js/jquery.quicksearch.js') }}"></script>
     <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
     <script type="application/javascript" src="{{ asset('assets/module/core/js/user.js') }}"></script>
 {% endblock  %}
 {% block documentready %}
     {{ parent() }}
     formSubmitProcess();
+
+    $('#employee_form_district').multiSelect({
+    selectableHeader: "<input type='text' class='form-control' autocomplete='off' placeholder='Search...'>",
+    selectionHeader: "<input type='text' class='form-control' autocomplete='off' placeholder='Search...'>",
+    afterInit: function(ms) {
+    var that = this,
+    $selectableSearch = that.$selectableUl.prev(),
+    $selectionSearch = that.$selectionUl.prev(),
+    selectableSearchString = '#' + that.$container.attr('id') + ' .ms-elem-selectable:not(.ms-selected)',
+    selectionSearchString = '#' + that.$container.attr('id') + ' .ms-elem-selection.ms-selected';
+
+    that.qs1 = $selectableSearch.quicksearch(selectableSearchString)
+    .on('keydown', function(e) {
+    if (e.which === 40) {
+    that.$selectableUl.focus();
+    return false;
+    }
+    });
+
+    that.qs2 = $selectionSearch.quicksearch(selectionSearchString)
+    .on('keydown', function(e) {
+    if (e.which == 40) {
+    that.$selectionUl.focus();
+    return false;
+    }
+    });
+    },
+    afterSelect: function() {
+    this.qs1.cache();
+    this.qs2.cache();
+    },
+    afterDeselect: function() {
+    this.qs1.cache();
+    this.qs2.cache();
+    },
+    selectableOptgroup: true
+    });
+
 {% endblock %}
 
 

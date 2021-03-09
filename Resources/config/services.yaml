@@ -11,4 +11,8 @@ services:
           calls:
             - [setContainer, ['@service_container']]
 
-      
+      kpi_bundle.user_manager:
+        class: Terminalbd\KpiBundle\Service\UserManager
+        public: true
+        arguments:
+          - '@security.encoder_factory'

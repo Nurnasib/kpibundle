@@ -1,5 +1,5 @@
 <?php
-namespace Terminalbd\CrmBundle\Service;
+namespace Terminalbd\KpiBundle\Service;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Encoder\EncoderFactory;
