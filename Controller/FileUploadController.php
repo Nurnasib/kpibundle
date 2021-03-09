@@ -41,7 +41,6 @@ class FileUploadController extends AbstractController
 
         $entities = [];
         $entities = $this->getDoctrine()->getRepository(DocumentUpload::class)->findAll();
-//        dd($entities);
         $form = $this->createForm(FileUploadFormType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
@@ -96,7 +95,6 @@ class FileUploadController extends AbstractController
         $keys = array_shift($allData);
 
         $slug = str_replace(' ', '-', strtolower($file->getTitle()));
-
         switch ($slug){
             case "agent-sales":
                 $flashArray = $this->getDoctrine()->getRepository(AgentOrder::class)->insertAgentSales($file, $keys, $allData, $month, $year);
@@ -118,7 +116,7 @@ class FileUploadController extends AbstractController
                 }
                 break;
             case "doc-sales-collection":
-                $addedId = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->insertAgentOutstanding($file, $keys, $allData, $month, $year);
+                $addedId = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->insertDocSalesCollection($file, $keys, $allData, $month, $year);
                 if($addedId){
                     $this->addFlash('success', 'Data inserted successfully!');
                 }else{
@@ -156,7 +154,7 @@ class FileUploadController extends AbstractController
         $salesDate = new \DateTime("01-{$month}-{$year}");
 
         $agentOrders = $this->getDoctrine()->getRepository(AgentOrder::class)->getDistrictWiseTotalProductSales($month, $year);
-        
+
         foreach ($agentOrders as $key=> $agentOrder){
 
             $district = $this->getDoctrine()->getRepository(Location::class)->find($agentOrder['dId']);

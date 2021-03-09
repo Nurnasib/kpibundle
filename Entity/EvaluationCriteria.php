@@ -50,6 +50,12 @@ class EvaluationCriteria
     private $createdAt;
 
     /**
+     * @var string
+     * @ORM\Column(name="slug", type="string")
+     */
+    private $slug;
+
+    /**
      * @return int
      */
     public function getId()
@@ -144,6 +150,22 @@ class EvaluationCriteria
     public function setCreatedAt($createdAt)
     {
         $this->createdAt = $createdAt;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSlug()
+    {
+        return $this->slug;
+    }
+
+    /**
+     * @param string $slug
+     */
+    public function setSlug($slug)
+    {
+        $this->slug = $slug;
     }
 
 

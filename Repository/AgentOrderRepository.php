@@ -150,17 +150,17 @@ class AgentOrderRepository extends EntityRepository
         $existingId = [];
         $flashArray = [];
 
-        $breedTypes = [$keys[4], $keys[5], $keys[6], $keys[7], $keys[8]];
+        $breedTypes = [$keys[5], $keys[6], $keys[7], $keys[8], $keys[9]]; //Broiler, Sonali, Layer, Fish, Cattle
         foreach ($allData as $data) {
             //Marge Excel heading and value in one array as key and value
             $details = array_combine($keys, $data);
-            list($agentIdValue, $agentNameValue, $upozilaValue, $districtValue, $broilerValue, $sonaliValue, $layerValue, $fishValue, $cattleValue, $monthValue, $yearValue) = $data;
+            list($agentIdValue, $agentNameValue, $upozilaValue, $districtCodeValue, $districtValue, $broilerValue, $sonaliValue, $layerValue, $fishValue, $cattleValue, $monthValue, $yearValue) = $data;
 
             $breedValues = [$broilerValue, $sonaliValue, $layerValue, $fishValue, $cattleValue];
 
             $breedArrays = array_combine($breedTypes, $breedValues);
 
-            $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'name' => $districtValue]);
+            $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'code' => $districtCodeValue]);
             $upozila = $em->getRepository(Location::class)->findOneBy(['level'=>5,'name' => $upozilaValue]);
 
 
@@ -213,6 +213,7 @@ class AgentOrderRepository extends EntityRepository
                     }
                 }
             }
+            exit();
         }
         $file->setStatus(1);
 

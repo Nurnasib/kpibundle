@@ -1,0 +1,182 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block body %}
+{#    {{ dump(entities) }}#}
+{#    {{ dump(totalReports) }}#}
+    <div class="row">
+        <div class="card">
+            <div class="card-header">
+                <h5>{{ 'Evaluation Criteria For CSO'|trans }}</h5>
+                <div class="card-header-right">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
+                        <a href="{{ path('evaluation_criteria_create') }}" class="btn btn-sm  green-bg white-font"><i class="fas fa-plus"></i>Add New</a>
+                        <a href="{{ path('evaluation_criteria_index') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>Records</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            {% if entities is not empty %}
+                {% for key, entity in entities %}
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>{{ 'Evaluation Criteria For CSO ('~ key ~ ')'|trans}}</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped table-bordered" id="datatable">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th rowspan="2" style="text-align: center">{{ 'SL No'|trans }}</th>
+                                    <th rowspan="2" style="text-align: center">{{ 'Report'|trans }}</th>
+                                    <th colspan="2" style="text-align: center">{{ 'Reports'|trans }}</th>
+                                    <th colspan="2" style="text-align: center">{{ 'Marks'|trans }}</th>
+                                    <th rowspan="2" style="text-align: center">{{ 'Grade'|trans }}</th>
+                                </tr>
+                                <tr>
+                                    <th style="text-align: center">{{ 'Target'|trans }}</th>
+                                    <th style="text-align: center">{{ 'Actual'|trans }}</th>
+                                    <th style="text-align: center">{{ 'Target'|trans }}</th>
+                                    <th style="text-align: center">{{ 'Actual'|trans }}</th>
+
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for report in entity %}
+                                    <tr>
+                                        <td style="text-align: center">{{ loop.index }}</td>
+                                        <td>{{ report.reportName }}</td>
+                                        <td>{{ report.reportTarget }}</td>
+                                        {% if 'fcr-report-after-sale-poultry' == report.slug %}
+                                            <td>{{ totalReports.totalFcrAfterSale }}</td>
+                                            {% elseif 'broiler-before-sale-layer-performance-poultry' == report.slug %}
+                                            <td>{{ totalReports.broilerBeforeSaleAndLayerPerformance }}</td>
+                                            {% elseif 'broiler-life-cycle-layer-life-cycle-poultry' == report.slug %}
+                                            <td>{{ totalReports.broilerLifeCycleAndLayerLifeCycle }}</td>
+                                            {% elseif 'new-farm-information-survey-poultry' == report.slug %}
+                                            <td>{{ totalReports.newFarmInformationOrSurvey }}</td>
+                                            {% elseif 'less-costing-farm-skill-farm-develop-poultry' == report.slug %}
+                                            <td>{{ totalReports.lessCostingFarmOrSkillFarmDevelop }}</td>
+                                            {% elseif 'antibiotic-free-farm-poultry' == report.slug %}
+                                            <td>{{ totalReports.anitibioticFreeFarm }}</td>
+                                            {% elseif 'farmers-training-program-poultry' == report.slug %}
+                                            <td>{{ totalReports.farmersTrainingProgram }}</td>
+                                            {% elseif 'new-farm-introduce-to-nourish-family-poultry' == report.slug %}
+                                            <td>{{ totalReports.newFarmIntroduce }}</td>
+                                            {% elseif 'troubleshooting-diseases-mapping-poultry' == report.slug %}
+                                            <td>{{ totalReports.troubleshootingAndDiseases }}</td>
+{#                                            {% elseif 'product-performance-feedback-by-whatAps-sms-verbal-ppt-poultry' == report.slug %}
+                                            <td>{{ totalReports. }}</td>#}
+{#
+
+                                            {% elseif 'fcr-report-sfter-sale-lab' == report.slug %}
+                                                <td>{{ totalReports. }}</td>
+                                            {% elseif 'broiler-before-sale-layer-performance-lab' == report.slug %}
+                                                <td>{{ totalReports. }}</td>
+                                            {% elseif 'broiler-life-cycle-layer-life-cycle-lab' == report.slug %}
+                                                <td>{{ totalReports. }}</td>
+                                            {% elseif 'new-farm-information-survey-lab' == report.slug %}
+                                                <td>{{ totalReports. }}</td>
+                                            {% elseif 'less-costing-farm-skill-farm-develop-lab' == report.slug %}
+                                                <td>{{ totalReports. }}</td>
+                                            {% elseif 'antibiotic-free-farm-lab' == report.slug %}
+                                                <td>{{ totalReports. }}</td>
+                                            {% elseif 'farmers-training-program-lab' == report.slug %}
+                                                <td>{{ totalReports. }}</td>
+                                            {% elseif 'diseases-mapping-lab' == report.slug %}
+                                                <td>{{ totalReports. }}</td>
+                                            {% elseif 'sample-collection-test-report-from-farm-lab-lab' == report.slug %}
+                                                <td>{{ totalReports. }}</td>
+                                            {% elseif 'post-mortem-lab' == report.slug %}
+                                                <td>{{ totalReports. }}</td>#}
+
+                                            {% else %}
+                                            <td>0</td>
+                                        {% endif %}
+                                        <td>{{ report.marksTarget }}</td>
+
+
+                                        {% if 'fcr-report-after-sale-poultry' == report.slug %}
+                                            <td>{{ totalReports.totalFcrAfterSale * 0.25 }}</td>
+                                        {% elseif 'broiler-before-sale-layer-performance-poultry' == report.slug %}
+                                            <td>{{ totalReports.broilerBeforeSaleAndLayerPerformance * 0.125 }}</td>
+                                        {% elseif 'broiler-life-cycle-layer-life-cycle-poultry' == report.slug %}
+                                            <td>{{ totalReports.broilerLifeCycleAndLayerLifeCycle * 2 }}</td>
+                                        {% elseif 'new-farm-information-survey-poultry' == report.slug %}
+                                            <td>{{ totalReports.newFarmInformationOrSurvey * 0.5 }}</td>
+                                        {% elseif 'less-costing-farm-skill-farm-develop-poultry' == report.slug %}
+                                            <td>{{ totalReports.lessCostingFarmOrSkillFarmDevelop * 10 }}</td>
+                                        {% elseif 'antibiotic-free-farm-poultry' == report.slug %}
+                                            <td>{{ totalReports.anitibioticFreeFarm * 10 }}</td>
+                                        {% elseif 'farmers-training-program-poultry' == report.slug %}
+                                            <td>{{ totalReports.farmersTrainingProgram * 10 }}</td>
+                                        {% elseif 'new-farm-introduce-to-nourish-family-poultry' == report.slug %}
+                                            <td>{{ totalReports.newFarmIntroduce * 10 }}</td>
+                                        {% elseif 'troubleshooting-diseases-mapping-poultry' == report.slug %}
+                                            <td>{{ totalReports.troubleshootingAndDiseases * 10 }}</td>
+{#                                        {% elseif 'product-performance-feedback-by-whatAps-sms-verbal-ppt-poultry' == report.slug %}
+                                            <td>{{ totalReports. }}</td>#}
+    {#
+
+                                        {% elseif 'fcr-report-sfter-sale-lab' == report.slug %}
+                                            <td>{{ totalReports. }}</td>
+                                        {% elseif 'broiler-before-sale-layer-performance-lab' == report.slug %}
+                                            <td>{{ totalReports. }}</td>
+                                        {% elseif 'broiler-life-cycle-layer-life-cycle-lab' == report.slug %}
+                                            <td>{{ totalReports. }}</td>
+                                        {% elseif 'new-farm-information-survey-lab' == report.slug %}
+                                            <td>{{ totalReports. }}</td>
+                                        {% elseif 'less-costing-farm-skill-farm-develop-lab' == report.slug %}
+                                            <td>{{ totalReports. }}</td>
+                                        {% elseif 'antibiotic-free-farm-lab' == report.slug %}
+                                            <td>{{ totalReports. }}</td>
+                                        {% elseif 'farmers-training-program-lab' == report.slug %}
+                                            <td>{{ totalReports. }}</td>
+                                        {% elseif 'diseases-mapping-lab' == report.slug %}
+                                            <td>{{ totalReports. }}</td>
+                                        {% elseif 'sample-collection-test-report-from-farm-lab-lab' == report.slug %}
+                                            <td>{{ totalReports. }}</td>
+                                        {% elseif 'post-mortem-lab' == report.slug %}
+                                            <td>{{ totalReports. }}</td>#}
+
+                                        {% else %}
+                                            <td>0</td>
+                                        {% endif %}
+                                        {% if loop.index == 1 %}
+                                            <td rowspan="{{ loop.index == 1 ? (entity|length)+1:'' }}"> Grade </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td colspan="2" style="text-align: center"><b>Total</b></td>
+                                    <td style="text-align: center"></td>
+                                    <td style="text-align: center"></td>
+                                    <td style="text-align: center"></td>
+                                    <td style="text-align: center"></td>
+                                </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+{% block cssBlock %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+    <style>
+        .ui-datepicker-calendar{display: none}
+    </style>
+{% endblock  %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+{% endblock  %}
+{% block documentready %}
+    {{ parent() }}
+{% endblock %}

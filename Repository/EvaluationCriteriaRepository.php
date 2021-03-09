@@ -23,6 +23,19 @@ use Doctrine\ORM\EntityRepository;
  */
 class EvaluationCriteriaRepository extends EntityRepository
 {
+    public function getEvaluationCriteria()
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->select('e.name AS reportName', 'e.reportTarget', 'e.marksTarget', 'e.type AS reportType', 'e.slug');
 
+        $results = $qb->getQuery()->getArrayResult();
+
+        $data = [];
+        foreach ($results as $result){
+            $data[$result['reportType']][] = $result;
+        }
+
+        return $data;
+    }
 
 }

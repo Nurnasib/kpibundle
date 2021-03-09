@@ -38,7 +38,7 @@ class AgentOutstandingRepository extends EntityRepository
         }
 
         foreach ($data as $record){
-            $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'name' => $record['District']]);
+            $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'code' => $record['DistrictId']]);
             //Find agent
             $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' =>$record['AgentId']]);
             if ($findAgent) {

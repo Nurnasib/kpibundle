@@ -118,30 +118,36 @@ class EvaluationCriteriaController extends AbstractController
      */
     public function monthlyTotalReport()
     {
+        $totalReports = [];
         $entities = [];
         $filterBy = [];
         $filterBy['employeeId'] = 21;
         $filterBy['monthStart'] = '2021-02-01';
         $filterBy['monthEnd'] = '2021-02-28';
 
-        $entities['totalFcrAfterSale'] = (int) $this->getDoctrine()->getRepository(FcrDetails::class)->getMonthlyFcrAfterSaleTotalReport($filterBy);
+        $totalReports['totalFcrAfterSale'] = (int) $this->getDoctrine()->getRepository(FcrDetails::class)->getMonthlyFcrAfterSaleTotalReport($filterBy);
         $totalBroilerBeforeSale = (int) $this->getDoctrine()->getRepository(FcrDetails::class)->getMonthlyBroilerBeforeSaleTotalReport($filterBy);
         $totalLayerPerformance = (int) $this->getDoctrine()->getRepository(LayerPerformanceDetails::class)->getMonthlyLayerPerformanceTotalReport($filterBy);
 
-        $entities['broilerBeforeSaleAndLayerPerformance'] = $totalBroilerBeforeSale + $totalLayerPerformance;
+        $totalReports['broilerBeforeSaleAndLayerPerformance'] = $totalBroilerBeforeSale + $totalLayerPerformance;
 
         $totalBroilerLifeCycle = (int) $this->getDoctrine()->getRepository(ChickLifeCycle::class)->getMonthlyBroilerLifeCycleTotalReport($filterBy);
         $totalLayerLifeCycle = (int) $this->getDoctrine()->getRepository(LayerLifeCycle::class)->getMonthlyLayerLifeCycleTotalReport($filterBy);
 
-        $entities['broilerLifeCycleAndLayerLifeCycle'] = $totalBroilerLifeCycle + $totalLayerLifeCycle;
+        $totalReports['broilerLifeCycleAndLayerLifeCycle'] = $totalBroilerLifeCycle + $totalLayerLifeCycle;
 
-        $entities['newFarmInformationOrSurvey'] = (int) $this->getDoctrine()->getRepository(FarmerTouchReport::class)->getMonthlyNewfarmInformationOrSurveyTotalReport($filterBy);
-        $entities['lessCostingFarmOrSkillFarmDevelop'] = (int) $this->getDoctrine()->getRepository(CostBenefitAnalysisForLessCostingFarm::class)->getMonthlyLessCostingFarmOrSkillFarmDevelopTotalReport($filterBy);
-        $entities['anitibioticFreeFarm'] = (int) $this->getDoctrine()->getRepository(AntibioticFreeFarm::class)->getMonthlyAntibioticFreeFarmTotalReport($filterBy);
-        $entities['farmersTrainingProgram'] = (int) $this->getDoctrine()->getRepository(FarmerTrainingReport::class)->getMonthlyfarmersTrainingProgramTotalReport($filterBy);
-        $entities['newFarmIntroduce'] = (int) $this->getDoctrine()->getRepository(FarmerIntroduceDetails::class)->getMonthlyNewFarmerIntroduceTotalReport($filterBy);
-        $entities['troubleshootingAndDiseases'] = (int) $this->getDoctrine()->getRepository(DiseaseMapping::class)->getMonthlyTroubleshootingAndDiseasesMappingTotalReport($filterBy);
+        $totalReports['newFarmInformationOrSurvey'] = (int) $this->getDoctrine()->getRepository(FarmerTouchReport::class)->getMonthlyNewfarmInformationOrSurveyTotalReport($filterBy);
+        $totalReports['lessCostingFarmOrSkillFarmDevelop'] = (int) $this->getDoctrine()->getRepository(CostBenefitAnalysisForLessCostingFarm::class)->getMonthlyLessCostingFarmOrSkillFarmDevelopTotalReport($filterBy);
+        $totalReports['anitibioticFreeFarm'] = (int) $this->getDoctrine()->getRepository(AntibioticFreeFarm::class)->getMonthlyAntibioticFreeFarmTotalReport($filterBy);
+        $totalReports['farmersTrainingProgram'] = (int) $this->getDoctrine()->getRepository(FarmerTrainingReport::class)->getMonthlyfarmersTrainingProgramTotalReport($filterBy);
+        $totalReports['newFarmIntroduce'] = (int) $this->getDoctrine()->getRepository(FarmerIntroduceDetails::class)->getMonthlyNewFarmerIntroduceTotalReport($filterBy);
+        $totalReports['troubleshootingAndDiseases'] = (int) $this->getDoctrine()->getRepository(DiseaseMapping::class)->getMonthlyTroubleshootingAndDiseasesMappingTotalReport($filterBy);
 
-        dd($entities);
+        $entities = $this->getDoctrine()->getRepository(EvaluationCriteria::class)->getEvaluationCriteria();
+
+       return $this->render('@TerminalbdKpi/evaluationCriteria/report-evaluation-criteria.html.twig',[
+           'totalReports' => $totalReports,
+           'entities' => $entities,
+       ]);
     }
 }

@@ -161,13 +161,16 @@ class LocationSalesTargetRepository extends EntityRepository
             $data[] = array_combine($keys,$value);
         }
         foreach ($data as $record){
-            $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'name' => $record['District']]);
 
-            array_shift($record);     //Remove District From $record
+            $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'code' => $record['DistrictId']]);
+
+            unset($record['DistrictId']); //Remove DistrictId From $record
+            unset($record['District']); //Remove District From $record
+
             array_splice($record, -2);   //Remove Last two item(month, year) from $record
             if ($district){
                 foreach ($record as $key => $item) {
-                    $breedType = $em->getRepository(MarkChart::class)->findOneBy(['name' => $key]);   //Check if Breed Name exists or Not MarkChart
+                    $breedType = $em->getRepository(MarkChart::class)->findOneBy(['name' => $key]);   //Breed Name exists or Not into MarkChart
                     if ($breedType){
                         $districSales = new LocationSalesTarget();
 

@@ -26,7 +26,7 @@ use Terminalbd\KpiBundle\Entity\AgentDocSaleCollection;
  */
 class AgentDocSaleCollectionRepository extends EntityRepository
 {
-    private function insertDocSalesCollection($file, $keys, $allData, $month, $year)
+    public function insertDocSalesCollection($file, $keys, $allData, $month, $year)
     {
 
         $data = [];
@@ -37,9 +37,8 @@ class AgentDocSaleCollectionRepository extends EntityRepository
         }
 
         foreach ($data as $record){
-//            dump($record);
 
-            $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'name' => $record['District']]);
+            $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'code' => $record['DistrictId']]);
             //Find agent
             $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' =>$record['AgentId']]);
             if ($findAgent) {
