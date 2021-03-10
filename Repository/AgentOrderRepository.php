@@ -151,6 +151,7 @@ class AgentOrderRepository extends EntityRepository
         $flashArray = [];
 
         $breedTypes = [$keys[5], $keys[6], $keys[7], $keys[8], $keys[9]]; //Broiler, Sonali, Layer, Fish, Cattle
+
         foreach ($allData as $data) {
             //Marge Excel heading and value in one array as key and value
             $details = array_combine($keys, $data);
@@ -162,7 +163,6 @@ class AgentOrderRepository extends EntityRepository
 
             $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'code' => $districtCodeValue]);
             $upozila = $em->getRepository(Location::class)->findOneBy(['level'=>5,'name' => $upozilaValue]);
-
 
             //Find agent
             $feedAgentGroup = $em->getRepository(Setting::class)->findOneBy(array('slug' => 'feed'));
@@ -183,9 +183,9 @@ class AgentOrderRepository extends EntityRepository
             foreach ($breedArrays as $breedType => $value) {
 
                 $product = $em->getRepository(MarkChart::class)->findOneBy(['salesMode'=>'feed','name' => $breedType]);
-
                 if ($product) {
                     $exitAgentOrder = $em->getRepository(AgentOrder::class)->findOneBy(array('agent'=>$findAgent,'product'=>$product,'month'=>$month,'year'=>$year));
+
                     if(!$exitAgentOrder){
 
                         $agentDistrict = $findAgent->getDistrict()?$findAgent->getDistrict():null;
@@ -213,7 +213,6 @@ class AgentOrderRepository extends EntityRepository
                     }
                 }
             }
-            exit();
         }
         $file->setStatus(1);
 

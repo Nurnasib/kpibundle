@@ -158,6 +158,7 @@ class FileUploadController extends AbstractController
 
         foreach ($agentOrders as $key=> $agentOrder){
 
+            dd($agentOrder);
             $district = $this->getDoctrine()->getRepository(Location::class)->find($agentOrder['dId']);
             $product = $this->getDoctrine()->getRepository(MarkChart::class)->find($agentOrder['pId']);
 
