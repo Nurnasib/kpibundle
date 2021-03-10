@@ -44,8 +44,8 @@ class AgentDocSaleCollectionRepository extends EntityRepository
             if ($findAgent) {
                 $agentDocSale = new AgentDocSaleCollection();
                 $agentDocSale->setAgent($findAgent);
-                $agentDocSale->setSales($record['Sales']);
-                $agentDocSale->setCollection($record['Collection']);
+                $agentDocSale->setSales((double)str_replace(',', '', $record['Sales']));
+                $agentDocSale->setCollection((double)str_replace(',', '', $record['Collection']));
                 $agentDocSale->setDistrict($district?$district:null);
                 $agentDocSale->setMonth($month);
                 $agentDocSale->setYear($year);

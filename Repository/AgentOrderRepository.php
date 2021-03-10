@@ -196,7 +196,7 @@ class AgentOrderRepository extends EntityRepository
                         $agentOrder->setDistrict($district?$district:$agentDistrict);
                         $agentOrder->setUpozila($upozila?$upozila:$agentUpozila);
                         $agentOrder->setProduct($product);
-                        $agentOrder->setQuantity($value);
+                        $agentOrder->setQuantity((double)$value);
                         $agentOrder->setCreated(new \DateTime());
                         $agentOrder->setUpdated(new \DateTime());
                         $agentOrder->setMonth($month);
