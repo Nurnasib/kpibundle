@@ -35,6 +35,12 @@ class AgentOutstanding
 
     /**
      * @var float
+     * @ORM\Column( type="float", nullable=true)
+     */
+    private $limitAmount;
+    
+    /**
+     * @var float
      * @ORM\Column(name="actual_amount", type="float", nullable=true)
      */
     private $actualAmount;
