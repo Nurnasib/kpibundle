@@ -38,6 +38,9 @@ class AgentOutstandingRepository extends EntityRepository
         }
 
         foreach ($data as $record){
+            $record['ActualAmount'] = (double)str_replace(',', '',$record['ActualAmount']);
+            $record['LimitAmount'] = (double)str_replace(',', '',$record['LimitAmount']);
+
             $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'code' => $record['DistrictId']]);
             //Find agent
             $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' =>$record['AgentId']]);
@@ -45,8 +48,9 @@ class AgentOutstandingRepository extends EntityRepository
                 $agentOutstanding = new AgentOutstanding();
                 $agentOutstanding->setAgent($findAgent);
                 $agentOutstanding->setDistrict($district);
-                $agentOutstanding->setActualAmount($record['ActualAmount']);
-                $agentOutstanding->setOutstanding($record['Outstanding']);
+                $agentOutstanding->setActualAmount((double)str_replace(' ', '',$record['ActualAmount']));
+                $agentOutstanding->setLimitAmount((double)str_replace(',', '',$record['LimitAmount']));
+                $agentOutstanding->setOutstanding($record['ActualAmount']-$record['LimitAmount']);
                 $agentOutstanding->setCreatedAt(new \DateTime());
                 $agentOutstanding->setMonth($month);
                 $agentOutstanding->setYear($year);
