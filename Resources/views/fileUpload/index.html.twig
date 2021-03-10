@@ -31,7 +31,7 @@
                                 <td>{{ entity.title|capitalize|default('') }}</td>
                                 <td>{{ entity.fileName|default('') }}</td>
                                 <td>{{ entity.monthYear|default('') }}</td>
-                                <td class="text-center">{{ entity.status == 1 ? 'Yes' : 'No' }}</td>
+                                <td class="text-center">{{ entity.status > 0 ? 'Yes' : 'No' }}</td>
                                 <td class="text-right">
                                     <div class="btn-group" role="group" aria-label="Basic example">
                                         {% if entity.title|replace({' ': "-"})|lower == 'agent-sales' and entity.status == 1 %}
