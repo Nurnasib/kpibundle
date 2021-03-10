@@ -13,7 +13,9 @@ namespace Terminalbd\KpiBundle\Repository;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
+use Terminalbd\KpiBundle\Entity\AgentDocSaleCollection;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
+use Terminalbd\KpiBundle\Entity\AgentOutstanding;
 use Terminalbd\KpiBundle\Entity\DistrictOrder;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
 use Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute;
@@ -107,6 +109,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         endforeach;
 
         $this->updateIndividualSales($board);
+        $this->updateOutStandingLimit($board);
+        $this->updateDocSales($board);
     }
 
     public function updateSalesProcess(EmployeeBoard $board)
@@ -196,7 +200,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $em->flush();
                 }
 
-            $regionalAchivementDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'regional-achievement'));
+                $regionalAchivementDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'regional-achievement'));
                 $employeeBoardAttributeForRegionalAchivement = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$regionalAchivementDistribution]);
                 if($employeeBoardAttributeForRegionalAchivement){
                     $employeeBoardAttributeForRegionalAchivement->setMark($this->salesRegionalAchivementCalculation($totalActualMark, $totalAchivementMark));
@@ -251,6 +255,55 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         if($employeeBoardAttributeForIndividualTeam){
             $employeeBoardAttributeForIndividualTeam->setMark($individualEntity->getMark());
             $em->persist($employeeBoardAttributeForIndividualTeam);
+            $em->flush();
+        }
+
+    }
+
+    public function updateOutStandingLimit(EmployeeBoard $board)
+    {
+        $em = $this->_em;
+
+        $locations = $board->getEmployee()->getDistrict();
+        $arrs = array();
+        if(!empty($locations)){
+            foreach ($locations as $location){
+                $arrs[] = $location->getId();
+            }
+        }
+
+        $outstandingAmount = $em->getRepository(AgentOutstanding::class)->getLocationWiseTotalOutstanding($arrs, $board->getYear(), $board->getMonth());
+        $outstandingDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'outstanding-limit-actual-feed'));
+        $employeeBoardAttributeForOutStandingLimit = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$outstandingDistribution]);
+        if($employeeBoardAttributeForOutStandingLimit){
+            $employeeBoardAttributeForOutStandingLimit->setMark($this->outstandingLimitCalculation($outstandingAmount['outstanding']));
+            $em->persist($employeeBoardAttributeForOutStandingLimit);
+            $em->flush();
+        }
+
+    }
+
+    public function updateDocSales(EmployeeBoard $board)
+    {
+        $em = $this->_em;
+
+        $locations = $board->getEmployee()->getDistrict();
+        $arrs = array();
+        if(!empty($locations)){
+            foreach ($locations as $location){
+                $arrs[] = $location->getId();
+            }
+        }
+
+        $docSalesObj = $em->getRepository(AgentDocSaleCollection::class)->getLocationWiseTotalDocSales($arrs, $board->getYear(), $board->getMonth());
+
+        $docSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'doc-sales-vs-collection'));
+
+        $employeeBoardAttributeForDocSales = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$docSalesDistribution]);
+
+        if($employeeBoardAttributeForDocSales){
+            $employeeBoardAttributeForDocSales->setMark($this->docSalesCollectionCalculation($docSalesObj['totalCollectionAmount'], $docSalesObj['totalSalesAmount']));
+            $em->persist($employeeBoardAttributeForDocSales);
             $em->flush();
         }
 
@@ -463,6 +516,49 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             }
 
         }
+
+    }
+
+    public function outstandingLimitCalculation($outstandingValue)
+    {
+
+        if($outstandingValue){
+            if($outstandingValue >= 2000000){
+                return 0;
+            }elseif ($outstandingValue>=1500000 && $outstandingValue<2000000){
+                return 4;
+            }elseif ($outstandingValue>=1000000 && $outstandingValue<1500000){
+                return 6;
+            }elseif ($outstandingValue>=500000 && $outstandingValue<1000000){
+                return 8;
+            }elseif ($outstandingValue<500000){
+                return 10;
+            }
+        }
+        return 0;
+
+    }
+
+    public function docSalesCollectionCalculation($collectionAmount, $salesAmount)
+    {
+
+        if($salesAmount>0){
+            $action = (($collectionAmount * 100 )/$salesAmount);
+            if($action >= 95) {
+                return 5;
+            }elseif ($action < 95 and $action >= 90) {
+                return 4;
+            }elseif ($action < 90 and $action >= 85) {
+                return 3;
+            }elseif ($action < 85 and $action >= 80) {
+                return 2;
+            }elseif ($action < 80 and $action >= 75) {
+                return 1;
+            }else {
+                return 0;
+            }
+        }
+        return 0;
 
     }
 

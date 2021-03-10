@@ -62,4 +62,17 @@ class AgentDocSaleCollectionRepository extends EntityRepository
         $em->flush();
         return $addedId;
     }
+
+
+    public function getLocationWiseTotalDocSales($locations, $year, $month)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.district','d');
+        $qb->select('SUM(e.sales) as totalSalesAmount', 'SUM(e.collection) as totalCollectionAmount');
+        $qb->where('d.id IN (:districts)')->setParameter('districts',$locations);
+        $qb->andWhere('e.year =:year')->setParameter('year',$year);
+        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $result = $qb->getQuery()->getOneOrNullResult();
+        return $result;
+    }
 }
