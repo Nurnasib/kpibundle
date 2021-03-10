@@ -251,6 +251,22 @@ class AgentOutstanding
         $this->status = $status;
     }
 
+    /**
+     * @return float
+     */
+    public function getLimitAmount()
+    {
+        return $this->limitAmount;
+    }
+
+    /**
+     * @param float $limitAmount
+     */
+    public function setLimitAmount($limitAmount)
+    {
+        $this->limitAmount = $limitAmount;
+    }
+
 
 
 
