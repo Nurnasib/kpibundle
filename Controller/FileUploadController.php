@@ -193,6 +193,12 @@ class FileUploadController extends AbstractController
             $em->persist($districtOrder);
             $em->flush();
         }
+
+        $file->setStatus(2);
+
+        $em->persist($file);
+        $em->flush();
+        
         $this->addFlash('success', 'Data migrate successfully!');
 
         return $this->redirectToRoute('kpi_file_upload_index');

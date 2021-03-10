@@ -26,8 +26,8 @@ class DocumentUpload
     private $id;
 
     /**
-     * @var string
-     * @ORM\Column(type="boolean", nullable = true)
+     * @var integer
+     * @ORM\Column(type="integer", nullable = true)
      */
     protected $status = 0;
 
@@ -62,7 +62,7 @@ class DocumentUpload
     }
 
     /**
-     * @return string
+     * @return int
      */
     public function getStatus()
     {
@@ -70,7 +70,7 @@ class DocumentUpload
     }
 
     /**
-     * @param string $status
+     * @param int $status
      */
     public function setStatus($status)
     {
