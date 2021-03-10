@@ -126,7 +126,6 @@ class FileUploadController extends AbstractController
                 break;
             case "district-sales-target":
                 $addedId = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->insertTargetAmount($file, $keys, $allData, $month, $year);
-//                dd($addedId);
                 if(isset($addedId['new']) && sizeof($addedId['new'])>0){
                     $this->addFlash('success', 'Data inserted successfully!');
                 }elseif (isset($addedId['old']) && sizeof($addedId['old'])>0){
@@ -158,7 +157,6 @@ class FileUploadController extends AbstractController
 
         foreach ($agentOrders as $key=> $agentOrder){
 
-            dd($agentOrder);
             $district = $this->getDoctrine()->getRepository(Location::class)->find($agentOrder['dId']);
             $product = $this->getDoctrine()->getRepository(MarkChart::class)->find($agentOrder['pId']);
 
