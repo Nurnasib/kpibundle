@@ -162,6 +162,9 @@ class AgentOrderRepository extends EntityRepository
             $breedArrays = array_combine($breedTypes, $breedValues);
 
             $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'code' => $districtCodeValue]);
+            if(!$district){
+                $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'name' => $districtValue]);
+            }
             $upozila = $em->getRepository(Location::class)->findOneBy(['level'=>5,'name' => $upozilaValue]);
 
             //Find agent
