@@ -34,11 +34,13 @@
                                 <td class="text-center">{{ entity.status == 1 ? 'Yes' : 'No' }}</td>
                                 <td class="text-right">
                                     <div class="btn-group" role="group" aria-label="Basic example">
-                                        {% if entity.title|replace({' ': "-"})|lower == 'agent-sales' %}
-                                            <a class="btn btn-mini bg-success white-font" href="{{ path('kpi_insert_data_district_wise',{'id':entity.id}) }}"><i class="feather icon-upload"></i> Migrate</a>
+                                        {% if entity.status == 0 %}
+                                            {% if entity.title|replace({' ': "-"})|lower == 'agent-sales' %}
+                                                <a class="btn btn-mini bg-success white-font" href="{{ path('kpi_insert_data_district_wise',{'id':entity.id}) }}"><i class="feather icon-upload"></i> Migrate</a>
+                                            {% endif %}
+                                            <a class="btn btn-mini bg-primary white-font" href="{{ path('kpi_file_upload_insert_data',{'id':entity.id}) }}"><i class="feather icon-upload"></i> Import</a>
                                         {% endif %}
-                                        <a class="btn btn-mini bg-primary white-font" href="{{ path('kpi_file_upload_insert_data',{'id':entity.id}) }}"><i class="feather icon-upload"></i> Import</a>
-                                        <a class="btn  btn-transparent btn-mini red-font" href="{{ path('kpi_file_upload_file_delete',{'id':entity.id}) }}"><i class="fa fa-remove"></i></a>
+                                        <a class="btn  btn-transparent btn-mini red-font" onclick="return confirm('Are you sure want to delete this file?')" href="{{ path('kpi_file_upload_file_delete',{'id':entity.id}) }}"><i class="fa fa-remove"></i></a>
                                     </div>
                                 </td>
                             </tr>
@@ -89,19 +91,17 @@
 {% endblock  %}
 {% block documentready %}
     {{ parent() }}
-{#
 
     $('#datatable').DataTable( {
     "pageLength": 10,
     "order": [[ 2, "desc" ]],
     'columnDefs': [ {
-    'targets': [0,4,5,6,12],
+    'targets': -1,
     'orderable': false
     }],
     "responsive": false,
     "scrollX": true
     });
-#}
 
     $('#inputMonth').datepicker({
     changeMonth: true,
