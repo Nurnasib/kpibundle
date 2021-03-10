@@ -93,14 +93,11 @@
     {{ parent() }}
 
     $('#datatable').DataTable( {
-    "pageLength": 10,
-    "order": [[ 2, "desc" ]],
-    'columnDefs': [ {
-    'targets': -1,
-    'orderable': false
-    }],
-    "responsive": false,
-    "scrollX": true
+        pageLength: 10,
+        columnDefs: [ {
+            targets: -1,
+            orderable: false
+        }],
     });
 
     $('#inputMonth').datepicker({
