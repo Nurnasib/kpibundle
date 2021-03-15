@@ -143,6 +143,22 @@ class AgentOrderRepository extends EntityRepository
 
     }
 
+    public function getAgentWiseTotalProductSales($month, $year)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.product','product');
+        $qb->join('e.agent','agent');
+        $qb->select('e.year as oYear','e.month as oMonth', 'SUM(e.quantity) as totalQty');
+        $qb->addSelect('agent.id AS agentId');
+        $qb->where('e.month =:month')->setParameter('month',$month);
+        $qb->andWhere('e.year =:year')->setParameter('year',$year);
+        $qb->groupBy('agent.id');
+        $result = $qb->getQuery()->getArrayResult();
+
+        return $result;
+
+    }
+
     public function insertAgentSales($file, $keys, $allData, $month, $year)
     {
         $em =$this->_em;

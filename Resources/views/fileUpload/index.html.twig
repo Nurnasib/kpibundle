@@ -37,6 +37,11 @@
                                         {% if entity.title|replace({' ': "-"})|lower == 'agent-sales' and entity.status == 1 %}
                                             <a class="btn btn-mini bg-success white-font" href="{{ path('kpi_insert_data_district_wise',{'id':entity.id}) }}"><i class="feather icon-upload"></i> Migrate</a>
                                         {% endif %}
+
+                                        {% if entity.title|replace({' ': "-"})|lower == 'agent-sales' and entity.status == 2 %}
+                                            <a class="btn btn-mini bg-secondary white-font" href="{{ path('kpi_insert_agent_category',{'id':entity.id}) }}"><i class="feather icon-upload"></i> ImportAgentCategory</a>
+                                        {% endif %}
+
                                         {% if entity.status == 0 %}
                                             <a class="btn btn-mini bg-primary white-font" href="{{ path('kpi_file_upload_insert_data',{'id':entity.id}) }}"><i class="feather icon-upload"></i> Import</a>
                                         {% endif %}
@@ -93,7 +98,7 @@
     {{ parent() }}
 
     $('#datatable').DataTable( {
-        pageLength: 10,
+        pageLength: 100,
         columnDefs: [ {
             targets: -1,
             orderable: false
