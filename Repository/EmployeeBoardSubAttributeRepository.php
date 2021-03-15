@@ -38,4 +38,29 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
         $result = $qb->getQuery()->getArrayResult();
         return $result;
     }
+
+    public function getKpiSummaryForFeedAndGrowth($id)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->select('e.targetQuantity', 'e.salesQuantity', 'e.mark');
+        $qb->addSelect('markDistribution.name AS attributeName', 'markDistribution.salesMode');
+
+        $qb->join('e.markDistribution', 'markDistribution');
+        $qb->where('e.employeeBoard = :id')->setParameter('id', $id);
+//        $qb->andWhere("markDistribution.slug = 'doc-sales-vs-collection'");
+
+        $results = $qb->getQuery()->getArrayResult();
+
+        $data = [];
+        foreach ($results as $result){
+            $data[$result['salesMode']][] = [
+                'markParameter' => $result['attributeName'],
+                'targetQuantity' => $result['targetQuantity'],
+                'salesQuantity' => $result['salesQuantity'],
+                'percentage' => $result['targetQuantity']>0?($result['salesQuantity']*100)/$result['targetQuantity']:0,
+                'mark' => $result['mark'],
+            ];
+        }
+        return $data;
+    }
 }

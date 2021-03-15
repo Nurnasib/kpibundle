@@ -77,4 +77,49 @@ class AgentOutstandingRepository extends EntityRepository
         $result = $qb->getQuery()->getOneOrNullResult();
         return $result;
     }
+
+    public function getLocationWiseOutstanding($locations, $year, $month)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.district','d');
+        $qb->select('SUM(e.actualAmount) AS actualAmount', 'SUM(e.limitAmount) AS limitAmount', 'SUM(e.outstanding) AS outstanding');
+        $qb->addSelect('d.name AS districtName');
+        $qb->where('d.id IN (:districts)')->setParameter('districts',$locations);
+        $qb->andWhere('e.year =:year')->setParameter('year',$year);
+        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->groupBy('d.id');
+        $results = $qb->getQuery()->getArrayResult();
+
+        $data = [];
+        foreach ($results as $result){
+            $data[$result['districtName']] = [
+                'actualAmount' => $result['actualAmount'],
+                'limitAmount' => $result['limitAmount'],
+                'percentage' => $result['limitAmount']>0?($result['actualAmount']*100)/$result['limitAmount']:0,
+                'mark' => $this->outstandingLimitCalculation($result['outstanding']),
+            ];
+        }
+
+        return $data;
+    }
+
+    private function outstandingLimitCalculation($outstandingValue)
+    {
+
+        if($outstandingValue){
+            if($outstandingValue >= 2000000){
+                return 0;
+            }elseif ($outstandingValue>=1500000 && $outstandingValue<2000000){
+                return 4;
+            }elseif ($outstandingValue>=1000000 && $outstandingValue<1500000){
+                return 6;
+            }elseif ($outstandingValue>=500000 && $outstandingValue<1000000){
+                return 8;
+            }elseif ($outstandingValue<500000){
+                return 10;
+            }
+        }
+        return 0;
+
+    }
 }

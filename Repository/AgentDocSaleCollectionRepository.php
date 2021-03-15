@@ -75,4 +75,53 @@ class AgentDocSaleCollectionRepository extends EntityRepository
         $result = $qb->getQuery()->getOneOrNullResult();
         return $result;
     }
+    public function getLocationWiseDocSales($locations, $year, $month)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.district','d');
+//        $qb->join('e.agent','a');
+        $qb->select('SUM(e.sales) as totalSalesAmount', 'SUM(e.collection) as totalCollectionAmount');
+//        $qb->addSelect('a.name as agentName');
+        $qb->addSelect('d.name AS districtName');
+        $qb->where('d.id IN (:districts)')->setParameter('districts',$locations);
+        $qb->andWhere('e.year =:year')->setParameter('year',$year);
+        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->groupBy('d.id');
+        $results = $qb->getQuery()->getArrayResult();
+        $data = [];
+        foreach ($results as $result){
+            $data[$result['districtName']] = array(
+                'totalSalesAmount'=>$result['totalSalesAmount'],
+                'totalCollectionAmount'=>$result['totalCollectionAmount'],
+                'percentage'=>$result['totalSalesAmount']>0?($result['totalCollectionAmount']*100)/$result['totalSalesAmount']:0,
+                'mark'=>$this->docSalesCollectionCalculationMark($result['totalCollectionAmount'], $result['totalSalesAmount']),
+            );
+        }
+        return $data;
+    }
+
+
+
+    private function docSalesCollectionCalculationMark($collectionAmount, $salesAmount)
+    {
+
+        if($salesAmount>0){
+            $action = (($collectionAmount * 100 )/$salesAmount);
+            if($action >= 95) {
+                return 5;
+            }elseif ($action < 95 and $action >= 90) {
+                return 4;
+            }elseif ($action < 90 and $action >= 85) {
+                return 3;
+            }elseif ($action < 85 and $action >= 80) {
+                return 2;
+            }elseif ($action < 80 and $action >= 75) {
+                return 1;
+            }else {
+                return 0;
+            }
+        }
+        return 0;
+
+    }
 }

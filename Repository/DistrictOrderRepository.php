@@ -147,4 +147,93 @@ class DistrictOrderRepository extends EntityRepository
 
     }
 
+    public function getDistrictAchievement($locations, $year, $month)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.district','d');
+        $qb->select('SUM(e.quantity) as achieveQuantity','SUM(e.targetQuantity) as targetQuantity');
+        $qb->addSelect('d.name AS districtName');
+        $qb->where('d.id IN (:districts)')->setParameter('districts',$locations);
+        $qb->andWhere('e.year =:year')->setParameter('year',$year);
+        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->groupBy('d.id');
+        $results = $qb->getQuery()->getArrayResult();
+        $data = [];
+        foreach ($results as $result){
+            $data[$result['districtName']] = [
+                'achieveQuantity' => $result['achieveQuantity'],
+                'targetQuantity' => $result['targetQuantity'],
+                'percentage' => $result['targetQuantity']>0?($result['achieveQuantity']*100)/$result['targetQuantity']:0,
+                'mark' => $this->salesDistrictAchivementCalculation($result['targetQuantity'], $result['achieveQuantity'])
+            ];
+        }
+        return $data;
+
+    }
+
+    public function getRegionalAchievement($locations, $year, $month)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.district','d');
+        $qb->join('d.parent','region');
+        $qb->select('SUM(e.quantity) as achieveQuantity','SUM(e.targetQuantity) as targetQuantity');
+        $qb->addSelect('d.name AS districtName');
+        $qb->addSelect('region.name AS regionName');
+        $qb->where('d.id IN (:districts)')->setParameter('districts',$locations);
+        $qb->andWhere('e.year =:year')->setParameter('year',$year);
+        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->andWhere('region.level = 3');
+        $qb->groupBy('region.id');
+        $qb->addGroupBy('d.id');
+        $results = $qb->getQuery()->getArrayResult();
+        $data = [];
+        foreach ($results as $result){
+            $data[$result['regionName']] = [
+                'achieveQuantity' => $result['achieveQuantity'],
+                'targetQuantity' => $result['targetQuantity'],
+                'percentage' => $result['targetQuantity']>0?($result['achieveQuantity']*100)/$result['targetQuantity']:0,
+                'mark' => $this->salesRegionalAchivementCalculation($result['targetQuantity'], $result['achieveQuantity'])
+            ];
+        }
+        return $data;
+
+    }
+
+    public function salesDistrictAchivementCalculation($target, $achivement)
+    {
+        if($target > 0){
+            $action = (($achivement * 100 )/$target);
+            if($action >= 100) {
+                return 4;
+            }elseif ($action < 100 and $action >= 50) {
+                return 3;
+            }elseif ($action < 50 and $action >= 1) {
+                return 1;
+            }else {
+                return 0;
+            }
+
+        }
+
+    }
+
+
+    public function salesRegionalAchivementCalculation($target, $achivement)
+    {
+        if($target > 0){
+            $action = (($achivement * 100 )/$target);
+            if($action >= 100) {
+                return 5;
+            }elseif ($action < 100 and $action >= 50) {
+                return 3;
+            }elseif ($action < 50 and $action >= 1) {
+                return 2;
+            }else {
+                return 0;
+            }
+
+        }
+
+    }
+
 }

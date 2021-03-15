@@ -36,7 +36,7 @@
                     <div class="portlet-title">
                         <div class="caption">{{ 'KPI Summary for '|trans }}: {{ entity.employee.name }} </div>
                     </div>
-                      <div class="portlet-body form">
+                      <div class="portlet-body form text-dark">
                         <div class="row form-body">
                             <div class="form-inner-no-space">
                                 <div class="form-group">
@@ -62,42 +62,213 @@
                                 </div>
                                 {% endif %}
                             </div>
-                            <table class="table table-striped table-bordered table-hover" id="datatable">
-                                <thead class="thead-dark">
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Mark Parameter</th>
-                                    <th scope="col">Target Quantity</th>
-                                    <th scope="col">Sales Quantity</th>
-                                    <th scope="col">Marks</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% set totalMark = 0 %}
-                                {% set targetAmount = 0 %}
-                                {% set salesAmount = 0 %}
-                                {% for entity in entities %}
-                                    {% set totalMark = totalMark + entity.mark %}
-                                    {% set targetAmount = targetAmount + entity.targetQuantity %}
-                                    {% set salesAmount = salesAmount + entity.salesQuantity %}
-                                    <tr>
-                                        <td>{{ loop.index }}</td>
-                                        <td>{{ entity.markDistribution.name }}</td>
-                                        <td>{{ entity.targetQuantity }}</td>
-                                        <td>{{ entity.salesQuantity }}</td>
-                                        <td>{{ entity.mark }}</td>
-                                    </tr>
+                                {% for key, item in feedAndGrowth %}
+                                    {% if key is not empty %}
+                                        <h5 class="bg-secondary p-1 text-white h5 w-100">{{ key|capitalize|default('') }}</h5>
+                                        <table class="table table-striped table-bordered table-hover" id="datatable">
+                                            <thead class="thead-dark">
+                                            <tr>
+                                                <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                                <th scope="col" width="20%">{{ 'Target Quantity'|trans }}</th>
+                                                <th scope="col" width="20%">{{ 'Sales Quantity'|trans }}</th>
+                                                <th scope="col" width="20%">{{ 'Percentage'|trans }}</th>
+                                                <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for attribute in item %}
+                                                <tr>
+                                                    <td>{{ attribute.markParameter|default('') }}</td>
+                                                    <td>{{ attribute.targetQuantity|default('') }}</td>
+                                                    <td>{{ attribute.salesQuantity|default('') }}</td>
+                                                    <td>{{ attribute.percentage|number_format(2) }} %</td>
+                                                    <td>{{ attribute.mark|default('') }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% endif %}
                                 {% endfor %}
-                                </tbody>
-                                <tfoot>
+                            {% for attribute in attributes %}
+                                <h5 class="h5 bg-secondary p-1 text-white w-100">{{ attribute.attributesName|default('') }}</h5>
+
+                                {% if attribute.slug == 'doc-sales-vs-collection' %}
+
+                                    <table class="table table-striped table-bordered table-hover" id="datatable">
+                                        <thead class="thead-dark">
+                                        <tr>
+                                            <th scope="col">{{ 'District'|trans }}</th>
+                                            <th scope="col" width="20%">{{ 'Total Sales Amount'|trans }}</th>
+                                            <th scope="col" width="20%">{{ 'Total Collection Amount'|trans }}</th>
+                                            <th scope="col" width="20%">{{ 'Percentage'|trans }}</th>
+                                            <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for key, amount in docSale %}
+                                            <tr>
+                                                <td>{{ key|default() }}</td>
+                                                <td>{{ amount.totalSalesAmount|number_format(2,'.', ',')|default() }}</td>
+                                                <td>{{ amount.totalCollectionAmount|number_format(2,'.',',')|default() }}</td>
+                                                <td>{{ amount.percentage|number_format(2,'.')|default() }} %</td>
+                                                <td>{{ amount.mark|default() }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% endif %}
+
+                                {% if attribute.slug == 'outstanding-limit-actual-feed' %}
+                                    <table class="table table-striped table-bordered table-hover" id="datatable">
+                                        <thead class="thead-dark">
+                                        <tr>
+                                            <th scope="col" >{{ 'District'|trans }}</th>
+                                            <th scope="col" width="20%">{{ 'Total Actual Amount'|trans }}</th>
+                                            <th scope="col" width="20%">{{ 'Total Limit Amount'|trans }}</th>
+                                            <th scope="col" width="20%">{{ 'Percentage'|trans }}</th>
+                                            <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for key, amount in outstanding %}
+                                            <tr>
+                                                <td>{{ key|default() }}</td>
+                                                <td>{{ amount.actualAmount|number_format(2,'.', ',')|default() }}</td>
+                                                <td>{{ amount.limitAmount|number_format(2,'.',',')|default() }}</td>
+                                                <td>{{ amount.percentage|number_format(2,'.')|default() }} %</td>
+                                                <td>{{ amount.mark|default() }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% endif %}
+
+                                {% if attribute.slug == 'regional-achievement' %}
+                                    <table class="table table-striped table-bordered table-hover" id="datatable">
+                                        <thead class="thead-dark">
+                                        <tr>
+                                            <th scope="col">{{ 'Region'|trans }}</th>
+                                            <th scope="col" width="20%">{{ 'Total Target Quantity'|trans }}</th>
+                                            <th scope="col" width="20%">{{ 'Total Achieve Quantity'|trans }}</th>
+                                            <th scope="col" width="20%">{{ 'Percentage'|trans }}</th>
+                                            <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for key, amount in regionalAchievement %}
+                                            <tr>
+                                                <td>{{ key|default() }}</td>
+                                                <td>{{ amount.targetQuantity|number_format(2,'.', ',')|default() }}</td>
+                                                <td>{{ amount.achieveQuantity|number_format(2,'.',',')|default() }}</td>
+                                                <td>{{ amount.percentage|number_format(2,'.')|default() }} %</td>
+                                                <td>{{ amount.mark|default() }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% endif %}
+
+                                {% if attribute.slug == 'district-achievement' %}
+
+                                    <table class="table table-striped table-bordered table-hover" id="datatable">
+                                        <thead class="thead-dark">
+                                        <tr>
+                                            <th scope="col">{{ 'District'|trans }}</th>
+                                            <th scope="col" width="20%">{{ 'Total Target Quantity'|trans }}</th>
+                                            <th scope="col" width="20%">{{ 'Total Achieve Quantity'|trans }}</th>
+                                            <th scope="col" width="20%">{{ 'Percentage'|trans }}</th>
+                                            <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for key, amount in districtAchievement %}
+                                            <tr>
+                                                <td>{{ key|default() }}</td>
+                                                <td>{{ amount.targetQuantity|number_format(2,'.', ',')|default() }}</td>
+                                                <td>{{ amount.achieveQuantity|number_format(2,'.',',')|default() }}</td>
+                                                <td>{{ amount.percentage|number_format(2,'.')|default() }} %</td>
+                                                <td>{{ amount.mark|default() }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% endif %}
+
+                                {% if attribute.slug == 'individual-team-members-achievement' %}
+                                    <table class="table table-striped table-bordered table-hover" id="datatable">
+                                        <thead class="thead-dark">
+                                        <tr>
+                                            <th scope="col">{{ 'Employee'|trans }}</th>
+                                            <th scope="col" width="20%">{{ 'Actual Mark'|trans }}</th>
+                                            <th scope="col" width="10%">{{ 'Mark'|trans }}</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for key, member in individualTeamMemberMarks %}
+                                            <tr>
+                                                <td>{{ key|capitalize|default('') }}</td>
+                                                <td>{{ member.actualMark|default('') }}</td>
+                                                <td>{{ member.mark|default('') }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% endif %}
+                            {% endfor %}
+
+{#                                <tfoot>
                                 <tr>
                                     <th colspan="2" class="text-right">Total</th>
                                     <th>{{ targetAmount }}</th>
                                     <th>{{ salesAmount }}</th>
                                     <th>{{ totalMark }}</th>
                                 </tr>
-                                </tfoot>
-                            </table>
+                                </tfoot>#}
+
+
+
+                            {#{% set totalMark = 0 %}
+                            {% set targetAmount = 0 %}
+                            {% set salesAmount = 0 %}
+                            {% for entity in entities %}
+                                    {% set totalMark = totalMark + entity.mark %}
+                                    {% set targetAmount = targetAmount + entity.targetQuantity %}
+                                    {% set salesAmount = salesAmount + entity.salesQuantity %}
+                                {% if entity.markDistribution.salesMode == 'feed' %}
+                                    {% set totalMark = totalMark + entity.mark %}
+                                    {% set targetAmount = targetAmount + entity.targetQuantity %}
+                                    {% set salesAmount = salesAmount + entity.salesQuantity %}
+                                    <table>
+                                        <thead>
+                                        <tr>
+                                            <th>{{ loop.index }}</th>
+                                            <th>{{ entity.markDistribution.name }}</th>
+                                            <th>{{ entity.targetQuantity }}</th>
+                                            <th>{{ entity.salesQuantity }}</th>
+                                            <th>{{ entity.mark }}</th>
+                                        </tr>
+                                        </thead>
+                                    </table>
+
+                                {% endif %}
+
+                                {% if entity.markDistribution.salesMode == 'growth' %}
+                                    {% set totalMark = totalMark + entity.mark %}
+                                    {% set targetAmount = targetAmount + entity.targetQuantity %}
+                                    {% set salesAmount = salesAmount + entity.salesQuantity %}
+                                    <table>
+                                        <thead>
+                                        <tr>
+                                            <th>{{ loop.index }}</th>
+                                            <th>{{ entity.markDistribution.name }}</th>
+                                            <th>{{ entity.targetQuantity }}</th>
+                                            <th>{{ entity.salesQuantity }}</th>
+                                            <th>{{ entity.mark }}</th>
+                                        </tr>
+                                        </thead>
+                                    </table>
+                                {% endif %}
+                            {% endfor %}#}
                         </div>
                       </div>
                 </div>

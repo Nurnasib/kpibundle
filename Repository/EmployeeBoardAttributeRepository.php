@@ -129,11 +129,14 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
         if(!empty($entities)){
             $totalAchivementMark=0;
+            $totalQuantity=0;
+            $totalTargetQuantity=0;
             $totalActualMark=0;
             foreach ($entities as $parameter):
 
                 $totalAchivementMark=$totalAchivementMark+$parameter['salesMark'];
-
+                $totalQuantity=$totalQuantity+$parameter['quantity'];
+                $totalTargetQuantity=$totalTargetQuantity+$parameter['targetQuantity'];
 
                 $entity = new EmployeeBoardSubAttribute();
                 $distribution = $em->getRepository(MarkChart::class)->find($parameter['id']);
@@ -195,6 +198,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $discritAchivementDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'district-achievement'));
                 $employeeBoardAttributeForDistrictAchivement = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$discritAchivementDistribution]);
                 if($employeeBoardAttributeForDistrictAchivement){
+                    $employeeBoardAttributeForDistrictAchivement->setTargetAchievement($totalQuantity);
+                    $employeeBoardAttributeForDistrictAchivement->setTargetAmount($totalTargetQuantity);
                     $employeeBoardAttributeForDistrictAchivement->setMark($this->salesDistrictAchivementCalculation($totalActualMark, $totalAchivementMark));
                     $em->persist($employeeBoardAttributeForDistrictAchivement);
                     $em->flush();
@@ -203,6 +208,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 $regionalAchivementDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'regional-achievement'));
                 $employeeBoardAttributeForRegionalAchivement = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$regionalAchivementDistribution]);
                 if($employeeBoardAttributeForRegionalAchivement){
+                    $employeeBoardAttributeForRegionalAchivement->setTargetAchievement($totalQuantity);
+                    $employeeBoardAttributeForRegionalAchivement->setTargetAmount($totalTargetQuantity);
                     $employeeBoardAttributeForRegionalAchivement->setMark($this->salesRegionalAchivementCalculation($totalActualMark, $totalAchivementMark));
                     $em->persist($employeeBoardAttributeForRegionalAchivement);
                     $em->flush();
@@ -339,6 +346,35 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $result = $qb->getQuery()->getOneOrNullResult();
         return $result;
     }
+
+    public function getIndividualTeamMemberMarks($employees, $attributes, $year, $month)
+    {
+        $em = $this->_em;
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.employeeBoard','ed');
+        $qb->join('ed.employee','em');
+        $qb->join('e.attribute','att');
+        $qb->select('SUM(e.mark) as mark', 'SUM(e.actualMark) as actualMark', 'SUM(e.targetAmount) AS targetAmount', 'SUM(e.targetAchievement) AS targetAchievement');
+        $qb->addSelect('em.name AS employeeName');
+        $qb->where('em.id IN (:employee)')->setParameter('employee',$employees);
+        $qb->andWhere('att.id IN (:attribute)')->setParameter('attribute',$attributes);
+        $qb->andWhere('ed.year =:year')->setParameter('year',$year);
+        $qb->andWhere('ed.month =:month')->setParameter('month',$month);
+        $qb->groupBy('em.id');
+        $results = $qb->getQuery()->getArrayResult();
+
+        $data = [];
+        foreach ($results as $result){
+            $data[$result['employeeName']] = [
+                'mark' => $result['mark'],
+                'actualMark' => $result['actualMark'],
+                'targetAmount' => $result['targetAmount'],
+                'targetAchievement' => $result['targetAchievement'],
+            ];
+        }
+        return $data;
+    }
+
 
     public function salesTargetCalculation($target,$sales)
     {
@@ -561,5 +597,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         return 0;
 
     }
+
 
 }

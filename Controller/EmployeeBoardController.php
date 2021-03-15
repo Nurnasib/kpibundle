@@ -11,6 +11,7 @@
 
 namespace Terminalbd\KpiBundle\Controller;
 
+use App\Entity\User;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -23,6 +24,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Terminalbd\KpiBundle\Entity\AgentDocSaleCollection;
+use Terminalbd\KpiBundle\Entity\AgentOutstanding;
+use Terminalbd\KpiBundle\Entity\DistrictOrder;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
 use Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute;
 use Terminalbd\KpiBundle\Entity\EmployeeBoardSubAttribute;
@@ -280,14 +284,53 @@ class EmployeeBoardController extends AbstractController
      *
      * @Route("/{id}/report-sales-achivement", methods={"GET"}, name="kpi_report_sales_achivement")
      */
-    public function salesAchivementSummary($id): Response
+    public function salesAchivementSummary(EmployeeBoard $entity): Response
     {
 
-        $entity = $this->getDoctrine()->getRepository(EmployeeBoard::class)->find($id);
-        $marks = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->findBy(array('employeeBoard'=>$id));
+        $locations = $entity->getEmployee()->getDistrict();
+        $arrs = array();
+        if(!empty($locations)){
+            foreach ($locations as $location){
+                $arrs[] = $location->getId();
+            }
+        }
+
+        $employee = $entity->getEmployee();
+
+        $getEmployeesByLineManager = $this->getDoctrine()->getRepository(User::class)->findBy(['lineManager'=>$employee, 'enabled'=>1]);
+
+        $employeeArrs = array();
+        foreach ($getEmployeesByLineManager as $childEmployee){
+            if(!empty($childEmployee)){
+                $employeeArrs[] = $childEmployee->getId();
+            }
+        }
+        $salesDistribution = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(array('salesMode'=>'feed','status'=>1));
+
+        $disdributionArrs = array();
+        foreach ($salesDistribution as $saleDistribution){
+            $disdributionArrs[] = $saleDistribution->getId();
+        }
+
+        $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getKpiSummaryForFeedAndGrowth($entity);
+
+        $attributes = $this->getDoctrine()->getRepository(MarkChart::class)->getAttributesForSummary();
+        $outstanding = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getLocationWiseOutstanding($arrs, $entity->getYear(), $entity->getMonth());
+        $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getLocationWiseDocSales($arrs, $entity->getYear(), $entity->getMonth());
+        $districtAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getDistrictAchievement($arrs, $entity->getYear(), $entity->getMonth());
+        $regionalAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getRegionalAchievement($arrs, $entity->getYear(), $entity->getMonth());
+        $individualTeamMemberMarks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getIndividualTeamMemberMarks($employeeArrs,$disdributionArrs, $entity->getYear(), $entity->getMonth());
+
+//        $marks = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->findBy(array('employeeBoard'=>$id));
         return $this->render('@TerminalbdKpi/employeeboard/report/salesDetails.html.twig', [
             'entity' => $entity,
-            'entities' => $marks,
+            'feedAndGrowth' => $feedAndGrowth,
+            'attributes' => $attributes,
+            'outstanding' => $outstanding,
+            'docSale' => $docSale,
+            'districtAchievement' => $districtAchievement,
+            'regionalAchievement' => $regionalAchievement,
+            'individualTeamMemberMarks' => $individualTeamMemberMarks,
         ]);
 
     }
