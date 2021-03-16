@@ -84,20 +84,13 @@
                                     {# New format END #}
                                     <table class="table table-striped table-bordered table-hover" id="datatable">
                                         <thead class="thead-dark">
-                                        <tr>
-                                            <th scope="col" style="width: 22%">Parameter</th>
-                                            <th scope="col">Activity</th>
-                                            <th scope="col">Attributes</th>
-                                            <th scope="col">Marks</th>
-                                            <th scope="col">Mark Distribution</th>
-                                            <th scope="col">Obtain Marks</th>
-                                        </tr>
+
                                         <tr>
                                             <th scope="col" style="width: 22%">Parameter</th>
                                             <th scope="col">Marks</th>
                                             <th scope="col">Weight</th>
                                             <th scope="col">Obtain Marks</th>
-                                            <th scope="col" colspan="2">Grade</th>
+                                            <th scope="col">Grade</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -111,10 +104,25 @@
                                                 <td>{{ entity.actualMark }}</td>
                                                 <td>{% if entity.mark > 0 %}{{ ((entity.mark*100)/entity.actualMark)|number_format(2) }}{% endif %}%</td>
                                                 <td>{{ entity.mark }}</td>
+                                                {% if loop.index==1 %}
+                                                <td style="text-align: center" rowspan="{{ entities|length +1 }}">
+                                                    {% set grade='' %}
+                                                    {% if totalMark>=29 %}
+                                                        {% set grade='A' %}
+                                                    {% elseif totalMark>=27 or totalMark<29 %}
+                                                        {% set grade='B+' %}
+                                                    {% elseif totalMark>=25 or totalMark<27 %}
+                                                        {% set grade='B' %}
+                                                    {% elseif totalMark>=23 or totalMark<25 %}
+                                                        {% set grade='C' %}
+                                                    {% elseif totalMark<23 %}
+                                                        {% set grade='D' %}
+                                                    {% endif %}
+                                                    {{ grade }}
+                                                </td>
+                                                {% endif %}
                                             </tr>
                                         {% endfor %}
-                                        </tbody>
-                                        <tfoot>
                                         <tr>
                                             <th class="text-right">Total Marks</th>
                                             <th>{{ totalActualMark }}</th>
@@ -122,7 +130,7 @@
                                             <th>{{ totalMark }}</th>
                                         </tr>
                                         <tr><th colspan="6" class="text-center"><strong>A=>29,B+>27,B>25,C>23,D<23</strong></th></tr>
-                                        </tfoot>
+                                        </tbody>
                                     </table>
 
                                 </div>
