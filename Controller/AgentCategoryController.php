@@ -21,11 +21,15 @@ class AgentCategoryController extends AbstractController
 {
     /**
      * @return string
-     * @Route("/")
+     * @Route("/", name="agent_category_index")
      */
     public function index()
     {
-        return 'Hello';
+        $agentCategoryByMonthYear = $this->getDoctrine()->getRepository(AgentCategory::class)->getAllAgentWithCategory();
+        return $this->render('@TerminalbdKpi/agentCategory/index.html.twig', [
+            'agentCategoryByMonthYear' => $agentCategoryByMonthYear
+        ]);
+
     }
     /**
      * @Route("/{id}/insert-agent-category", name="kpi_insert_agent_category")

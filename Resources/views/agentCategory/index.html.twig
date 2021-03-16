@@ -1,0 +1,87 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block body %}
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-bordered table-striped" id="datatable">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th style="text-align: center">{{ 'S/N'|trans }}</th>
+                        <th>{{ 'Agent Name'|trans }}</th>
+                        <th>{{ 'Quantity'|trans }}</th>
+                        <th>{{ 'Grade'|trans }}</th>
+                        <th>{{ 'Month'|trans }}</th>
+                        <th>{{ 'Year'|trans }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% if agentCategoryByMonthYear is not empty %}
+                        {% for list in agentCategoryByMonthYear %}
+                            <tr>
+                                <td style="text-align: center">{{ loop.index }}</td>
+                                <td>{{ list.agentName|default('') }}</td>
+                                <td>{{ list.quantity|default('') }}</td>
+                                <td>{{ list.gradeLetter|default('') }}</td>
+                                <td>{{ list.month|default('') }}</td>
+                                <td>{{ list.year|default('') }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td>{{ 'No record Found!'|trans }}</td>
+                        </tr>
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block cssBlock %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+    <style>
+        .ui-datepicker-calendar{display: none}
+    </style>
+{% endblock  %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+{% endblock  %}
+{% block documentready %}
+    {{ parent() }}
+
+    $('#datatable').DataTable( {
+    pageLength: 25,
+    columnDefs: [ {
+    targets: -1,
+    orderable: false
+    }],
+    });
+
+    $('#inputMonth').datepicker({
+    changeMonth: true,
+    changeYear: true,
+    dateFormat: 'MM,yy',
+
+    onClose: function() {
+    var iMonth = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+    var iYear = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+    $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
+    },
+
+    beforeShow: function() {
+    if ((selDate = $(this).val()).length > 0)
+    {
+    iYear = selDate.substring(selDate.length - 4, selDate.length);
+    iMonth = jQuery.inArray(selDate.substring(0, selDate.length - 5), $(this).datepicker('option', 'monthNames'));
+    $(this).datepicker('option', 'defaultDate', new Date(iYear, iMonth, 1));
+    $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
+    }
+    }
+    });
+{% endblock %}

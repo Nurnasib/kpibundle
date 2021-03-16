@@ -23,5 +23,17 @@ use Doctrine\ORM\EntityRepository;
  */
 class AgentCategoryRepository extends EntityRepository
 {
+    public function getAllAgentWithCategory()
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.agent', 'agent');
+        $qb->join('e.gradeStandard', 'gradeStandard');
+        $qb->select('e.quantity', 'e.month', 'e.year');
+        $qb->addSelect('agent.name AS agentName');
+        $qb->addSelect('gradeStandard.grade AS gradeLetter');
+        $qb->orderBy('agent.name', 'ASC');
+        $results = $qb->getQuery()->getArrayResult();
 
+        return $results;
+    }
 }
