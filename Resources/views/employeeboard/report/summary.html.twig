@@ -109,11 +109,11 @@
                                                     {% set grade='' %}
                                                     {% if totalMark>=29 %}
                                                         {% set grade='A' %}
-                                                    {% elseif totalMark>=27 or totalMark<29 %}
+                                                    {% elseif totalMark>=27 and totalMark<29 %}
                                                         {% set grade='B+' %}
-                                                    {% elseif totalMark>=25 or totalMark<27 %}
+                                                    {% elseif totalMark>=25 and totalMark<27 %}
                                                         {% set grade='B' %}
-                                                    {% elseif totalMark>=23 or totalMark<25 %}
+                                                    {% elseif totalMark>=23 and totalMark<25 %}
                                                         {% set grade='C' %}
                                                     {% elseif totalMark<23 %}
                                                         {% set grade='D' %}
