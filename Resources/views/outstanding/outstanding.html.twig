@@ -16,14 +16,14 @@
         <div class="row">
             <div class="card">
                 <div class="card-header">
-                    <h5>{{ 'District Sale'|trans }}</h5>
+                    <h5>{{ 'Outstanding'|trans }}</h5>
                 </div>
 
             </div>
         </div>
         <div class="row">
             <div class="card">
-                <form id="districtSales" method="get" action="{{ path('kpi_district_sales') }}">
+                <form id="docSalesCollection" method="get" action="{{ path('kpi_outstanding') }}">
 
                 <div class="card-block">
                     <div class="row">
@@ -40,28 +40,34 @@
                         </tr>
                         <tr>
                             <th scope="col">SL</th>
+                            <th scope="col">Agent Name</th>
                             <th scope="col">District Name</th>
+                            <th scope="col">Actual Amount</th>
+                            <th scope="col">Outstanding</th>
+                            <th scope="col">Limit Amount</th>
                             <th scope="col">Month</th>
                             <th scope="col">Year</th>
-                            {% for item in items %}
-                            <th scope="col">{{ item.name }}</th>
-                            {% endfor %}
                         </tr>
                         </thead>
                         <tbody>
-                        {% for entity in pagination %}
-                            <tr>
-                                <td scope="col">{{ loop.index }}</td>
-                                <td class="districtId_{{ entity.districtId }}" scope="col">{{ entity.districtName }}</td>
-                                <td scope="col">{{ entity.month }}</td>
-                                <td scope="col">{{ entity.year }}</td>
-                                {% for item in items %}
-                                    <td class="productId_{{ item.id }}" scope="col">
-                                        {{ districtSalesQty[entity.year][entity.month][entity.districtId][item.id]['quantity']|round|default('') }}
-                                    </td>
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
+                        {% if entities is not empty %}
+                            {% for entity in entities %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ entity.agentName|default('') }}</td>
+                                    <td>{{ entity.districtName|default('') }}</td>
+                                    <td>{{ entity.actualAmount|round|default('') }}</td>
+                                    <td>{{ entity.outstanding|round|default('') }}</td>
+                                    <td>{{ entity.limitAmount|round|default('') }}</td>
+                                    <td>{{ entity.month|default('') }}</td>
+                                    <td>{{ entity.year|default('') }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="8" style="text-align: center">{{ 'No record Found for '|trans }}{{ monthYear|join(', ') }}</td>
+                        </tr>
+                        {% endif %}
                         </tbody>
                     </table>
 

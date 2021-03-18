@@ -51,7 +51,8 @@ class DistrictSalesController extends AbstractController
     public function sales(Request $request): Response
     {
         $requestData = $request->query->get('monthYear');
-        $data = array('month'=>date('F'),'year'=>date('Y'));
+//        $data = array('month'=>date('F'),'year'=>date('Y'));
+        $data = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>date('Y'));
         if($requestData){
             $explode= explode(',',$requestData);
             $data = array('month'=>$explode[0],'year'=>$explode[1]);

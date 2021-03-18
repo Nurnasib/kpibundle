@@ -122,4 +122,24 @@ class AgentOutstandingRepository extends EntityRepository
         return 0;
 
     }
+
+    public function getMonthYearOutstanding($monthYear)
+    {
+        $year = isset($monthYear['year']) ? $monthYear['year']:'';
+        $month = isset($monthYear['month']) ? $monthYear['month']:'';
+
+
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.agent', 'agent');
+        $qb->join('e.district', 'district');
+        $qb->select('e.actualAmount', 'e.outstanding', 'e.limitAmount', 'e.month', 'e.year');
+        $qb->addSelect('agent.name AS agentName', 'district.name AS districtName');
+        $qb->where('e.month = :month')->setParameter('month', $month);
+        $qb->andWhere('e.year = :year')->setParameter('year', $year);
+        $qb->groupBy('agent.id');
+
+        $results = $qb->getQuery()->getArrayResult();
+        return $results;
+
+    }
 }

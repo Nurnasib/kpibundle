@@ -47,8 +47,8 @@ class AgentCategory
      */
     private $quantity;
     /**
-     * @var string
-     * @ORM\Column(name="month", type="string", nullable=true)
+     * @var date
+     * @ORM\Column(name="month", type="date", nullable=true)
      */
     private $month;
 
@@ -144,7 +144,7 @@ class AgentCategory
     }
 
     /**
-     * @return string
+     * @return \DateTime
      */
     public function getMonth()
     {
@@ -152,7 +152,7 @@ class AgentCategory
     }
 
     /**
-     * @param string $month
+     * @param \DateTime $month
      */
     public function setMonth($month)
     {
@@ -186,7 +186,7 @@ class AgentCategory
     /**
      * @param \DateTime $createdAt
      */
-    public function setCreatedAt($createdAt)
+    public function setCreatedAt($createdAt )
     {
         $this->createdAt = $createdAt;
     }

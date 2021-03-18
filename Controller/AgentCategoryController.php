@@ -6,7 +6,9 @@ namespace Terminalbd\KpiBundle\Controller;
 
 use App\Entity\Core\Agent;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Terminalbd\CrmBundle\Form\SearchFilterFormType;
 use Terminalbd\KpiBundle\Entity\AgentCategory;
 use Terminalbd\KpiBundle\Entity\AgentGradeStandard;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
@@ -40,17 +42,21 @@ class AgentCategoryController extends AbstractController
 
         $em = $this->getDoctrine()->getManager();
         $monthYear = explode(',', $file->getMonthYear());
-        $month = $monthYear[0];
+        $monthName = $monthYear[0];
         $year = $monthYear[1];
+        $date = "01 $monthName $year";
+        $month = date('d-m-Y', strtotime($date));
+//        dd($this->avgQuantity());
 
-        $agentOrders = $this->getDoctrine()->getRepository(AgentOrder::class)->getAgentWiseTotalProductSales($month, $year);
+        $agentOrders = $this->getDoctrine()->getRepository(AgentOrder::class)->getAgentWiseTotalProductSales($monthName, $year);
+
         foreach ($agentOrders as $agentOrder){
             $findAgent = $this->getDoctrine()->getRepository(Agent::class)->findOneBy(['id' => $agentOrder['agentId']]);
             $agentCategory = new AgentCategory();
 
             $agentCategory->setAgent($findAgent?$findAgent:null);
             $agentCategory->setQuantity($agentOrder['totalQty']);
-            $agentCategory->setMonth($month);
+            $agentCategory->setMonth(new \DateTime($month));
             $agentCategory->setYear($year);
             $agentCategory->setGradeStandard($this->getGradeObj($agentOrder['totalQty']));
 
@@ -59,9 +65,9 @@ class AgentCategoryController extends AbstractController
             $addedId = $agentCategory->getId();
         }
         if ($addedId){
-            $file->setStatus(3);
+/*            $file->setStatus(3);
             $em->persist($file);
-            $em->flush();
+            $em->flush();*/
             
             $this->addFlash('success', 'Data has been inserted successfully into Database!');
             return $this->redirectToRoute('kpi_file_upload_index');
@@ -69,6 +75,7 @@ class AgentCategoryController extends AbstractController
             $this->addFlash('error', 'Something Wrong!');
             return $this->redirectToRoute('kpi_file_upload_index');
         }
+
     }
 
     private function getGradeObj($totalQuantity)
@@ -80,4 +87,47 @@ class AgentCategoryController extends AbstractController
             }
         }
     }
+
+    private function avgQuantity()
+    {
+        $prevTotal = $this->getDoctrine()->getRepository(AgentCategory::class)->getPreviousAllMonthTotalQuantity();
+        dd($prevTotal);
+
+        $sql = "SELECT quantity FROM `kpi_agent_category` WHERE month = 'January' AND year=2021 AND agent_id=1838";
+/*
+        "SELECT quantity FROM kpi_agent_category 
+WHERE 
+MONTH(created_at) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH)
+AND agent_id = 1838"
+        "SELECT SUM(quantity) AS totalQuantity FROM kpi_agent_category 
+WHERE created_at BETWEEN 01-01-2021 AND MONTH(created_at) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH)
+"*/
+
+/*        SELECT id, grade_standard_id, agent_id, month, year, COUNT(id), SUM(quantity) AS totalQty
+FROM `kpi_agent_category`
+WHERE agent_id = 1838
+    AND MONTH(month) < MONTH(CURRENT_DATE)*/
+
+
+    }
+
+    /**
+     * @Route("/grade-change")
+     */
+    public function gradeChangeMonthWise(Request $request)
+    {
+        $agentPrevYearTotalQuantity = [];
+        $searchForm = $this->createForm(SearchFilterFormType::class);
+        $searchForm->handleRequest($request);
+        if ($searchForm->isSubmitted()){
+
+        }
+        $agentPrevYearTotalQuantity = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentGradeMonthWise();
+
+        return $this->render('@TerminalbdKpi/agentCategory/agent-grade-change.html.twig', [
+            'form' => $searchForm,
+            'agentPrevYearTotalQuantity' => $agentPrevYearTotalQuantity,
+        ]);
+    }
+
 }

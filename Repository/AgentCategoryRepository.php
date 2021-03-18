@@ -36,4 +36,33 @@ class AgentCategoryRepository extends EntityRepository
 
         return $results;
     }
+    public function getAgentGradeMonthWise()
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.agent', 'agent');
+        $qb->select('SUM(e.quantity) AS totalQuantity');
+        $qb->addSelect('agent.id AS agentId', 'agent.name AS agentName');
+        $qb->where('e.year = :prevYear')->setParameter('prevYear', 2020);
+        $qb->groupBy('agent.id');
+//        $qb->andWhere('agent.id = :agentId')->setParameter('agentId', 1271);
+//        $qb->where('e.year', ':prevYear')->setParameter('prevYear', 2020);
+        $results = $qb->getQuery()->getArrayResult();
+
+        return $results;
+    }
+
+    public function getPreviousAllMonthTotalQuantity()
+    {
+        $em = $this->_em;
+        $query = "SELECT COUNT(id), SUM(quantity) AS totalQty
+FROM kpi_agent_category 
+WHERE agent_id = 1838 AND MONTH(month) < MONTH(CURRENT_DATE)";
+
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+
+
+        return $query->getResult();
+    }
 }

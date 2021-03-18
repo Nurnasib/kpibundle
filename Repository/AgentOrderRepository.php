@@ -145,6 +145,17 @@ class AgentOrderRepository extends EntityRepository
 
     public function getAgentWiseTotalProductSales($month, $year)
     {
+/*        $createdAt = date('Y-m-d H:i:s', strtotime('now'));
+        $updatedAt = date('Y-m-d H:i:s', strtotime('now'));
+        $elem = "INSERT INTO kpi_agent_category(`agent_id`, `quantity`, `month`, `year`, `created_at`, `updated_at`)
+SELECT `agent_id`, SUM(quantity) as totalQty,`month`, `year`,'{$createdAt}', '{$updatedAt}' FROM kpi_agent_order
+WHERE month = :month AND year = :year";
+        $qb1 = $this->getEntityManager()->getConnection()->prepare($elem);
+        $qb1->bindValue('month', $month);
+        $qb1->bindValue('year', $year);
+        $qb1->execute();
+        return true;*/
+
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.product','product');
         $qb->join('e.agent','agent');

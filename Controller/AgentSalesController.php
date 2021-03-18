@@ -63,7 +63,8 @@ class AgentSalesController extends AbstractController
         $allData = $request->query->all();
         $requestData = isset($allData['monthYear'])?$allData['monthYear']:'';
         $requestAgent = isset($allData['agent'])?$allData['agent']:'';
-        $data = array('month'=>date('F'),'year'=>date('Y'),'agent'=>null);
+//        $data = array('month'=>date('F'),'year'=>date('Y'),'agent'=>null);
+        $data = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>date('Y'),'agent'=>null);
         if($requestData){
             $explode= explode(',',$requestData);
             $data = array('month'=>$explode[0],'year'=>$explode[1]);
