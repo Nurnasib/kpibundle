@@ -93,8 +93,7 @@ class FileUploadController extends AbstractController
 
         //Remove Excel column heading
         $keys = array_shift($allData);
-        $keys = array_map('trim', $keys); //remove all spaces from string
-
+        $keys = array_map('trim', array_filter($keys)); //remove all spaces from string
         $slug = str_replace(' ', '-', strtolower($file->getTitle()));
         switch ($slug){
             case "agent-sales":

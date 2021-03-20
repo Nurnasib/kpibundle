@@ -27,7 +27,7 @@ class AgentCategoryController extends AbstractController
      */
     public function index()
     {
-        $agentCategoryByMonthYear = $this->getDoctrine()->getRepository(AgentCategory::class)->getAllAgentWithCategory();
+        $agentCategoryByMonthYear = $this->getDoctrine()->getRepository(AgentCategory::class)->getAllAgentWithGrade();
         return $this->render('@TerminalbdKpi/agentCategory/index.html.twig', [
             'agentCategoryByMonthYear' => $agentCategoryByMonthYear
         ]);
@@ -48,27 +48,12 @@ class AgentCategoryController extends AbstractController
         $month = date('d-m-Y', strtotime($date));
 //        dd($this->avgQuantity());
 
-        $agentOrders = $this->getDoctrine()->getRepository(AgentOrder::class)->getAgentWiseTotalProductSales($monthName, $year);
-
-        foreach ($agentOrders as $agentOrder){
-            $findAgent = $this->getDoctrine()->getRepository(Agent::class)->findOneBy(['id' => $agentOrder['agentId']]);
-            $agentCategory = new AgentCategory();
-
-            $agentCategory->setAgent($findAgent?$findAgent:null);
-            $agentCategory->setQuantity($agentOrder['totalQty']);
-            $agentCategory->setMonth(new \DateTime($month));
-            $agentCategory->setYear($year);
-            $agentCategory->setGradeStandard($this->getGradeObj($agentOrder['totalQty']));
-
-            $em->persist($agentCategory);
-            $em->flush();
-            $addedId = $agentCategory->getId();
-        }
-        if ($addedId){
+        $returnValue = $this->getDoctrine()->getRepository(AgentCategory::class)->insertAgentOrderInAgentCategory($monthName, $year, $file);
+        if($returnValue){
 /*            $file->setStatus(3);
             $em->persist($file);
             $em->flush();*/
-            
+
             $this->addFlash('success', 'Data has been inserted successfully into Database!');
             return $this->redirectToRoute('kpi_file_upload_index');
         }else{

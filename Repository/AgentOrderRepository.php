@@ -143,45 +143,21 @@ class AgentOrderRepository extends EntityRepository
 
     }
 
-    public function getAgentWiseTotalProductSales($month, $year)
-    {
-/*        $createdAt = date('Y-m-d H:i:s', strtotime('now'));
-        $updatedAt = date('Y-m-d H:i:s', strtotime('now'));
-        $elem = "INSERT INTO kpi_agent_category(`agent_id`, `quantity`, `month`, `year`, `created_at`, `updated_at`)
-SELECT `agent_id`, SUM(quantity) as totalQty,`month`, `year`,'{$createdAt}', '{$updatedAt}' FROM kpi_agent_order
-WHERE month = :month AND year = :year";
-        $qb1 = $this->getEntityManager()->getConnection()->prepare($elem);
-        $qb1->bindValue('month', $month);
-        $qb1->bindValue('year', $year);
-        $qb1->execute();
-        return true;*/
-
-        $qb = $this->createQueryBuilder('e');
-        $qb->join('e.product','product');
-        $qb->join('e.agent','agent');
-        $qb->select('e.year as oYear','e.month as oMonth', 'SUM(e.quantity) as totalQty');
-        $qb->addSelect('agent.id AS agentId');
-        $qb->where('e.month =:month')->setParameter('month',$month);
-        $qb->andWhere('e.year =:year')->setParameter('year',$year);
-        $qb->groupBy('agent.id');
-        $result = $qb->getQuery()->getArrayResult();
-
-        return $result;
-
-    }
-
     public function insertAgentSales($file, $keys, $allData, $month, $year)
     {
         $em =$this->_em;
         $addedId = [];
         $existingId = [];
         $flashArray = [];
+        $keysLength = count($keys);
 
         $breedTypes = [$keys[5], $keys[6], $keys[7], $keys[8], $keys[9]]; //Broiler, Sonali, Layer, Fish, Cattle
 
         foreach ($allData as $data) {
+
             //Marge Excel heading and value in one array as key and value
-            $details = array_combine($keys, $data);
+            $details = array_combine($keys, array_slice($data,null,$keysLength));
+
             list($agentIdValue, $agentNameValue, $upozilaValue, $districtCodeValue, $districtValue, $broilerValue, $sonaliValue, $layerValue, $fishValue, $cattleValue, $monthValue, $yearValue) = $data;
 
             $breedValues = [$broilerValue, $sonaliValue, $layerValue, $fishValue, $cattleValue];

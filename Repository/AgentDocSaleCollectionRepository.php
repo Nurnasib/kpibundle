@@ -32,10 +32,10 @@ class AgentDocSaleCollectionRepository extends EntityRepository
         $data = [];
         $addedId = [];
         $em = $this->_em;
+        $keysLength = count($keys);
         foreach ($allData as $value){
-            $data[] = array_combine($keys,$value);
+            $data[] = array_combine($keys,array_slice($value, null, $keysLength));
         }
-
         foreach ($data as $record){
 
             $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'code' => $record['DistrictId']]);

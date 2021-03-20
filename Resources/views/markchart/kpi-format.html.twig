@@ -96,7 +96,9 @@
                                                 <td>
                                                     <ul class="markDistribution">
                                                         {% for children in entity.children %}
-                                                            <li>{{ children.name }}</li>
+                                                            {% if children.status == 1 %}
+                                                                <li>{{ children.name }}</li>
+                                                            {% endif %}
                                                         {% endfor %}
                                                     </ul>
                                                 </td>

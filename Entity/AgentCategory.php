@@ -46,11 +46,33 @@ class AgentCategory
      * @ORM\Column(name="quantity", type="integer", nullable=true)
      */
     private $quantity;
+
     /**
-     * @var date
-     * @ORM\Column(name="month", type="date", nullable=true)
+     * @var integer
+     * @ORM\Column(name="average", type="integer", nullable=true)
+     */
+    private $average;
+
+    /**
+     * @var DocumentUpload
+     *
+     * @ORM\ManyToOne(targetEntity="Terminalbd\KpiBundle\Entity\DocumentUpload" , inversedBy="agentCategory")
+     * @ORM\JoinColumn(onDelete="cascade")
+     */
+    private $documentUpload;
+
+
+    /**
+     * @var string
+     * @ORM\Column(name="month", type="string", nullable=true)
      */
     private $month;
+
+    /**
+     * @var date
+     * @ORM\Column(type="date", nullable=true)
+     */
+    private $createdMonth;
 
 
     /**
@@ -144,7 +166,7 @@ class AgentCategory
     }
 
     /**
-     * @return \DateTime
+     * @return string
      */
     public function getMonth()
     {
@@ -152,7 +174,7 @@ class AgentCategory
     }
 
     /**
-     * @param \DateTime $month
+     * @param string $month
      */
     public function setMonth($month)
     {
@@ -206,6 +228,56 @@ class AgentCategory
     {
         $this->updatedAt = $updatedAt;
     }
+
+    /**
+     * @return int
+     */
+    public function getAverage()
+    {
+        return $this->average;
+    }
+
+    /**
+     * @param int $average
+     */
+    public function setAverage($average)
+    {
+        $this->average = $average;
+    }
+
+    /**
+     * @return DocumentUpload
+     */
+    public function getDocumentUpload()
+    {
+        return $this->documentUpload;
+    }
+
+    /**
+     * @param DocumentUpload $documentUpload
+     */
+    public function setDocumentUpload($documentUpload)
+    {
+        $this->documentUpload = $documentUpload;
+    }
+
+    /**
+     * @return date
+     */
+    public function getCreatedMonth()
+    {
+        return $this->createdMonth;
+    }
+
+    /**
+     * @param date $createdMonth
+     */
+    public function setCreatedMonth($createdMonth)
+    {
+        $this->createdMonth = $createdMonth;
+    }
+
+
 
     public function addAgent(Agent $agent): self
     {
