@@ -23,7 +23,7 @@ class AgentCategoryController extends AbstractController
 {
     /**
      * @return string
-     * @Route("/", name="agent_category_index")
+     * @Route("/", name="kpi_agent_category_index")
      */
     public function index()
     {
@@ -46,7 +46,6 @@ class AgentCategoryController extends AbstractController
         $year = $monthYear[1];
         $date = "01 $monthName $year";
         $month = date('d-m-Y', strtotime($date));
-//        dd($this->avgQuantity());
 
         $returnValue = $this->getDoctrine()->getRepository(AgentCategory::class)->insertAgentOrderInAgentCategory($monthName, $year, $file);
         if($returnValue){
@@ -73,45 +72,25 @@ class AgentCategoryController extends AbstractController
         }
     }
 
-    private function avgQuantity()
-    {
-        $prevTotal = $this->getDoctrine()->getRepository(AgentCategory::class)->getPreviousAllMonthTotalQuantity();
-        dd($prevTotal);
-
-        $sql = "SELECT quantity FROM `kpi_agent_category` WHERE month = 'January' AND year=2021 AND agent_id=1838";
-/*
-        "SELECT quantity FROM kpi_agent_category 
-WHERE 
-MONTH(created_at) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH)
-AND agent_id = 1838"
-        "SELECT SUM(quantity) AS totalQuantity FROM kpi_agent_category 
-WHERE created_at BETWEEN 01-01-2021 AND MONTH(created_at) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH)
-"*/
-
-/*        SELECT id, grade_standard_id, agent_id, month, year, COUNT(id), SUM(quantity) AS totalQty
-FROM `kpi_agent_category`
-WHERE agent_id = 1838
-    AND MONTH(month) < MONTH(CURRENT_DATE)*/
-
-
-    }
-
     /**
-     * @Route("/grade-change")
+     * @Route("/month-wise-agent-grade", name="kpi_month_wise_agent_grade")
      */
-    public function gradeChangeMonthWise(Request $request)
+    public function monthWiseAgentGrade(Request $request)
     {
-        $agentPrevYearTotalQuantity = [];
-        $searchForm = $this->createForm(SearchFilterFormType::class);
-        $searchForm->handleRequest($request);
-        if ($searchForm->isSubmitted()){
-
+        $entities = [];
+        $requestData = $request->query->get('monthYear');
+        $filterBy = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>date('Y'));
+        if($requestData){
+            $explode= explode(',',$requestData);
+            $filterBy = array('month'=>$explode[0],'year'=>$explode[1]);
         }
-        $agentPrevYearTotalQuantity = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentGradeMonthWise();
 
-        return $this->render('@TerminalbdKpi/agentCategory/agent-grade-change.html.twig', [
-            'form' => $searchForm,
-            'agentPrevYearTotalQuantity' => $agentPrevYearTotalQuantity,
+
+        $entities = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentGradeMonthWise($filterBy);
+
+        return $this->render('@TerminalbdKpi/agentCategory/month-wise-agent-grade.html.twig', [
+            'entities' => $entities,
+            'selectedMonthYear' => $requestData,
         ]);
     }
 

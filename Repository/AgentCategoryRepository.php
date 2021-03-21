@@ -36,13 +36,16 @@ class AgentCategoryRepository extends EntityRepository
 
         return $results;
     }
-    public function getAgentGradeMonthWise()
+    public function getAgentGradeMonthWise($filterBy)
     {
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent', 'agent');
-        $qb->select('SUM(e.quantity) AS totalQuantity');
+        $qb->join('e.gradeStandard', 'gradeStandard');
+        $qb->select('e.average','e.month','e.year');
         $qb->addSelect('agent.id AS agentId', 'agent.name AS agentName');
-        $qb->where('e.year = :prevYear')->setParameter('prevYear', 2020);
+        $qb->addSelect('gradeStandard.grade');
+        $qb->where('e.month = :prevMonth')->setParameter('prevMonth', $filterBy['month']);
+        $qb->andWhere('e.year = :prevYear')->setParameter('prevYear', $filterBy['year']);
         $qb->groupBy('agent.id');
 //        $qb->andWhere('agent.id = :agentId')->setParameter('agentId', 1271);
 //        $qb->where('e.year', ':prevYear')->setParameter('prevYear', 2020);
@@ -57,19 +60,20 @@ class AgentCategoryRepository extends EntityRepository
         $createdMonth = $year . '-' .date('m', strtotime($monthName)) . '-01';
 
         $query = "INSERT INTO kpi_agent_category(agent_id, quantity, month, year, created_at, document_upload_id, created_month)
-SELECT agent_id, SUM(quantity) AS totalQuantity, month, year, CURRENT_TIMESTAMP, document_upload_id, :createdMonth 
-FROM kpi_agent_order
-WHERE month = :month AND year = :year
-GROUP BY agent_id, document_upload_id";
+                    SELECT agent_id, SUM(quantity) AS totalQuantity, month, year, CURRENT_TIMESTAMP, document_upload_id, :createdMonth 
+                    FROM kpi_agent_order
+                    WHERE month = :month AND year = :year
+                    GROUP BY agent_id, document_upload_id";
 
         $em = $this->_em;
         $stmt = $em->getConnection()->prepare($query);
         $stmt->bindValue('month', $monthName);
         $stmt->bindValue('year', $year);
         $stmt->bindValue('createdMonth', $createdMonth);
-        $stmt->execute();
+        $insert = $stmt->execute();
 
-        $updateGradeAndAvg = "UPDATE  kpi_agent_category AS kac
+        if($insert){
+            $updateGradeAndAvg = "UPDATE  kpi_agent_category AS kac
                                 INNER JOIN
                                 (
                                 SELECT agent_id, AVG(quantity) AS avg_val
@@ -91,30 +95,16 @@ GROUP BY agent_id, document_upload_id";
                                 )   
                             WHERE kac.document_upload_id = :fileId";
 
-        $stmtUpdate = $em->getConnection()->prepare($updateGradeAndAvg);
-        $stmtUpdate->bindValue('year', $year);
-        $stmtUpdate->bindValue('fileId', $file->getId());
-        $update = $stmtUpdate->execute();
+            $stmtUpdate = $em->getConnection()->prepare($updateGradeAndAvg);
+            $stmtUpdate->bindValue('year', $year);
+            $stmtUpdate->bindValue('fileId', $file->getId());
+            $update = $stmtUpdate->execute();
 
-
-/*        UPDATE kpi_agent_category
-SET average = (SELECT AVG(quantity)
-WHERE agent_id IN (SELECT DISTINCT agent_id) AND YEAR(created_at) = :year AND MONTH(created_at) = 03)
-WHERE month = 'February' AND agent_id IN (SELECT DISTINCT agent_id)*/
-
-
-/*        UPDATE kpi_agent_category
-SET average = (SELECT AVG(quantity)
-WHERE agent_id = kpi_agent_category.agent_id
-GROUP BY kpi_agent_category.agent_id)
-
-WHERE month = 'February'
-    AND agent_id = kpi_agent_category.agent_id
-GROUP BY kpi_agent_category.agent_id*/
-
-
-        if($update){
-            return true;
+            if($update){
+                return true;
+            }else{
+                return false;
+            }
         }else{
             return false;
         }

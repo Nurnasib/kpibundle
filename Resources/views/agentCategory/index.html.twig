@@ -1,62 +1,93 @@
 {% extends 'admin/layout.html.twig' %}
 
 {% block body %}
-<div class="row">
-    <div class="col">
-        <div class="card">
-            <div class="card-body">
-                <table class="table table-bordered table-striped" id="datatable">
-                    <thead class="thead-dark">
-                    <tr>
-                        <th style="text-align: center">{{ 'S/N'|trans }}</th>
-                        <th>{{ 'Agent Name'|trans }}</th>
-                        <th>{{ 'Quantity'|trans }}</th>
-                        <th>{{ 'Grade'|trans }}</th>
-                        <th>{{ 'Month'|trans }}</th>
-                        <th>{{ 'Year'|trans }}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% if agentCategoryByMonthYear is not empty %}
-                        {% for list in agentCategoryByMonthYear %}
-                            <tr>
-                                <td style="text-align: center">{{ loop.index }}</td>
-                                <td>{{ list.agentName|default('') }}</td>
-                                <td>{{ list.quantity|default('') }}</td>
-                                <td>{{ list.gradeLetter|default('') }}</td>
-                                <td>{{ list.month|date('F')|default('') }}</td>
-                                <td>{{ list.year|default('') }}</td>
-                            </tr>
-                        {% endfor %}
-                    {% else %}
+    <div class="pcoded-inner-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                        <li class="breadcrumb-item"><a
+                                    href="{{ path('kpi_agent_category_index') }}"> {{ 'Agents Grade'|trans }}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="card">
+                <div class="card-header">
+                    <h5>{{ 'Agents Grade'|trans }}</h5>
+                    <div class="card-header-right">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
+                            <a href="{{ path('kpi_agent_category_index') }}" class="btn btn-sm gray-bg white-font"><i
+                                        class="fa fa-th-large"></i>{{ 'Agents Grade'|trans }}</a>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="card">
+                <div class="card-body">
+                    <table class="table table-bordered table-striped" id="datatable">
+                        <thead class="thead-dark">
                         <tr>
-                            <td colspan="6" style="text-align: center">{{ 'No record Found!'|trans }}</td>
+                            <th style="text-align: center">{{ 'S/N'|trans }}</th>
+                            <th>{{ 'Agent Name'|trans }}</th>
+                            <th>{{ 'Quantity'|trans }}</th>
+                            <th>{{ 'Grade'|trans }}</th>
+                            <th>{{ 'Month'|trans }}</th>
+                            <th>{{ 'Year'|trans }}</th>
                         </tr>
-                    {% endif %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {% if agentCategoryByMonthYear is not empty %}
+                            {% for list in agentCategoryByMonthYear %}
+                                <tr>
+                                    <td style="text-align: center">{{ loop.index }}</td>
+                                    <td>{{ list.agentName|default('') }}</td>
+                                    <td>{{ list.quantity|default('') }}</td>
+                                    <td>{{ list.gradeLetter|default('') }}</td>
+                                    <td>{{ list.month|date('F')|default('') }}</td>
+                                    <td>{{ list.year|default('') }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6" style="text-align: center">{{ 'No record Found!'|trans }}</td>
+                            </tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 {% endblock %}
 {% block cssBlock %}
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
     <style>
-        .ui-datepicker-calendar{display: none}
+        .ui-datepicker-calendar {
+            display: none
+        }
     </style>
-{% endblock  %}
+{% endblock %}
 {% block javascripts %}
     {{ parent() }}
     <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
-{% endblock  %}
+{% endblock %}
 {% block documentready %}
     {{ parent() }}
 
     $('#datatable').DataTable( {
-    pageLength: 25,
+    pageLength: 50,
     columnDefs: [ {
     targets: -1,
     orderable: false
