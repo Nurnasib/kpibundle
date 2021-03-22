@@ -109,4 +109,18 @@ class AgentCategoryRepository extends EntityRepository
             return false;
         }
     }
+
+    public function getPreviousYearCategory($districsId)
+    {
+        $qb = $this->createQueryBuilder('e');
+
+        $qb->join('e.agent', 'agent');
+        $qb->join('agent.district', 'agentDistrict');
+        $qb->select();
+        $qb->where('agentDistrict.id IN (:agentDistrictId)')->setParameter('agentDistrictId', $districsId);
+        $qb->andWhere("e.month = 'December'");
+        $qb->andWhere('e.year = :year')->setParameter('year', 2020);
+        $results = $qb->getQuery()->getArrayResult();
+        return $results;
+    }
 }

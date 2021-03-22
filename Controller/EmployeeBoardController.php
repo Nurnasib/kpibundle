@@ -24,6 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Terminalbd\KpiBundle\Entity\AgentCategory;
 use Terminalbd\KpiBundle\Entity\AgentDocSaleCollection;
 use Terminalbd\KpiBundle\Entity\AgentOutstanding;
 use Terminalbd\KpiBundle\Entity\DistrictOrder;
@@ -250,6 +251,17 @@ class EmployeeBoardController extends AbstractController
     public function reportDetails($id): Response
     {
         $entity = $this->getDoctrine()->getRepository(EmployeeBoard::class)->find($id);
+        $employeeDistricts = $entity->getEmployee()->getDistrict();
+
+        $districtsId = [];
+
+        foreach ($employeeDistricts as $employeeDistrict){
+            $districtsId[]=$employeeDistrict->getId();
+        }
+
+        $category = $this->getDoctrine()->getRepository(AgentCategory::class)->getPreviousYearCategory($districtsId);
+
+
         $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->find($entity);
         $arrayData=[];
         /* @var EmployeeBoardAttribute $boardAttribute*/
