@@ -90,7 +90,8 @@ class AgentCategoryRepository extends EntityRepository
                                 WHEN b.avg_val >= 140 AND b.avg_val < 160 THEN 4
                                 WHEN b.avg_val >= 120 AND b.avg_val < 140 THEN 5
                                 WHEN b.avg_val >= 100 AND b.avg_val < 120 THEN 6
-                                ELSE null
+                                ELSE 
+                                6
                                 END
                                 )   
                             WHERE kac.document_upload_id = :fileId";

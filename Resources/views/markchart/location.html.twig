@@ -24,7 +24,24 @@
         <div class="row">
             <div class="card">
                 <div class="card-block">
+                    <div class="col-sm-2 pl-0">
+                        <form action="{{ path('kpi_location_sales') }}" method="get">
 
+                            {% set minYear = "now -11 years"|date("Y") %}
+                            {% set maxYear = "now"|date("Y") %}
+                            <label for="">Please Select Year</label>
+                            <select class="form-control" id="districtSalesTargetYear" name="year" onchange="this.form.submit()">
+                                <option value="">Select Year</option>
+
+                                {% for yearList in minYear..maxYear %}
+                                    <option {{ yearList == year ? 'selected':''}} value="{{ yearList }}">{{ yearList }}</option>
+
+                                    {% set yearList = yearList + 1 %}
+                                {% endfor %}
+                            </select>
+                        </form>
+
+                    </div>
                     <div id="exTab2" class="">
                         <ul class="nav nav-tabs">
                             {% for index, month in months %}
@@ -52,6 +69,7 @@
                                         </thead>
                                         <tbody id="inputform">
                                         {% set aa = 0 %}
+                                        {% if matrixArr is not empty %}
                                         {% for entity in entities %}
                                             <tr>
                                                 <td>{{ loop.index }}.</td>
@@ -66,6 +84,11 @@
                                                 {% endfor %}
                                             </tr>
                                         {% endfor %}
+                                            {% else %}
+                                            <tr>
+                                                <td colspan="20" align="center">No record found.</td>
+                                            </tr>
+                                        {% endif %}
                                         </tbody>
                                     </table>
                                 </div>

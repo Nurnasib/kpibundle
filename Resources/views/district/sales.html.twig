@@ -57,7 +57,7 @@
                                 <td scope="col">{{ entity.year }}</td>
                                 {% for item in items %}
                                     <td class="productId_{{ item.id }}" scope="col">
-                                        {{ districtSalesQty[entity.year][entity.month][entity.districtId][item.id]['quantity']|round|default('') }}
+                                        {{ districtSalesQty[entity.year][entity.month][entity.districtId][item.id]['quantity']|number_format(2)|default('') }}
                                     </td>
                                 {% endfor %}
                             </tr>

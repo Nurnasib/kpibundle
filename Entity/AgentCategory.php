@@ -42,14 +42,14 @@ class AgentCategory
     private $gradeStandard;
 
     /**
-     * @var integer
-     * @ORM\Column(name="quantity", type="integer", nullable=true)
+     * @var float
+     * @ORM\Column(name="quantity", type="float", nullable=true)
      */
     private $quantity;
 
     /**
-     * @var integer
-     * @ORM\Column(name="average", type="integer", nullable=true)
+     * @var float
+     * @ORM\Column(name="average", type="float", nullable=true)
      */
     private $average;
 
@@ -150,7 +150,7 @@ class AgentCategory
     }
 
     /**
-     * @return int
+     * @return float
      */
     public function getQuantity()
     {
@@ -158,12 +158,29 @@ class AgentCategory
     }
 
     /**
-     * @param int $quantity
+     * @param float $quantity
      */
     public function setQuantity($quantity)
     {
         $this->quantity = $quantity;
     }
+
+    /**
+     * @return float
+     */
+    public function getAverage()
+    {
+        return $this->average;
+    }
+
+    /**
+     * @param float $average
+     */
+    public function setAverage($average)
+    {
+        $this->average = $average;
+    }
+
 
     /**
      * @return string
@@ -229,21 +246,6 @@ class AgentCategory
         $this->updatedAt = $updatedAt;
     }
 
-    /**
-     * @return int
-     */
-    public function getAverage()
-    {
-        return $this->average;
-    }
-
-    /**
-     * @param int $average
-     */
-    public function setAverage($average)
-    {
-        $this->average = $average;
-    }
 
     /**
      * @return DocumentUpload

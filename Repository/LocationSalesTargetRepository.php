@@ -30,9 +30,11 @@ use function Doctrine\ORM\QueryBuilder;
 class LocationSalesTargetRepository extends EntityRepository
 {
 
-    public function processLocationPrice($locations , $charts )
+    public function processLocationPrice($locations , $charts, $requestYear)
     {
+
         $currentYear = date('Y');
+
         foreach ($charts as $chart){
             $chartId=$chart->getId();
 
@@ -60,17 +62,23 @@ class LocationSalesTargetRepository extends EntityRepository
 
             }
         }
+        if (!$requestYear){
+            $requestYear=$currentYear;
+        }
 
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.district','l');
         $qb->join('e.markDistribution','m');
         $qb->select('e.id as matrixId','e.quantity as quantity','e.month as month','e.year as year','l.id as districtId','m.id as markId','m.name as martDistribution');
+        $qb->where('e.year = :requestYear')->setParameter('requestYear', $requestYear);
         $result = $qb->getQuery()->getArrayResult();
         $array = array();
-        foreach ($result as $item):
-            $id = "{$item['year']}-{$item['month']}-{$item['districtId']}-{$item['markId']}";
-            $array[$id] = $item;
-        endforeach;
+        if($result){
+            foreach ($result as $item):
+                $id = "{$item['year']}-{$item['month']}-{$item['districtId']}-{$item['markId']}";
+                $array[$id] = $item;
+            endforeach;
+        }
         return $array;
 
     }

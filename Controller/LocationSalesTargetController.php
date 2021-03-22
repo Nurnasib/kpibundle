@@ -32,13 +32,19 @@ class LocationSalesTargetController extends AbstractController
      * @Route("/", methods={"GET"}, name="kpi_location_sales")
      */
 
-    public  function location(): Response
+    public  function location(Request $request): Response
     {
         set_time_limit(0);
         ignore_user_abort(true);
+        
+        $requestYear = $request->query->get('year');
+        if(!$requestYear){
+            $requestYear = date('Y');
+        }
+        
         $entities = $this->getDoctrine()->getRepository(Location::class)->findBy(array('level'=> 4),array('parent' => 'ASC'));
         $products = $this->getDoctrine()->getRepository(MarkChart::class)->salesProductItems();
-        $locationMarks = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->processLocationPrice($entities,$products);
+        $locationMarks = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->processLocationPrice($entities,$products,$requestYear);
         $months=[];
         for ($m=1; $m<=12; $m++) {
             $months[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
@@ -49,7 +55,7 @@ class LocationSalesTargetController extends AbstractController
                 'matrixArr' => $locationMarks,
                 'months' => $months,
                 'currentMonth' => date('F'),
-                'year' => date('Y')
+                'year' => $requestYear
             ]);
     }
 
