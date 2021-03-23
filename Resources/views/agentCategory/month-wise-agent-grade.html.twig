@@ -34,6 +34,13 @@
         <div class="row">
             <div class="card">
                 <div class="card-block">
+                    {% if entities is not empty %}
+                        {% for entity in entities %}
+                            {% if loop.index == 1 %}
+                                <h4 class="text-center"> {{ entity.month|default('') ~ '-' ~ entity.year|default('')}}</h4>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
                     <div class="row">
                         <div class="col">
                             <form class="form-inline border" method="get"
@@ -50,30 +57,39 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                            <table class="table table-striped table-bordered table-hover"
-                                   style="margin-top: 0px !important;" id="datatable">
+                            <table class="table table-striped table-bordered table-hover" style="margin-top: 0px !important;" id="datatable">
                                 <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col">S/N</th>
+                                    <th scope="col">Category</th>
                                     <th scope="col">Id</th>
                                     <th scope="col">Agent Name</th>
+                                    <th scope="col">Region</th>
+                                    <th scope="col">Zone</th>
                                     <th scope="col">Average</th>
-                                    <th scope="col">Grade</th>
-                                    <th scope="col">Month</th>
-                                    <th scope="col">Year</th>
+                                    {% if entities is not empty %}
+                                        {% for entity in entities %}
+                                            {% if loop.index == 1 %}
+                                                <th scope="col">{{ entity.month|default('') }} (Avg.)</th>
+                                                <th scope="col">Category {{ entity.year|default('') }}</th>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+
                                 </tr>
                                 </thead>
                                 <tbody>
+
                                 {% if entities is not empty %}
                                     {% for entity in entities %}
                                         <tr>
-                                            <td>{{ loop.index }}</td>
+                                            <td>{{ prevYearGradeAndAverage[entity.agentId].grade|default('X') }}</td>
                                             <td>{{ entity.agentId|default('') }}</td>
                                             <td>{{ entity.agentName|default('') }}</td>
-                                            <td>{{ entity.average|default('') }}</td>
+                                            <td>{{ entity.agentRegionName|default('') }}</td>
+                                            <td>{{ entity.agentZoneName|default('') }}</td>
+                                            <td>{{ prevYearGradeAndAverage[entity.agentId].average|default(0)|number_format(2) }}</td>
+                                            <td>{{ entity.average|number_format(2)|default('') }}</td>
                                             <td>{{ entity.grade|default('') }}</td>
-                                            <td>{{ entity.month|default('') }}</td>
-                                            <td>{{ entity.year|default('') }}</td>
                                         </tr>
                                     {% endfor %}
                                 {% else %}
@@ -134,11 +150,6 @@
 
     $('#datatable').DataTable({
     pageLength: 50,
-    columnDefs: [ {
-    targets: -1,
-    orderable: false
-    }],
-    }
-    );
+    });
 
 {% endblock %}

@@ -84,7 +84,7 @@ class MarkChart
 
     /**
      * @ORM\OneToMany(targetEntity="MarkChart" , mappedBy="parent")
-     * @ORM\OrderBy({"id" = "ASC"})
+     * @ORM\OrderBy({"ordering" = "ASC"})
      **/
     private $children;
 

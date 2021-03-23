@@ -31,7 +31,7 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row position-relative">
             <div class="card">
                 <div class="portlet box green ">
                     <div class="portlet-title">
@@ -55,7 +55,6 @@
                                 width: 50%;
                             }
                         </style>
-{#                        {{ dump(entities) }}#}
                         <table class="table table-striped table-bordered">
                             <thead class="thead-dark">
                             <tr><th colspan="2" class="text-center">KPI- for {% if board.employee.reportMode is not empty %}{{ board.employee.reportMode.name }}{% endif %} <br>{{ board.month }},{{ board.year }}</th></tr>
@@ -147,6 +146,10 @@
                 </div>
             </div>
         </div>
+        <div class="fixed-bottom">
+            <button type="button" data-action="{{ path('kpi_employee_board_status_update',{'id':board.id}) }}" id="statusUpdate" name="statusUpdate" class="btn btn-info form-submit btn float-right statusUpdate" >Approved</button>
+
+        </div>
         <!-- [ Main Content ] end -->
     </div>
 <style>
@@ -176,7 +179,7 @@
     transform: rotate(-90deg);
     width: 200px;
 }
-}
+
 
 .attribute-markDistribution{
     width: 220px;
@@ -215,4 +218,17 @@
 {% block javascripts %}
     {{ parent() }}
     <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+{% endblock  %}
+{% block javascriptBlock %}
+{#    <script>#}
+    {{ parent() }}
+    $(document).on('click',".statusUpdate", function (event) {
+    var url = $(this).attr('data-action');
+    $.get(url, function(data){
+        var redirectUrl = Routing.generate('kpi_employee_board');
+        if(data=='success'){
+            window.location.href = redirectUrl;
+        }
+    });
+    });
 {% endblock  %}

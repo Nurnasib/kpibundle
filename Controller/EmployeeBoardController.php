@@ -44,7 +44,7 @@ use Terminalbd\KpiBundle\Form\EmployeeBoardFormType;
 class EmployeeBoardController extends AbstractController
 {
     /**
-     * @Route("/", methods={"GET"}, name="kpi_employee_board")
+     * @Route("/", methods={"GET"}, name="kpi_employee_board", options={"expose"=true})
      */
     public function index(Request $request): Response
     {
@@ -86,6 +86,7 @@ class EmployeeBoardController extends AbstractController
                 $entity->setMonth($month);
                 $entity->setProcess('created');
                 $entity->setCreated(new \DateTime());
+                $entity->setCreatedBy($this->getUser());
                 $entity->setUpdated(new \DateTime());
 
                 $em->persist($entity);
@@ -165,10 +166,12 @@ class EmployeeBoardController extends AbstractController
     public function detailsPreview(Request $request, EmployeeBoard $entity): Response
     {
 
-        $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->find($entity);
+        $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($entity);
+
+//        $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->find($entity);
         $arrayData=[];
         /* @var EmployeeBoardAttribute $boardAttribute*/
-        foreach ($entity->getEmployeeBoardAttributes() as $boardAttribute){
+        foreach ($boardAttributes as $boardAttribute){
             $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][]=$boardAttribute;
         }
         $mode = $_REQUEST['mode'];
@@ -221,7 +224,7 @@ class EmployeeBoardController extends AbstractController
         $em->remove($entity);
         $em->flush();
         $this->addFlash('success', 'post.deleted_successfully');
-        return new Response('Success');
+        return $this->redirectToRoute('kpi_employee_board');
     }
 
     /**
@@ -261,11 +264,12 @@ class EmployeeBoardController extends AbstractController
 
         $category = $this->getDoctrine()->getRepository(AgentCategory::class)->getPreviousYearCategory($districtsId);
 
+        $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($entity);
 
-        $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->find($entity);
+//        $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->find($entity);
         $arrayData=[];
         /* @var EmployeeBoardAttribute $boardAttribute*/
-        foreach ($entity->getEmployeeBoardAttributes() as $boardAttribute){
+        foreach ($boardAttributes as $boardAttribute){
             $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][]=$boardAttribute;
         }
         return $this->render('@TerminalbdKpi/employeeboard/report/details.html.twig', [
@@ -347,5 +351,18 @@ class EmployeeBoardController extends AbstractController
 
     }
 
+
+    /**
+     * Update Status.
+     * @Route("/{id}/status-update", methods={"GET"}, name="kpi_employee_board_status_update")
+     */
+    public function updateStatus(EmployeeBoard $employeeBoard): Response
+    {
+        $em = $this->getDoctrine()->getManager();
+        $employeeBoard->setStatus(2);
+        $em->persist($employeeBoard);
+        $em->flush();
+        return new JsonResponse('success');
+    }
 
 }

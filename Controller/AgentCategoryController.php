@@ -78,19 +78,24 @@ class AgentCategoryController extends AbstractController
     public function monthWiseAgentGrade(Request $request)
     {
         $entities = [];
+        $prevYear = date("Y",strtotime("-1 year"));
         $requestData = $request->query->get('monthYear');
         $filterBy = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>date('Y'));
         if($requestData){
             $explode= explode(',',$requestData);
             $filterBy = array('month'=>$explode[0],'year'=>$explode[1]);
+            $prevYear = $filterBy['year']-1;
         }
 
 
         $entities = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentGradeMonthWise($filterBy);
+        $prevYearGradeAndAverage = $this->getDoctrine()->getRepository(AgentCategory::class)->getPreviousYearCategoryAndAverage($prevYear);
+//        dd($prevYearGradeAndAverage);
 
         return $this->render('@TerminalbdKpi/agentCategory/month-wise-agent-grade.html.twig', [
             'entities' => $entities,
             'selectedMonthYear' => $requestData,
+            'prevYearGradeAndAverage' => $prevYearGradeAndAverage,
         ]);
     }
 

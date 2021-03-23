@@ -29,14 +29,15 @@ class EmployeeBoardRepository extends EntityRepository
     public function getEmployeeBoardList(User $user)
     {
 
-        $area  = $user->getArea();
+//        $area  = $user->getArea();
+        $userRoles = $user->getRoles();
         $qb = $this->createQueryBuilder('s');
 //        $qb->join('s.employeeSetup','e');
         $qb->join('s.employee','u');
         $qb->leftJoin('u.designation','d');
-        $qb->select('s.id as id','s.month as month','s.year as year');
+        $qb->select('s.id as id','s.month as month','s.year as year','s.status');
         $qb->addSelect('u.name as name','d.name as designation');
-        if($area == "Zonal"){
+/*        if($area == "Zonal"){
             $zonal = $user->getZonal()->getId();
             $qb->where('u.zonal = :zonal')->setParameter('zonal',$zonal);
             $qb->andWhere("u.area= 'regional'");
@@ -46,8 +47,12 @@ class EmployeeBoardRepository extends EntityRepository
             $qb->where('u.regional = :regional')->setParameter('regional', $regional);
             $qb->andWhere("u.area = 'upozila'");
             $qb->andWhere("u.id != {$user->getId()}");
+        }*/
+
+        if(!in_array('ROLE_ADMIN', $userRoles)){
+            $qb->where('s.createdBy = :user')->setParameter('user', $user);
         }
-        $qb->orderBy('u.name','ASC');
+        $qb->orderBy('s.created','DESC');
         $result = $qb->getQuery()->getArrayResult();
         return $result;
 

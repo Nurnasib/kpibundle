@@ -41,17 +41,48 @@ class AgentCategoryRepository extends EntityRepository
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent', 'agent');
         $qb->join('e.gradeStandard', 'gradeStandard');
+        $qb->join('agent.district', 'district');
+        $qb->join('district.parent', 'region');
+        $qb->join('region.parent', 'zone');
         $qb->select('e.average','e.month','e.year');
-        $qb->addSelect('agent.id AS agentId', 'agent.name AS agentName');
+        $qb->addSelect('agent.agentId AS agentId', 'agent.name AS agentName');
+        $qb->addSelect('region.name AS agentRegionName');
+        $qb->addSelect('zone.name AS agentZoneName');
         $qb->addSelect('gradeStandard.grade');
         $qb->where('e.month = :prevMonth')->setParameter('prevMonth', $filterBy['month']);
         $qb->andWhere('e.year = :prevYear')->setParameter('prevYear', $filterBy['year']);
-        $qb->groupBy('agent.id');
+        $qb->groupBy('agent.agentId');
+        $qb->orderBy('agent.agentId');
 //        $qb->andWhere('agent.id = :agentId')->setParameter('agentId', 1271);
 //        $qb->where('e.year', ':prevYear')->setParameter('prevYear', 2020);
+        $array = [];
         $results = $qb->getQuery()->getArrayResult();
+        foreach ($results as $row){
+            $array[$row['agentId']]= $row;
+        }
 
-        return $results;
+        return $array;
+    }
+
+    public function getPreviousYearCategoryAndAverage($prevYear)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.agent', 'agent');
+        $qb->join('e.gradeStandard', 'gradeStandard');
+        $qb->select('e.average');
+        $qb->addSelect('gradeStandard.grade');
+        $qb->addSelect('agent.agentId AS agentId');
+        $qb->where("e.month = 'December'");
+        $qb->andWhere('e.year = :prevYear')->setParameter('prevYear', $prevYear);
+        $qb->groupBy('agent.agentId');
+        $qb->orderBy('agent.agentId');
+        $results = $qb->getQuery()->getArrayResult();
+        $array = [];
+        foreach ($results as $row){
+            $array[$row['agentId']]= $row;
+        }
+
+        return $array;
     }
 
     public function insertAgentOrderInAgentCategory($monthName, $year, $file)

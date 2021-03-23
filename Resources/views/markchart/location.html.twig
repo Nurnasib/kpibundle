@@ -24,32 +24,36 @@
         <div class="row">
             <div class="card">
                 <div class="card-block">
-                    <div class="col-sm-2 pl-0">
-                        <form action="{{ path('kpi_location_sales') }}" method="get">
+{#                    <div class="col-sm-2 pl-0">
 
-                            {% set minYear = "now -11 years"|date("Y") %}
-                            {% set maxYear = "now"|date("Y") %}
-                            <label for="">Please Select Year</label>
-                            <select class="form-control" id="districtSalesTargetYear" name="year" onchange="this.form.submit()">
-                                <option value="">Select Year</option>
 
-                                {% for yearList in minYear..maxYear %}
-                                    <option {{ yearList == year ? 'selected':''}} value="{{ yearList }}">{{ yearList }}</option>
-
-                                    {% set yearList = yearList + 1 %}
-                                {% endfor %}
-                            </select>
-                        </form>
-
-                    </div>
+                    </div>#}
                     <div id="exTab2" class="">
                         <ul class="nav nav-tabs">
+                            <li>
+                                <form action="{{ path('kpi_location_sales') }}" method="get">
+
+                                    {% set minYear = 2020 %}
+                                    {% set maxYear = "now"|date("Y") %}
+{#                                    <label for="" style="font-size: 10px">Please Select Year</label>#}
+                                    <select class="form-control" id="districtSalesTargetYear" name="year" onchange="this.form.submit()">
+                                        <option value="">Select Year</option>
+
+                                        {% for yearList in minYear..maxYear %}
+                                            <option {{ yearList == year ? 'selected':''}} value="{{ yearList }}">{{ yearList }}</option>
+                                            {% set yearList = yearList + 1 %}
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </li>
                             {% for index, month in months %}
                                 <li class="">
                                     <a href="#{{ month }}" class="lab_tab {{ month==currentMonth?'active':'' }}" data-toggle="tab">{{ month }}</a>
                                 </li>
                             {% endfor %}
                         </ul>
+                        </div>
+
 
                         <div class="tab-content lab_service_section">
                             {% for index, month in months %}

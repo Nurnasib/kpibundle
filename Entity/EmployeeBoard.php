@@ -73,13 +73,18 @@ class EmployeeBoard
      */
     private $employeeBoardAttributes;
 
+    /**
+     * @var User
+     * @ORM\ManyToOne(targetEntity="App\Entity\User" , inversedBy="employeeBoard")
+     */
+    private $createdBy;
 
     /**
-     * @var boolean
+     * @var integer
      *
-     * @ORM\Column(type="boolean", nullable=true)
+     * @ORM\Column(type="integer", nullable=true)
      */
-    private $status = true;
+    private $status;
     
 
     public function setId($id)
@@ -99,22 +104,22 @@ class EmployeeBoard
         return $this->id;
     }
 
-
     /**
-     * @return bool
+     * @return int
      */
-    public function isStatus()
+    public function getStatus()
     {
         return $this->status;
     }
 
     /**
-     * @param bool $status
+     * @param int $status
      */
     public function setStatus($status)
     {
         $this->status = $status;
     }
+
 
     /**
      * @return User
@@ -220,6 +225,22 @@ class EmployeeBoard
     public function getEmployeeBoardAttributes()
     {
         return $this->employeeBoardAttributes;
+    }
+
+    /**
+     * @return User
+     */
+    public function getCreatedBy()
+    {
+        return $this->createdBy;
+    }
+
+    /**
+     * @param User $createdBy
+     */
+    public function setCreatedBy($createdBy)
+    {
+        $this->createdBy = $createdBy;
     }
 
 
