@@ -155,4 +155,77 @@ class AgentCategoryRepository extends EntityRepository
         $results = $qb->getQuery()->getArrayResult();
         return $results;
     }
+
+    public function getPrevYearDcategory()
+    {
+        $gradeLetter = 'D';
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.agent','agent');
+        $qb->join('agent.district','district');
+        $qb->join('e.gradeStandard','gradeStandard');
+        $qb->select('e.id');
+        $qb->addSelect('gradeStandard.grade');
+        $qb->addSelect('e.average');
+        $qb->addSelect('agent.id AS agentId');
+        $qb->where('e.year = :prevYear')->setParameter('prevYear', 2020);
+        $qb->andWhere('district.name = :districtName')->setParameter('districtName', 'Netrokona');
+        $qb->andWhere("e.month = 'December'");
+        $qb->andWhere('gradeStandard.grade = :gradeLetter')->setParameter('gradeLetter', $gradeLetter);
+        $qb->groupBy('agent.id');
+        $results = $qb->getQuery()->getArrayResult();
+
+        $agentIdForDcategory =[];
+        foreach ($results as $result){
+            $agentIdForDcategory[] = $result['agentId'];
+        }
+        return $agentIdForDcategory;
+    }
+    public function getDtoCcategory($agentIdForDcategory)
+    {
+        $lastMonth = Date('F', strtotime(date('F') . " last month"));
+        $currentYear = date('Y');
+
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.agent','agent');
+        $qb->join('e.gradeStandard','gradeStandard');
+        $qb->select('e.id');
+        $qb->select('agent.id AS agentId');
+        $qb->addSelect('gradeStandard.grade');
+        $qb->addSelect('e.average');
+        $qb->where('e.year = :currentYear')->setParameter('currentYear', $currentYear);
+        $qb->andWhere('e.month = :lastMonth')->setParameter('lastMonth', $lastMonth);
+        $qb->andWhere("gradeStandard.grade = 'C'");
+        $qb->andWhere('agent.id IN (:agentId)')->setParameter('agentId', $agentIdForDcategory);
+        $results = $qb->getQuery()->getArrayResult();
+
+        $pervYearD = count($agentIdForDcategory);
+        $currentYearLastMonth = count($results);
+
+        $percentageDtoC = ($currentYearLastMonth * 100) / $pervYearD;
+
+
+/*        $data = [];
+        foreach ($results as $result){
+            $data[] = $result['agentId'];
+        }*/
+
+//        dd($agentIdForDcategory, $data);
+        return $percentageDtoC;
+    }
+
+    public function categoryUpgradationDtoCmark($percentageDtoC)
+    {
+        if($percentageDtoC >= 100){
+            return 5;
+        }elseif ($percentageDtoC < 100 && $percentageDtoC >= 80){
+            return 4;
+        }elseif ($percentageDtoC < 80 && $percentageDtoC >= 70){
+            return 3;
+        }elseif ($percentageDtoC < 70 && $percentageDtoC >= 60){
+            return 2;
+        }elseif ($percentageDtoC < 60){
+            return 1;
+        }
+        return 0;
+    }
 }

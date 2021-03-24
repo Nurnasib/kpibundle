@@ -87,6 +87,11 @@ class AgentCategoryController extends AbstractController
             $prevYear = $filterBy['year']-1;
         }
 
+        $prevYearD = $this->getDoctrine()->getRepository(AgentCategory::class)->getPrevYearDcategory();
+        $categoryDtoCpercentage = $this->getDoctrine()->getRepository(AgentCategory::class)->getDtoCcategory($prevYearD);
+        $categoryUpgradationDtoCmark = $this->getDoctrine()->getRepository(AgentCategory::class)->categoryUpgradationDtoCmark($categoryDtoCpercentage);
+//        dd($categoryUpgradationDtoCmark);
+
 
         $entities = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentGradeMonthWise($filterBy);
         $prevYearGradeAndAverage = $this->getDoctrine()->getRepository(AgentCategory::class)->getPreviousYearCategoryAndAverage($prevYear);

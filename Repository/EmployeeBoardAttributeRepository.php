@@ -559,16 +559,16 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     {
 
         if($outstandingValue){
-            if($outstandingValue >= 2000000){
+            if($outstandingValue >= 500000){
                 return 0;
-            }elseif ($outstandingValue>=1500000 && $outstandingValue<2000000){
+            }elseif ($outstandingValue >= 400000 && $outstandingValue < 500000){
+                return 1;
+            }elseif ($outstandingValue >= 300000 && $outstandingValue < 400000){
+                return 2;
+            }elseif ($outstandingValue >= 200000 && $outstandingValue < 300000){
+                return 3;
+            }elseif ($outstandingValue < 200000){
                 return 4;
-            }elseif ($outstandingValue>=1000000 && $outstandingValue<1500000){
-                return 6;
-            }elseif ($outstandingValue>=500000 && $outstandingValue<1000000){
-                return 8;
-            }elseif ($outstandingValue<500000){
-                return 10;
             }
         }
         return 0;
@@ -580,23 +580,23 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
         if($salesAmount>0){
             $action = (($collectionAmount * 100 )/$salesAmount);
-            if($action >= 95) {
+            if($action >= 100) {
                 return 5;
-            }elseif ($action < 95 and $action >= 90) {
+            }elseif ($action < 100 and $action >= 90) {
                 return 4;
             }elseif ($action < 90 and $action >= 85) {
                 return 3;
-            }elseif ($action < 85 and $action >= 80) {
+            }elseif ($action < 85 and $action >= 75) {
                 return 2;
-            }elseif ($action < 80 and $action >= 75) {
+            }elseif ($action < 75) {
                 return 1;
-            }else {
-                return 0;
             }
         }
         return 0;
 
     }
+
+
 
 
 }
