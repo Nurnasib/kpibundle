@@ -146,6 +146,13 @@ class EmployeeBoardController extends AbstractController
 
         $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($entity,$entities);
 
+
+/*        $gradeLetters = ['C','D'];
+        $categoryUpgradationMark = $this->getDoctrine()->getRepository(AgentCategory::class)->getCategoryUpgradationMarks($entity,$gradeLetters);
+        dump($categoryUpgradationMark);*/
+
+
+
         $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($entity);
         $arrayData=[];
         /* @var EmployeeBoardAttribute $boardAttribute*/
@@ -336,6 +343,10 @@ class EmployeeBoardController extends AbstractController
         $districtAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getDistrictAchievement($arrs, $entity->getYear(), $entity->getMonth());
         $regionalAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getRegionalAchievement($arrs, $entity->getYear(), $entity->getMonth());
         $individualTeamMemberMarks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getIndividualTeamMemberMarks($employeeArrs,$disdributionArrs, $entity->getYear(), $entity->getMonth());
+
+        $gradeLetters = ['C','D'];
+        $prevYearAndCurrentMonthCategory = $this->getDoctrine()->getRepository(AgentCategory::class)->getPrevYearAndCurrentMonthCategory($entity,$gradeLetters);
+        dump($prevYearAndCurrentMonthCategory);
 
 //        $marks = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->findBy(array('employeeBoard'=>$id));
         return $this->render('@TerminalbdKpi/employeeboard/report/salesDetails.html.twig', [

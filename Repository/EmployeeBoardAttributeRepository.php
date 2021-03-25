@@ -13,6 +13,7 @@ namespace Terminalbd\KpiBundle\Repository;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
+use Terminalbd\KpiBundle\Entity\AgentCategory;
 use Terminalbd\KpiBundle\Entity\AgentDocSaleCollection;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
 use Terminalbd\KpiBundle\Entity\AgentOutstanding;
@@ -111,6 +112,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $this->updateIndividualSales($board);
         $this->updateOutStandingLimit($board);
         $this->updateDocSales($board);
+        $this->updateCategoryUpgrade($board);
     }
 
     public function updateSalesProcess(EmployeeBoard $board)
@@ -314,6 +316,34 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
+    }
+    public function updateCategoryUpgrade(EmployeeBoard $board)
+    {
+        $em = $this->_em;
+
+        $gradeLetters = ['C','D'];
+        $categoryUpgradationMark = $em->getRepository(AgentCategory::class)->getCategoryUpgradationMarks($board,$gradeLetters);
+//        dump($categoryUpgradationMark);
+
+        $agentCategoryDistributions = $em->getRepository(MarkChart::class)->findBy(['slug' => ['minimum-50-d-category-agents-converts-to-c','minimum-50-c-category-agents-converts-to-b']]);
+
+        foreach ($agentCategoryDistributions as $agentCategoryDistribution){
+            if($agentCategoryDistribution->getSlug() == 'minimum-50-d-category-agents-converts-to-c'){
+                $employeeBoardAttributeForCategoryUpgrade = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$agentCategoryDistribution]);
+                if ($employeeBoardAttributeForCategoryUpgrade){
+                    $employeeBoardAttributeForCategoryUpgrade->setMark($categoryUpgradationMark['DtoUpperGrade']);
+                    $em->persist($employeeBoardAttributeForCategoryUpgrade);
+                    $em->flush();
+                }
+            }elseif ($agentCategoryDistribution->getSlug() == 'minimum-50-c-category-agents-converts-to-b'){
+                $employeeBoardAttributeForCategoryUpgrade = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$agentCategoryDistribution]);
+                if ($employeeBoardAttributeForCategoryUpgrade){
+                    $employeeBoardAttributeForCategoryUpgrade->setMark($categoryUpgradationMark['CtoUpperGrade']);
+                    $em->persist($employeeBoardAttributeForCategoryUpgrade);
+                    $em->flush();
+                }
+            }
+        }
     }
 
     public function groupByAttributeMarks(EmployeeBoard $board)

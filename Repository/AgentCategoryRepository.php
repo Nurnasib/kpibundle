@@ -12,6 +12,7 @@
 namespace Terminalbd\KpiBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Terminalbd\KpiBundle\Entity\EmployeeBoard;
 
 /**
  * This custom Doctrine repository contains some methods which are useful when
@@ -156,76 +157,124 @@ class AgentCategoryRepository extends EntityRepository
         return $results;
     }
 
-    public function getPrevYearDcategory()
+    public function getCategoryUpgradationMarks(EmployeeBoard $employeeBoard, $gradeLetters)
     {
-        $gradeLetter = 'D';
+        $prevYear = date('Y',strtotime('-1 year'));
+        $locations = $employeeBoard->getEmployee()->getDistrict();
+        $locationsId = [];
+        if(!empty($locations)){
+            foreach ($locations as $location){
+                $locationsId[] = $location->getId();
+            }
+        }
+//        $gradeLetters = ['C','D'];
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent','agent');
         $qb->join('agent.district','district');
         $qb->join('e.gradeStandard','gradeStandard');
-        $qb->select('e.id');
-        $qb->addSelect('gradeStandard.grade');
-        $qb->addSelect('e.average');
+
+        $qb->select('gradeStandard.grade');
         $qb->addSelect('agent.id AS agentId');
-        $qb->where('e.year = :prevYear')->setParameter('prevYear', 2020);
-        $qb->andWhere('district.name = :districtName')->setParameter('districtName', 'Netrokona');
+
+        $qb->where('e.year = :prevYear')->setParameter('prevYear', $prevYear);
+        $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $locationsId);
         $qb->andWhere("e.month = 'December'");
-        $qb->andWhere('gradeStandard.grade = :gradeLetter')->setParameter('gradeLetter', $gradeLetter);
-        $qb->groupBy('agent.id');
+        $qb->andWhere('gradeStandard.grade IN (:gradeLetters)')->setParameter('gradeLetters', $gradeLetters);
+
         $results = $qb->getQuery()->getArrayResult();
 
-        $agentIdForDcategory =[];
+        $agentsIdWithCategory =[];
         foreach ($results as $result){
-            $agentIdForDcategory[] = $result['agentId'];
+            $agentsIdWithCategory[$result['grade']][]= $result['agentId'];
         }
-        return $agentIdForDcategory;
-    }
-    public function getDtoCcategory($agentIdForDcategory)
-    {
-        $lastMonth = Date('F', strtotime(date('F') . " last month"));
-        $currentYear = date('Y');
 
+        $categoryUpgradationPercentages = $this->currentMonthCategoryUpgradationPercentage($agentsIdWithCategory,$employeeBoard);
+        $marks = $this->categoryUpgradationMarks($categoryUpgradationPercentages);
+        return $marks;
+    }
+    private function currentMonthCategoryUpgradationPercentage($agentsIdWithCategory, EmployeeBoard $employeeBoard)
+    {
+//        $lastMonth = Date('F', strtotime(date('F') . " last month"));
+        $month = $employeeBoard->getMonth();
+        $currentYear = date('Y');
+        $categoryUpgradationPercentages = [];
+
+        foreach ($agentsIdWithCategory as $category => $agentsId){
+
+            $omittedGradeLetters = range($category, 'F');
+
+            $qb = $this->createQueryBuilder('e');
+            $qb->join('e.agent','agent');
+            $qb->join('e.gradeStandard','gradeStandard');
+
+            $qb->select('e.id','gradeStandard.grade');
+
+            $qb->where('e.year = :currentYear')->setParameter('currentYear', $currentYear);
+            $qb->andWhere('e.month = :month')->setParameter('month', $month);
+            $qb->andWhere('gradeStandard.grade NOT IN (:omittedGradeLetter)')->setParameter('omittedGradeLetter', $omittedGradeLetters);
+            $qb->andWhere('agent.id IN (:agentId)')->setParameter('agentId', $agentsId);
+            $results = $qb->getQuery()->getArrayResult();
+
+            $pervYearCategoryNumber = count($agentsId);
+            $currentCategoryNumber = count($results);
+
+//            $prevGrade = chr(ord($category)-1);
+
+            $categoryUpgradationPercentages[$category . 'to' . 'UpperGrade'] = round(($currentCategoryNumber * 100) / ($pervYearCategoryNumber / 2));
+        }
+        return $categoryUpgradationPercentages;
+    }
+
+    private function categoryUpgradationMarks($categoryUpgradationPercentages)
+    {
+        $marks = [];
+        foreach ($categoryUpgradationPercentages as $grade => $percentage){
+            if($percentage >= 100){
+                $marks[$grade] = 5;
+            }elseif ($percentage < 100 && $percentage >= 80){
+                $marks[$grade] = 4;
+            }elseif ($percentage < 80 && $percentage >= 70){
+                $marks[$grade] = 3;
+            }elseif ($percentage < 70 && $percentage >= 60){
+                $marks[$grade] = 2;
+            }elseif ($percentage < 60){
+                $marks[$grade] = 1;
+            }
+        }
+        return $marks;
+    }
+
+    public function getPrevYearAndCurrentMonthCategory(EmployeeBoard $employeeBoard,$gradeLetters )
+    {
+        $prevYear = date('Y',strtotime('-1 year'));
+        $locations = $employeeBoard->getEmployee()->getDistrict();
+        $locationsId = [];
+        if(!empty($locations)){
+            foreach ($locations as $location){
+                $locationsId[] = $location->getId();
+            }
+        }
+//        $gradeLetters = ['C','D'];
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent','agent');
+        $qb->join('agent.district','district');
         $qb->join('e.gradeStandard','gradeStandard');
-        $qb->select('e.id');
-        $qb->select('agent.id AS agentId');
-        $qb->addSelect('gradeStandard.grade');
-        $qb->addSelect('e.average');
-        $qb->where('e.year = :currentYear')->setParameter('currentYear', $currentYear);
-        $qb->andWhere('e.month = :lastMonth')->setParameter('lastMonth', $lastMonth);
-        $qb->andWhere("gradeStandard.grade = 'C'");
-        $qb->andWhere('agent.id IN (:agentId)')->setParameter('agentId', $agentIdForDcategory);
+
+        $qb->select('gradeStandard.grade');
+        $qb->addSelect('agent.id AS agentId');
+
+        $qb->where('e.year = :prevYear')->setParameter('prevYear', $prevYear);
+//        $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $locationsId);
+        $qb->andWhere("e.month = 'December'");
+        $qb->andWhere('gradeStandard.grade IN (:gradeLetters)')->setParameter('gradeLetters', $gradeLetters);
+
         $results = $qb->getQuery()->getArrayResult();
 
-        $pervYearD = count($agentIdForDcategory);
-        $currentYearLastMonth = count($results);
-
-        $percentageDtoC = ($currentYearLastMonth * 100) / $pervYearD;
-
-
-/*        $data = [];
+        $agentsIdWithCategory =[];
         foreach ($results as $result){
-            $data[] = $result['agentId'];
-        }*/
-
-//        dd($agentIdForDcategory, $data);
-        return $percentageDtoC;
-    }
-
-    public function categoryUpgradationDtoCmark($percentageDtoC)
-    {
-        if($percentageDtoC >= 100){
-            return 5;
-        }elseif ($percentageDtoC < 100 && $percentageDtoC >= 80){
-            return 4;
-        }elseif ($percentageDtoC < 80 && $percentageDtoC >= 70){
-            return 3;
-        }elseif ($percentageDtoC < 70 && $percentageDtoC >= 60){
-            return 2;
-        }elseif ($percentageDtoC < 60){
-            return 1;
+            $agentsIdWithCategory[$result['grade']][]= $result['agentId'];
         }
-        return 0;
+        return $agentsIdWithCategory;
+
     }
 }
