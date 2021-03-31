@@ -244,9 +244,11 @@ class AgentCategoryRepository extends EntityRepository
         return $marks;
     }
 
-    public function getPrevYearAndCurrentMonthCategory(EmployeeBoard $employeeBoard,$gradeLetters )
+
+
+    public function getAgentWithDInDecember(EmployeeBoard $employeeBoard)
     {
-        $prevYear = date('Y',strtotime('-1 year'));
+        $prevYear = $employeeBoard->getYear()-1;
         $locations = $employeeBoard->getEmployee()->getDistrict();
         $locationsId = [];
         if(!empty($locations)){
@@ -261,20 +263,108 @@ class AgentCategoryRepository extends EntityRepository
         $qb->join('e.gradeStandard','gradeStandard');
 
         $qb->select('gradeStandard.grade');
-        $qb->addSelect('agent.id AS agentId');
+        $qb->addSelect('agent.agentId AS agentId', 'agent.name AS agentName');
+        $qb->addSelect('e.average');
 
         $qb->where('e.year = :prevYear')->setParameter('prevYear', $prevYear);
-//        $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $locationsId);
+        $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $locationsId);
         $qb->andWhere("e.month = 'December'");
-        $qb->andWhere('gradeStandard.grade IN (:gradeLetters)')->setParameter('gradeLetters', $gradeLetters);
+        $qb->andWhere("gradeStandard.grade = 'D'");
 
         $results = $qb->getQuery()->getArrayResult();
-
-        $agentsIdWithCategory =[];
+        $data = [];
         foreach ($results as $result){
-            $agentsIdWithCategory[$result['grade']][]= $result['agentId'];
+            $data[$result['agentId']]= $result;
         }
-        return $agentsIdWithCategory;
 
+        $agentsId =[];
+        foreach ($results as $result){
+            $agentsId[]= $result['agentId'];
+        }
+        $agentCategory = $this->getAgentCurrentMonth($employeeBoard,$agentsId);
+        foreach ($agentCategory as $key => $item) {
+            if(array_key_exists($key, $data)){
+                $agentCategory[$key]['decemberGrade'] = $data[$key]['grade'];
+                $agentCategory[$key]['decemberAvg'] = $data[$key]['average'];
+            }
+        }
+        return $agentCategory;
+    }
+
+    private function getAgentCurrentMonth(EmployeeBoard $employeeBoard, $agentsId)
+    {
+
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.agent', 'agent');
+        $qb->join('e.gradeStandard', 'gradeStandard');
+        $qb->join('agent.district', 'district');
+        $qb->join('district.parent', 'region');
+        $qb->join('region.parent', 'zone');
+
+        $qb->select('e.average AS currentMonthAvg','e.month','e.year');
+        $qb->addSelect('agent.agentId AS agentId', 'agent.name AS agentName');
+        $qb->addSelect('region.name AS agentRegionName');
+        $qb->addSelect('zone.name AS agentZoneName');
+        $qb->addSelect('gradeStandard.grade AS currentMonthGrade');
+
+        $qb->where('e.year = :currentYear')->setParameter('currentYear', $employeeBoard->getYear());
+        $qb->andWhere('e.month = :month')->setParameter('month', $employeeBoard->getMonth());
+        $qb->andWhere('agent.agentId IN (:agentId)')->setParameter('agentId', $agentsId);
+        $results = $qb->getQuery()->getArrayResult();
+        $data = [];
+        foreach ($results as $result){
+            $data[$result['agentId']]= $result;
+        }
+        return $data;
+    }
+
+
+
+
+
+
+    public function getAgentWithCInDecember(EmployeeBoard $employeeBoard)
+    {
+        $prevYear = $employeeBoard->getYear()-1;
+        $locations = $employeeBoard->getEmployee()->getDistrict();
+        $locationsId = [];
+        if(!empty($locations)){
+            foreach ($locations as $location){
+                $locationsId[] = $location->getId();
+            }
+        }
+//        $gradeLetters = ['C','D'];
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.agent','agent');
+        $qb->join('agent.district','district');
+        $qb->join('e.gradeStandard','gradeStandard');
+
+        $qb->select('gradeStandard.grade');
+        $qb->addSelect('agent.agentId AS agentId', 'agent.name AS agentName');
+        $qb->addSelect('e.average');
+
+        $qb->where('e.year = :prevYear')->setParameter('prevYear', $prevYear);
+        $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $locationsId);
+        $qb->andWhere("e.month = 'December'");
+        $qb->andWhere("gradeStandard.grade = 'C'");
+
+        $results = $qb->getQuery()->getArrayResult();
+        $data = [];
+        foreach ($results as $result){
+            $data[$result['agentId']]= $result;
+        }
+
+        $agentsId =[];
+        foreach ($results as $result){
+            $agentsId[]= $result['agentId'];
+        }
+        $agentCategory = $this->getAgentCurrentMonth($employeeBoard,$agentsId);
+        foreach ($agentCategory as $key => $item) {
+            if(array_key_exists($key, $data)){
+                $agentCategory[$key]['decemberGrade'] = $data[$key]['grade'];
+                $agentCategory[$key]['decemberAvg'] = $data[$key]['average'];
+            }
+        }
+        return $agentCategory;
     }
 }

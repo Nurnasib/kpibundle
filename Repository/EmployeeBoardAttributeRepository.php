@@ -323,7 +323,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
         $gradeLetters = ['C','D'];
         $categoryUpgradationMark = $em->getRepository(AgentCategory::class)->getCategoryUpgradationMarks($board,$gradeLetters);
-//        dump($categoryUpgradationMark);
 
         $agentCategoryDistributions = $em->getRepository(MarkChart::class)->findBy(['slug' => ['minimum-50-d-category-agents-converts-to-c','minimum-50-c-category-agents-converts-to-b']]);
 
@@ -331,14 +330,14 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             if($agentCategoryDistribution->getSlug() == 'minimum-50-d-category-agents-converts-to-c'){
                 $employeeBoardAttributeForCategoryUpgrade = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$agentCategoryDistribution]);
                 if ($employeeBoardAttributeForCategoryUpgrade){
-                    $employeeBoardAttributeForCategoryUpgrade->setMark($categoryUpgradationMark['DtoUpperGrade']);
+                    $employeeBoardAttributeForCategoryUpgrade->setMark($categoryUpgradationMark['DtoUpperGrade']?$categoryUpgradationMark['DtoUpperGrade']:0);
                     $em->persist($employeeBoardAttributeForCategoryUpgrade);
                     $em->flush();
                 }
             }elseif ($agentCategoryDistribution->getSlug() == 'minimum-50-c-category-agents-converts-to-b'){
                 $employeeBoardAttributeForCategoryUpgrade = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$agentCategoryDistribution]);
                 if ($employeeBoardAttributeForCategoryUpgrade){
-                    $employeeBoardAttributeForCategoryUpgrade->setMark($categoryUpgradationMark['CtoUpperGrade']);
+                    $employeeBoardAttributeForCategoryUpgrade->setMark($categoryUpgradationMark['CtoUpperGrade'] ? $categoryUpgradationMark['CtoUpperGrade']:0);
                     $em->persist($employeeBoardAttributeForCategoryUpgrade);
                     $em->flush();
                 }

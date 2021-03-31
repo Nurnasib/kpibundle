@@ -1,0 +1,167 @@
+<script>
+    window.print();
+</script>
+<table border="1" cellpadding="0" cellspacing="0" width="100%">
+    <thead>
+    <tr>
+        <th colspan="2" class="text-center">KPI-for {% if board.employee.reportMode is not empty %}{{ board.employee.reportMode.name }}{% endif %} <br>{{ board.month }},{{ board.year }}</th>
+    </tr>
+    <tr>
+        <th>
+            <ul class="header-info" style="text-align: left">
+                <li>Name of the Employee:{{ board.employee.name }}</li>
+                <li>Date of
+                    Joining:{% if board.employee is not empty %}{{ board.employee.joiningDate|date('d-m-Y') }}{% endif %}</li>
+                <li>Line
+                    Manager:{% if board.employee.lineManager is not empty %}{{ board.employee.lineManager.name }}{% endif %}</li>
+                <li>ZONE:{% if board.employee.zonal is not empty %}{{ board.employee.zonal.name }}{% endif %}</li>
+            </ul>
+        </th>
+        <th width="30%">
+            <ul class="header-info">
+                <li>Emp ID:{% if board.employee is not empty %}{{ board.employee.userId }}{% endif %}</li>
+                <li>Designation:{% if board.employee.designation is not empty %}{{ board.employee.designation.name }}{% endif %}</li>
+            </ul>
+        </th>
+    </tr>
+    </thead>
+
+</table>
+{# New format END #}
+<table border="1" cellpadding="0" cellspacing="0" width="100%">
+    <thead>
+
+    <tr>
+        <th scope="col" style="width: 22%">Parameter</th>
+        <th scope="col">Marks</th>
+        <th scope="col">Weight</th>
+        <th scope="col">Obtain Marks</th>
+        <th scope="col">Grade</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    {% set totalMark = 0 %}
+    {% for entity in entities %}
+        {% set totalMark = totalMark + entity.mark %}
+    {% endfor %}
+
+    {% set totalActualMark = 0 %}
+    {% for entity in entities %}
+        {% set totalActualMark = totalActualMark + entity.actualMark %}
+        <tr>
+            <td>{{ entity.activity }}</td>
+            <td align="center">{{ entity.actualMark }}</td>
+            <td align="center">{% if entity.mark > 0 %}{{ ((entity.mark*100)/entity.actualMark)|number_format(2) }}{% endif %}%</td>
+            <td align="center">{{ entity.mark }}</td>
+            {% if loop.index==1 %}
+                <td style="text-align: center" rowspan="{{ entities|length +1 }}">
+                    {% set grade='' %}
+                    {% if totalMark>=29 %}
+                        {% set grade='A' %}
+                    {% elseif totalMark>=27 and totalMark<29 %}
+                        {% set grade='B+' %}
+                    {% elseif totalMark>=25 and totalMark<27 %}
+                        {% set grade='B' %}
+                    {% elseif totalMark>=23 and totalMark<25 %}
+                        {% set grade='C' %}
+                    {% elseif totalMark<23 %}
+                        {% set grade='D' %}
+                    {% endif %}
+                    {{ grade }}
+                </td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+    <tr>
+        <th class="text-right">Total Marks</th>
+        <th>{{ totalActualMark }}</th>
+        <th>{{ ((totalMark*100)/totalActualMark)|number_format(2) }}%</th>
+        <th>{{ totalMark }}</th>
+    </tr>
+    <tr>
+        <th colspan="6" class="text-center"><strong>A=>29,B+>27,B>25,C>23,D<23</strong></th>
+    </tr>
+    </tbody>
+</table>
+
+<style>
+    .list-unstyled li {
+        color: #2b2e38;
+    }
+
+    ul.header-info {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    ul.header-info li {
+        list-style: none;
+        width: 50%;
+    }
+    .activity li {
+
+    }
+
+    .activity li .attribute {
+
+    }
+
+    .activity li .attribute li .markDistribution {
+
+    }
+
+    .parameter {
+        position: relative;
+        border-left: 34px solid #369;
+        padding-left: 10px;
+        width: 50px;
+    }
+
+    .parameter span {
+        position: absolute;
+        top: 50%;
+        left: 30px;
+        background: none;
+        transform-origin: 0 0;
+        transform: rotate(-90deg);
+        width: 200px;
+    }
+
+
+    .attribute-markDistribution {
+        width: 220px;
+    }
+
+    .markDistribution {
+        padding-left: 15px;
+        width: 220px;
+    }
+
+    .markDistribution li {
+        margin-left: 0;
+        padding-left: 0;
+    }
+
+    .activity-name {
+        width: 120px;
+    }
+
+    .activity-attribute {
+        width: 220px;
+    }
+
+    .attribute-name {
+        width: 480px;
+    }
+
+    .attribute-mark {
+        width: 70px;
+    }
+
+    .attribute-score {
+        width: 70px;
+    }
+</style>

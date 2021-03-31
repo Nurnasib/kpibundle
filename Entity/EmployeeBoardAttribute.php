@@ -291,9 +291,9 @@ class EmployeeBoardAttribute
     }
 
     /**
-     * @param float $actualMark
+     * @param $actualMark
      */
-    public function setActualMark(float $actualMark)
+    public function setActualMark($actualMark)
     {
         $this->actualMark = $actualMark;
     }

@@ -61,7 +61,6 @@ class EmployeeBoardController extends AbstractController
     {
 
         $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
-
         $entity = new EmployeeBoard();
 
         $form = $this->createForm(EmployeeBoardFormType::class , $entity,['user'=>$this->getUser()])
@@ -302,6 +301,22 @@ class EmployeeBoardController extends AbstractController
         ]);
 
     }
+    /**
+     *
+     * @Route("/{id}/report-summary-pdf", methods={"GET"}, name="kpi_summary_report_pdf")
+     */
+    public function reportSummaryPdf($id): Response
+    {
+
+        $entity = $this->getDoctrine()->getRepository(EmployeeBoard::class)->find($id);
+        $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardSummaryReport($entity);
+        return $this->render('@TerminalbdKpi/employeeboard/report/summary-pdf.html.twig', [
+            'entity' => $entity,
+            'board' => $entity,
+            'entities' => $marks,
+        ]);
+
+    }
 
     /**
      *
@@ -311,10 +326,10 @@ class EmployeeBoardController extends AbstractController
     {
 
         $locations = $entity->getEmployee()->getDistrict();
-        $arrs = array();
+        $locationsId = array();
         if(!empty($locations)){
             foreach ($locations as $location){
-                $arrs[] = $location->getId();
+                $locationsId[] = $location->getId();
             }
         }
 
@@ -335,18 +350,18 @@ class EmployeeBoardController extends AbstractController
             $disdributionArrs[] = $saleDistribution->getId();
         }
 
-        $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getKpiSummaryForFeedAndGrowth($entity);
-
         $attributes = $this->getDoctrine()->getRepository(MarkChart::class)->getAttributesForSummary();
-        $outstanding = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getLocationWiseOutstanding($arrs, $entity->getYear(), $entity->getMonth());
-        $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getLocationWiseDocSales($arrs, $entity->getYear(), $entity->getMonth());
-        $districtAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getDistrictAchievement($arrs, $entity->getYear(), $entity->getMonth());
-        $regionalAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getRegionalAchievement($arrs, $entity->getYear(), $entity->getMonth());
+
+        $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getKpiSummaryForFeedAndGrowth($entity);
+        $outstanding = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getLocationWiseOutstanding($locationsId, $entity->getYear(), $entity->getMonth());
+        $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getLocationWiseDocSales($locationsId, $entity->getYear(), $entity->getMonth());
+        $districtAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getDistrictAchievement($locationsId, $entity->getYear(), $entity->getMonth());
+        $regionalAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getRegionalAchievement($locationsId, $entity->getYear(), $entity->getMonth());
         $individualTeamMemberMarks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getIndividualTeamMemberMarks($employeeArrs,$disdributionArrs, $entity->getYear(), $entity->getMonth());
 
-        $gradeLetters = ['C','D'];
-        $prevYearAndCurrentMonthCategory = $this->getDoctrine()->getRepository(AgentCategory::class)->getPrevYearAndCurrentMonthCategory($entity,$gradeLetters);
-        dump($prevYearAndCurrentMonthCategory);
+
+        $dCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithDInDecember($entity);
+        $cCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithCInDecember($entity);
 
 //        $marks = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->findBy(array('employeeBoard'=>$id));
         return $this->render('@TerminalbdKpi/employeeboard/report/salesDetails.html.twig', [
@@ -358,6 +373,8 @@ class EmployeeBoardController extends AbstractController
             'districtAchievement' => $districtAchievement,
             'regionalAchievement' => $regionalAchievement,
             'individualTeamMemberMarks' => $individualTeamMemberMarks,
+            'dCategoryUpgrade' => $dCategoryUpgrade,
+            'cCategoryUpgrade' => $cCategoryUpgrade,
         ]);
 
     }
