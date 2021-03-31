@@ -221,7 +221,7 @@ class EmployeeBoardController extends AbstractController
      * Deletes a Setting entity.
      *
      * @Route("/{id}/delete", methods={"GET"}, name="kpi_employee_board_delete")
-     * @Security("is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_ADMIN')")
      */
     public function delete($id): Response
     {
