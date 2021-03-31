@@ -337,18 +337,13 @@ class EmployeeBoardController extends AbstractController
 
         $getEmployeesByLineManager = $this->getDoctrine()->getRepository(User::class)->findBy(['lineManager'=>$employee, 'enabled'=>1]);
 
-        $employeeArrs = array();
+        $employeeArrs = [];
         foreach ($getEmployeesByLineManager as $childEmployee){
             if(!empty($childEmployee)){
                 $employeeArrs[] = $childEmployee->getId();
             }
         }
-        $salesDistribution = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(array('salesMode'=>'feed','status'=>1));
-
-        $disdributionArrs = array();
-        foreach ($salesDistribution as $saleDistribution){
-            $disdributionArrs[] = $saleDistribution->getId();
-        }
+        $parameter = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(array('slug'=>'core-responsibilities','status'=>1));
 
         $attributes = $this->getDoctrine()->getRepository(MarkChart::class)->getAttributesForSummary();
 
@@ -357,7 +352,7 @@ class EmployeeBoardController extends AbstractController
         $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getLocationWiseDocSales($locationsId, $entity->getYear(), $entity->getMonth());
         $districtAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getDistrictAchievement($locationsId, $entity->getYear(), $entity->getMonth());
         $regionalAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getRegionalAchievement($locationsId, $entity->getYear(), $entity->getMonth());
-        $individualTeamMemberMarks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getIndividualTeamMemberMarks($employeeArrs,$disdributionArrs, $entity->getYear(), $entity->getMonth());
+        $individualTeamMemberMarks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getIndividualTeamMemberMarks($employeeArrs,$parameter, $entity->getYear(), $entity->getMonth());
 
 
         $dCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithDInDecember($entity);

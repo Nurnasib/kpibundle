@@ -92,53 +92,53 @@
                             </thead>
                             <tbody>
                             {% if board.employeeBoardAttributes is not empty %}
+                                {% for parameters in arrayData %}
+                                    {% set count=1 %}
+                                    {% for activity in parameters %}
+                                        {% set countActity=1 %}
+                                        {% for entity in activity %}
+                                            <tr>
+                                                {% if entity.parameter.status == 1 %}
+                                                    {% if(count==1) %}
+                                                        <td rowspan="{{ parameters|multiArrayLength }}" class="parameter"><span>{{ entity.parameter.name }}</span></td>
+                                                    {% endif %}
+                                                    {% if entity.activity.status == 1 %}
+                                                        {% if(countActity==1) %}
+                                                            <td rowspan="{{ activity|length }}" {#class="parameter"#}><span>{{ entity.activity.name }}</span></td>
+                                                        {% endif %}
+                                                        {% if entity.attribute.status == 1 %}
+                                                            <td>{{ entity.attribute.name }}</td>
+                                                            <td>{{ entity.attribute.mark }}</td>
+                                                            <td>
 
-                            {% for parameters in arrayData %}
-                                {% set count=1 %}
-                                {% for activity in parameters %}
-                                    {% set countActity=1 %}
-                                    {% for entity in activity %}
-                                        <tr>
-                                        {% if(count==1) %}
-                                        <td rowspan="{{ parameters|multiArrayLength }}" class="parameter"><span>{{ entity.parameter.name }}</span></td>
-                                        {% endif %}
-                                        {% if(countActity==1) %}
-                                        <td rowspan="{{ activity|length }}" {#class="parameter"#}><span>{{ entity.activity.name }}</span></td>
-                                        {% endif %}
-                                        <td>
-                                        {{ entity.attribute.name }}
-                                        </td>
-                                        <td>
-                                            {{ entity.attribute.mark }}
-                                        </td>
-                                        <td>
-                                            {% if entity.attribute.children is not empty %}
-                                                {% if entity.attribute.systemEntry == 1 %}
-                                                    <select class="markDistribution" data-id="{{ entity.attribute.id }}" data-action="{{ path('kpi_employee_board_attribute_update',{'id':entity.id}) }}" >
-                                                        <option value="">{{ 'Select mark particuler'|trans }}</option>
-                                                        {% for markDistribution in entity.attribute.children %}
-                                                            <option  value="{{ markDistribution.id }}" {% if  entity.markDistribution is not empty and markDistribution.id ==  entity.markDistribution.id %} selected="selected" {% endif %}>{{ markDistribution.name }}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                {% else %}
+                                                                {% if entity.attribute.children is not empty %}
+                                                                    {% if entity.attribute.systemEntry == 1 %}
+                                                                        <select class="markDistribution" data-id="{{ entity.attribute.id }}" data-action="{{ path('kpi_employee_board_attribute_update',{'id':entity.id}) }}" >
+                                                                            <option value="">{{ 'Select mark particuler'|trans }}</option>
+                                                                            {% for markDistribution in entity.attribute.children %}
+                                                                                <option  value="{{ markDistribution.id }}" {% if  entity.markDistribution is not empty and markDistribution.id ==  entity.markDistribution.id %} selected="selected" {% endif %}>{{ markDistribution.name }}</option>
+                                                                            {% endfor %}
+                                                                        </select>
+                                                                    {% else %}
 
-                                                    <ul class="markDistribution">
-                                                    {% for children in entity.attribute.children %}
-                                                        <li>{{ children.name }}</li>
-                                                    {% endfor %}
-                                                    </ul>
+                                                                        <ul class="markDistribution">
+                                                                            {% for children in entity.attribute.children %}
+                                                                                <li>{{ children.name }}</li>
+                                                                            {% endfor %}
+                                                                        </ul>
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                            </td>
+                                                            <td class="attribute-score" id="markDistribution-{{ entity.attribute.id }}">{{ entity.mark }}</td>
+                                                        {% endif %}
+                                                    {% endif %}
                                                 {% endif %}
-                                            {% endif %}
-                                        </td>
-                                            <td class="attribute-score" id="markDistribution-{{ entity.attribute.id }}">
-                                                {{ entity.mark }}
-                                            </td>
-                                    </tr>
-                                        {% set countActity=0 %}
-                                    {% set count=count+1 %}
+                                            </tr>
+                                            {% set countActity=0 %}
+                                            {% set count=count+1 %}
+                                        {% endfor %}
                                     {% endfor %}
                                 {% endfor %}
-                            {% endfor %}
                             {% endif %}
                             </tbody>
                         </table>

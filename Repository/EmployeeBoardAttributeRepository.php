@@ -232,17 +232,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 $employeeArrs[] = $childEmployee->getId();
             }
         }
-        $salesDistribution = $em->getRepository(MarkChart::class)->findBy(array('salesMode'=>'feed','status'=>1));
+        $parameter = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'core-responsibilities','status'=>1));
 
-        $disdributionArrs = array();
-        foreach ($salesDistribution as $saleDistribution){
-            $disdributionArrs[] = $saleDistribution->getId();
-        }
-
-
-        $entities = $this->individualTeamMemberMarks($employeeArrs, $disdributionArrs, $board->getYear(), $board->getMonth());
-
-        $individualTeamDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'individual-team-members-achievement','status'=>1));
+        $entities = $this->individualTeamMemberMarks($employeeArrs, $parameter, $board->getYear(), $board->getMonth());
+//        $individualTeamDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'individual-team-members-achievement','status'=>1));
+        $individualTeamDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'team-members-mark-on-core-activities','status'=>1));
 
         $individualEntity = new EmployeeBoardSubAttribute();
 
@@ -255,6 +249,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $individualEntity->setEmployeeBoard($board);
         $individualEntity->setMarkDistribution($individualTeamDistribution);
 
+//        dd($this->individualTeamMemberCalculation($entities['actualMark'], $entities['mark'] ));
         $individualEntity->setMark($this->individualTeamMemberCalculation($entities['actualMark'], $entities['mark'] ));
         $em->persist($individualEntity);
         $em->flush();
@@ -359,16 +354,16 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         return $result;
     }
 
-    public function individualTeamMemberMarks($employees, $attributes, $year, $month)
+    public function individualTeamMemberMarks($employees, $parameter, $year, $month)
     {
         $em = $this->_em;
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.employeeBoard','ed');
         $qb->join('ed.employee','em');
-        $qb->join('e.attribute','att');
+        $qb->join('e.parameter','parameter');
         $qb->select('SUM(e.mark) as mark', 'SUM(e.actualMark) as actualMark');
         $qb->where('em.id IN (:employee)')->setParameter('employee',$employees);
-        $qb->andWhere('att.id IN (:attribute)')->setParameter('attribute',$attributes);
+        $qb->andWhere('parameter.id = :parameter')->setParameter('parameter',$parameter);
         $qb->andWhere('ed.year =:year')->setParameter('year',$year);
         $qb->andWhere('ed.month =:month')->setParameter('month',$month);
 //        $qb->groupBy('att.id');
@@ -376,17 +371,17 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         return $result;
     }
 
-    public function getIndividualTeamMemberMarks($employees, $attributes, $year, $month)
+    public function getIndividualTeamMemberMarks($employees, $parameter, $year, $month)
     {
         $em = $this->_em;
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.employeeBoard','ed');
         $qb->join('ed.employee','em');
-        $qb->join('e.attribute','att');
+        $qb->join('e.parameter','parameter');
         $qb->select('SUM(e.mark) as mark', 'SUM(e.actualMark) as actualMark', 'SUM(e.targetAmount) AS targetAmount', 'SUM(e.targetAchievement) AS targetAchievement');
         $qb->addSelect('em.name AS employeeName');
         $qb->where('em.id IN (:employee)')->setParameter('employee',$employees);
-        $qb->andWhere('att.id IN (:attribute)')->setParameter('attribute',$attributes);
+        $qb->andWhere('parameter.id = :parameter')->setParameter('parameter',$parameter);
         $qb->andWhere('ed.year =:year')->setParameter('year',$year);
         $qb->andWhere('ed.month =:month')->setParameter('month',$month);
         $qb->groupBy('em.id');
@@ -432,10 +427,24 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         if($target > 0){
             $action = (($sales * 100 )/$target);
             if($action >= 100) {
+                return 10;
+            }elseif ($action < 100 and $action >= 90) {
+                return 9;
+            }elseif ($action < 90 and $action >= 80) {
+                return 8;
+            }elseif ($action < 80 and $action >= 70) {
+                return 7;
+            }elseif ($action < 70 and $action >= 60) {
+                return 6;
+            }elseif ($action < 60 and $action >= 50) {
+                return 5;
+            }elseif ($action < 50 and $action >= 40) {
                 return 4;
-            }elseif ($action < 100 and $action >= 50) {
+            }elseif ($action < 40 and $action >= 30) {
+                return 3;
+            }elseif ($action < 30 and $action >= 20) {
                 return 2;
-            }elseif ($action < 50 and $action >= 1) {
+            }elseif ($action < 20 and $action >= 10) {
                 return 1;
             }else {
                 return 0;

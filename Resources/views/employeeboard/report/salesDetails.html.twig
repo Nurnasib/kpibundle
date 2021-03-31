@@ -1,6 +1,7 @@
 {% extends 'admin/layout.html.twig' %}
 {% block body_id 'kpi_domain_new' %}
 {% block body %}
+{#    {{ dump(entity.employee.reportMode.slug) }}#}
     <div class="pcoded-inner-content">
         <!-- [ breadcrumb ] start -->
         <div class="page-header">
@@ -40,24 +41,24 @@
                         <div class="row form-body">
                             <div class="form-inner-no-space">
                                 <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>Employee Name</strong></label>
+                                    <label class="col-md-2 control-label"><strong>{{ 'Employee Name'|trans }}</strong></label>
                                     <label class="col-md-10 control-label">{{ entity.employee.name }}</label>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>Month & Year</strong></label>
+                                    <label class="col-md-2 control-label"><strong>{{ 'Month & Year'|trans }}</strong></label>
                                     <label class="col-md-10 control-label">{{ entity.month }},{{ entity.year }}</label>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>Designation</strong></label>
+                                    <label class="col-md-2 control-label"><strong>{{ 'Designation'|trans }}</strong></label>
                                     <label class="col-md-10 control-label">{{ entity.employee.designation.name }}</label>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>Working Area</strong></label>
+                                    <label class="col-md-2 control-label"><strong>{{ 'Working Area'|trans }}</strong></label>
                                     <label class="col-md-10 control-label">{{ entity.employee.area }}</label>
                                 </div>
                                 {% if entity.employee.department is not empty %}
                                 <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>Department</strong></label>
+                                    <label class="col-md-2 control-label"><strong>{{ 'Department'|trans }}</strong></label>
                                     <label class="col-md-10 control-label">{{ entity.employee.department.name }}</label>
                                 </div>
                                 {% endif %}
@@ -227,7 +228,7 @@
                                     </table>
                                 {% endif %}
 
-                                {% if (entity.employee.reportMode.slug == 'agm-kpi' or entity.employee.reportMode.slug == 'rsm-arsm-kpi') and attribute.slug == 'individual-team-members-achievement' %}
+                                {% if (entity.employee.reportMode.slug == 'agm-kpi' or entity.employee.reportMode.slug == 'rsm-arsm-kpi') and attribute.slug == 'team-members-mark-on-core-activities' %}
                                     <h5 class="h5 bg-secondary p-1 text-white w-100">{{ attribute.attributesName|default('') }}</h5>
                                     <table class="table table-striped table-bordered table-hover" id="datatable">
                                         <thead class="thead-dark">

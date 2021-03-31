@@ -283,7 +283,7 @@ class MarkChartRepository extends MaterializedPathRepository
     {
         $qb = $this->createQueryBuilder('e');
         $qb->select('e.name AS attributesName', 'e.slug');
-        $qb->where("e.slug IN (:slugArr)")->setParameter('slugArr',['doc-sales-vs-collection','outstanding-limit-actual-feed','individual-team-members-achievement','regional-achievement','district-achievement','minimum-50-c-category-agents-converts-to-b','minimum-50-d-category-agents-converts-to-c']);
+        $qb->where("e.slug IN (:slugArr)")->setParameter('slugArr',['doc-sales-vs-collection','outstanding-limit-actual-feed','team-members-mark-on-core-activities','regional-achievement','district-achievement','minimum-50-c-category-agents-converts-to-b','minimum-50-d-category-agents-converts-to-c']);
 
         $results = $qb->getQuery()->getArrayResult();
         return $results;
