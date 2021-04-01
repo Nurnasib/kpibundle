@@ -631,10 +631,5 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             }
         }
         return 0;
-
     }
-
-
-
-
 }

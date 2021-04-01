@@ -121,9 +121,11 @@ class EvaluationCriteriaController extends AbstractController
         $totalReports = [];
         $entities = [];
         $filterBy = [];
-        $filterBy['employeeId'] = 21;
-        $filterBy['monthStart'] = '2021-02-01';
-        $filterBy['monthEnd'] = '2021-02-28';
+//        $date = new \DateTime("now");
+
+        $filterBy['employeeId'] = 21; //$this->getUser() report available for EmployeeId=21
+        $filterBy['monthStart'] = '2021-02-01'; //$date->format('Y-m-01') report available for month February
+        $filterBy['monthEnd'] = '2021-02-28'; //$date->format('Y-m-t')
 
         $totalReports['totalFcrAfterSale'] = (int) $this->getDoctrine()->getRepository(FcrDetails::class)->getMonthlyFcrAfterSaleTotalReport($filterBy);
         $totalBroilerBeforeSale = (int) $this->getDoctrine()->getRepository(FcrDetails::class)->getMonthlyBroilerBeforeSaleTotalReport($filterBy);

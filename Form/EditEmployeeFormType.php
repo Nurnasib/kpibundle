@@ -167,7 +167,7 @@ class EditEmployeeFormType extends AbstractType
              ->add('reportMode', EntityType::class, array(
                 'required'    => true,
                 'class' => Setting::class,
-                'placeholder' => 'Choose a  Designation',
+                'placeholder' => 'Choose a Report Mode',
                 'choice_label' => 'name',
                 'attr'=>array('class'=>'span12 m-wrap'),
                 'query_builder' => function(EntityRepository $er){
