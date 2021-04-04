@@ -75,6 +75,24 @@ class EmployeeBoardAttribute
      */
     private $targetAmount;
 
+    /**
+     * @var integer
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $targetReport;
+
+    /**
+     * @var integer
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $achieveReport;
+
+    /**
+     * @var integer
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $targetMark;
+
 
     /**
      * @var float
@@ -208,6 +226,54 @@ class EmployeeBoardAttribute
     public function getTargetAmount()
     {
         return $this->targetAmount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTargetReport()
+    {
+        return $this->targetReport;
+    }
+
+    /**
+     * @param int $targetReport
+     */
+    public function setTargetReport($targetReport)
+    {
+        $this->targetReport = $targetReport;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTargetMark()
+    {
+        return $this->targetMark;
+    }
+
+    /**
+     * @param int $targetMark
+     */
+    public function setTargetMark($targetMark)
+    {
+        $this->targetMark = $targetMark;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAchieveReport()
+    {
+        return $this->achieveReport;
+    }
+
+    /**
+     * @param int $achieveReport
+     */
+    public function setAchieveReport($achieveReport)
+    {
+        $this->achieveReport = $achieveReport;
     }
 
     /**

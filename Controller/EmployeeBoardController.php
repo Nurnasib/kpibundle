@@ -324,6 +324,20 @@ class EmployeeBoardController extends AbstractController
      */
     public function salesAchivementSummary(EmployeeBoard $entity): Response
     {
+        $reportModes = ['poultry-service','aqua-service','cattle-service'];
+        $employeeReportMode = $entity->getEmployee()->getReportMode()->getSlug();
+        if (in_array($employeeReportMode, $reportModes)){
+
+            $activityService = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['slug' => 'service']);
+
+            $records = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findBy(['employeeBoard' => $entity->getId(), 'activity' => $activityService ]);
+            return $this->render('@TerminalbdKpi/employeeboard/report/salesDetailsPAC.html.twig',[
+                'entity' => $entity,
+                'records' => $records,
+            ]);
+        }
+
+
 
         $locations = $entity->getEmployee()->getDistrict();
         $locationsId = array();

@@ -128,6 +128,7 @@ class EvaluationCriteriaController extends AbstractController
         $filterBy['monthEnd'] = '2021-02-28'; //$date->format('Y-m-t')
 
         $totalReports['totalFcrAfterSale'] = (int) $this->getDoctrine()->getRepository(FcrDetails::class)->getMonthlyFcrAfterSaleTotalReport($filterBy);
+//        dd($totalReports);
         $totalBroilerBeforeSale = (int) $this->getDoctrine()->getRepository(FcrDetails::class)->getMonthlyBroilerBeforeSaleTotalReport($filterBy);
         $totalLayerPerformance = (int) $this->getDoctrine()->getRepository(LayerPerformanceDetails::class)->getMonthlyLayerPerformanceTotalReport($filterBy);
 
