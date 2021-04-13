@@ -85,7 +85,7 @@
                                 Total Records: {{ pagination.getTotalItemCount }}
                             </div>
                         </div>
-                        <div class="col-md-9 navigation">
+                        <div class="col-md-9 navigation" style="padding-right: 0;">
                             {{ knp_pagination_render(pagination) }}
                         </div>
                     </div>
@@ -104,6 +104,19 @@
     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
     <style>
         .ui-datepicker-calendar{display: none}
+/*        .pagination span.page a, .pagination span.next a, .pagination span.last a, .pagination span.first a, .pagination span.previous a {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+        }
+        .pagination span.current {
+            padding: 5px 10px;
+            background: #0442ba;
+            color: #fff;
+            margin-top: -5px;
+        }*/
+        .pagination{
+            float: right;
+        }
     </style>
 {% endblock  %}
 {% block javascripts %}

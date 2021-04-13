@@ -1,5 +1,5 @@
 <script>
-    window.print()
+    window.print();
 </script>
 <table cellpadding="0" cellspacing="0" width="100%" border="0">
     <thead>
@@ -28,66 +28,140 @@
     </thead>
 </table>
 
-
-<table cellpadding="0" style="border-collapse: collapse;" cellspacing="0" border="1" class="table" id="datatable">
+{# New format END #}
+<table border="1" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse">
     <thead>
     <tr>
-        <th scope="col">Parameter</th>
-        <th scope="col" style="width: 5%;">Activity</th>
-        <th scope="col" style="width: 45%">Attributes</th>
+        <th scope="col" style="width: 22%">Parameter</th>
         <th scope="col">Marks</th>
-        <th scope="col" style="width: 27%">Mark Distribution</th>
+        <th scope="col">Weight</th>
         <th scope="col">Obtain Marks</th>
+        <th scope="col">Grade</th>
     </tr>
     </thead>
     <tbody>
-    {% if board.employeeBoardAttributes is not empty %}
 
-        {% for parameters in arrayData %}
-            {% set count=1 %}
-            {% for activity in parameters %}
-                {% set countActity=1 %}
-                {% for entity in activity %}
-                    <tr>
-                        {% if(count==1) %}
-                            <td rowspan="{{ parameters|multiArrayLength }}" class="parameter"><span>{{ entity.parameter.name }}</span></td>
-                        {% endif %}
-                        {% if(countActity==1) %}
-                            <td rowspan="{{ activity|length }}" class="parameter"><span>{{ entity.activity.name }}</span></td>
-                        {% endif %}
-                        <td>
-                            {{ entity.attribute.name }}
-                        </td>
-                        <td class="text-center">
-                            {{ entity.attribute.mark }}
-                        </td>
-                        <td>
-                            {% if entity.attribute.children is not empty %}
-                                    <ul class="markDistribution">
-                                        {% for children in entity.attribute.children %}
-                                            <li>{{ children.name }}</li>
-                                        {% endfor %}
-                                    </ul>
-                            {% endif %}
-                        </td>
-                        <td class="text-center">
-                            {{ entity.mark }}
-                        </td>
-                    </tr>
-                    {% set countActity=0 %}
-                    {% set count=count+1 %}
-                {% endfor %}
-            {% endfor %}
-        {% endfor %}
-    {% endif %}
+    {% set totalMark = 0 %}
+    {% for entity in entities %}
+        {% set totalMark = totalMark + entity.mark %}
+    {% endfor %}
+
+    {% set totalActualMark = 0 %}
+    {% for entity in entities %}
+        {% set totalActualMark = totalActualMark + entity.actualMark %}
+        <tr>
+            <td style="padding-left: 5px">{{ entity.activity }}</td>
+            <td align="center">{{ entity.actualMark }}</td>
+            <td align="center">{% if entity.mark > 0 %}{{ ((entity.mark*100)/entity.actualMark)|number_format(2) }}{% endif %}%</td>
+            <td align="center">{{ entity.mark }}</td>
+            {% if loop.index==1 %}
+                <td style="text-align: center; font-size: 35px; font-weight: 900" rowspan="{{ entities|length +1 }}">
+                    {% set grade='' %}
+                    {% if totalMark>=29 %}
+                        {% set grade='A' %}
+                    {% elseif totalMark>=27 and totalMark<29 %}
+                        {% set grade='B+' %}
+                    {% elseif totalMark>=25 and totalMark<27 %}
+                        {% set grade='B' %}
+                    {% elseif totalMark>=23 and totalMark<25 %}
+                        {% set grade='C' %}
+                    {% elseif totalMark<23 %}
+                        {% set grade='D' %}
+                    {% endif %}
+                    {{ grade }}
+                </td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+    <tr>
+        <th class="text-right">Total Marks</th>
+        <th>{{ totalActualMark }}</th>
+        <th>{{ ((totalMark*100)/totalActualMark)|number_format(2) }}%</th>
+        <th>{{ totalMark }}</th>
+    </tr>
+    <tr>
+        <th colspan="6" class="text-center" style="padding: 10px"><strong>A=>29, B+>27, B>25, C>23, D<23</strong></th>
+    </tr>
     </tbody>
 </table>
 
 <style>
-    .table td{
-        padding-left: 5px;
+    .list-unstyled li {
+        color: #2b2e38;
     }
-    .table td.text-center{
-        text-align: center;
+
+    ul.header-info {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    ul.header-info li {
+        list-style: none;
+        width: 50%;
+    }
+    .activity li {
+
+    }
+
+    .activity li .attribute {
+
+    }
+
+    .activity li .attribute li .markDistribution {
+
+    }
+
+    .parameter {
+        position: relative;
+        border-left: 34px solid #369;
+        padding-left: 10px;
+        width: 50px;
+    }
+
+    .parameter span {
+        position: absolute;
+        top: 50%;
+        left: 30px;
+        background: none;
+        transform-origin: 0 0;
+        transform: rotate(-90deg);
+        width: 200px;
+    }
+
+
+    .attribute-markDistribution {
+        width: 220px;
+    }
+
+    .markDistribution {
+        padding-left: 15px;
+        width: 220px;
+    }
+
+    .markDistribution li {
+        margin-left: 0;
+        padding-left: 0;
+    }
+
+    .activity-name {
+        width: 120px;
+    }
+
+    .activity-attribute {
+        width: 220px;
+    }
+
+    .attribute-name {
+        width: 480px;
+    }
+
+    .attribute-mark {
+        width: 70px;
+    }
+
+    .attribute-score {
+        width: 70px;
     }
 </style>

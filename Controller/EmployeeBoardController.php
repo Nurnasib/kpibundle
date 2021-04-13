@@ -209,7 +209,7 @@ class EmployeeBoardController extends AbstractController
             $dompdf->render();
 
             // Output the generated PDF to Browser (force download)
-            $dompdf->stream("abc" . ".pdf", [
+            $dompdf->stream("kpi" . ".pdf", [
                 "Attachment" => false
             ]);
         }
@@ -303,14 +303,14 @@ class EmployeeBoardController extends AbstractController
     }
     /**
      *
-     * @Route("/{id}/report-summary-pdf", methods={"GET"}, name="kpi_summary_report_pdf")
+     * @Route("/{id}/report-summary-print", methods={"GET"}, name="kpi_summary_report_print")
      */
     public function reportSummaryPdf($id): Response
     {
 
         $entity = $this->getDoctrine()->getRepository(EmployeeBoard::class)->find($id);
         $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardSummaryReport($entity);
-        return $this->render('@TerminalbdKpi/employeeboard/report/summary-pdf.html.twig', [
+        return $this->render('@TerminalbdKpi/employeeboard/report/summary-print.html.twig', [
             'entity' => $entity,
             'board' => $entity,
             'entities' => $marks,

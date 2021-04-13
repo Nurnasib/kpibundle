@@ -67,7 +67,7 @@
                                     </div>
                                 {% endif %}
                             </div>
-                            <table class="table table-striped table-bordered table-hover" id="datatable">
+                            <table class="table table-striped table-bordered table-hover">
                                 <thead class="thead-dark">
                                 <tr>
                                     <th rowspan="2" style="text-align: center">{{ 'SL No'|trans }}</th>
@@ -113,7 +113,7 @@
                                             <td align="center">{{ record.targetMark|default(0) }}</td>
                                             <td align="center">{{ record.mark|default(0) }}</td>
                                             {% if loop.index == 1 %}
-                                                <td rowspan="{{ loop.index == 1 ? records|length:'' }}" align="center">{{ gradeLetter|default('N/A') }}</td>
+                                                <td rowspan="{{ loop.index == 1 ? records|length:'' }}" align="center"><b>{{ gradeLetter|default('N/A') }}</b></td>
                                             {% endif %}
                                         </tr>
                                     {% endfor %}
@@ -121,8 +121,8 @@
                                         <td colspan="2" style="text-align: center"><b>Total</b></td>
                                         <td></td>
                                         <td></td>
-                                        <td align="center">{{ totalTargetMark|default(0) }}</td>
-                                        <td align="center">{{ totalMark|default(0) }}</td>
+                                        <td align="center"><b>{{ totalTargetMark|default(0) }}</b></td>
+                                        <td align="center"><b>{{ totalMark|default(0) }}</b></td>
                                         <td></td>
                                     </tr>
                                 {% else %}

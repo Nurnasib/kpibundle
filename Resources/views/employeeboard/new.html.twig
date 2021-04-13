@@ -36,6 +36,8 @@
                 <div class="portlet box green ">
                     <div class="portlet-title">
                         <div class="caption">{{ 'Manage KPI Element'|trans }} </div>
+                        <button type="button" data-action="{{ path('kpi_employee_board_status_update',{'id':board.id}) }}" id="statusUpdate" name="statusUpdate" class="btn blue-bg text-white float-right statusUpdate" >Approved</button>
+
                     </div>
                     <div class="portlet-body form">
                         {# New format #}
@@ -145,10 +147,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="fixed-bottom">
-            <button type="button" data-action="{{ path('kpi_employee_board_status_update',{'id':board.id}) }}" id="statusUpdate" name="statusUpdate" class="btn btn-info form-submit btn float-right statusUpdate" >Approved</button>
-
         </div>
         <!-- [ Main Content ] end -->
     </div>

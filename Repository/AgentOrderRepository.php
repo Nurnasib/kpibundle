@@ -44,7 +44,7 @@ class AgentOrderRepository extends EntityRepository
         $qb->andWhere('e.month =:month')->setParameter('month',$month);
 
         if(isset($data['agent'])){
-            $qb->andWhere('e.agent =:agent')->setParameter('agent',$data['agent']);
+            $qb->andWhere('agent.id =:agent')->setParameter('agent',$data['agent']);
         }
 
         $qb->orderBy('agent.name','ASC');

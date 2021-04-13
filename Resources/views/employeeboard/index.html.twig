@@ -34,12 +34,14 @@
                     <table class="table table-striped table-bordered table-hover" id="datatable">
                         <thead class="thead-dark">
                         <tr>
-                            <th scope="col">S/N</th>
-                            <th scope="col" style="width: 120px">Name</th>
-                            <th scope="col">Designation</th>
-                            <th scope="col">Line Manager</th>
-                            <th scope="col">Month</th>
-                            <th scope="col">Year</th>
+                            <th scope="col">{{ 'S/N'|trans }}</th>
+                            <th scope="col">{{ 'Created Date'|trans }}</th>
+                            <th scope="col" style="width: 120px">{{ 'Name'|trans }}</th>
+                            <th scope="col">{{ 'Designation'|trans }}</th>
+                            <th scope="col">{{ 'Line Manager'|trans }}</th>
+                            <th scope="col">{{ 'Month'|trans }}</th>
+                            <th scope="col">{{ 'Year'|trans }}</th>
+                            <th scope="col">{{ 'Created By'|trans }}</th>
                             <th scope="col text-center" style="width:100px"><i class="feather icon-settings"></i></th>
                         </tr>
                         </thead>
@@ -47,11 +49,13 @@
                         {% for entity  in entities %}
                             <tr>
                                 <td>{{ loop.index }}</td>
-                                <td>{{ entity.name }}</td>
-                                <td>{{ entity.designation }}</td>
-                                <td>{{ entity.lineManager }}</td>
-                                <td>{{ entity.month }}</td>
-                                <td>{{ entity.year }}</td>
+                                <td>{{ entity.created|date('d-m-Y')|default('') }}</td>
+                                <td>{{ entity.name|default('') }}</td>
+                                <td>{{ entity.designation|default('') }}</td>
+                                <td>{{ entity.lineManager|default('') }}</td>
+                                <td>{{ entity.month|default('') }}</td>
+                                <td>{{ entity.year|default('') }}</td>
+                                <td>{{ entity.createdByName|default('') }}</td>
                                 <td>
                                     <div class="btn-group">
                                         {% if not is_granted("ROLE_ADMIN") %}

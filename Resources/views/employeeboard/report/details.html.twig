@@ -24,6 +24,7 @@
                             <a href="{{ path('kpi_employee_board') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>{{ 'Employee Board'|trans }}</a>
                             <a href="{{ path('kpi_summary_report',{'id':board.id}) }}" class="btn btn-sm green-bg white-font"><i class="fa fa-th-list"></i>{{ 'KPI Summary'|trans }}</a>
                             <a href="{{ path('kpi_employee_board_preview',{'id':board.id,'mode':'print'}) }}" target="_blank" class="btn btn-sm yellow-bg white-font"><i class="fa fa-print"></i></a>
+{#                            <a href="{{ path('kpi_employee_board_preview',{'id':board.id,'mode':'pdf'}) }}" target="_blank" class="btn btn-sm blue-bg white-font"><i class="fa fa-file-pdf"></i></a>#}
 
                         </div>
                     </div>
@@ -55,11 +56,11 @@
                         <div class="row form-body">
                             <table class="table table-striped table-bordered">
                                 <thead class="thead-dark">
-                                <tr><th colspan="2" class="text-center">KPI- for {% if board.employee.reportMode is not empty %}{{ board.employee.reportMode.name }}{% endif %} <br>{{ board.month }},{{ board.year }}</th></tr>
+                                <tr><th colspan="2" class="text-center">KPI- {{ board.month }},{{ board.year }}</th></tr>
                                 <tr>
                                     <th>
                                         <ul class="header-info">
-                                            <li>Name of the Employee: {{ board.employee.name }}</li>
+                                            <li>Employee Name: {{ board.employee.name }}</li>
                                             <li>Date of Joining: {% if board.employee is not empty %}{{ board.employee.joiningDate|date('d-m-Y') }}{% endif %}</li>
                                             <li>Line Manager: {% if board.employee.lineManager is not empty %}{{ board.employee.lineManager.name }}{% endif %}</li>
                                             <li>ZONE: {% if board.employee.zonal is not empty %}{{ board.employee.zonal.name }}{% endif %}</li>

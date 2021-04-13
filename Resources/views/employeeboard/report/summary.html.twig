@@ -24,7 +24,7 @@
                         <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
                             <a href="{{ path('kpi_employee_board') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>{{ 'Employee Board'|trans }}</a>
                             <a href="{{ path('kpi_details_report',{'id':entity.id}) }}" class="btn btn-sm green-bg white-font"><i class="fa fa-th-list"></i>{{ 'KPI Details'|trans }}</a>
-                            <a href="{{ path('kpi_summary_report_pdf',{'id':entity.id}) }}" target="_blank" class="btn btn-sm yellow-bg white-font"><i class="fa fa-print"></i></a>
+                            <a href="{{ path('kpi_summary_report_print',{'id':entity.id}) }}" target="_blank" class="btn btn-sm yellow-bg white-font"><i class="fa fa-print"></i></a>
 
                         </div>
                     </div>
