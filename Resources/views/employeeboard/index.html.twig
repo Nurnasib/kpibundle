@@ -42,6 +42,7 @@
                             <th scope="col">{{ 'Month'|trans }}</th>
                             <th scope="col">{{ 'Year'|trans }}</th>
                             <th scope="col">{{ 'Created By'|trans }}</th>
+                            <th scope="col">{{ 'Approve'|trans }}</th>
                             <th scope="col text-center" style="width:100px"><i class="feather icon-settings"></i></th>
                         </tr>
                         </thead>
@@ -56,7 +57,8 @@
                                 <td>{{ entity.month|default('') }}</td>
                                 <td>{{ entity.year|default('') }}</td>
                                 <td>{{ entity.createdByName|default('') }}</td>
-                                <td>
+                                <td>{{ entity.status == 2 ? 'Yes': 'No' }}</td>
+                                <td align="right">
                                     <div class="btn-group">
                                         {% if not is_granted("ROLE_ADMIN") %}
                                             {% if entity.status == 1 %}
@@ -65,12 +67,14 @@
                                             {% endif %}
 
                                             {% else %}
-                                                <a class="btn btn-mini yellow-bg white-font" href="{{ path('kpi_employee_board_edit',{'id':entity.id}) }}"><i class="feather icon-edit"></i> Edit</a>
+                                                {% if entity.status == 1 %}
+                                                    <a class="btn btn-mini yellow-bg white-font" href="{{ path('kpi_employee_board_edit',{'id':entity.id}) }}"><i class="feather icon-edit"></i> Edit</a>
+                                                {% endif %}
                                                 <a class="btn btn-transparent btn-mini red-font" onclick="return confirm('Are you sure want to delete this?')" href="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}"><i class="fa fa-remove"></i></a>
                                         {% endif %}
-                                        <a class="btn btn-mini btn-info" href="{{ path('kpi_details_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Details</a>
-                                        <a class="btn btn-mini blue-bg white-font" href="{{ path('kpi_report_sales_achivement',{'id':entity.id}) }}"><i class="feather icon-file"></i> Achive</a>
-                                        <a class="btn btn-mini purple-bg white-font" href="{{ path('kpi_summary_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Summary</a>
+                                        <a class="btn btn-mini btn-info" target="_blank" href="{{ path('kpi_details_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Details</a>
+                                        <a class="btn btn-mini blue-bg white-font" target="_blank" href="{{ path('kpi_report_sales_achivement',{'id':entity.id}) }}"><i class="feather icon-file"></i> Achive</a>
+                                        <a class="btn btn-mini purple-bg white-font" target="_blank" href="{{ path('kpi_summary_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Summary</a>
 
                                     </div>
                                 </td>
