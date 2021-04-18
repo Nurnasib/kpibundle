@@ -16,10 +16,21 @@ use Terminalbd\KpiBundle\Entity\AgentOutstanding;
  */
 class OutstandingController extends AbstractController
 {
+    public function paginate(Request $request ,$entities)
+    {
+
+        $paginator  = $this->get('knp_paginator');
+        $pagination = $paginator->paginate(
+            $entities,
+            $request->query->get('page', 1)/*page number*/,
+            25  /*limit per page*/
+        );
+        return $pagination;
+    }
     /**
      * @Route("/", methods={"GET"}, name="kpi_outstanding")
      */
-    public function docSalesCollection(Request $request)
+    public function agentOutstanding(Request $request)
     {
         $requestMonthYear = $request->get('monthYear');
 
@@ -31,9 +42,10 @@ class OutstandingController extends AbstractController
         }
 
         $entities = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getMonthYearOutstanding($monthYear);
+        $pagination = $this->paginate($request,$entities);
 
         return $this->render('@TerminalbdKpi/outstanding/outstanding.html.twig', [
-            'entities' => $entities,
+            'entities' => $pagination,
             'monthYear' => $monthYear,
             'selectedMonthYear'=>$requestMonthYear,
         ]);

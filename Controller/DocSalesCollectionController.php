@@ -15,26 +15,46 @@ use Terminalbd\KpiBundle\Entity\AgentDocSaleCollection;
  */
 class DocSalesCollectionController extends AbstractController
 {
+    public function paginate(Request $request ,$entities)
+    {
+
+        $paginator  = $this->get('knp_paginator');
+        $pagination = $paginator->paginate(
+            $entities,
+            $request->query->get('page', 1)/*page number*/,
+            25  /*limit per page*/
+        );
+        return $pagination;
+    }
+
     /**
      * @Route("/", methods={"GET"}, name="kpi_doc_sales_collection")
      */
     public function docSalesCollection(Request $request)
     {
         $requestMonthYear = $request->get('monthYear');
+        $requestAgent = $request->get('agent');
 
-        $monthYear = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>Date('Y', strtotime(date('Y') . " last year")));
+        $data = [
+            'month' => Date('F', strtotime(date('F') . " last month")),
+            'year' => Date('Y', strtotime(date('Y') . " last year"))
+        ];
 
         if($requestMonthYear){
             $explode= explode(',',$requestMonthYear);
-            $monthYear = array('month'=>$explode[0],'year'=>$explode[1]);
+            $data = ['month'=>$explode[0],'year'=>$explode[1]];
+        }
+        if ($requestAgent){
+            $data['agent'] = $requestAgent;
         }
 
-        $entities = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getMonthYearSalesCollection($monthYear);
+        $entities = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getMonthYearSalesCollection($data);
+        $pagination = $this->paginate($request,$entities);
 
         return $this->render('@TerminalbdKpi/docSalesCollection/sales.html.twig', [
-            'entities' => $entities,
-            'monthYear' => $monthYear,
-            'selectedMonthYear'=>$requestMonthYear,
+            'entities' => $pagination,
+//            'monthYear' => $data,
+            'selectedMonthYear' => $requestMonthYear,
         ]);
 
     }

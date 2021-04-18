@@ -28,7 +28,6 @@ class AgentDocSaleCollectionRepository extends EntityRepository
 {
     public function insertDocSalesCollection($file, $keys, $allData, $month, $year)
     {
-
         $data = [];
         $addedId = [];
         $em = $this->_em;
@@ -36,6 +35,7 @@ class AgentDocSaleCollectionRepository extends EntityRepository
         foreach ($allData as $value){
             $data[] = array_combine($keys,array_slice($value, null, $keysLength));
         }
+
         foreach ($data as $record){
 
             $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'code' => $record['DistrictId']]);
@@ -126,10 +126,11 @@ class AgentDocSaleCollectionRepository extends EntityRepository
     }
 
 
-    public function getMonthYearSalesCollection($monthYear)
+    public function getMonthYearSalesCollection($data)
     {
-        $year = isset($monthYear['year']) ? $monthYear['year']:'';
-        $month = isset($monthYear['month']) ? $monthYear['month']:'';
+        $year = isset($data['year']) ? $data['year']:'';
+        $month = isset($data['month']) ? $data['month']:'';
+        $agent = isset($data['agent']) ? $data['agent']:'';
 
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent', 'agent');
@@ -138,6 +139,9 @@ class AgentDocSaleCollectionRepository extends EntityRepository
         $qb->addSelect('agent.name AS agentName', 'district.name AS districtName');
         $qb->where('e.month = :month')->setParameter('month', $month);
         $qb->andWhere('e.year = :year')->setParameter('year', $year);
+        if ($agent){
+            $qb->andWhere('agent.id =:agent')->setParameter('agent',$data['agent']);
+        }
         $qb->groupBy('agent.id');
 
         $results = $qb->getQuery()->getArrayResult();

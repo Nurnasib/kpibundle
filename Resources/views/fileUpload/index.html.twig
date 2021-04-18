@@ -34,7 +34,7 @@
                                 <td class="text-center">{{ entity.status > 0 ? 'Yes' : 'No' }}</td>
                                 <td class="text-right">
                                     <div class="btn-group" role="group" aria-label="Basic example">
-                                        {% if entity.title|replace({' ': "-"})|lower == 'agent-sales' and entity.status == 1 %}
+                                        {% if entity.title|replace({' ': "-"})|lower == 'agent-sales' and (entity.status == 1 or entity.status == 2) %}
                                             <a class="btn btn-mini bg-success white-font" href="{{ path('kpi_insert_data_district_wise',{'id':entity.id}) }}"><i class="feather icon-upload"></i> Migrate</a>
                                             <a class="btn btn-mini bg-secondary white-font" href="{{ path('kpi_insert_agent_category',{'id':entity.id}) }}"><i class="feather icon-upload"></i>Grade Change</a>
 
@@ -99,14 +99,6 @@
 {% block documentready %}
     {{ parent() }}
 
-    $('#datatable').DataTable( {
-        pageLength: 100,
-        columnDefs: [ {
-            targets: -1,
-            orderable: false
-        }],
-    });
-
     $('#inputMonth').datepicker({
     changeMonth: true,
     changeYear: true,
@@ -127,5 +119,13 @@
     $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
     }
     }
+    });
+
+    $('#datatable').DataTable( {
+    pageLength: 100,
+    columnDefs: [ {
+    targets: -1,
+    orderable: false
+    }],
     });
 {% endblock %}

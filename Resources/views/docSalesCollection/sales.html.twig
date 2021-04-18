@@ -33,6 +33,10 @@
                             <td colspan="2">
                                 <input autocomplete="off" type="text" class="form-control  input-sm" placeholder="mm-yyyy" value="{{ selectedMonthYear }}" name="monthYear" id="inputMonth">
                             </td>
+                            <td colspan="2">
+                                <select data-action="{{ path('core_agent_search_select2') }}" name="agent" class="agentSearch" id=""></select>
+                                {#<input data-action="{{ path('core_agent_search_select2') }}" class='form-control col-lg-5 agentSearch' type='text' placeholder='select item' />#}
+                            </td>
 
                             <td colspan="1">
                                 <button type="submit" class="btn btn-primary btn-sm" title="Search" value="Search"><i class="fa fa-search" aria-hidden="true"></i></button>
@@ -62,13 +66,22 @@
                                 </tr>
                             {% endfor %}
                         {% else %}
-                        <tr>
+{#                        <tr>
                             <td colspan="7" style="text-align: center">{{ 'No record Found for '|trans }}{{ monthYear|join(', ') }}</td>
-                        </tr>
+                        </tr>#}
                         {% endif %}
                         </tbody>
                     </table>
-
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="count">
+                                Total Records: {{ entities.getTotalItemCount }}
+                            </div>
+                        </div>
+                        <div class="col-md-9 navigation" style="padding-right: 0;">
+                            {{ knp_pagination_render(entities) }}
+                        </div>
                     </div>
 
                 </div>
@@ -86,6 +99,9 @@
     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
     <style>
         .ui-datepicker-calendar{display: none}
+        .pagination{
+            float: right;
+        }
     </style>
 {% endblock  %}
 {% block javascripts %}
@@ -94,7 +110,41 @@
 
 {% endblock  %}
 {% block documentready %}
+{#    <script>#}
     {{ parent() }}
+
+    $('.agentSearch').select2({
+
+        ajax: {
+        url: Routing.generate('core_agent_search_select2'),
+        dataType: 'json',
+        delay: 250,
+        type: 'GET',
+        data: function (params) {
+
+        return {
+        q: params.term, // search term
+        };
+        },
+        processResults: function (data) {
+        var arr = []
+        {#console.log(data);#}
+        $.each(data, function (index, value) {
+        arr.push({
+        id: index,
+        text: value
+        })
+        })
+        return {
+        results: arr
+        };
+        },
+        cache: true
+        },
+        escapeMarkup: function (markup) { return markup; },
+        minimumInputLength: 1
+    });
+
     $('#inputMonth').datepicker({
     changeMonth: true,
     changeYear: true,

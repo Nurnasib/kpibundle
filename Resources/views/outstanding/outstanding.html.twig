@@ -70,9 +70,17 @@
                         {% endif %}
                         </tbody>
                     </table>
-
                     </div>
-
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="count">
+                                Total Records: {{ entities.getTotalItemCount }}
+                            </div>
+                        </div>
+                        <div class="col-md-9 navigation" style="padding-right: 0;">
+                            {{ knp_pagination_render(entities) }}
+                        </div>
+                    </div>
                 </div>
                 </form>
             </div>
@@ -88,6 +96,9 @@
     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
     <style>
         .ui-datepicker-calendar{display: none}
+        .pagination{
+            float: right;
+        }
     </style>
 {% endblock  %}
 {% block javascripts %}
