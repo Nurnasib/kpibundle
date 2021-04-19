@@ -564,10 +564,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 return 3;
             }elseif ($action < 80 and $action >= 70) {
                 return 2;
-            }elseif ($action < 70 and $action >= 60) {
-                return 1;
             }else {
-                return 0;
+                return 1;
             }
 
         }
