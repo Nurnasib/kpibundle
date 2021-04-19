@@ -623,10 +623,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 3;
                 }elseif ($action < 5 and $action >= 3) {
                     $returnValue[$growthSlug] = 2;
-                }elseif ($action < 3 and $action >= 1) {
-                    $returnValue[$growthSlug] = 1;
                 }else {
-                    $returnValue[$growthSlug] = 0;
+                    $returnValue[$growthSlug] = 1;
                 }
 
             }elseif ($productSlug == 'sonali') {
@@ -641,10 +639,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 3;
                 }elseif ($action < 6 and $action >= 5) {
                     $returnValue[$growthSlug] = 2;
-                }elseif ($action < 5 and $action >= 1) {
-                    $returnValue[$growthSlug] = 1;
                 }else {
-                    $returnValue[$growthSlug] = 0;
+                    $returnValue[$growthSlug] = 1;
                 }
             }elseif ($productSlug == 'layer') {
                 $increase = $currentValue - $previousValue;
@@ -658,10 +654,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 3;
                 }elseif ($action < 6 and $action >= 4) {
                     $returnValue[$growthSlug] = 2;
-                }elseif ($action < 4 and $action >= 1) {
-                    $returnValue[$growthSlug] = 1;
                 }else {
-                    $returnValue[$growthSlug] = 0;
+                    $returnValue[$growthSlug] = 1;
                 }
             }elseif ($productSlug == 'fish') {
                 $increase = $currentValue - $previousValue;
@@ -675,10 +669,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 3;
                 }elseif ($action < 10 and $action >= 5) {
                     $returnValue[$growthSlug] = 2;
-                }elseif ($action < 5 and $action >= 1) {
-                    $returnValue[$growthSlug] = 1;
                 }else {
-                    $returnValue[$growthSlug] = 0;
+                    $returnValue[$growthSlug] = 1;
                 }
             }elseif ($productSlug == 'cattle') {
                 $increase = $currentValue - $previousValue;
@@ -692,10 +684,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 3;
                 }elseif ($action < 15 and $action >= 10) {
                     $returnValue[$growthSlug] = 2;
-                }elseif ($action < 10 and $action >= 1) {
-                    $returnValue[$growthSlug] = 1;
                 }else {
-                    $returnValue[$growthSlug] = 0;
+                    $returnValue[$growthSlug] = 1;
                 }
             }else {
                 return 0;
