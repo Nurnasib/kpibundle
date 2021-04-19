@@ -239,6 +239,8 @@ class AgentCategoryRepository extends EntityRepository
                 $marks[$grade] = 2;
             }elseif ($percentage < 60){
                 $marks[$grade] = 1;
+            }else{
+                $marks[$grade] = 1;
             }
         }
         return $marks;
