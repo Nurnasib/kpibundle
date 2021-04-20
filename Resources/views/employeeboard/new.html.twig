@@ -36,7 +36,7 @@
                 <div class="portlet box green ">
                     <div class="portlet-title">
                         <div class="caption">{{ 'Manage KPI Element'|trans }} </div>
-                        <button type="button" data-action="{{ path('kpi_employee_board_status_update',{'id':board.id}) }}" id="statusUpdate" name="statusUpdate" class="btn blue-bg text-white float-right statusUpdate" >Approved</button>
+                        <a type="button" href="{{ path('kpi_approve',{'id':board.id}) }}" id="statusUpdate" name="statusUpdate" class="btn blue-bg text-white float-right statusUpdate" >Approved</a>
 
                     </div>
                     <div class="portlet-body form">
@@ -220,7 +220,7 @@
 {% block javascriptBlock %}
 {#    <script>#}
     {{ parent() }}
-    $(document).on('click',".statusUpdate", function (event) {
+{#    $(document).on('click',".statusUpdate", function (event) {
     var url = $(this).attr('data-action');
     $.get(url, function(data){
         var redirectUrl = Routing.generate('kpi_employee_board');
@@ -228,5 +228,5 @@
             window.location.href = redirectUrl;
         }
     });
-    });
+    });#}
 {% endblock  %}

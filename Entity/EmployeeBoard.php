@@ -85,7 +85,12 @@ class EmployeeBoard
      * @ORM\Column(type="integer", nullable=true)
      */
     private $status;
-    
+
+    /**
+     * @var User
+     * @ORM\ManyToOne(targetEntity="App\Entity\User" , inversedBy="employeeBoard")
+     */
+    private $approvedBy;
 
     public function setId($id)
     {
@@ -243,6 +248,21 @@ class EmployeeBoard
         $this->createdBy = $createdBy;
     }
 
+    /**
+     * @return User
+     */
+    public function getApprovedBy(): User
+    {
+        return $this->approvedBy;
+    }
+
+    /**
+     * @param User $approvedBy
+     */
+    public function setApprovedBy(User $approvedBy): void
+    {
+        $this->approvedBy = $approvedBy;
+    }
 
 
 }

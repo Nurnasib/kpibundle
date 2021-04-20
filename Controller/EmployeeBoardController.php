@@ -229,8 +229,7 @@ class EmployeeBoardController extends AbstractController
         $em = $this->getDoctrine()->getManager();
         $em->remove($entity);
         $em->flush();
-        $this->addFlash('success', 'post.deleted_successfully');
-        return $this->redirectToRoute('kpi_employee_board');
+        return new JsonResponse('success');
     }
 
     /**
@@ -391,15 +390,15 @@ class EmployeeBoardController extends AbstractController
 
     /**
      * Update Status.
-     * @Route("/{id}/status-update", methods={"GET"}, name="kpi_employee_board_status_update")
+     * @Route("/{id}/approve", methods={"GET"}, name="kpi_approve")
      */
-    public function updateStatus(EmployeeBoard $employeeBoard): Response
+    public function approve(EmployeeBoard $employeeBoard): Response
     {
         $em = $this->getDoctrine()->getManager();
-        $employeeBoard->setStatus(2);
+        $employeeBoard->setApprovedBy($this->getUser());
         $em->persist($employeeBoard);
         $em->flush();
-        return new JsonResponse('success');
+        return $this->redirectToRoute('kpi_employee_board');
     }
 
 }

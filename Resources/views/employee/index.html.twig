@@ -40,6 +40,7 @@
                             <th scope="col">Name</th>
                             <th scope="col">Line Manager</th>
                             <th scope="col">Designation</th>
+                            <th scope="col">Report Mode</th>
                             <th scope="col">Mobile</th>
                             <th scope="col">User</th>
                             <th scope="col">Department</th>
@@ -63,6 +64,7 @@
                                 <td>{{ entity.name }}</td>
                                 <td>{{ entity.lineManager.name|default('') }}</td>
                                 <td>{{ entity.designation.name|default('') }}</td>
+                                <td>{{ entity.reportMode.name|default('') }}</td>
                                 <td>{{ entity.mobile }}</td>
                                 <td>{{ entity.username }}</td>
                                 <td>{{ entity.department.name|default('') }}</td>

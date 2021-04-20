@@ -37,10 +37,12 @@ class EmployeeBoardRepository extends EntityRepository
         $qb->leftJoin('u.lineManager','lm');
         $qb->leftJoin('u.designation','d');
         $qb->leftJoin('s.createdBy', 'createdBy');
+        $qb->leftJoin('s.approvedBy', 'approvedBy');
         $qb->select('s.id as id','s.month as month','s.year as year','s.status','s.created');
         $qb->addSelect('u.name as name','d.name as designation');
         $qb->addSelect('lm.name as lineManager');
         $qb->addSelect('createdBy.name AS createdByName');
+        $qb->addSelect('approvedBy.name AS approvedByName');
 /*        if($area == "Zonal"){
             $zonal = $user->getZonal()->getId();
             $qb->where('u.zonal = :zonal')->setParameter('zonal',$zonal);
