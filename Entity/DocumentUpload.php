@@ -46,6 +46,18 @@ class DocumentUpload
     private $monthYear;
 
     /**
+     * @var \DateTime
+     * @ORM\Column(type="datetime", nullable = true)
+     */
+    private $createdAt;
+
+    /**
+     * @var \DateTime
+     * @ORM\Column(type="datetime", nullable = true)
+     */
+    private $updatedAt;
+
+    /**
      * @return int
      */
     public function getId()
@@ -123,6 +135,38 @@ class DocumentUpload
     public function setMonthYear($monthYear)
     {
         $this->monthYear = $monthYear;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getCreatedAt(): \DateTime
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * @param \DateTime $createdAt
+     */
+    public function setCreatedAt(\DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getUpdatedAt(): \DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    /**
+     * @param \DateTime $updatedAt
+     */
+    public function setUpdatedAt(\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 
 

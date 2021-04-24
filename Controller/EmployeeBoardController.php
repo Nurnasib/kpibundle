@@ -229,7 +229,8 @@ class EmployeeBoardController extends AbstractController
         $em = $this->getDoctrine()->getManager();
         $em->remove($entity);
         $em->flush();
-        return new JsonResponse('success');
+        $this->addFlash('success', 'post.deleted_successfully');
+        return $this->redirectToRoute('kpi_employee_board');
     }
 
     /**

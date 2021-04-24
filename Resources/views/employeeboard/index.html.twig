@@ -75,9 +75,9 @@
                                                 <a class="btn btn-transparent btn-mini red-font remove" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i></a>
                                         {% endif %}
 
-                                        <a class="btn btn-mini btn-info" target="_blank" href="{{ path('kpi_details_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Details</a>
-                                        <a class="btn btn-mini blue-bg white-font" target="_blank" href="{{ path('kpi_report_sales_achivement',{'id':entity.id}) }}"><i class="feather icon-file"></i> Achive</a>
-                                        <a class="btn btn-mini purple-bg white-font" target="_blank" href="{{ path('kpi_summary_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Summary</a>
+                                        <a class="btn btn-mini btn-info" href="{{ path('kpi_details_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Details</a>
+                                        <a class="btn btn-mini blue-bg white-font" href="{{ path('kpi_report_sales_achivement',{'id':entity.id}) }}"><i class="feather icon-file"></i> Achive</a>
+                                        <a class="btn btn-mini purple-bg white-font" href="{{ path('kpi_summary_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Summary</a>
 
                                     </div>
                                 </td>
