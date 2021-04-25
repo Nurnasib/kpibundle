@@ -471,7 +471,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
         $gradeLetters = ['C','D'];
         $categoryUpgradationMark = $em->getRepository(AgentCategory::class)->getCategoryUpgradationMarks($board,$gradeLetters);
-
         $agentCategoryDistributions = $em->getRepository(MarkChart::class)->findBy(['slug' => ['minimum-50-d-category-agents-converts-to-c','minimum-50-c-category-agents-converts-to-b']]);
 
         foreach ($agentCategoryDistributions as $agentCategoryDistribution){

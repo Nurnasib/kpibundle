@@ -202,7 +202,7 @@ class AgentCategoryRepository extends EntityRepository
 
         foreach ($agentsIdWithCategory as $category => $agentsId){
 
-            $omittedGradeLetters = range($category, 'F');
+            $omittedGradeLetters = range($category, 'D');
 
             $qb = $this->createQueryBuilder('e');
             $qb->join('e.agent','agent');

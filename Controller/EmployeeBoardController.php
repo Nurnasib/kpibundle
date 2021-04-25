@@ -371,7 +371,6 @@ class EmployeeBoardController extends AbstractController
 
         $dCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithDInDecember($entity);
         $cCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithCInDecember($entity);
-
 //        $marks = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->findBy(array('employeeBoard'=>$id));
         return $this->render('@TerminalbdKpi/employeeboard/report/salesDetails.html.twig', [
             'entity' => $entity,
