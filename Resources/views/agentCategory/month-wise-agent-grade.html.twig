@@ -22,8 +22,7 @@
                     <h5>{{ 'Agents Grade'|trans }}</h5>
                     <div class="card-header-right">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
-                            <a href="{{ path('kpi_agent_category_index') }}" class="btn btn-sm gray-bg white-font"><i
-                                        class="fa fa-th-large"></i>{{ 'Agents Grade'|trans }}</a>
+                            <a href="{{ path('kpi_agent_category_index') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-large"></i>{{ 'Agents Grade'|trans }}</a>
                         </div>
 
                     </div>
@@ -43,15 +42,16 @@
                     {% endif %}
                     <div class="row">
                         <div class="col">
-                            <form class="form-inline border" method="get"
-                                  action="{{ path('kpi_month_wise_agent_grade') }}">
-                                <div class="form-group">
-                                    <input autocomplete="off" type="text" class="form-control  input-sm"
-                                           placeholder="mm-yyyy" value="{{ selectedMonthYear|default('') }}"
-                                           name="monthYear" id="inputMonth">
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-sm" title="Search" value="Search"><i
-                                            class="fa fa-search" aria-hidden="true"></i></button>
+                            <form class="form-inline border" method="get" action="{{ path('kpi_month_wise_agent_grade') }}">
+                                <table width="100%">
+                                    <thead>
+                                    <tr>
+                                        <th width="14%"><input autocomplete="off" type="text" class="form-control  input-sm" placeholder="mm-yyyy" value="{{ selectedMonthYear|default('') }}" name="monthYear" id="inputMonth"></th>
+                                        <th><select data-action="{{ path('district_search_select2') }}" name="district" class="districtSearch" id=""></select></th>
+                                        <th><button type="submit" class="btn btn-primary btn-sm" title="Search" value="Search"><i class="fa fa-search" aria-hidden="true"></i></button></th>
+                                    </tr>
+                                    </thead>
+                                </table>
                             </form>
                         </div>
                     </div>
@@ -63,6 +63,7 @@
                                     <th scope="col">Category</th>
                                     <th scope="col">Agent Id</th>
                                     <th scope="col">Agent Name</th>
+                                    <th scope="col">District</th>
                                     <th scope="col">Region</th>
                                     <th scope="col">Zone</th>
                                     <th scope="col">Average</th>
@@ -85,6 +86,7 @@
                                             <td>{{ prevYearGradeAndAverage[entity.agentId].grade|default('X') }}</td>
                                             <td>{{ entity.agentId|default('') }}</td>
                                             <td>{{ entity.agentName|default('') }}</td>
+                                            <td>{{ entity.agentDistrictName|default('') }}</td>
                                             <td>{{ entity.agentRegionName|default('') }}</td>
                                             <td>{{ entity.agentZoneName|default('') }}</td>
                                             <td>{{ prevYearGradeAndAverage[entity.agentId].average|default(0)|number_format(2) }}</td>
@@ -125,6 +127,41 @@
 {% endblock %}
 {% block documentready %}
     {{ parent() }}
+
+{#    <script>#}
+
+
+    $('.districtSearch').select2({
+
+    ajax: {
+    url: Routing.generate('district_search_select2'),
+    dataType: 'json',
+    delay: 250,
+    type: 'GET',
+    data: function (params) {
+
+    return {
+    q: params.term, // search term
+    };
+    },
+    processResults: function (data) {
+    var arr = []
+    {#console.log(data);#}
+    $.each(data, function (index, value) {
+    arr.push({
+    id: index,
+    text: value
+    })
+    })
+    return {
+    results: arr
+    };
+    },
+    cache: true
+    },
+    escapeMarkup: function (markup) { return markup; },
+    minimumInputLength: 1
+    });
 
     $('#inputMonth').datepicker({
     changeMonth: true,

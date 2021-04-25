@@ -47,11 +47,15 @@ class AgentCategoryRepository extends EntityRepository
         $qb->join('region.parent', 'zone');
         $qb->select('e.average','e.month','e.year');
         $qb->addSelect('agent.agentId AS agentId', 'agent.name AS agentName');
+        $qb->addSelect('district.name AS agentDistrictName');
         $qb->addSelect('region.name AS agentRegionName');
         $qb->addSelect('zone.name AS agentZoneName');
         $qb->addSelect('gradeStandard.grade');
         $qb->where('e.month = :prevMonth')->setParameter('prevMonth', $filterBy['month']);
         $qb->andWhere('e.year = :prevYear')->setParameter('prevYear', $filterBy['year']);
+        if(isset($filterBy['district'])){
+            $qb->andWhere('district.id =:district')->setParameter('district',$filterBy['district']);
+        }
         $qb->groupBy('agent.agentId');
         $qb->orderBy('agent.agentId');
 //        $qb->andWhere('agent.id = :agentId')->setParameter('agentId', 1271);

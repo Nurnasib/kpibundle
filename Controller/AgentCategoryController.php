@@ -79,12 +79,20 @@ class AgentCategoryController extends AbstractController
     {
         $entities = [];
         $prevYear = date("Y",strtotime("-1 year"));
-        $requestData = $request->query->get('monthYear');
+
+        $allData = $request->query->all();
+        $requestData = isset($allData['monthYear'])?$allData['monthYear']:'';
+//        $requestData = $request->query->get('monthYear');
+        $requestDistrict = isset($allData['district'])?$allData['district']:'';
+
         $filterBy = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>date('Y'));
         if($requestData){
             $explode= explode(',',$requestData);
             $filterBy = array('month'=>$explode[0],'year'=>$explode[1]);
             $prevYear = $filterBy['year']-1;
+        }
+        if($requestDistrict){
+            $filterBy['district'] = $requestDistrict;
         }
 
         $entities = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentGradeMonthWise($filterBy);
