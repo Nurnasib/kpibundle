@@ -120,14 +120,11 @@ class AgentCategoryRepository extends EntityRepository
                                 SET kac.average = b.avg_val,
                                 kac.grade_standard_id = (
                                 CASE 
-                                WHEN b.avg_val >= 200 THEN 1
-                                WHEN b.avg_val >= 180 AND b.avg_val < 200 THEN 2
-                                WHEN b.avg_val >= 160 AND b.avg_val < 180 THEN 3
-                                WHEN b.avg_val >= 140 AND b.avg_val < 160 THEN 4
-                                WHEN b.avg_val >= 120 AND b.avg_val < 140 THEN 5
-                                WHEN b.avg_val >= 100 AND b.avg_val < 120 THEN 6
+                                WHEN b.avg_val >= 100 THEN 1
+                                WHEN b.avg_val >= 50 AND b.avg_val < 100 THEN 2
+                                WHEN b.avg_val >= 30 AND b.avg_val < 50 THEN 3
                                 ELSE 
-                                6
+                                4
                                 END
                                 )   
                             WHERE kac.document_upload_id = :fileId";
