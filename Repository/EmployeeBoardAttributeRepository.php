@@ -281,7 +281,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         }
 
         $entities = $em->getRepository(DistrictOrder::class)->getLocationWiseTotalProductSalesTarget($arrs, $board->getYear(), $board->getMonth());
-
         if(!empty($entities)){
             $totalAchivementMark=0;
             $totalQuantity=0;
@@ -333,7 +332,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 $growthEntity->setEmployeeBoard($board);
                 $growthEntity->setMarkDistribution($growthDistribution);
                 $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity']);
-                $growthEntity->setSalesQuantity($parameter['salesGrouthCurrentQuantity']);
+//                $growthEntity->setSalesQuantity($parameter['salesGrouthCurrentQuantity']);
+                $growthEntity->setSalesQuantity($parameter['quantity']);
 
                 $growthEntity->setMark($this->salesGrowthCalculation($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'] )[$growthDistribution->getSlug()]);
                 $em->persist($growthEntity);
