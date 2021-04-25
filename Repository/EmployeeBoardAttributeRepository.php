@@ -124,8 +124,63 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $this->updateDocSales($board);
         $this->updateCategoryUpgrade($board);
         $this->updateEvaluationCriteriaPoultry($board);
+        $this->agentSalesGrowth($board);
     }
 
+    public function agentSalesGrowth(EmployeeBoard $board)
+    {
+        $em = $this->_em;
+        $prevYear = $board->getYear()-1;
+        $twentyPercentGrowthAgents = [];
+        $locations = $board->getEmployee()->getDistrict();
+        $locationsId = [];
+        if(!empty($locations)){
+            foreach ($locations as $location){
+                $locationsId[] = $location->getId();
+            }
+        }
+        $agentsWithSalesQuantity = $em->getRepository(AgentOrder::class)->getAgentWithSalesQuantity($board, $locationsId);
+
+        $commonAgentBetweenYears = array_intersect_key($agentsWithSalesQuantity[$board->getYear()],$agentsWithSalesQuantity[$prevYear]);  //Common agents and SalesQuantity(Current Year)
+
+        foreach ($commonAgentBetweenYears as $agentId => $currentYearAgentSalesQty) {
+            if ($agentsWithSalesQuantity[$prevYear][$agentId]){
+                if ($currentYearAgentSalesQty > $agentsWithSalesQuantity[$prevYear][$agentId]){
+                    $growthPercentage = (($currentYearAgentSalesQty - $agentsWithSalesQuantity[$prevYear][$agentId]) * 100) / $agentsWithSalesQuantity[$prevYear][$agentId];
+                    if ($growthPercentage >= 20){
+                        $twentyPercentGrowthAgents[] = $agentId;
+                    }
+                }
+            }
+        }
+
+        $agentSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'develop-existing-customer-sales-volume'));
+        $employeeBoardAttributeForAgentSalesGrowth = $this->findOneBy(['employeeBoard' => $board,'attribute' => $agentSalesDistribution]);
+
+        if($employeeBoardAttributeForAgentSalesGrowth){
+            $mark = $this->twentyPercentGrowthAgentNumberPercentageCalculation($commonAgentBetweenYears,$twentyPercentGrowthAgents);
+            $employeeBoardAttributeForAgentSalesGrowth->setMark($mark);
+            $em->persist($employeeBoardAttributeForAgentSalesGrowth);
+            $em->flush();
+        }
+
+    }
+    private function twentyPercentGrowthAgentNumberPercentageCalculation($commonAgentBetweenYears,$twentyPercentGrowthAgents)
+    {
+        $agentNumberWithPercentage = (count($twentyPercentGrowthAgents) * 100) / count($commonAgentBetweenYears);
+
+        if ($agentNumberWithPercentage >= 30){
+            return 3;
+        }elseif ($agentNumberWithPercentage >= 10 && $agentNumberWithPercentage < 30){
+            return 2;
+        }elseif ($agentNumberWithPercentage >= 1 && $agentNumberWithPercentage < 10){
+            return 1;
+        }else{
+            return 0;
+        }
+    }
+
+    
     public function updateEvaluationCriteriaPoultry(EmployeeBoard $board)
     {
 //        dd(date("01-m-{$board->getYear()}",strtotime('February')));

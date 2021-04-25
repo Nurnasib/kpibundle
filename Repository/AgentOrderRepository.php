@@ -16,6 +16,7 @@ use App\Entity\Core\Agent;
 use App\Entity\Core\Setting;
 use Doctrine\ORM\EntityRepository;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
+use Terminalbd\KpiBundle\Entity\EmployeeBoard;
 use Terminalbd\KpiBundle\Entity\MarkChart;
 
 /**
@@ -245,6 +246,30 @@ class AgentOrderRepository extends EntityRepository
         $results = $qb->getQuery()->getArrayResult();
         return $results;
 
+    }
+
+    public function getAgentWithSalesQuantity(EmployeeBoard $board, $locationsId)
+    {
+//        $prevYear = date('Y',strtotime("-1 year", strtotime($board->getYear())));
+        $years = [$board->getYear()-1, $board->getYear()];
+
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.agent', 'agent');
+        $qb->join('e.district', 'district');
+
+        $qb->select('e.quantity', 'e.year');
+        $qb->addSelect('agent.id AS agentId');
+
+        $qb->where('e.month = :month')->setParameter('month', $board->getMonth());
+        $qb->andWhere('e.year IN (:years)')->setParameter('years', $years);
+        $qb->andWhere('district.id IN (:districtId)')->setParameter('districtId', $locationsId);
+
+        $results = $qb->getQuery()->getArrayResult();
+        $data = [];
+        foreach ($results as $result){
+            $data[$result['year']][$result['agentId']] = $result['quantity'];
+        }
+        return $data;
     }
 
 }
