@@ -123,7 +123,13 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $this->updateOutStandingLimit($board);
         $this->updateDocSales($board);
         $this->updateCategoryUpgrade($board);
-        $this->updateEvaluationCriteriaPoultry($board);
+        if ($board->getEmployee()->getReportMode()->getSlug() == 'poultry-service'){
+            $this->updateEvaluationCriteriaPoultry($board);
+        }elseif ($board->getEmployee()->getReportMode()->getSlug() == 'aqua-service'){
+            $this->updateEvaluationCriteriaAqua($board);
+        }elseif ($board->getEmployee()->getReportMode()->getSlug() == 'cattle-service'){
+            $this->updateEvaluationCriteriaCattle($board);
+        }
         $this->agentSalesGrowth($board);
     }
 
@@ -181,6 +187,284 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     }
 
     
+    public function updateEvaluationCriteriaCattle(EmployeeBoard $board)
+    {
+//        dd(date("01-m-{$board->getYear()}",strtotime('February')));
+        $em = $this->_em;
+        $filterBy['employeeId'] = $board->getEmployee()->getId();
+        $filterBy['monthStart'] = date("{$board->getYear()}-m-01",strtotime($board->getMonth()));
+        $filterBy['monthEnd'] = date("{$board->getYear()}-m-t",strtotime($board->getMonth()));
+
+        $monthlyFarmVisitReport = $this->getAttrbuteForMonthlyReport($board,'cattle-farm-visit-report');
+        if($monthlyFarmVisitReport){
+//            $numberOfReports = (int)$em->getRepository(FcrDetails::class)->getMonthlyFcrAfterSaleTotalReport($filterBy);
+            $numberOfReports = 0;
+            $mark = $numberOfReports * 0.25;
+            $monthlyFarmVisitReport->setMark($mark);
+            $monthlyFarmVisitReport->setTargetReport(40);
+            $monthlyFarmVisitReport->setAchieveReport($numberOfReports);
+            $monthlyFarmVisitReport->setTargetMark(10);
+            $em->persist($monthlyFarmVisitReport);
+            $em->flush();
+        }
+
+        $monthlyFeedPerformanceReport = $this->getAttrbuteForMonthlyReport($board,'cattle-dairy-fattening-feed-performance-report');
+        if($monthlyFeedPerformanceReport){
+            $numberOfReports = 0;
+            $mark = $numberOfReports * 1;
+
+            $monthlyFeedPerformanceReport->setTargetReport(10);
+            $monthlyFeedPerformanceReport->setAchieveReport($numberOfReports);
+            $monthlyFeedPerformanceReport->setTargetMark(10);
+            $monthlyFeedPerformanceReport->setMark($mark);
+            $em->persist($monthlyFeedPerformanceReport);
+            $em->flush();
+        }
+
+        $monthlyLifeCycleReport = $this->getAttrbuteForMonthlyReport($board,'cattle-dairy-fattening-life-cycle-report');
+        if($monthlyLifeCycleReport){
+            $numberOfReports = 0;
+            $mark = $numberOfReports * 5;
+
+            $monthlyLifeCycleReport->setTargetReport(2);
+            $monthlyLifeCycleReport->setAchieveReport($numberOfReports);
+            $monthlyLifeCycleReport->setTargetMark(10);
+            $monthlyLifeCycleReport->setMark($mark);
+            $em->persist($monthlyLifeCycleReport);
+            $em->flush();
+        }
+
+        $monthlyFarmerTouchReport = $this->getAttrbuteForMonthlyReport($board,'cattle-farmers-touch-report');
+        if($monthlyFarmerTouchReport){
+            $numberOfReports = 0;
+            $mark = $numberOfReports * 0.5;
+
+            $monthlyFarmerTouchReport->setTargetReport(20);
+            $monthlyFarmerTouchReport->setAchieveReport($numberOfReports);
+            $monthlyFarmerTouchReport->setTargetMark(10);
+            $monthlyFarmerTouchReport->setMark($mark);
+            $em->persist($monthlyFarmerTouchReport);
+            $em->flush();
+        }
+
+        $monthlyNewFarmerIntroduceReport = $this->getAttrbuteForMonthlyReport($board,'cattle-new-farm-introduce-report');
+        if($monthlyNewFarmerIntroduceReport){
+            $numberOfReports = 0;
+            $mark = $numberOfReports * 2;
+
+            $monthlyNewFarmerIntroduceReport->setTargetReport(5);
+            $monthlyNewFarmerIntroduceReport->setAchieveReport($numberOfReports);
+            $monthlyNewFarmerIntroduceReport->setTargetMark(10);
+            $monthlyNewFarmerIntroduceReport->setMark($mark);
+            $em->persist($monthlyNewFarmerIntroduceReport);
+            $em->flush();
+        }
+
+        $monthlyAgentUpgradationReport = $this->getAttrbuteForMonthlyReport($board,'cattle-agent-upgradation-report');
+        if($monthlyAgentUpgradationReport){
+            $numberOfReports = 0;
+            $mark = $numberOfReports * 10;
+
+            $monthlyAgentUpgradationReport->setTargetReport(1);
+            $monthlyAgentUpgradationReport->setAchieveReport($numberOfReports);
+            $monthlyAgentUpgradationReport->setTargetMark(10);
+            $monthlyAgentUpgradationReport->setMark($mark);
+            $em->persist($monthlyAgentUpgradationReport);
+            $em->flush();
+        }
+
+        $monthlyFeedSaleReport = $this->getAttrbuteForMonthlyReport($board,'cattle-company-wise-feed-sale-price-report');
+        if($monthlyFeedSaleReport){
+            $numberOfReports = 0;
+            $mark = $numberOfReports * 1;
+
+            $monthlyFeedSaleReport->setTargetReport(10);
+            $monthlyFeedSaleReport->setAchieveReport($numberOfReports);
+            $monthlyFeedSaleReport->setTargetMark(10);
+            $monthlyFeedSaleReport->setMark($mark);
+            $em->persist($monthlyFeedSaleReport);
+            $em->flush();
+        }
+
+        $monthlyFarmersTrainingProgramReport = $this->getAttrbuteForMonthlyReport($board,'cattle-farmers-training-program-report');
+        if($monthlyFarmersTrainingProgramReport){
+            $numberOfReports = 0;
+            $mark = $numberOfReports * 1;
+
+            $monthlyFarmersTrainingProgramReport->setTargetReport(10);
+            $monthlyFarmersTrainingProgramReport->setAchieveReport($numberOfReports);
+            $monthlyFarmersTrainingProgramReport->setTargetMark(10);
+            $monthlyFarmersTrainingProgramReport->setMark($mark);
+            $em->persist($monthlyFarmersTrainingProgramReport);
+            $em->flush();
+        }
+
+        $monthlyDiseasesReport = $this->getAttrbuteForMonthlyReport($board,'cattle-diseases-report');
+        if($monthlyDiseasesReport){
+            $numberOfReports = 0;
+            $mark = $numberOfReports * 1;
+
+            $monthlyDiseasesReport->setTargetReport(10);
+            $monthlyDiseasesReport->setAchieveReport($numberOfReports);
+            $monthlyDiseasesReport->setTargetMark(10);
+            $monthlyDiseasesReport->setMark($mark);
+            $em->persist($monthlyDiseasesReport);
+            $em->flush();
+        }
+
+        $monthlyCustomerFeedbackReport = $this->getAttrbuteForMonthlyReport($board,'product-performance-feedback-report');
+        if($monthlyCustomerFeedbackReport){
+            $numberOfReports = 0;
+            $mark = 10;
+
+            $monthlyCustomerFeedbackReport->setTargetReport(0);
+            $monthlyCustomerFeedbackReport->setAchieveReport($numberOfReports);
+            $monthlyCustomerFeedbackReport->setTargetMark(10);
+            $monthlyCustomerFeedbackReport->setMark($mark);
+            $em->persist($monthlyCustomerFeedbackReport);
+            $em->flush();
+        }
+    }
+
+    public function updateEvaluationCriteriaAqua(EmployeeBoard $board)
+    {
+//        dd(date("01-m-{$board->getYear()}",strtotime('February')));
+        $em = $this->_em;
+        $filterBy['employeeId'] = $board->getEmployee()->getId();
+        $filterBy['monthStart'] = date("{$board->getYear()}-m-01",strtotime($board->getMonth()));
+        $filterBy['monthEnd'] = date("{$board->getYear()}-m-t",strtotime($board->getMonth()));
+
+        $monthlyLifeCycleReport = $this->getAttrbuteForMonthlyReport($board,'aqua-life-cycle-report');
+        if($monthlyLifeCycleReport){
+//            $numberOfReports = (int)$em->getRepository(FcrDetails::class)->getMonthlyFcrAfterSaleTotalReport($filterBy);
+            $numberOfReports = 0;
+            $mark = $numberOfReports * 5;
+            $monthlyLifeCycleReport->setMark($mark);
+            $monthlyLifeCycleReport->setTargetReport(2);
+            $monthlyLifeCycleReport->setAchieveReport($numberOfReports);
+            $monthlyLifeCycleReport->setTargetMark(10);
+            $em->persist($monthlyLifeCycleReport);
+            $em->flush();
+        }
+
+        $monthlyCompanySpeciesFcrReport = $this->getAttrbuteForMonthlyReport($board,'aqua-company-species-wise-avg-fcr-report');
+        if($monthlyCompanySpeciesFcrReport){
+            $numberOfReports = 0;
+            $mark = $numberOfReports * 2;
+
+            $monthlyCompanySpeciesFcrReport->setTargetReport(5);
+            $monthlyCompanySpeciesFcrReport->setAchieveReport($numberOfReports);
+            $monthlyCompanySpeciesFcrReport->setTargetMark(10);
+            $monthlyCompanySpeciesFcrReport->setMark($mark);
+            $em->persist($monthlyCompanySpeciesFcrReport);
+            $em->flush();
+        }
+
+        $monthlyFeedSaleReport = $this->getAttrbuteForMonthlyReport($board,'aqua-company-wise-feed-sale-report');
+        if($monthlyFeedSaleReport){
+            $numberOfReports = 0;
+            $mark = $numberOfReports * 10;
+
+            $monthlyFeedSaleReport->setTargetReport(1);
+            $monthlyFeedSaleReport->setAchieveReport($numberOfReports);
+            $monthlyFeedSaleReport->setTargetMark(10);
+            $monthlyFeedSaleReport->setMark($mark);
+            $em->persist($monthlyFeedSaleReport);
+            $em->flush();
+        }
+
+        $monthlyNewFarmerTouchReport = $this->getAttrbuteForMonthlyReport($board,'aqua-new-farmertouch-report');
+        if($monthlyNewFarmerTouchReport){
+            $numberOfReports = 0;
+            $mark = $numberOfReports * 1;
+
+            $monthlyNewFarmerTouchReport->setTargetReport(10);
+            $monthlyNewFarmerTouchReport->setAchieveReport($numberOfReports);
+            $monthlyNewFarmerTouchReport->setTargetMark(10);
+            $monthlyNewFarmerTouchReport->setMark($mark);
+            $em->persist($monthlyNewFarmerTouchReport);
+            $em->flush();
+        }
+
+        $monthlyNewFarmerIntroduceReport = $this->getAttrbuteForMonthlyReport($board,'aqua-new-farmer-introduce-report');
+        if($monthlyNewFarmerIntroduceReport){
+            $numberOfReports = 0;
+            $mark = $numberOfReports * 10;
+
+            $monthlyNewFarmerIntroduceReport->setTargetReport(1);
+            $monthlyNewFarmerIntroduceReport->setAchieveReport($numberOfReports);
+            $monthlyNewFarmerIntroduceReport->setTargetMark(10);
+            $monthlyNewFarmerIntroduceReport->setMark($mark);
+            $em->persist($monthlyNewFarmerIntroduceReport);
+            $em->flush();
+        }
+
+        $monthlyFarmerTrainingReport = $this->getAttrbuteForMonthlyReport($board,'aqua-farmers-training-report');
+        if($monthlyFarmerTrainingReport){
+            $numberOfReports = 0;
+            $mark = $numberOfReports * 1;
+
+            $monthlyFarmerTrainingReport->setTargetReport(10);
+            $monthlyFarmerTrainingReport->setAchieveReport($numberOfReports);
+            $monthlyFarmerTrainingReport->setTargetMark(10);
+            $monthlyFarmerTrainingReport->setMark($mark);
+            $em->persist($monthlyFarmerTrainingReport);
+            $em->flush();
+        }
+
+        $monthlyLessCostingFarmReport = $this->getAttrbuteForMonthlyReport($board,'aqua-less-costing-farm-report');
+        if($monthlyLessCostingFarmReport){
+            $numberOfReports = 0;
+            $mark = $numberOfReports * 1;
+
+            $monthlyLessCostingFarmReport->setTargetReport(10);
+            $monthlyLessCostingFarmReport->setAchieveReport($numberOfReports);
+            $monthlyLessCostingFarmReport->setTargetMark(10);
+            $monthlyLessCostingFarmReport->setMark($mark);
+            $em->persist($monthlyLessCostingFarmReport);
+            $em->flush();
+        }
+
+        $monthlyNewAgentCreationReport = $this->getAttrbuteForMonthlyReport($board,'aqua-new-agent-creation-and-up-gradation-report');
+        if($monthlyNewAgentCreationReport){
+            $numberOfReports = 0;
+            $mark = $numberOfReports * 1;
+
+            $monthlyNewAgentCreationReport->setTargetReport(10);
+            $monthlyNewAgentCreationReport->setAchieveReport($numberOfReports);
+            $monthlyNewAgentCreationReport->setTargetMark(10);
+            $monthlyNewAgentCreationReport->setMark($mark);
+            $em->persist($monthlyNewAgentCreationReport);
+            $em->flush();
+        }
+
+        $monthlySpeciesWiseFishPriceReport = $this->getAttrbuteForMonthlyReport($board,'aqua-species-wise-fish-price-report');
+        if($monthlySpeciesWiseFishPriceReport){
+            $numberOfReports = 0;
+            $mark = $numberOfReports * 1;
+
+            $monthlySpeciesWiseFishPriceReport->setTargetReport(10);
+            $monthlySpeciesWiseFishPriceReport->setAchieveReport($numberOfReports);
+            $monthlySpeciesWiseFishPriceReport->setTargetMark(10);
+            $monthlySpeciesWiseFishPriceReport->setMark($mark);
+            $em->persist($monthlySpeciesWiseFishPriceReport);
+            $em->flush();
+        }
+
+        $monthlyCustomerFeedbackReport = $this->getAttrbuteForMonthlyReport($board,'customer-feedback-report');
+        if($monthlyCustomerFeedbackReport){
+            $numberOfReports = 0;
+            $mark = 10;
+
+            $monthlyCustomerFeedbackReport->setTargetReport(0);
+            $monthlyCustomerFeedbackReport->setAchieveReport($numberOfReports);
+            $monthlyCustomerFeedbackReport->setTargetMark(10);
+            $monthlyCustomerFeedbackReport->setMark($mark);
+            $em->persist($monthlyCustomerFeedbackReport);
+            $em->flush();
+        }
+    }
+
     public function updateEvaluationCriteriaPoultry(EmployeeBoard $board)
     {
 //        dd(date("01-m-{$board->getYear()}",strtotime('February')));
@@ -311,6 +595,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
         $productPerformanceFeedbackReport = $this->getAttrbuteForMonthlyReport($board,'product-performance-feedback-report');
         if($productPerformanceFeedbackReport){
+            $numberOfReports = 0;
             $mark = 10;
 
             $productPerformanceFeedbackReport->setTargetReport(0);
