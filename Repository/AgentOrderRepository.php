@@ -250,6 +250,7 @@ class AgentOrderRepository extends EntityRepository
 
     public function getAgentWithSalesQuantity(EmployeeBoard $board, $locationsId)
     {
+
 //        $prevYear = date('Y',strtotime("-1 year", strtotime($board->getYear())));
         $years = [$board->getYear()-1, $board->getYear()];
 
@@ -257,19 +258,84 @@ class AgentOrderRepository extends EntityRepository
         $qb->join('e.agent', 'agent');
         $qb->join('e.district', 'district');
 
-        $qb->select('e.quantity', 'e.year');
+        $qb->select('SUM(e.quantity) AS totalQuantity', 'e.year');
         $qb->addSelect('agent.id AS agentId');
 
         $qb->where('e.month = :month')->setParameter('month', $board->getMonth());
         $qb->andWhere('e.year IN (:years)')->setParameter('years', $years);
         $qb->andWhere('district.id IN (:districtId)')->setParameter('districtId', $locationsId);
 
+        $qb->groupBy('agent.id');
+        $qb->addGroupBy('e.year');
+
         $results = $qb->getQuery()->getArrayResult();
         $data = [];
         foreach ($results as $result){
-            $data[$result['year']][$result['agentId']] = $result['quantity'];
+            $data[$result['year']][$result['agentId']] = $result['totalQuantity'];
         }
         return $data;
     }
 
+    public function getTwentyPercentGrowthAgentSalesDetails(EmployeeBoard $board, $locationsId)
+    {
+        $twentyPercentGrowthAgents = [];
+        $prevYear = $board->getYear()-1;
+        $years = [$board->getYear()-1, $board->getYear()];
+
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.agent', 'agent');
+        $qb->join('e.district', 'district');
+
+        $qb->select('SUM(e.quantity) AS totalQuantity', 'e.year');
+        $qb->addSelect('agent.id AS agentId');
+
+        $qb->where('e.month = :month')->setParameter('month', $board->getMonth());
+        $qb->andWhere('e.year IN (:years)')->setParameter('years', $years);
+        $qb->andWhere('district.id IN (:districtId)')->setParameter('districtId', $locationsId);
+
+        $qb->groupBy('agent.id');
+        $qb->addGroupBy('e.year');
+
+        $results = $qb->getQuery()->getArrayResult();
+        $data = [];
+        foreach ($results as $result){
+            $data[$result['year']][$result['agentId']] = $result['totalQuantity'];
+        }
+
+        $commonAgentBetweenYears = array_intersect_key($data[$board->getYear()],$data[$prevYear]);  //Common agents and SalesQuantity(Current Year)
+
+        foreach ($commonAgentBetweenYears as $agentId => $currentYearAgentSalesQty) {
+            if ($data[$prevYear][$agentId]){
+                if ($currentYearAgentSalesQty > $data[$prevYear][$agentId]){
+                    $growthPercentage = (($currentYearAgentSalesQty - $data[$prevYear][$agentId]) * 100) / $data[$prevYear][$agentId];
+                    if ($growthPercentage >= 20){
+                        $twentyPercentGrowthAgents[] = $agentId;
+                    }
+                }
+            }
+        }
+        return $this->getSalesDetails($twentyPercentGrowthAgents, $years, $board);
+    }
+
+    private function getSalesDetails($twentyPercentGrowthAgentsId, $years, $board)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.agent', 'agent');
+
+        $qb->select('SUM(e.quantity) AS totalQuantity', 'e.year');
+        $qb->addSelect('agent.id AS agentId', 'agent.name AS agentName');
+
+        $qb->where('e.year IN (:years)')->setParameter('years', $years);
+        $qb->andWhere('agent.id IN (:agentId)')->setParameter('agentId', $twentyPercentGrowthAgentsId);
+        $qb->andWhere('e.month = :month')->setParameter('month', $board->getMonth());
+        $qb->groupBy('e.year');
+        $qb->addGroupBy('agent.id');
+        $results = $qb->getQuery()->getArrayResult();
+        $data = [];
+        foreach ($results as $result){
+            $data[$result['agentName']][$result['year']] = $result['totalQuantity'];
+        }
+        return $data;
+
+    }
 }

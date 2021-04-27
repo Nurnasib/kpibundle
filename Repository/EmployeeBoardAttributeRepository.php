@@ -45,7 +45,6 @@ use Terminalbd\KpiBundle\Entity\MarkChart;
  */
 class EmployeeBoardAttributeRepository extends EntityRepository
 {
-
     public function EmployeeBoardMarks(EmployeeBoard $board )
     {
 
@@ -138,6 +137,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $em = $this->_em;
         $prevYear = $board->getYear()-1;
         $twentyPercentGrowthAgents = [];
+
         $locations = $board->getEmployee()->getDistrict();
         $locationsId = [];
         if(!empty($locations)){

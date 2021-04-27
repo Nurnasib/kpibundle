@@ -14,6 +14,7 @@ namespace Terminalbd\KpiBundle\Controller;
 use App\Entity\User;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Mpdf\Tag\Th;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,6 +27,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Terminalbd\KpiBundle\Entity\AgentCategory;
 use Terminalbd\KpiBundle\Entity\AgentDocSaleCollection;
+use Terminalbd\KpiBundle\Entity\AgentOrder;
 use Terminalbd\KpiBundle\Entity\AgentOutstanding;
 use Terminalbd\KpiBundle\Entity\DistrictOrder;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
@@ -371,7 +373,7 @@ class EmployeeBoardController extends AbstractController
 
         $dCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithDInDecember($entity);
         $cCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithCInDecember($entity);
-//        $marks = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->findBy(array('employeeBoard'=>$id));
+        $twentyPercentGrowthAgentSalesDetails = $this->getDoctrine()->getRepository(AgentOrder::class)->getTwentyPercentGrowthAgentSalesDetails($entity, $locationsId);
         return $this->render('@TerminalbdKpi/employeeboard/report/salesDetails.html.twig', [
             'entity' => $entity,
             'feedAndGrowth' => $feedAndGrowth,
@@ -383,6 +385,7 @@ class EmployeeBoardController extends AbstractController
             'individualTeamMemberMarks' => $individualTeamMemberMarks,
             'dCategoryUpgrade' => $dCategoryUpgrade,
             'cCategoryUpgrade' => $cCategoryUpgrade,
+            'twentyPercentGrowthAgentSalesDetails' => $twentyPercentGrowthAgentSalesDetails,
         ]);
 
     }
