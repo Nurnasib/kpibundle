@@ -264,6 +264,7 @@ class AgentOrderRepository extends EntityRepository
         $qb->where('e.month = :month')->setParameter('month', $board->getMonth());
         $qb->andWhere('e.year IN (:years)')->setParameter('years', $years);
         $qb->andWhere('district.id IN (:districtId)')->setParameter('districtId', $locationsId);
+        $qb->andWhere('agent.status = 1');
 
         $qb->groupBy('agent.id');
         $qb->addGroupBy('e.year');
@@ -292,6 +293,7 @@ class AgentOrderRepository extends EntityRepository
         $qb->where('e.month = :month')->setParameter('month', $board->getMonth());
         $qb->andWhere('e.year IN (:years)')->setParameter('years', $years);
         $qb->andWhere('district.id IN (:districtId)')->setParameter('districtId', $locationsId);
+        $qb->andWhere('agent.status = 1');
 
         $qb->groupBy('agent.id');
         $qb->addGroupBy('e.year');
@@ -321,9 +323,11 @@ class AgentOrderRepository extends EntityRepository
     {
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent', 'agent');
+        $qb->join('agent.upozila', 'upozila');
+        $qb->join('agent.district', 'district');
 
         $qb->select('SUM(e.quantity) AS totalQuantity', 'e.year');
-        $qb->addSelect('agent.id AS agentId', 'agent.name AS agentName');
+        $qb->addSelect('agent.agentId AS agentId', 'agent.name AS agentName', 'upozila.name AS agentThana', 'district.name AS agentDistrict');
 
         $qb->where('e.year IN (:years)')->setParameter('years', $years);
         $qb->andWhere('agent.id IN (:agentId)')->setParameter('agentId', $twentyPercentGrowthAgentsId);
@@ -333,7 +337,9 @@ class AgentOrderRepository extends EntityRepository
         $results = $qb->getQuery()->getArrayResult();
         $data = [];
         foreach ($results as $result){
-            $data[$result['agentName']][$result['year']] = $result['totalQuantity'];
+            $data[$result['agentId']][$result['year']] = $result['totalQuantity'];
+            $data[$result['agentId']]['agentName'] = $result['agentName'];
+            $data[$result['agentId']]['agentAddress'] = $result['agentThana'] . ' , ' . $result['agentDistrict'];
         }
         return $data;
 

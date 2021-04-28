@@ -392,7 +392,6 @@ class EmployeeBoardController extends AbstractController
 
 
     /**
-     * Update Status.
      * @Route("/{id}/approve", methods={"GET"}, name="kpi_approve")
      */
     public function approve(EmployeeBoard $employeeBoard): Response

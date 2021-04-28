@@ -54,7 +54,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="col-md-2 control-label"><strong>{{ 'Working Area'|trans }}</strong></label>
-                                    <label class="col-md-10 control-label">{{ entity.employee.area }}</label>
+                                    <label class="col-md-10 control-label">{% for district in entity.employee.district %}{{ district.name }}{% if not loop.last %},{% endif %} {% endfor %}</label>
                                 </div>
                                 {% if entity.employee.department is not empty %}
                                 <div class="form-group">
@@ -353,7 +353,9 @@
                                     <table class="table table-striped table-bordered table-hover" style="margin-top: 0px !important;" id="datatable">
                                         <thead class="thead-dark">
                                         <tr>
+                                            <th scope="col">{{ 'Agent Id'|trans }}</th>
                                             <th scope="col">{{ 'Agent Name'|trans }}</th>
+                                            <th scope="col">{{ 'Address'|trans }}</th>
                                             <th scope="col">{{ 'Total Sales'|trans }} ({{ (entity.year)-1 }})</th>
                                             <th scope="col">{{ 'Total Sales'|trans }} ({{ entity.year }})</th>
                                             <th scope="col">{{ 'Growth'|trans }}</th>
@@ -361,19 +363,24 @@
                                         </thead>
                                         <tbody>
                                         {% if twentyPercentGrowthAgentSalesDetails is not empty %}
-                                            {% for agentName, details in twentyPercentGrowthAgentSalesDetails %}
-                                                {% set prevYearSale = 0 %}
-                                                {% set currentYearSale = 0 %}
+                                            {% for agentId, details in twentyPercentGrowthAgentSalesDetails %}
+                                                {% set prevYearSale = details['now'|date('Y')-1] %}
+                                                {% set currentYearSale = details['now'|date('Y')] %}
                                                 <tr>
-                                                    <td>{{ agentName }}</td>
-                                                    {% for totalAmount in details %}
-                                                        {% if loop.index == 1 %}
-                                                            {% set prevYearSale = totalAmount %}
-                                                        {% else %}
-                                                            {% set currentYearSale = totalAmount %}
-                                                        {% endif %}
-                                                        <td>{{ totalAmount|number_format(2) }}</td>
-                                                    {% endfor %}
+                                                    <td>{{ agentId|default('') }}</td>
+                                                    <td>{{ details.agentName|default('') }}</td>
+                                                    <td>{{ details.agentAddress|default('') }}</td>
+                                                    <td>{{ details[entity.year-1]|number_format(2) }}</td>
+                                                    <td>{{ details[entity.year]|number_format(2) }}</td>
+
+{#                                                    {% for totalAmount in details %}#}
+{#                                                        {% if loop.index == 1 %}#}
+{#                                                            {% set prevYearSale = totalAmount %}#}
+{#                                                        {% else %}#}
+{#                                                            {% set currentYearSale = totalAmount %}#}
+{#                                                        {% endif %}#}
+
+{#                                                    {% endfor %}#}
                                                     <td>{{ (((currentYearSale - prevYearSale) * 100) / prevYearSale)|number_format(2) }} %</td>
                                                 </tr>
                                             {% endfor %}
