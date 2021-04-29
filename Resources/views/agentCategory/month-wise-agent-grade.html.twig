@@ -83,7 +83,7 @@
                                 {% if entities is not empty %}
                                     {% for entity in entities %}
                                         <tr>
-                                            <td>{{ prevYearGradeAndAverage[entity.agentId].grade|default('X') }}</td>
+                                            <td>{{ prevYearGradeAndAverage[entity.agentId].grade|default('') }}</td>
                                             <td>{{ entity.agentId|default('') }}</td>
                                             <td>{{ entity.agentName|default('') }}</td>
                                             <td>{{ entity.agentDistrictName|default('') }}</td>
@@ -94,11 +94,6 @@
                                             <td>{{ entity.grade|default('') }}</td>
                                         </tr>
                                     {% endfor %}
-                                {% else %}
-                                    <tr>
-                                        <td colspan="7"
-                                            style="text-align: center"> {{ 'No record found for Previous Month!'|trans }}</td>
-                                    </tr>
                                 {% endif %}
                                 </tbody>
                             </table>
@@ -134,7 +129,8 @@
     $('.districtSearch').select2({
 
     ajax: {
-    url: Routing.generate('district_search_select2'),
+{#    url: Routing.generate('district_search_select2'),#}
+    url: $('.districtSearch').attr('data-action'),
     dataType: 'json',
     delay: 250,
     type: 'GET',
