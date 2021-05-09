@@ -45,50 +45,50 @@ use Terminalbd\KpiBundle\Entity\MarkChart;
  */
 class EmployeeBoardAttributeRepository extends EntityRepository
 {
-    public function EmployeeBoardMarks(EmployeeBoard $board )
+    public function EmployeeBoardMarks(EmployeeBoard $board)
     {
 
         $qb = $this->createQueryBuilder('e');
-        $qb->join("e.parameter",'p');
-        $qb->join("e.activity",'a');
-        $qb->join("e.attribute",'at');
-        $qb->join("e.employeeBoard",'eb');
-        $qb->leftJoin("e.markDistribution",'m');
+        $qb->join("e.parameter", 'p');
+        $qb->join("e.activity", 'a');
+        $qb->join("e.attribute", 'at');
+        $qb->join("e.employeeBoard", 'eb');
+        $qb->leftJoin("e.markDistribution", 'm');
         $qb->where("e.employeeBoard = :employeeBoard");
         $qb->setParameter("employeeBoard", $board);
-        $qb->orderBy('p.ordering','ASC');
-        $qb->addOrderBy('a.ordering','ASC');
-        $qb->addOrderBy('at.ordering','ASC');
+        $qb->orderBy('p.ordering', 'ASC');
+        $qb->addOrderBy('a.ordering', 'ASC');
+        $qb->addOrderBy('at.ordering', 'ASC');
         $result = $qb->getQuery()->getResult();
 
         return $result;
     }
 
-    public function EmployeeBoardSummaryReport(EmployeeBoard $board )
+    public function EmployeeBoardSummaryReport(EmployeeBoard $board)
     {
 
         $qb = $this->createQueryBuilder('e');
-        $qb->select('SUM(e.actualMark) as actualMark','SUM(e.mark) as mark','a.name as activity');
-        $qb->join("e.activity",'a');
+        $qb->select('SUM(e.actualMark) as actualMark', 'SUM(e.mark) as mark', 'a.name as activity');
+        $qb->join("e.activity", 'a');
         $qb->where("e.employeeBoard = {$board->getId()}");
         $qb->groupBy("a.id");
         $result = $qb->getQuery()->getArrayResult();
         return $result;
     }
 
-    public function insertMarkDistribution( EmployeeBoard $board, $entities)
+    public function insertMarkDistribution(EmployeeBoard $board, $entities)
     {
 
         $em = $this->_em;
         foreach ($entities as $parameter):
-            if(!empty($parameter->getChildren())){
+            if (!empty($parameter->getChildren())) {
                 foreach ($parameter->getChildren() as $activity):
-                    if(!empty($activity->getChildren())){
+                    if (!empty($activity->getChildren())) {
                         foreach ($activity->getChildren() as $attribute):
-                            $exist = $this->findOneBy(array('employeeBoard'=> $board,'attribute'=>$attribute));
-                            if(empty($exist) and !empty($board->getEmployee()->getReportMode())){
-                                $markChartAttribute = $em->getRepository(MarkChart::class)->findUserMarkAttribute($board->getEmployee()->getReportMode()->getId(),$attribute->getId());
-                                if($markChartAttribute){
+                            $exist = $this->findOneBy(array('employeeBoard' => $board, 'attribute' => $attribute));
+                            if (empty($exist) and !empty($board->getEmployee()->getReportMode())) {
+                                $markChartAttribute = $em->getRepository(MarkChart::class)->findUserMarkAttribute($board->getEmployee()->getReportMode()->getId(), $attribute->getId());
+                                if ($markChartAttribute) {
                                     $entity = new EmployeeBoardAttribute();
                                     $entity->setEmployeeBoard($board);
                                     $entity->setParameter($parameter);
@@ -110,8 +110,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $this->updateSalesProcess($board);
         $subAttrs = $this->groupByAttributeMarks($board);
         foreach ($subAttrs as $sub):
-            $exist = $this->findOneBy(array('employeeBoard'=> $board,'attribute' => $sub['parentId']));
-            if(!empty($exist)){
+            $exist = $this->findOneBy(array('employeeBoard' => $board, 'attribute' => $sub['parentId']));
+            if (!empty($exist)) {
                 $exist->setActualMark(5);
                 $em->persist($exist);
                 $em->flush();
@@ -122,11 +122,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $this->updateOutStandingLimit($board);
         $this->updateDocSales($board);
         $this->updateCategoryUpgrade($board);
-        if ($board->getEmployee()->getReportMode()->getSlug() == 'poultry-service'){
+        if ($board->getEmployee()->getReportMode()->getSlug() == 'poultry-service') {
             $this->updateEvaluationCriteriaPoultry($board);
-        }elseif ($board->getEmployee()->getReportMode()->getSlug() == 'aqua-service'){
+        } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'aqua-service') {
             $this->updateEvaluationCriteriaAqua($board);
-        }elseif ($board->getEmployee()->getReportMode()->getSlug() == 'cattle-service'){
+        } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'cattle-service') {
             $this->updateEvaluationCriteriaCattle($board);
         }
         $this->agentSalesGrowth($board);
@@ -135,25 +135,25 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     public function agentSalesGrowth(EmployeeBoard $board)
     {
         $em = $this->_em;
-        $prevYear = $board->getYear()-1;
+        $prevYear = $board->getYear() - 1;
         $twentyPercentGrowthAgents = [];
 
         $locations = $board->getEmployee()->getDistrict();
         $locationsId = [];
-        if(!empty($locations)){
-            foreach ($locations as $location){
+        if (!empty($locations)) {
+            foreach ($locations as $location) {
                 $locationsId[] = $location->getId();
             }
         }
         $agentsWithSalesQuantity = $em->getRepository(AgentOrder::class)->getAgentWithSalesQuantity($board, $locationsId);
 
-        $commonAgentBetweenYears = array_intersect_key($agentsWithSalesQuantity[$board->getYear()],$agentsWithSalesQuantity[$prevYear]);  //Common agents and SalesQuantity(Current Year)
+        $commonAgentBetweenYears = array_intersect_key($agentsWithSalesQuantity[$board->getYear()], $agentsWithSalesQuantity[$prevYear]);  //Common agents and SalesQuantity(Current Year)
 
         foreach ($commonAgentBetweenYears as $agentId => $currentYearAgentSalesQty) {
-            if ($agentsWithSalesQuantity[$prevYear][$agentId]){
-                if ($currentYearAgentSalesQty > $agentsWithSalesQuantity[$prevYear][$agentId]){
+            if ($agentsWithSalesQuantity[$prevYear][$agentId]) {
+                if ($currentYearAgentSalesQty > $agentsWithSalesQuantity[$prevYear][$agentId]) {
                     $growthPercentage = (($currentYearAgentSalesQty - $agentsWithSalesQuantity[$prevYear][$agentId]) * 100) / $agentsWithSalesQuantity[$prevYear][$agentId];
-                    if ($growthPercentage >= 20){
+                    if ($growthPercentage >= 20) {
                         $twentyPercentGrowthAgents[] = $agentId;
                     }
                 }
@@ -161,42 +161,43 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         }
 
         $agentSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'develop-existing-customer-sales-volume'));
-        $employeeBoardAttributeForAgentSalesGrowth = $this->findOneBy(['employeeBoard' => $board,'attribute' => $agentSalesDistribution]);
+        $employeeBoardAttributeForAgentSalesGrowth = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $agentSalesDistribution]);
 
-        if($employeeBoardAttributeForAgentSalesGrowth){
-            $mark = $this->twentyPercentGrowthAgentNumberPercentageCalculation($commonAgentBetweenYears,$twentyPercentGrowthAgents);
+        if ($employeeBoardAttributeForAgentSalesGrowth) {
+            $mark = $this->twentyPercentGrowthAgentNumberPercentageCalculation($commonAgentBetweenYears, $twentyPercentGrowthAgents);
             $employeeBoardAttributeForAgentSalesGrowth->setMark($mark);
             $em->persist($employeeBoardAttributeForAgentSalesGrowth);
             $em->flush();
         }
 
     }
-    private function twentyPercentGrowthAgentNumberPercentageCalculation($commonAgentBetweenYears,$twentyPercentGrowthAgents)
+
+    private function twentyPercentGrowthAgentNumberPercentageCalculation($commonAgentBetweenYears, $twentyPercentGrowthAgents)
     {
         $agentNumberWithPercentage = (count($twentyPercentGrowthAgents) * 100) / count($commonAgentBetweenYears);
 
-        if ($agentNumberWithPercentage >= 30){
+        if ($agentNumberWithPercentage >= 30) {
             return 3;
-        }elseif ($agentNumberWithPercentage >= 10 && $agentNumberWithPercentage < 30){
+        } elseif ($agentNumberWithPercentage >= 10 && $agentNumberWithPercentage < 30) {
             return 2;
-        }elseif ($agentNumberWithPercentage >= 1 && $agentNumberWithPercentage < 10){
+        } elseif ($agentNumberWithPercentage >= 1 && $agentNumberWithPercentage < 10) {
             return 1;
-        }else{
+        } else {
             return 0;
         }
     }
 
-    
+
     public function updateEvaluationCriteriaCattle(EmployeeBoard $board)
     {
 //        dd(date("01-m-{$board->getYear()}",strtotime('February')));
         $em = $this->_em;
         $filterBy['employeeId'] = $board->getEmployee()->getId();
-        $filterBy['monthStart'] = date("{$board->getYear()}-m-01",strtotime($board->getMonth()));
-        $filterBy['monthEnd'] = date("{$board->getYear()}-m-t",strtotime($board->getMonth()));
+        $filterBy['monthStart'] = date("{$board->getYear()}-m-01", strtotime($board->getMonth()));
+        $filterBy['monthEnd'] = date("{$board->getYear()}-m-t", strtotime($board->getMonth()));
 
-        $monthlyFarmVisitReport = $this->getAttrbuteForMonthlyReport($board,'cattle-farm-visit-report');
-        if($monthlyFarmVisitReport){
+        $monthlyFarmVisitReport = $this->getAttrbuteForMonthlyReport($board, 'cattle-farm-visit-report');
+        if ($monthlyFarmVisitReport) {
 //            $numberOfReports = (int)$em->getRepository(FcrDetails::class)->getMonthlyFcrAfterSaleTotalReport($filterBy);
             $numberOfReports = 0;
             $mark = $numberOfReports * 0.25;
@@ -208,8 +209,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyFeedPerformanceReport = $this->getAttrbuteForMonthlyReport($board,'cattle-dairy-fattening-feed-performance-report');
-        if($monthlyFeedPerformanceReport){
+        $monthlyFeedPerformanceReport = $this->getAttrbuteForMonthlyReport($board, 'cattle-dairy-fattening-feed-performance-report');
+        if ($monthlyFeedPerformanceReport) {
             $numberOfReports = 0;
             $mark = $numberOfReports * 1;
 
@@ -221,8 +222,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyLifeCycleReport = $this->getAttrbuteForMonthlyReport($board,'cattle-dairy-fattening-life-cycle-report');
-        if($monthlyLifeCycleReport){
+        $monthlyLifeCycleReport = $this->getAttrbuteForMonthlyReport($board, 'cattle-dairy-fattening-life-cycle-report');
+        if ($monthlyLifeCycleReport) {
             $numberOfReports = 0;
             $mark = $numberOfReports * 5;
 
@@ -234,8 +235,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyFarmerTouchReport = $this->getAttrbuteForMonthlyReport($board,'cattle-farmers-touch-report');
-        if($monthlyFarmerTouchReport){
+        $monthlyFarmerTouchReport = $this->getAttrbuteForMonthlyReport($board, 'cattle-farmers-touch-report');
+        if ($monthlyFarmerTouchReport) {
             $numberOfReports = 0;
             $mark = $numberOfReports * 0.5;
 
@@ -247,8 +248,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyNewFarmerIntroduceReport = $this->getAttrbuteForMonthlyReport($board,'cattle-new-farm-introduce-report');
-        if($monthlyNewFarmerIntroduceReport){
+        $monthlyNewFarmerIntroduceReport = $this->getAttrbuteForMonthlyReport($board, 'cattle-new-farm-introduce-report');
+        if ($monthlyNewFarmerIntroduceReport) {
             $numberOfReports = 0;
             $mark = $numberOfReports * 2;
 
@@ -260,8 +261,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyAgentUpgradationReport = $this->getAttrbuteForMonthlyReport($board,'cattle-agent-upgradation-report');
-        if($monthlyAgentUpgradationReport){
+        $monthlyAgentUpgradationReport = $this->getAttrbuteForMonthlyReport($board, 'cattle-agent-upgradation-report');
+        if ($monthlyAgentUpgradationReport) {
             $numberOfReports = 0;
             $mark = $numberOfReports * 10;
 
@@ -273,8 +274,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyFeedSaleReport = $this->getAttrbuteForMonthlyReport($board,'cattle-company-wise-feed-sale-price-report');
-        if($monthlyFeedSaleReport){
+        $monthlyFeedSaleReport = $this->getAttrbuteForMonthlyReport($board, 'cattle-company-wise-feed-sale-price-report');
+        if ($monthlyFeedSaleReport) {
             $numberOfReports = 0;
             $mark = $numberOfReports * 1;
 
@@ -286,8 +287,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyFarmersTrainingProgramReport = $this->getAttrbuteForMonthlyReport($board,'cattle-farmers-training-program-report');
-        if($monthlyFarmersTrainingProgramReport){
+        $monthlyFarmersTrainingProgramReport = $this->getAttrbuteForMonthlyReport($board, 'cattle-farmers-training-program-report');
+        if ($monthlyFarmersTrainingProgramReport) {
             $numberOfReports = 0;
             $mark = $numberOfReports * 1;
 
@@ -299,8 +300,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyDiseasesReport = $this->getAttrbuteForMonthlyReport($board,'cattle-diseases-report');
-        if($monthlyDiseasesReport){
+        $monthlyDiseasesReport = $this->getAttrbuteForMonthlyReport($board, 'cattle-diseases-report');
+        if ($monthlyDiseasesReport) {
             $numberOfReports = 0;
             $mark = $numberOfReports * 1;
 
@@ -312,8 +313,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyCustomerFeedbackReport = $this->getAttrbuteForMonthlyReport($board,'product-performance-feedback-report');
-        if($monthlyCustomerFeedbackReport){
+        $monthlyCustomerFeedbackReport = $this->getAttrbuteForMonthlyReport($board, 'product-performance-feedback-report');
+        if ($monthlyCustomerFeedbackReport) {
             $numberOfReports = 0;
             $mark = 10;
 
@@ -331,11 +332,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 //        dd(date("01-m-{$board->getYear()}",strtotime('February')));
         $em = $this->_em;
         $filterBy['employeeId'] = $board->getEmployee()->getId();
-        $filterBy['monthStart'] = date("{$board->getYear()}-m-01",strtotime($board->getMonth()));
-        $filterBy['monthEnd'] = date("{$board->getYear()}-m-t",strtotime($board->getMonth()));
+        $filterBy['monthStart'] = date("{$board->getYear()}-m-01", strtotime($board->getMonth()));
+        $filterBy['monthEnd'] = date("{$board->getYear()}-m-t", strtotime($board->getMonth()));
 
-        $monthlyLifeCycleReport = $this->getAttrbuteForMonthlyReport($board,'aqua-life-cycle-report');
-        if($monthlyLifeCycleReport){
+        $monthlyLifeCycleReport = $this->getAttrbuteForMonthlyReport($board, 'aqua-life-cycle-report');
+        if ($monthlyLifeCycleReport) {
 //            $numberOfReports = (int)$em->getRepository(FcrDetails::class)->getMonthlyFcrAfterSaleTotalReport($filterBy);
             $numberOfReports = 0;
             $mark = $numberOfReports * 5;
@@ -347,8 +348,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyCompanySpeciesFcrReport = $this->getAttrbuteForMonthlyReport($board,'aqua-company-species-wise-avg-fcr-report');
-        if($monthlyCompanySpeciesFcrReport){
+        $monthlyCompanySpeciesFcrReport = $this->getAttrbuteForMonthlyReport($board, 'aqua-company-species-wise-avg-fcr-report');
+        if ($monthlyCompanySpeciesFcrReport) {
             $numberOfReports = 0;
             $mark = $numberOfReports * 2;
 
@@ -360,8 +361,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyFeedSaleReport = $this->getAttrbuteForMonthlyReport($board,'aqua-company-wise-feed-sale-report');
-        if($monthlyFeedSaleReport){
+        $monthlyFeedSaleReport = $this->getAttrbuteForMonthlyReport($board, 'aqua-company-wise-feed-sale-report');
+        if ($monthlyFeedSaleReport) {
             $numberOfReports = 0;
             $mark = $numberOfReports * 10;
 
@@ -373,8 +374,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyNewFarmerTouchReport = $this->getAttrbuteForMonthlyReport($board,'aqua-new-farmertouch-report');
-        if($monthlyNewFarmerTouchReport){
+        $monthlyNewFarmerTouchReport = $this->getAttrbuteForMonthlyReport($board, 'aqua-new-farmertouch-report');
+        if ($monthlyNewFarmerTouchReport) {
             $numberOfReports = 0;
             $mark = $numberOfReports * 1;
 
@@ -386,8 +387,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyNewFarmerIntroduceReport = $this->getAttrbuteForMonthlyReport($board,'aqua-new-farmer-introduce-report');
-        if($monthlyNewFarmerIntroduceReport){
+        $monthlyNewFarmerIntroduceReport = $this->getAttrbuteForMonthlyReport($board, 'aqua-new-farmer-introduce-report');
+        if ($monthlyNewFarmerIntroduceReport) {
             $numberOfReports = 0;
             $mark = $numberOfReports * 10;
 
@@ -399,8 +400,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyFarmerTrainingReport = $this->getAttrbuteForMonthlyReport($board,'aqua-farmers-training-report');
-        if($monthlyFarmerTrainingReport){
+        $monthlyFarmerTrainingReport = $this->getAttrbuteForMonthlyReport($board, 'aqua-farmers-training-report');
+        if ($monthlyFarmerTrainingReport) {
             $numberOfReports = 0;
             $mark = $numberOfReports * 1;
 
@@ -412,8 +413,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyLessCostingFarmReport = $this->getAttrbuteForMonthlyReport($board,'aqua-less-costing-farm-report');
-        if($monthlyLessCostingFarmReport){
+        $monthlyLessCostingFarmReport = $this->getAttrbuteForMonthlyReport($board, 'aqua-less-costing-farm-report');
+        if ($monthlyLessCostingFarmReport) {
             $numberOfReports = 0;
             $mark = $numberOfReports * 1;
 
@@ -425,8 +426,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyNewAgentCreationReport = $this->getAttrbuteForMonthlyReport($board,'aqua-new-agent-creation-and-up-gradation-report');
-        if($monthlyNewAgentCreationReport){
+        $monthlyNewAgentCreationReport = $this->getAttrbuteForMonthlyReport($board, 'aqua-new-agent-creation-and-up-gradation-report');
+        if ($monthlyNewAgentCreationReport) {
             $numberOfReports = 0;
             $mark = $numberOfReports * 1;
 
@@ -438,8 +439,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlySpeciesWiseFishPriceReport = $this->getAttrbuteForMonthlyReport($board,'aqua-species-wise-fish-price-report');
-        if($monthlySpeciesWiseFishPriceReport){
+        $monthlySpeciesWiseFishPriceReport = $this->getAttrbuteForMonthlyReport($board, 'aqua-species-wise-fish-price-report');
+        if ($monthlySpeciesWiseFishPriceReport) {
             $numberOfReports = 0;
             $mark = $numberOfReports * 1;
 
@@ -451,8 +452,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyCustomerFeedbackReport = $this->getAttrbuteForMonthlyReport($board,'customer-feedback-report');
-        if($monthlyCustomerFeedbackReport){
+        $monthlyCustomerFeedbackReport = $this->getAttrbuteForMonthlyReport($board, 'customer-feedback-report');
+        if ($monthlyCustomerFeedbackReport) {
             $numberOfReports = 0;
             $mark = 10;
 
@@ -470,11 +471,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 //        dd(date("01-m-{$board->getYear()}",strtotime('February')));
         $em = $this->_em;
         $filterBy['employeeId'] = $board->getEmployee()->getId();
-        $filterBy['monthStart'] = date("{$board->getYear()}-m-01",strtotime($board->getMonth()));
-        $filterBy['monthEnd'] = date("{$board->getYear()}-m-t",strtotime($board->getMonth()));
+        $filterBy['monthStart'] = date("{$board->getYear()}-m-01", strtotime($board->getMonth()));
+        $filterBy['monthEnd'] = date("{$board->getYear()}-m-t", strtotime($board->getMonth()));
 
-        $monthlyFcrReport = $this->getAttrbuteForMonthlyReport($board,'poultry-fcr-after-sale-report');
-        if($monthlyFcrReport){
+        $monthlyFcrReport = $this->getAttrbuteForMonthlyReport($board, 'poultry-fcr-after-sale-report');
+        if ($monthlyFcrReport) {
             $numberOfReports = (int)$em->getRepository(FcrDetails::class)->getMonthlyFcrAfterSaleTotalReport($filterBy);
             $mark = $numberOfReports * 0.25;
             $monthlyFcrReport->setMark($mark);
@@ -485,8 +486,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyBroilerBeforeLayerPerformanceReport = $this->getAttrbuteForMonthlyReport($board,'poultry-broiler-before-sale-layer-performance-report');
-        if($monthlyBroilerBeforeLayerPerformanceReport){
+        $monthlyBroilerBeforeLayerPerformanceReport = $this->getAttrbuteForMonthlyReport($board, 'poultry-broiler-before-sale-layer-performance-report');
+        if ($monthlyBroilerBeforeLayerPerformanceReport) {
             $totalBroilerBeforeSale = (int)$em->getRepository(FcrDetails::class)->getMonthlyBroilerBeforeSaleTotalReport($filterBy);
             $totalLayerPerformance = (int)$em->getRepository(LayerPerformanceDetails::class)->getMonthlyLayerPerformanceTotalReport($filterBy);
             $numberOfReports = $totalBroilerBeforeSale + $totalLayerPerformance;
@@ -500,8 +501,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyBroilerLayerLifeCycleReport = $this->getAttrbuteForMonthlyReport($board,'poultry-broiler-life-cycle-layer-life-cycle-report');
-        if($monthlyBroilerLayerLifeCycleReport){
+        $monthlyBroilerLayerLifeCycleReport = $this->getAttrbuteForMonthlyReport($board, 'poultry-broiler-life-cycle-layer-life-cycle-report');
+        if ($monthlyBroilerLayerLifeCycleReport) {
             $totalBroilerLifeCycle = (int)$em->getRepository(ChickLifeCycle::class)->getMonthlyBroilerLifeCycleTotalReport($filterBy);
             $totalLayerLifeCycle = (int)$em->getRepository(LayerLifeCycle::class)->getMonthlyLayerLifeCycleTotalReport($filterBy);
             $numberOfReports = $totalBroilerLifeCycle + $totalLayerLifeCycle;
@@ -515,8 +516,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyNewFarmInformationSurveyReport = $this->getAttrbuteForMonthlyReport($board,'poultry-new-farm-information-report');
-        if($monthlyNewFarmInformationSurveyReport){
+        $monthlyNewFarmInformationSurveyReport = $this->getAttrbuteForMonthlyReport($board, 'poultry-new-farm-information-report');
+        if ($monthlyNewFarmInformationSurveyReport) {
             $numberOfReports = (int)$em->getRepository(FarmerTouchReport::class)->getMonthlyNewfarmInformationOrSurveyTotalReport($filterBy);
             $mark = $numberOfReports * 0.5;
 
@@ -528,8 +529,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyLessCostingFarmReport = $this->getAttrbuteForMonthlyReport($board,'poultry-less-costing-farm-report');
-        if($monthlyLessCostingFarmReport){
+        $monthlyLessCostingFarmReport = $this->getAttrbuteForMonthlyReport($board, 'poultry-less-costing-farm-report');
+        if ($monthlyLessCostingFarmReport) {
             $numberOfReports = (int)$em->getRepository(CostBenefitAnalysisForLessCostingFarm::class)->getMonthlyLessCostingFarmOrSkillFarmDevelopTotalReport($filterBy);
             $mark = $numberOfReports * 10;
 
@@ -541,8 +542,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyAntibioticFreeFarmReport = $this->getAttrbuteForMonthlyReport($board,'poultry-antibiotic-free-farm-report');
-        if($monthlyAntibioticFreeFarmReport){
+        $monthlyAntibioticFreeFarmReport = $this->getAttrbuteForMonthlyReport($board, 'poultry-antibiotic-free-farm-report');
+        if ($monthlyAntibioticFreeFarmReport) {
             $numberOfReports = (int)$em->getRepository(AntibioticFreeFarm::class)->getMonthlyAntibioticFreeFarmTotalReport($filterBy);
             $mark = $numberOfReports * 10;
 
@@ -554,8 +555,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyFarmersTrainingReport = $this->getAttrbuteForMonthlyReport($board,'poultry-farmers-training-report');
-        if($monthlyFarmersTrainingReport){
+        $monthlyFarmersTrainingReport = $this->getAttrbuteForMonthlyReport($board, 'poultry-farmers-training-report');
+        if ($monthlyFarmersTrainingReport) {
             $numberOfReports = (int)$em->getRepository(FarmerTrainingReport::class)->getMonthlyfarmersTrainingProgramTotalReport($filterBy);
             $mark = $numberOfReports * 10;
 
@@ -567,8 +568,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyNewFarmerIntroduceReport = $this->getAttrbuteForMonthlyReport($board,'new-farm-introduce-report');
-        if($monthlyNewFarmerIntroduceReport){
+        $monthlyNewFarmerIntroduceReport = $this->getAttrbuteForMonthlyReport($board, 'new-farm-introduce-report');
+        if ($monthlyNewFarmerIntroduceReport) {
             $numberOfReports = (int)$em->getRepository(FarmerIntroduceDetails::class)->getMonthlyNewFarmerIntroduceTotalReport($filterBy);
             $mark = $numberOfReports * 10;
 
@@ -580,8 +581,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyTroubleshootingDiseasesReport = $this->getAttrbuteForMonthlyReport($board,'poultry-troubleshooting-diseases-mapping-report');
-        if($monthlyTroubleshootingDiseasesReport){
+        $monthlyTroubleshootingDiseasesReport = $this->getAttrbuteForMonthlyReport($board, 'poultry-troubleshooting-diseases-mapping-report');
+        if ($monthlyTroubleshootingDiseasesReport) {
             $numberOfReports = (int)$em->getRepository(FarmerIntroduceDetails::class)->getMonthlyNewFarmerIntroduceTotalReport($filterBy);
             $mark = $numberOfReports * 10;
 
@@ -593,8 +594,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $productPerformanceFeedbackReport = $this->getAttrbuteForMonthlyReport($board,'product-performance-feedback-report');
-        if($productPerformanceFeedbackReport){
+        $productPerformanceFeedbackReport = $this->getAttrbuteForMonthlyReport($board, 'product-performance-feedback-report');
+        if ($productPerformanceFeedbackReport) {
             $numberOfReports = 0;
             $mark = 10;
 
@@ -614,101 +615,247 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $entities = "";
         $locations = $board->getEmployee()->getDistrict();
         $arrs = array();
-        if(!empty($locations)){
-            foreach ($locations as $location){
+        if (!empty($locations)) {
+            foreach ($locations as $location) {
                 $arrs[] = $location->getId();
             }
         }
 
         $entities = $em->getRepository(DistrictOrder::class)->getLocationWiseTotalProductSalesTarget($arrs, $board->getYear(), $board->getMonth());
-        if(!empty($entities)){
-            $totalAchivementMark=0;
-            $totalQuantity=0;
-            $totalTargetQuantity=0;
-            $totalActualMark=0;
+        if (!empty($entities)) {
+            $totalAchivementMark = 0;
+            $totalQuantity = 0;
+            $totalTargetQuantity = 0;
+            $totalActualMark = 0;
             foreach ($entities as $parameter):
-
-                $totalAchivementMark=$totalAchivementMark+$parameter['salesMark'];
-                $totalQuantity=$totalQuantity+$parameter['quantity'];
-                $totalTargetQuantity=$totalTargetQuantity+$parameter['targetQuantity'];
+                $totalAchivementMark = $totalAchivementMark + $parameter['salesMark'];
+                $totalQuantity = $totalQuantity + $parameter['quantity'];
+                $totalTargetQuantity = $totalTargetQuantity + $parameter['targetQuantity'];
 
                 $entity = new EmployeeBoardSubAttribute();
                 $distribution = $em->getRepository(MarkChart::class)->find($parameter['id']);
+                /*                if ($board->getEmployee()->getReportMode()->getSlug() == 'poultry-service'){
+                                    $distribution = $em->getRepository(MarkChart::class)->findOneBy(['salesMode' => 'feed', 'slug' => $distribution->getSlug() . '-poultry-service']);
+                                    dump($distribution);
+                                }*/
+                $totalActualMark = $totalActualMark + $distribution->getMark();
 
-                $totalActualMark=$totalActualMark+$distribution->getMark();
-
-                $exist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard'=> $board,'markDistribution'=> $parameter['id']));
-                if($exist){
+                $exist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard' => $board, 'markDistribution' => $parameter['id']));
+                if ($exist) {
                     $entity = $exist;
                 }
-                    $entity->setEmployeeBoard($board);
-                    $entity->setMarkDistribution($distribution);
-                    $entity->setTargetQuantity($parameter['targetQuantity']);
-                    $entity->setSalesQuantity($parameter['quantity']);
-                    /*if(isset($orders[$parameter['id']]) and !empty($orders[$parameter['id']])){
-                        $entity->setSalesQuantity($orders[$parameter['id']]['quantity']);
-                    }*/
-                    $mark = $this->salesTargetCalculation($entity->getTargetQuantity(),$entity->getSalesQuantity());
+                $entity->setEmployeeBoard($board);
+                $entity->setMarkDistribution($distribution);
+                $entity->setTargetQuantity($parameter['targetQuantity']);
+                $entity->setSalesQuantity($parameter['quantity']);
+
+                /*if(isset($orders[$parameter['id']]) and !empty($orders[$parameter['id']])){
+                    $entity->setSalesQuantity($orders[$parameter['id']]['quantity']);
+                }*/
+
+                if ($board->getEmployee()->getReportMode()->getSlug() == 'poultry-service') {
+                    $distributionPoultry = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode' => 'feed', 'slug' => $distribution->getSlug() . '-poultry-service'));
+                    $poultryFeedEntity = new EmployeeBoardAttribute();
+
+                    $poultryFeedEntityExist = $em->getRepository(EmployeeBoardAttribute::class)->findOneBy(array('employeeBoard' => $board, 'attribute' => $distributionPoultry));
+                    if ($poultryFeedEntityExist) {
+                        $poultryFeedEntity = $poultryFeedEntityExist;
+                    }
+
+                    $mark = $this->salesTargetCalculationPoultryService($distribution->getSlug(), $entity->getTargetQuantity(), $entity->getSalesQuantity())[$distributionPoultry->getSlug()];
+
+                    $poultryFeedEntity->setMark($mark);
+                    $em->persist($poultryFeedEntity);
+                    $em->flush();
+
+                    $employeeBoardAttribute = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $distribution]);
+                    if ($employeeBoardAttribute) {
+                        $employeeBoardAttribute->setMark($entity->getMark());
+                        $em->persist($employeeBoardAttribute);
+                        $em->flush();
+                    }
+
+//                    Sales Growth
+                    $growthDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode' => 'growth', 'slug' => 'growth-' . $distribution->getSlug() . '-poultry-service'));
+                    $growthEntity = new EmployeeBoardSubAttribute();
+
+                    $growthExist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard' => $board, 'markDistribution' => $growthDistribution));
+                    if ($growthExist) {
+                        $growthEntity = $growthExist;
+                    }
+                    $growthEntity->setEmployeeBoard($board);
+                    $growthEntity->setMarkDistribution($growthDistribution);
+                    $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity']);
+                    $growthEntity->setSalesQuantity($parameter['quantity']);
+
+                    $growthEntity->setMark($this->salesGrowthCalculationPoultryService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'])[$growthDistribution->getSlug()]);
+                    $em->persist($growthEntity);
+                    $em->flush();
+
+                    $employeeBoardAttributeForGrowth = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $growthDistribution]);
+                    if ($employeeBoardAttributeForGrowth) {
+                        $employeeBoardAttributeForGrowth->setMark($growthEntity->getMark());
+                        $em->persist($employeeBoardAttributeForGrowth);
+                        $em->flush();
+                    }
+//                    Sales Growth END
+
+                } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'aqua-service') {
+                    $distributionAqua = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode' => 'feed', 'slug' => $distribution->getSlug() . '-aqua-service'));
+
+                    $aquaFeedEntity = new EmployeeBoardAttribute();
+
+                    $aquaFeedEntityExist = $em->getRepository(EmployeeBoardAttribute::class)->findOneBy(array('employeeBoard' => $board, 'attribute' => $distributionAqua));
+                    if ($aquaFeedEntityExist) {
+                        $aquaFeedEntity = $aquaFeedEntityExist;
+                    }
+
+                    $mark = $this->salesTargetCalculationAquaService($distribution->getSlug(), $entity->getTargetQuantity(), $entity->getSalesQuantity())[$distributionAqua->getSlug()];
+                    $aquaFeedEntity->setMark($mark);
+                    $em->persist($aquaFeedEntity);
+                    $em->flush();
+
+                    $employeeBoardAttribute = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $distribution]);
+                    if ($employeeBoardAttribute) {
+                        $employeeBoardAttribute->setMark($entity->getMark());
+                        $em->persist($employeeBoardAttribute);
+                        $em->flush();
+                    }
+
+                    //                    Sales Growth
+                    $growthDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode' => 'growth', 'slug' => 'growth-' . $distribution->getSlug() . '-aqua-service'));
+                    $growthEntity = new EmployeeBoardSubAttribute();
+
+                    $growthExist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard' => $board, 'markDistribution' => $growthDistribution));
+                    if ($growthExist) {
+                        $growthEntity = $growthExist;
+                    }
+                    $growthEntity->setEmployeeBoard($board);
+                    $growthEntity->setMarkDistribution($growthDistribution);
+                    $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity']);
+                    $growthEntity->setSalesQuantity($parameter['quantity']);
+
+                    $growthEntity->setMark($this->salesGrowthCalculationAquaService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'])[$growthDistribution->getSlug()]);
+                    $em->persist($growthEntity);
+                    $em->flush();
+
+                    $employeeBoardAttributeForGrowth = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $growthDistribution]);
+                    if ($employeeBoardAttributeForGrowth) {
+                        $employeeBoardAttributeForGrowth->setMark($growthEntity->getMark());
+                        $em->persist($employeeBoardAttributeForGrowth);
+                        $em->flush();
+                    }
+//                    Sales Growth END
+
+                } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'cattle-service') {
+                    $distributionCattle = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode' => 'feed', 'slug' => $distribution->getSlug() . '-cattle-service'));
+
+                    $cattleFeedEntity = new EmployeeBoardAttribute();
+
+                    $cattleFeedEntityExist = $em->getRepository(EmployeeBoardAttribute::class)->findOneBy(array('employeeBoard' => $board, 'attribute' => $distributionCattle));
+                    if ($cattleFeedEntityExist) {
+                        $cattleFeedEntity = $cattleFeedEntityExist;
+                    }
+
+                    $mark = $this->salesTargetCalculationCattleService($distribution->getSlug(), $entity->getTargetQuantity(), $entity->getSalesQuantity())[$distributionCattle->getSlug()];
+                    $cattleFeedEntity->setMark($mark);
+                    $em->persist($cattleFeedEntity);
+                    $em->flush();
+
+                    $employeeBoardAttribute = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $distribution]);
+                    if ($employeeBoardAttribute) {
+                        $employeeBoardAttribute->setMark($entity->getMark());
+                        $em->persist($employeeBoardAttribute);
+                        $em->flush();
+                    }
+
+                    //                    Sales Growth
+                    $growthDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode' => 'growth', 'slug' => 'growth-' . $distribution->getSlug() . '-cattle-service'));
+                    $growthEntity = new EmployeeBoardSubAttribute();
+
+                    $growthExist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard' => $board, 'markDistribution' => $growthDistribution));
+                    if ($growthExist) {
+                        $growthEntity = $growthExist;
+                    }
+                    $growthEntity->setEmployeeBoard($board);
+                    $growthEntity->setMarkDistribution($growthDistribution);
+                    $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity']);
+                    $growthEntity->setSalesQuantity($parameter['quantity']);
+
+                    $growthEntity->setMark($this->salesGrowthCalculationCattleService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'])[$growthDistribution->getSlug()]);
+                    $em->persist($growthEntity);
+                    $em->flush();
+
+                    $employeeBoardAttributeForGrowth = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $growthDistribution]);
+                    if ($employeeBoardAttributeForGrowth) {
+                        $employeeBoardAttributeForGrowth->setMark($growthEntity->getMark());
+                        $em->persist($employeeBoardAttributeForGrowth);
+                        $em->flush();
+                    }
+//                    Sales Growth END
+
+                } else {
+
+                    $mark = $this->salesTargetCalculation($entity->getTargetQuantity(), $entity->getSalesQuantity());
                     $entity->setMark($mark);
                     $em->persist($entity);
                     $em->flush();
 
-//                $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(['employeBoard'=>$board,'markDistribution' => $distribution]);
-                $employeeBoardAttribute = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$distribution]);
-                if($employeeBoardAttribute){
-                    $employeeBoardAttribute->setMark($entity->getMark());
-                    $em->persist($employeeBoardAttribute);
-                    $em->flush();
-                }
+                    $employeeBoardAttribute = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $distribution]);
+                    if ($employeeBoardAttribute) {
+                        $employeeBoardAttribute->setMark($entity->getMark());
+                        $em->persist($employeeBoardAttribute);
+                        $em->flush();
+                    }
 
-                $growthDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode'=>'growth', 'slug'=>'growth-'.$distribution->getSlug()));
+                    $growthDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode' => 'growth', 'slug' => 'growth-' . $distribution->getSlug()));
 
-                $growthEntity = new EmployeeBoardSubAttribute();
+                    $growthEntity = new EmployeeBoardSubAttribute();
 
-                $growthExist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard'=> $board,'markDistribution'=> $growthDistribution));
-                if($growthExist){
-                    $growthEntity = $growthExist;
-                }
-                $growthEntity->setEmployeeBoard($board);
-                $growthEntity->setMarkDistribution($growthDistribution);
-                $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity']);
+                    $growthExist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard' => $board, 'markDistribution' => $growthDistribution));
+                    if ($growthExist) {
+                        $growthEntity = $growthExist;
+                    }
+                    $growthEntity->setEmployeeBoard($board);
+                    $growthEntity->setMarkDistribution($growthDistribution);
+                    $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity']);
 //                $growthEntity->setSalesQuantity($parameter['salesGrouthCurrentQuantity']);
-                $growthEntity->setSalesQuantity($parameter['quantity']);
+                    $growthEntity->setSalesQuantity($parameter['quantity']);
 
-                $growthEntity->setMark($this->salesGrowthCalculation($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'] )[$growthDistribution->getSlug()]);
-                $em->persist($growthEntity);
-                $em->flush();
-
-
-//                $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(['employeBoard'=>$board,'markDistribution' => $distribution]);
-                $employeeBoardAttributeForGrowth = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$growthDistribution]);
-                if($employeeBoardAttributeForGrowth){
-                    $employeeBoardAttributeForGrowth->setMark($growthEntity->getMark());
-                    $em->persist($employeeBoardAttributeForGrowth);
+                    $growthEntity->setMark($this->salesGrowthCalculation($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'])[$growthDistribution->getSlug()]);
+                    $em->persist($growthEntity);
                     $em->flush();
+
+
+                    $employeeBoardAttributeForGrowth = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $growthDistribution]);
+                    if ($employeeBoardAttributeForGrowth) {
+                        $employeeBoardAttributeForGrowth->setMark($growthEntity->getMark());
+                        $em->persist($employeeBoardAttributeForGrowth);
+                        $em->flush();
+                    }
                 }
 
             endforeach;
 
-            $discritAchivementDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'district-achievement'));
-                $employeeBoardAttributeForDistrictAchivement = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$discritAchivementDistribution]);
-                if($employeeBoardAttributeForDistrictAchivement){
-                    $employeeBoardAttributeForDistrictAchivement->setTargetAchievement($totalQuantity);
-                    $employeeBoardAttributeForDistrictAchivement->setTargetAmount($totalTargetQuantity);
-                    $employeeBoardAttributeForDistrictAchivement->setMark($this->salesDistrictAchivementCalculation($totalActualMark, $totalAchivementMark));
-                    $em->persist($employeeBoardAttributeForDistrictAchivement);
-                    $em->flush();
-                }
+            $discritAchivementDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'district-achievement'));
+            $employeeBoardAttributeForDistrictAchivement = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $discritAchivementDistribution]);
+            if ($employeeBoardAttributeForDistrictAchivement) {
+                $employeeBoardAttributeForDistrictAchivement->setTargetAchievement($totalQuantity);
+                $employeeBoardAttributeForDistrictAchivement->setTargetAmount($totalTargetQuantity);
+                $employeeBoardAttributeForDistrictAchivement->setMark($this->salesDistrictAchivementCalculation($totalActualMark, $totalAchivementMark));
+                $em->persist($employeeBoardAttributeForDistrictAchivement);
+                $em->flush();
+            }
 
-                $regionalAchivementDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'regional-achievement'));
-                $employeeBoardAttributeForRegionalAchivement = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$regionalAchivementDistribution]);
-                if($employeeBoardAttributeForRegionalAchivement){
-                    $employeeBoardAttributeForRegionalAchivement->setTargetAchievement($totalQuantity);
-                    $employeeBoardAttributeForRegionalAchivement->setTargetAmount($totalTargetQuantity);
-                    $employeeBoardAttributeForRegionalAchivement->setMark($this->salesRegionalAchivementCalculation($totalActualMark, $totalAchivementMark));
-                    $em->persist($employeeBoardAttributeForRegionalAchivement);
-                    $em->flush();
-                }
+            $regionalAchivementDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'regional-achievement'));
+            $employeeBoardAttributeForRegionalAchivement = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $regionalAchivementDistribution]);
+            if ($employeeBoardAttributeForRegionalAchivement) {
+                $employeeBoardAttributeForRegionalAchivement->setTargetAchievement($totalQuantity);
+                $employeeBoardAttributeForRegionalAchivement->setTargetAmount($totalTargetQuantity);
+                $employeeBoardAttributeForRegionalAchivement->setMark($this->salesRegionalAchivementCalculation($totalActualMark, $totalAchivementMark));
+                $em->persist($employeeBoardAttributeForRegionalAchivement);
+                $em->flush();
+            }
         }
 
     }
@@ -718,24 +865,24 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $em = $this->_em;
         $employee = $board->getEmployee();
 
-        $getEmployeesByLineManager = $this->_em->getRepository(User::class)->findBy(['lineManager'=>$employee, 'enabled'=>1]);
+        $getEmployeesByLineManager = $this->_em->getRepository(User::class)->findBy(['lineManager' => $employee, 'enabled' => 1]);
         $employeeArrs = array();
-        foreach ($getEmployeesByLineManager as $childEmployee){
-            if(!empty($childEmployee)){
+        foreach ($getEmployeesByLineManager as $childEmployee) {
+            if (!empty($childEmployee)) {
                 $employeeArrs[] = $childEmployee->getId();
             }
         }
-        $parameter = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'core-responsibilities','status'=>1));
+        $parameter = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'core-responsibilities', 'status' => 1));
 
         $entities = $this->individualTeamMemberMarks($employeeArrs, $parameter, $board->getYear(), $board->getMonth());
 //        $individualTeamDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'individual-team-members-achievement','status'=>1));
-        $individualTeamDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'team-members-mark-on-core-activities','status'=>1));
+        $individualTeamDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'team-members-mark-on-core-activities', 'status' => 1));
 
         $individualEntity = new EmployeeBoardSubAttribute();
 
-        $individualTeamDistributionExist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard'=> $board,'markDistribution'=> $individualTeamDistribution));
+        $individualTeamDistributionExist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard' => $board, 'markDistribution' => $individualTeamDistribution));
 
-        if($individualTeamDistributionExist){
+        if ($individualTeamDistributionExist) {
             $individualEntity = $individualTeamDistributionExist;
         }
 
@@ -743,13 +890,13 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $individualEntity->setMarkDistribution($individualTeamDistribution);
 
 //        dd($this->individualTeamMemberCalculation($entities['actualMark'], $entities['mark'] ));
-        $individualEntity->setMark($this->individualTeamMemberCalculation($entities['actualMark'], $entities['mark'] ));
+        $individualEntity->setMark($this->individualTeamMemberCalculation($entities['actualMark'], $entities['mark']));
         $em->persist($individualEntity);
         $em->flush();
 
 
-        $employeeBoardAttributeForIndividualTeam = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$individualTeamDistribution]);
-        if($employeeBoardAttributeForIndividualTeam){
+        $employeeBoardAttributeForIndividualTeam = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $individualTeamDistribution]);
+        if ($employeeBoardAttributeForIndividualTeam) {
             $employeeBoardAttributeForIndividualTeam->setMark($individualEntity->getMark());
             $em->persist($employeeBoardAttributeForIndividualTeam);
             $em->flush();
@@ -763,16 +910,16 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
         $locations = $board->getEmployee()->getDistrict();
         $arrs = array();
-        if(!empty($locations)){
-            foreach ($locations as $location){
+        if (!empty($locations)) {
+            foreach ($locations as $location) {
                 $arrs[] = $location->getId();
             }
         }
 
         $outstandingAmount = $em->getRepository(AgentOutstanding::class)->getLocationWiseTotalOutstanding($arrs, $board->getYear(), $board->getMonth());
-        $outstandingDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'outstanding-limit-actual-feed'));
-        $employeeBoardAttributeForOutStandingLimit = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$outstandingDistribution]);
-        if($employeeBoardAttributeForOutStandingLimit){
+        $outstandingDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'outstanding-limit-actual-feed'));
+        $employeeBoardAttributeForOutStandingLimit = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $outstandingDistribution]);
+        if ($employeeBoardAttributeForOutStandingLimit) {
             $employeeBoardAttributeForOutStandingLimit->setMark($this->outstandingLimitCalculation($outstandingAmount['outstanding']));
             $em->persist($employeeBoardAttributeForOutStandingLimit);
             $em->flush();
@@ -786,44 +933,45 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
         $locations = $board->getEmployee()->getDistrict();
         $arrs = array();
-        if(!empty($locations)){
-            foreach ($locations as $location){
+        if (!empty($locations)) {
+            foreach ($locations as $location) {
                 $arrs[] = $location->getId();
             }
         }
 
         $docSalesObj = $em->getRepository(AgentDocSaleCollection::class)->getLocationWiseTotalDocSales($arrs, $board->getYear(), $board->getMonth());
 
-        $docSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'doc-sales-vs-collection'));
+        $docSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'doc-sales-vs-collection'));
 
-        $employeeBoardAttributeForDocSales = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$docSalesDistribution]);
+        $employeeBoardAttributeForDocSales = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $docSalesDistribution]);
 
-        if($employeeBoardAttributeForDocSales){
+        if ($employeeBoardAttributeForDocSales) {
             $employeeBoardAttributeForDocSales->setMark($this->docSalesCollectionCalculation($docSalesObj['totalCollectionAmount'], $docSalesObj['totalSalesAmount']));
             $em->persist($employeeBoardAttributeForDocSales);
             $em->flush();
         }
 
     }
+
     public function updateCategoryUpgrade(EmployeeBoard $board)
     {
         $em = $this->_em;
 
-        $gradeLetters = ['C','D'];
-        $categoryUpgradationMark = $em->getRepository(AgentCategory::class)->getCategoryUpgradationMarks($board,$gradeLetters);
-        $agentCategoryDistributions = $em->getRepository(MarkChart::class)->findBy(['slug' => ['minimum-50-d-category-agents-converts-to-c','minimum-50-c-category-agents-converts-to-b']]);
+        $gradeLetters = ['C', 'D'];
+        $categoryUpgradationMark = $em->getRepository(AgentCategory::class)->getCategoryUpgradationMarks($board, $gradeLetters);
+        $agentCategoryDistributions = $em->getRepository(MarkChart::class)->findBy(['slug' => ['minimum-50-d-category-agents-converts-to-c', 'minimum-50-c-category-agents-converts-to-b']]);
 
-        foreach ($agentCategoryDistributions as $agentCategoryDistribution){
-            if($agentCategoryDistribution->getSlug() == 'minimum-50-d-category-agents-converts-to-c'){
-                $employeeBoardAttributeForCategoryUpgrade = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$agentCategoryDistribution]);
-                if ($employeeBoardAttributeForCategoryUpgrade){
+        foreach ($agentCategoryDistributions as $agentCategoryDistribution) {
+            if ($agentCategoryDistribution->getSlug() == 'minimum-50-d-category-agents-converts-to-c') {
+                $employeeBoardAttributeForCategoryUpgrade = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $agentCategoryDistribution]);
+                if ($employeeBoardAttributeForCategoryUpgrade) {
                     $employeeBoardAttributeForCategoryUpgrade->setMark($categoryUpgradationMark['DtoUpperGrade']);
                     $em->persist($employeeBoardAttributeForCategoryUpgrade);
                     $em->flush();
                 }
-            }elseif ($agentCategoryDistribution->getSlug() == 'minimum-50-c-category-agents-converts-to-b'){
-                $employeeBoardAttributeForCategoryUpgrade = $this->findOneBy(['employeeBoard'=>$board,'attribute'=>$agentCategoryDistribution]);
-                if ($employeeBoardAttributeForCategoryUpgrade){
+            } elseif ($agentCategoryDistribution->getSlug() == 'minimum-50-c-category-agents-converts-to-b') {
+                $employeeBoardAttributeForCategoryUpgrade = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $agentCategoryDistribution]);
+                if ($employeeBoardAttributeForCategoryUpgrade) {
                     $employeeBoardAttributeForCategoryUpgrade->setMark($categoryUpgradationMark['CtoUpperGrade']);
                     $em->persist($employeeBoardAttributeForCategoryUpgrade);
                     $em->flush();
@@ -836,10 +984,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     {
         $em = $this->_em;
         $qb = $em->createQueryBuilder();
-        $qb->from(EmployeeBoardSubAttribute::class,'e');
-        $qb->leftJoin('e.markDistribution','d');
-        $qb->leftJoin('d.parent','p');
-        $qb->select('p.id as parentId','SUM(e.mark) as mark');
+        $qb->from(EmployeeBoardSubAttribute::class, 'e');
+        $qb->leftJoin('e.markDistribution', 'd');
+        $qb->leftJoin('d.parent', 'p');
+        $qb->select('p.id as parentId', 'SUM(e.mark) as mark');
         $qb->groupBy('parentId');
         $qb->where("e.employeeBoard = {$board->getId()}");
         $result = $qb->getQuery()->getArrayResult();
@@ -850,14 +998,14 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     {
         $em = $this->_em;
         $qb = $this->createQueryBuilder('e');
-        $qb->join('e.employeeBoard','ed');
-        $qb->join('ed.employee','em');
-        $qb->join('e.parameter','parameter');
+        $qb->join('e.employeeBoard', 'ed');
+        $qb->join('ed.employee', 'em');
+        $qb->join('e.parameter', 'parameter');
         $qb->select('SUM(e.mark) as mark', 'SUM(e.actualMark) as actualMark');
-        $qb->where('em.id IN (:employee)')->setParameter('employee',$employees);
-        $qb->andWhere('parameter.id = :parameter')->setParameter('parameter',$parameter);
-        $qb->andWhere('ed.year =:year')->setParameter('year',$year);
-        $qb->andWhere('ed.month =:month')->setParameter('month',$month);
+        $qb->where('em.id IN (:employee)')->setParameter('employee', $employees);
+        $qb->andWhere('parameter.id = :parameter')->setParameter('parameter', $parameter);
+        $qb->andWhere('ed.year =:year')->setParameter('year', $year);
+        $qb->andWhere('ed.month =:month')->setParameter('month', $month);
 //        $qb->groupBy('att.id');
         $result = $qb->getQuery()->getOneOrNullResult();
         return $result;
@@ -867,20 +1015,20 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     {
         $em = $this->_em;
         $qb = $this->createQueryBuilder('e');
-        $qb->join('e.employeeBoard','ed');
-        $qb->join('ed.employee','em');
-        $qb->join('e.parameter','parameter');
+        $qb->join('e.employeeBoard', 'ed');
+        $qb->join('ed.employee', 'em');
+        $qb->join('e.parameter', 'parameter');
         $qb->select('SUM(e.mark) as mark', 'SUM(e.actualMark) as actualMark', 'SUM(e.targetAmount) AS targetAmount', 'SUM(e.targetAchievement) AS targetAchievement');
         $qb->addSelect('em.name AS employeeName');
-        $qb->where('em.id IN (:employee)')->setParameter('employee',$employees);
-        $qb->andWhere('parameter.id = :parameter')->setParameter('parameter',$parameter);
-        $qb->andWhere('ed.year =:year')->setParameter('year',$year);
-        $qb->andWhere('ed.month =:month')->setParameter('month',$month);
+        $qb->where('em.id IN (:employee)')->setParameter('employee', $employees);
+        $qb->andWhere('parameter.id = :parameter')->setParameter('parameter', $parameter);
+        $qb->andWhere('ed.year =:year')->setParameter('year', $year);
+        $qb->andWhere('ed.month =:month')->setParameter('month', $month);
         $qb->groupBy('em.id');
         $results = $qb->getQuery()->getArrayResult();
 
         $data = [];
-        foreach ($results as $result){
+        foreach ($results as $result) {
             $data[$result['employeeName']] = [
                 'mark' => $result['mark'],
                 'actualMark' => $result['actualMark'],
@@ -891,51 +1039,250 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         return $data;
     }
 
-    public function salesTargetCalculation($target,$sales)
+    public function salesTargetCalculation($target, $sales)
     {
-        if($target > 0){
-            $action = (($sales * 100 )/$target);
-            if($action >= 100) {
+        if ($target > 0) {
+            $action = (($sales * 100) / $target);
+            if ($action >= 100) {
                 return 5;
-            }elseif ($action < 100 and $action >= 90) {
+            } elseif ($action < 100 and $action >= 90) {
                 return 4;
-            }elseif ($action < 90 and $action >= 80) {
+            } elseif ($action < 90 and $action >= 80) {
                 return 3;
-            }elseif ($action < 80 and $action >= 70) {
+            } elseif ($action < 80 and $action >= 70) {
                 return 2;
-            }else {
+            } else {
                 return 1;
             }
 
         }
-
     }
 
-    public function individualTeamMemberCalculation($target,$sales)
+    public function salesTargetCalculationPoultryService($productSlug, $target, $sales)
     {
-        if($target > 0){
-            $action = (($sales * 100 )/$target);
-            if($action >= 100) {
+        $returnValue = [];
+        if ($target > 0) {
+            $action = (($sales * 100) / $target);
+            $slug = $productSlug . '-poultry-service';
+            if ($productSlug == 'broiler') {
+                if ($action >= 100) {
+                    $returnValue[$slug] = 7;
+                } elseif ($action < 100 and $action >= 90) {
+                    $returnValue[$slug] = 6;
+                } elseif ($action < 90 and $action >= 80) {
+                    $returnValue[$slug] = 5;
+                } elseif ($action < 80 and $action >= 70) {
+                    $returnValue[$slug] = 4;
+                } elseif ($action < 70 and $action >= 60) {
+                    $returnValue[$slug] = 3;
+                } elseif ($action < 60 and $action >= 50) {
+                    $returnValue[$slug] = 2;
+                } else {
+                    $returnValue[$slug] = 0;
+                }
+            } elseif ($productSlug == 'sonali') {
+                if ($action >= 100) {
+                    $returnValue[$slug] = 6;
+                } elseif ($action < 100 and $action >= 90) {
+                    $returnValue[$slug] = 5;
+                } elseif ($action < 90 and $action >= 80) {
+                    $returnValue[$slug] = 4;
+                } elseif ($action < 80 and $action >= 70) {
+                    $returnValue[$slug] = 3;
+                } elseif ($action < 70 and $action >= 60) {
+                    $returnValue[$slug] = 2;
+                } elseif ($action < 60 and $action >= 50) {
+                    $returnValue[$slug] = 1;
+                } else {
+                    $returnValue[$slug] = 0;
+                }
+            } elseif ($productSlug == 'layer') {
+                if ($action >= 100) {
+                    $returnValue[$slug] = 7;
+                } elseif ($action < 100 and $action >= 90) {
+                    $returnValue[$slug] = 6;
+                } elseif ($action < 90 and $action >= 80) {
+                    $returnValue[$slug] = 5;
+                } elseif ($action < 80 and $action >= 70) {
+                    $returnValue[$slug] = 4;
+                } elseif ($action < 70 and $action >= 60) {
+                    $returnValue[$slug] = 3;
+                } elseif ($action < 60 and $action >= 50) {
+                    $returnValue[$slug] = 2;
+                } else {
+                    $returnValue[$slug] = 0;
+                }
+            } elseif ($productSlug == 'fish') {
+                if ($action >= 100) {
+                    $returnValue[$slug] = 2;
+                } elseif ($action < 100 and $action >= 80) {
+                    $returnValue[$slug] = 1;
+                } else {
+                    $returnValue[$slug] = 0;
+                }
+            } elseif ($productSlug == 'cattle') {
+                if ($action >= 100) {
+                    $returnValue[$slug] = 3;
+                } elseif ($action < 100 and $action >= 80) {
+                    $returnValue[$slug] = 2;
+                } elseif ($action < 80 and $action >= 70) {
+                    $returnValue[$slug] = 1;
+                } else {
+                    $returnValue[$slug] = 0;
+                }
+            }
+        }
+        return $returnValue;
+    }
+
+    public function salesTargetCalculationAquaService($productSlug, $target, $sales)
+    {
+        $returnValue = [];
+        if ($target > 0) {
+            $action = (($sales * 100) / $target);
+            $slug = $productSlug . '-aqua-service';
+            if ($productSlug == 'broiler') {
+                if ($action >= 100) {
+                    $returnValue[$slug] = 4;
+                } elseif ($action < 100 and $action >= 80) {
+                    $returnValue[$slug] = 3;
+                } elseif ($action < 80 and $action >= 70) {
+                    $returnValue[$slug] = 2;
+                } elseif ($action < 70 and $action >= 60) {
+                    $returnValue[$slug] = 1;
+                } else {
+                    $returnValue[$slug] = 0;
+                }
+            } elseif ($productSlug == 'sonali') {
+                if ($action >= 100) {
+                    $returnValue[$slug] = 2;
+                } elseif ($action < 100 and $action >= 80) {
+                    $returnValue[$slug] = 1;
+                } else {
+                    $returnValue[$slug] = 0;
+                }
+            } elseif ($productSlug == 'layer') {
+                if ($action >= 100) {
+                    $returnValue[$slug] = 2;
+                } elseif ($action < 100 and $action >= 80) {
+                    $returnValue[$slug] = 1;
+                } else {
+                    $returnValue[$slug] = 0;
+                }
+            } elseif ($productSlug == 'fish') {
+                if ($action >= 100) {
+                    $returnValue[$slug] = 15;
+                } elseif ($action < 100 and $action >= 90) {
+                    $returnValue[$slug] = 14;
+                } elseif ($action < 90 and $action >= 80) {
+                    $returnValue[$slug] = 13;
+                } elseif ($action < 80 and $action >= 70) {
+                    $returnValue[$slug] = 12;
+                } elseif ($action < 70 and $action >= 60) {
+                    $returnValue[$slug] = 6;
+                } else {
+                    $returnValue[$slug] = 0;
+                }
+            } elseif ($productSlug == 'cattle') {
+                if ($action >= 100) {
+                    $returnValue[$slug] = 2;
+                } elseif ($action < 100 and $action >= 80) {
+                    $returnValue[$slug] = 1;
+                } else {
+                    $returnValue[$slug] = 0;
+                }
+            }
+        }
+        return $returnValue;
+    }
+
+    public function salesTargetCalculationCattleService($productSlug, $target, $sales)
+    {
+        $returnValue = [];
+        if ($target > 0) {
+            $action = (($sales * 100) / $target);
+            $slug = $productSlug . '-cattle-service';
+
+            if ($productSlug == 'broiler') {
+                if ($action >= 100) {
+                    $returnValue[$slug] = 3;
+                } elseif ($action < 100 and $action >= 80) {
+                    $returnValue[$slug] = 2;
+                } elseif ($action < 80 and $action >= 70) {
+                    $returnValue[$slug] = 1;
+                } else {
+                    $returnValue[$slug] = 0;
+                }
+            } elseif ($productSlug == 'sonali') {
+                if ($action >= 100) {
+                    $returnValue[$slug] = 2;
+                } elseif ($action < 100 and $action >= 80) {
+                    $returnValue[$slug] = 1;
+                } else {
+                    $returnValue[$slug] = 0;
+                }
+            } elseif ($productSlug == 'layer') {
+                if ($action >= 100) {
+                    $returnValue[$slug] = 3;
+                } elseif ($action < 100 and $action >= 80) {
+                    $returnValue[$slug] = 2;
+                } elseif ($action < 80 and $action >= 70) {
+                    $returnValue[$slug] = 1;
+                } else {
+                    $returnValue[$slug] = 0;
+                }
+            } elseif ($productSlug == 'fish') {
+                if ($action >= 100) {
+                    $returnValue[$slug] = 2;
+                } elseif ($action < 100 and $action >= 80) {
+                    $returnValue[$slug] = 1;
+                } else {
+                    $returnValue[$slug] = 0;
+                }
+            } elseif ($productSlug == 'cattle') {
+                if ($action >= 100) {
+                    $returnValue[$slug] = 15;
+                } elseif ($action < 100 and $action >= 90) {
+                    $returnValue[$slug] = 14;
+                } elseif ($action < 90 and $action >= 80) {
+                    $returnValue[$slug] = 13;
+                } elseif ($action < 80 and $action >= 70) {
+                    $returnValue[$slug] = 12;
+                } elseif ($action < 70 and $action >= 60) {
+                    $returnValue[$slug] = 6;
+                } else {
+                    $returnValue[$slug] = 0;
+                }
+            }
+        }
+        return $returnValue;
+    }
+
+    public function individualTeamMemberCalculation($target, $sales)
+    {
+        if ($target > 0) {
+            $action = (($sales * 100) / $target);
+            if ($action >= 100) {
                 return 10;
-            }elseif ($action < 100 and $action >= 90) {
+            } elseif ($action < 100 and $action >= 90) {
                 return 9;
-            }elseif ($action < 90 and $action >= 80) {
+            } elseif ($action < 90 and $action >= 80) {
                 return 8;
-            }elseif ($action < 80 and $action >= 70) {
+            } elseif ($action < 80 and $action >= 70) {
                 return 7;
-            }elseif ($action < 70 and $action >= 60) {
+            } elseif ($action < 70 and $action >= 60) {
                 return 6;
-            }elseif ($action < 60 and $action >= 50) {
+            } elseif ($action < 60 and $action >= 50) {
                 return 5;
-            }elseif ($action < 50 and $action >= 40) {
+            } elseif ($action < 50 and $action >= 40) {
                 return 4;
-            }elseif ($action < 40 and $action >= 30) {
+            } elseif ($action < 40 and $action >= 30) {
                 return 3;
-            }elseif ($action < 30 and $action >= 20) {
+            } elseif ($action < 30 and $action >= 20) {
                 return 2;
-            }elseif ($action < 20 and $action >= 10) {
+            } elseif ($action < 20 and $action >= 10) {
                 return 1;
-            }else {
+            } else {
                 return 0;
             }
 
@@ -943,110 +1290,337 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     }
 
-    private function salesGrowthCalculation($productSlug,$previousValue,$currentValue)
+    private function salesGrowthCalculation($productSlug, $previousValue, $currentValue)
     {
-        $returnValue=[];
+        $returnValue = [];
 
 
-        if($productSlug){
+        if ($productSlug) {
 
-            if($productSlug == 'broiler') {
+            if ($productSlug == 'broiler') {
                 $increase = $currentValue - $previousValue;
-                $action = $previousValue>0?(($increase/$previousValue)*100):0;
-                $growthSlug = 'growth-'.$productSlug;
-                if($action >= 15) {
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug;
+                if ($action >= 15) {
                     $returnValue[$growthSlug] = 5;
-                }elseif ($action < 15 and $action >= 10) {
+                } elseif ($action < 15 and $action >= 10) {
                     $returnValue[$growthSlug] = 4;
-                }elseif ($action < 10 and $action >= 5) {
+                } elseif ($action < 10 and $action >= 5) {
                     $returnValue[$growthSlug] = 3;
-                }elseif ($action < 5 and $action >= 3) {
+                } elseif ($action < 5 and $action >= 3) {
                     $returnValue[$growthSlug] = 2;
-                }else {
+                } else {
                     $returnValue[$growthSlug] = 1;
                 }
 
-            }elseif ($productSlug == 'sonali') {
+            } elseif ($productSlug == 'sonali') {
                 $increase = $currentValue - $previousValue;
-                $action = $previousValue>0?(($increase/$previousValue)*100):0;
-                $growthSlug = 'growth-'.$productSlug;
-                if($action >= 8) {
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug;
+                if ($action >= 8) {
                     $returnValue[$growthSlug] = 5;
-                }elseif ($action < 8 and $action >= 7) {
+                } elseif ($action < 8 and $action >= 7) {
                     $returnValue[$growthSlug] = 4;
-                }elseif ($action < 7 and $action >= 6) {
+                } elseif ($action < 7 and $action >= 6) {
                     $returnValue[$growthSlug] = 3;
-                }elseif ($action < 6 and $action >= 5) {
+                } elseif ($action < 6 and $action >= 5) {
                     $returnValue[$growthSlug] = 2;
-                }else {
+                } else {
                     $returnValue[$growthSlug] = 1;
                 }
-            }elseif ($productSlug == 'layer') {
+            } elseif ($productSlug == 'layer') {
                 $increase = $currentValue - $previousValue;
-                $action = $previousValue>0?(($increase/$previousValue)*100):0;
-                $growthSlug = 'growth-'.$productSlug;
-                if($action >= 10) {
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug;
+                if ($action >= 10) {
                     $returnValue[$growthSlug] = 5;
-                }elseif ($action < 10 and $action >= 8) {
+                } elseif ($action < 10 and $action >= 8) {
                     $returnValue[$growthSlug] = 4;
-                }elseif ($action < 8 and $action >= 6) {
+                } elseif ($action < 8 and $action >= 6) {
                     $returnValue[$growthSlug] = 3;
-                }elseif ($action < 6 and $action >= 4) {
+                } elseif ($action < 6 and $action >= 4) {
                     $returnValue[$growthSlug] = 2;
-                }else {
+                } else {
                     $returnValue[$growthSlug] = 1;
                 }
-            }elseif ($productSlug == 'fish') {
+            } elseif ($productSlug == 'fish') {
                 $increase = $currentValue - $previousValue;
-                $action = $previousValue>0?(($increase/$previousValue)*100):0;
-                $growthSlug = 'growth-'.$productSlug;
-                if($action >= 20) {
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug;
+                if ($action >= 20) {
                     $returnValue[$growthSlug] = 5;
-                }elseif ($action < 20 and $action >= 15) {
+                } elseif ($action < 20 and $action >= 15) {
                     $returnValue[$growthSlug] = 4;
-                }elseif ($action < 15 and $action >= 10) {
+                } elseif ($action < 15 and $action >= 10) {
                     $returnValue[$growthSlug] = 3;
-                }elseif ($action < 10 and $action >= 5) {
+                } elseif ($action < 10 and $action >= 5) {
                     $returnValue[$growthSlug] = 2;
-                }else {
+                } else {
                     $returnValue[$growthSlug] = 1;
                 }
-            }elseif ($productSlug == 'cattle') {
+            } elseif ($productSlug == 'cattle') {
                 $increase = $currentValue - $previousValue;
-                $action = $previousValue>0?(($increase/$previousValue)*100):0;
-                $growthSlug = 'growth-'.$productSlug;
-                if($action >= 25) {
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug;
+                if ($action >= 25) {
                     $returnValue[$growthSlug] = 5;
-                }elseif ($action < 25 and $action >= 20) {
+                } elseif ($action < 25 and $action >= 20) {
                     $returnValue[$growthSlug] = 4;
-                }elseif ($action < 20 and $action >= 15) {
+                } elseif ($action < 20 and $action >= 15) {
                     $returnValue[$growthSlug] = 3;
-                }elseif ($action < 15 and $action >= 10) {
+                } elseif ($action < 15 and $action >= 10) {
                     $returnValue[$growthSlug] = 2;
-                }else {
+                } else {
                     $returnValue[$growthSlug] = 1;
                 }
-            }else {
+            } else {
                 return 0;
             }
-           return $returnValue;
+            return $returnValue;
+        }
+
+    }
+    private function salesGrowthCalculationPoultryService($productSlug, $previousValue, $currentValue)
+    {
+        $returnValue = [];
+        if ($productSlug) {
+            if ($productSlug == 'broiler') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug . '-poultry-service';
+                if ($action >= 15) {
+                    $returnValue[$growthSlug] = 7;
+                } elseif ($action < 15 and $action >= 10) {
+                    $returnValue[$growthSlug] = 6;
+                } elseif ($action < 10 and $action >= 5) {
+                    $returnValue[$growthSlug] = 5;
+                } elseif ($action < 5 and $action >= 3) {
+                    $returnValue[$growthSlug] = 4;
+                } elseif ($action < 3 and $action >= 1) {
+                    $returnValue[$growthSlug] = 1;
+                } else {
+                    $returnValue[$growthSlug] = 0;
+                }
+
+            } elseif ($productSlug == 'sonali') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug . '-poultry-service';
+                if ($action >= 8) {
+                    $returnValue[$growthSlug] = 6;
+                } elseif ($action < 8 and $action >= 7) {
+                    $returnValue[$growthSlug] = 5;
+                } elseif ($action < 7 and $action >= 6) {
+                    $returnValue[$growthSlug] = 4;
+                } elseif ($action < 6 and $action >= 5) {
+                    $returnValue[$growthSlug] = 3;
+                } elseif ($action < 5 and $action >= 1) {
+                    $returnValue[$growthSlug] = 1;
+                } else {
+                    $returnValue[$growthSlug] = 0;
+                }
+            } elseif ($productSlug == 'layer') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug . '-poultry-service';
+                if ($action >= 15) {
+                    $returnValue[$growthSlug] = 7;
+                } elseif ($action < 15 and $action >= 10) {
+                    $returnValue[$growthSlug] = 6;
+                } elseif ($action < 10 and $action >= 5) {
+                    $returnValue[$growthSlug] = 5;
+                } elseif ($action < 5 and $action >= 3) {
+                    $returnValue[$growthSlug] = 4;
+                } elseif ($action < 3 and $action >= 1) {
+                    $returnValue[$growthSlug] = 1;
+                } else {
+                    $returnValue[$growthSlug] = 0;
+                }
+            } elseif ($productSlug == 'fish') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug . '-poultry-service';
+                if ($action >= 10) {
+                    $returnValue[$growthSlug] = 2;
+                } elseif ($action < 10 and $action >= 1) {
+                    $returnValue[$growthSlug] = 1;
+                } else {
+                    $returnValue[$growthSlug] = 0;
+                }
+            } elseif ($productSlug == 'cattle') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug . '-poultry-service';
+                if ($action >= 10) {
+                    $returnValue[$growthSlug] = 3;
+                } elseif ($action < 10 and $action >= 7) {
+                    $returnValue[$growthSlug] = 2;
+                } elseif ($action < 7 and $action >= 5) {
+                    $returnValue[$growthSlug] = 1;
+                } else {
+                    $returnValue[$growthSlug] = 0;
+                }
+            } else {
+                return 0;
+            }
+            return $returnValue;
         }
 
     }
 
+    private function salesGrowthCalculationAquaService($productSlug, $previousValue, $currentValue)
+    {
+        $returnValue = [];
+        if ($productSlug) {
+            if ($productSlug == 'broiler') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug . '-aqua-service';
+                if ($action >= 10) {
+                    $returnValue[$growthSlug] = 4;
+                } elseif ($action < 10 and $action >= 7) {
+                    $returnValue[$growthSlug] = 3;
+                } elseif ($action < 7 and $action >= 5) {
+                    $returnValue[$growthSlug] = 2;
+                } else {
+                    $returnValue[$growthSlug] = 0;
+                }
+
+            } elseif ($productSlug == 'sonali') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug . '-aqua-service';
+                if ($action >= 5) {
+                    $returnValue[$growthSlug] = 2;
+                } else {
+                    $returnValue[$growthSlug] = 1;
+                }
+            } elseif ($productSlug == 'layer') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug . '-aqua-service';
+                if ($action >= 5) {
+                    $returnValue[$growthSlug] = 2;
+                } else {
+                    $returnValue[$growthSlug] = 1;
+                }
+            } elseif ($productSlug == 'fish') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug . '-aqua-service';
+                if ($action >= 20) {
+                    $returnValue[$growthSlug] = 15;
+                } elseif ($action < 20 and $action >= 15) {
+                    $returnValue[$growthSlug] = 14;
+                } elseif ($action < 15 and $action >= 10) {
+                    $returnValue[$growthSlug] = 13;
+                } elseif ($action < 10 and $action >= 8) {
+                    $returnValue[$growthSlug] = 12;
+                } else {
+                    $returnValue[$growthSlug] = 1;
+                }
+            } elseif ($productSlug == 'cattle') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug . '-aqua-service';
+                if ($action >= 5) {
+                    $returnValue[$growthSlug] = 2;
+                } else {
+                    $returnValue[$growthSlug] = 1;
+                }
+            } else {
+                return 0;
+            }
+            return $returnValue;
+        }
+    }
+    private function salesGrowthCalculationCattleService($productSlug, $previousValue, $currentValue)
+    {
+        $returnValue = [];
+        if ($productSlug) {
+            if ($productSlug == 'broiler') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug . '-cattle-service';
+                if ($action >= 10) {
+                    $returnValue[$growthSlug] = 3;
+                } elseif ($action < 10 and $action >= 7) {
+                    $returnValue[$growthSlug] = 2;
+                } elseif ($action < 7 and $action >= 5) {
+                    $returnValue[$growthSlug] = 1;
+                } else {
+                    $returnValue[$growthSlug] = 0;
+                }
+
+            } elseif ($productSlug == 'sonali') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug . '-cattle-service';
+                if ($action >= 5) {
+                    $returnValue[$growthSlug] = 2;
+                } else {
+                    $returnValue[$growthSlug] = 1;
+                }
+            } elseif ($productSlug == 'layer') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug . '-cattle-service';
+                if ($action >= 10) {
+                    $returnValue[$growthSlug] = 3;
+                } elseif ($action < 10 and $action >= 7){
+                    $returnValue[$growthSlug] = 2;
+                } elseif ($action < 7 and $action >= 5){
+                    $returnValue[$growthSlug] = 1;
+                } else {
+                    $returnValue[$growthSlug] = 0;
+                }
+            } elseif ($productSlug == 'fish') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug . '-cattle-service';
+                if ($action >= 5) {
+                    $returnValue[$growthSlug] = 2;
+                } else {
+                    $returnValue[$growthSlug] = 1;
+                }
+            } elseif ($productSlug == 'cattle') {
+                $increase = $currentValue - $previousValue;
+                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+                $growthSlug = 'growth-' . $productSlug . '-cattle-service';
+                if ($action >= 25) {
+                    $returnValue[$growthSlug] = 15;
+                } elseif ($action < 25 and $action >= 20){
+                    $returnValue[$growthSlug] = 14;
+                } elseif ($action < 20 and $action >= 15){
+                    $returnValue[$growthSlug] = 13;
+                } elseif ($action < 15 and $action >= 10){
+                    $returnValue[$growthSlug] = 12;
+                } elseif ($action < 10 and $action >= 6){
+                    $returnValue[$growthSlug] = 6;
+                } elseif ($action < 6 and $action >= 1){
+                    $returnValue[$growthSlug] = 1;
+                } else {
+                    $returnValue[$growthSlug] = 0;
+                }
+            } else {
+                return 0;
+            }
+            return $returnValue;
+        }
+    }
 
 
     public function salesDistrictAchivementCalculation($target, $achivement)
     {
-        if($target > 0){
-            $action = (($achivement * 100 )/$target);
-            if($action >= 100) {
+        if ($target > 0) {
+            $action = (($achivement * 100) / $target);
+            if ($action >= 100) {
                 return 4;
-            }elseif ($action < 100 and $action >= 50) {
+            } elseif ($action < 100 and $action >= 50) {
                 return 3;
-            }elseif ($action < 50 and $action >= 1) {
+            } elseif ($action < 50 and $action >= 1) {
                 return 1;
-            }else {
+            } else {
                 return 0;
             }
 
@@ -1056,15 +1630,15 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     public function salesRegionalAchivementCalculation($target, $achivement)
     {
-        if($target > 0){
-            $action = (($achivement * 100 )/$target);
-            if($action >= 100) {
+        if ($target > 0) {
+            $action = (($achivement * 100) / $target);
+            if ($action >= 100) {
                 return 5;
-            }elseif ($action < 100 and $action >= 50) {
+            } elseif ($action < 100 and $action >= 50) {
                 return 3;
-            }elseif ($action < 50 and $action >= 1) {
+            } elseif ($action < 50 and $action >= 1) {
                 return 2;
-            }else {
+            } else {
                 return 0;
             }
 
@@ -1075,16 +1649,16 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     public function outstandingLimitCalculation($outstandingValue)
     {
 
-        if($outstandingValue){
-            if($outstandingValue >= 500000){
+        if ($outstandingValue) {
+            if ($outstandingValue >= 500000) {
                 return 0;
-            }elseif ($outstandingValue >= 400000 && $outstandingValue < 500000){
+            } elseif ($outstandingValue >= 400000 && $outstandingValue < 500000) {
                 return 1;
-            }elseif ($outstandingValue >= 300000 && $outstandingValue < 400000){
+            } elseif ($outstandingValue >= 300000 && $outstandingValue < 400000) {
                 return 2;
-            }elseif ($outstandingValue >= 200000 && $outstandingValue < 300000){
+            } elseif ($outstandingValue >= 200000 && $outstandingValue < 300000) {
                 return 3;
-            }elseif ($outstandingValue < 200000){
+            } elseif ($outstandingValue < 200000) {
                 return 4;
             }
         }
@@ -1095,31 +1669,31 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     public function docSalesCollectionCalculation($collectionAmount, $salesAmount)
     {
 
-        if($salesAmount>0){
-            $action = (($collectionAmount * 100 )/$salesAmount);
-            if($action >= 100) {
+        if ($salesAmount > 0) {
+            $action = (($collectionAmount * 100) / $salesAmount);
+            if ($action >= 100) {
                 return 5;
-            }elseif ($action < 100 and $action >= 90) {
+            } elseif ($action < 100 and $action >= 90) {
                 return 4;
-            }elseif ($action < 90 and $action >= 85) {
+            } elseif ($action < 90 and $action >= 85) {
                 return 3;
-            }elseif ($action < 85 and $action >= 75) {
+            } elseif ($action < 85 and $action >= 75) {
                 return 2;
-            }elseif ($action < 75) {
+            } elseif ($action < 75) {
                 return 1;
             }
         }
         return 0;
     }
 
-    private function getAttrbuteForMonthlyReport($board,$slug)
+    private function getAttrbuteForMonthlyReport($board, $slug)
     {
 
         $em = $this->_em;
         $qb = $this->createQueryBuilder('e');
-        $qb->join('e.attribute','attribute');
-        $qb->where('e.employeeBoard =:employeeBoardId')->setParameter('employeeBoardId',$board->getId());
-        $qb->andWhere('attribute.slug = :slug')->setParameter('slug',$slug);
+        $qb->join('e.attribute', 'attribute');
+        $qb->where('e.employeeBoard =:employeeBoardId')->setParameter('employeeBoardId', $board->getId());
+        $qb->andWhere('attribute.slug = :slug')->setParameter('slug', $slug);
         $result = $qb->getQuery()->getOneOrNullResult();
         return $result;
     }

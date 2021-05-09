@@ -66,6 +66,14 @@
                                                 {{ form_errors(form.name) }}
                                             </div>
                                         </div>
+                                         <div class="form-group">
+                                            {{ form_label(form.slug, 'Slug'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
+                                            <div class="col-md-8">
+{#                                                <span class="not-blank"> {{ 'Required'|trans }}</span>#}
+                                                {{ form_widget(form.slug) }}
+                                                {{ form_errors(form.slug) }}
+                                            </div>
+                                        </div>
 {#                                        <div class="form-group">
                                             {{ form_label(form.designation, 'Designation'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
                                             <div class="col-md-8">

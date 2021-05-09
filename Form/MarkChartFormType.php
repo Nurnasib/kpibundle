@@ -72,7 +72,7 @@ class MarkChartFormType extends AbstractType
             ])
             ->add('parent', EntityType::class, [
                 'class' => MarkChart::class,
-                'attr'=>['class'=>'span12'],
+                'attr'=>['class'=>'span12 select2'],
                 'required'    => false,
                 'placeholder' => 'Choose a parent',
                 'choice_label' => 'nestedLabel',
@@ -132,6 +132,11 @@ class MarkChartFormType extends AbstractType
                 'label' => 'label.ordering',
                 'required' => false,
             ])
+            ->add('slug', TextType::class,[
+                'attr' => [
+                    'disabled' => 'disabled',
+                ]
+        ])
         ;
     }
 
