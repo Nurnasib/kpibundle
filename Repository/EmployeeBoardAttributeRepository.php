@@ -171,6 +171,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     private function agentSalesGrowthCalculation(EmployeeBoard $board, $commonAgentBetweenYears, $twentyPercentGrowthAgents)
     {
+        $em = $this->_em;
+
         if ($board->getEmployee()->getReportMode()->getSlug() == 'aqua-service'){
             $agentSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'aqua-develop-existing-customer-sales-volume'));
             $employeeBoardAttributeForAgentSalesGrowth = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $agentSalesDistribution]);
@@ -256,7 +258,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     {
 //        dd(date("01-m-{$board->getYear()}",strtotime('February')));
         $em = $this->_em;
-        $monthlyNewFarmerIntroduceReport = $this->getAttrbuteForMonthlyReport($board, 'cattle-new-farm-introduce-report');
+        $monthlyNewFarmerIntroduceReport = $this->getAttributeForMonthlyReport($board, 'cattle-new-farm-introduce-report');
         if ($monthlyNewFarmerIntroduceReport) {
             $numberOfReports = 0;
             if ($numberOfReports >= 5){
@@ -271,7 +273,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyLessCostingFarmReport = $this->getAttrbuteForMonthlyReport($board, 'cattle-less-costing-farm-report');
+        $monthlyLessCostingFarmReport = $this->getAttributeForMonthlyReport($board, 'cattle-less-costing-farm-report');
         if ($monthlyLessCostingFarmReport) {
             $numberOfReports = 0;
             if ($numberOfReports >= 5){
@@ -286,7 +288,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyAgentUpgradationReport = $this->getAttrbuteForMonthlyReport($board, 'cattle-agent-upgradation-report');
+        $monthlyAgentUpgradationReport = $this->getAttributeForMonthlyReport($board, 'cattle-agent-upgradation-report');
         if ($monthlyAgentUpgradationReport) {
             $numberOfReports = 0;
             if ($numberOfReports >= 2){
@@ -307,7 +309,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 //        dd(date("01-m-{$board->getYear()}",strtotime('February')));
         $em = $this->_em;
 
-        $monthlyLessCostingFarmReport = $this->getAttrbuteForMonthlyReport($board, 'aqua-less-costing-farm-report');
+        $monthlyLessCostingFarmReport = $this->getAttributeForMonthlyReport($board, 'aqua-less-costing-farm-report');
         if ($monthlyLessCostingFarmReport) {
             $numberOfReports = 0;
             if ($numberOfReports >= 4){
@@ -322,7 +324,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyNewFarmIntroduceReport = $this->getAttrbuteForMonthlyReport($board, 'aqua-new-farm-introduce');
+        $monthlyNewFarmIntroduceReport = $this->getAttributeForMonthlyReport($board, 'aqua-new-farm-introduce');
         if ($monthlyNewFarmIntroduceReport) {
 //            (>=5) =5, 4=4, 3=3,2=2, 1=1,0=0
             $numberOfReports = 0;
@@ -338,7 +340,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyNewAgentCreationReport = $this->getAttrbuteForMonthlyReport($board, 'aqua-new-agent-creation-and-up-gradation-report');
+        $monthlyNewAgentCreationReport = $this->getAttributeForMonthlyReport($board, 'aqua-new-agent-creation-and-up-gradation-report');
         if ($monthlyNewAgentCreationReport) {
             $numberOfReports = 0;
 
@@ -360,7 +362,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 //        dd(date("01-m-{$board->getYear()}",strtotime('February')));
         $em = $this->_em;
 
-        $monthlyAntibioticFreeFarmReport = $this->getAttrbuteForMonthlyReport($board, 'poultry-antibiotic-free-farm-report');
+        $monthlyAntibioticFreeFarmReport = $this->getAttributeForMonthlyReport($board, 'poultry-antibiotic-free-farm-report');
         if ($monthlyAntibioticFreeFarmReport) {
             $numberOfReports = (int)$em->getRepository(AntibioticFreeFarm::class)->getMonthlyAntibioticFreeFarmTotalReport($filterBy);
 
@@ -377,7 +379,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyLessCostingFarmReport = $this->getAttrbuteForMonthlyReport($board, 'poultry-less-costing-farm-report');
+        $monthlyLessCostingFarmReport = $this->getAttributeForMonthlyReport($board, 'poultry-less-costing-farm-report');
+
         if ($monthlyLessCostingFarmReport) {
             $numberOfReports = (int)$em->getRepository(CostBenefitAnalysisForLessCostingFarm::class)->getMonthlyLessCostingFarmOrSkillFarmDevelopTotalReport($filterBy);
 
@@ -394,7 +397,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyNewFarmerIntroduceReport = $this->getAttrbuteForMonthlyReport($board, 'poultry-new-farm-introduce-report');
+        $monthlyNewFarmerIntroduceReport = $this->getAttributeForMonthlyReport($board, 'poultry-new-farm-introduce-report');
+
         if ($monthlyNewFarmerIntroduceReport) {
             $numberOfReports = (int)$em->getRepository(FarmerIntroduceDetails::class)->getMonthlyNewFarmerIntroduceTotalReport($filterBy);
             if ($numberOfReports >= 5){
@@ -447,7 +451,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $entity = $exist;
                 }
                 $entity->setEmployeeBoard($board);
-                $entity->setMarkDistribution($distribution);
+//                $entity->setMarkDistribution($distribution);
                 $entity->setTargetQuantity($parameter['targetQuantity']);
                 $entity->setSalesQuantity($parameter['quantity']);
 
@@ -466,8 +470,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
                     $mark = $this->salesTargetCalculationPoultryService($distribution->getSlug(), $entity->getTargetQuantity(), $entity->getSalesQuantity())[$distributionPoultry->getSlug()];
 
+                    $entity->setMarkDistribution($distributionPoultry);
                     $entity->setMark($mark);
                     $em->persist($entity);
+
                     $poultryFeedEntity->setMark($mark);
                     $em->persist($poultryFeedEntity);
                     $em->flush();
@@ -515,8 +521,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     }
 
                     $mark = $this->salesTargetCalculationAquaService($distribution->getSlug(), $entity->getTargetQuantity(), $entity->getSalesQuantity())[$distributionAqua->getSlug()];
+
+                    $entity->setMarkDistribution($distributionPoultry);
                     $entity->setMark($mark);
                     $em->persist($entity);
+
                     $aquaFeedEntity->setMark($mark);
                     $em->persist($aquaFeedEntity);
                     $em->flush();
@@ -564,8 +573,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     }
 
                     $mark = $this->salesTargetCalculationCattleService($distribution->getSlug(), $entity->getTargetQuantity(), $entity->getSalesQuantity())[$distributionCattle->getSlug()];
+
+                    $entity->setMarkDistribution($distributionPoultry);
                     $entity->setMark($mark);
                     $em->persist($entity);
+
                     $cattleFeedEntity->setMark($mark);
                     $em->persist($cattleFeedEntity);
                     $em->flush();
@@ -605,6 +617,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 } else {
 
                     $mark = $this->salesTargetCalculation($entity->getTargetQuantity(), $entity->getSalesQuantity());
+                    $entity->setMarkDistribution($distribution);
                     $entity->setMark($mark);
                     $em->persist($entity);
                     $em->flush();
@@ -725,7 +738,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         }
 
         $outstandingAmount = $em->getRepository(AgentOutstanding::class)->getLocationWiseTotalOutstanding($arrs, $board->getYear(), $board->getMonth());
-        $outstandingDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'outstanding-limit-actual-feed'));
+        $outstandingDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'outstanding-limit-vs-actual-feed'));
         $employeeBoardAttributeForOutStandingLimit = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $outstandingDistribution]);
         if ($employeeBoardAttributeForOutStandingLimit) {
             $employeeBoardAttributeForOutStandingLimit->setMark($this->outstandingLimitCalculation($outstandingAmount['outstanding']));
@@ -1494,7 +1507,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         return 0;
     }
 
-    private function getAttrbuteForMonthlyReport($board, $slug)
+    private function getAttributeForMonthlyReport($board, $slug)
     {
 
         $em = $this->_em;
