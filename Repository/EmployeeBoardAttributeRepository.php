@@ -166,10 +166,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 }
             }
         }
-        $this->agentSalesGrowthCalculation($commonAgentBetweenYears, $twentyPercentGrowthAgents);
+        $this->agentSalesGrowthCalculation($board, $commonAgentBetweenYears, $twentyPercentGrowthAgents);
     }
 
-    private function agentSalesGrowthCalculation($commonAgentBetweenYears, $twentyPercentGrowthAgents)
+    private function agentSalesGrowthCalculation(EmployeeBoard $board, $commonAgentBetweenYears, $twentyPercentGrowthAgents)
     {
         if ($board->getEmployee()->getReportMode()->getSlug() == 'aqua-service'){
             $agentSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'aqua-develop-existing-customer-sales-volume'));
