@@ -394,7 +394,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyNewFarmerIntroduceReport = $this->getAttrbuteForMonthlyReport($board, 'new-farm-introduce-report');
+        $monthlyNewFarmerIntroduceReport = $this->getAttrbuteForMonthlyReport($board, 'poultry-new-farm-introduce-report');
         if ($monthlyNewFarmerIntroduceReport) {
             $numberOfReports = (int)$em->getRepository(FarmerIntroduceDetails::class)->getMonthlyNewFarmerIntroduceTotalReport($filterBy);
             if ($numberOfReports >= 5){
@@ -466,16 +466,18 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
                     $mark = $this->salesTargetCalculationPoultryService($distribution->getSlug(), $entity->getTargetQuantity(), $entity->getSalesQuantity())[$distributionPoultry->getSlug()];
 
+                    $entity->setMark($mark);
+                    $em->persist($entity);
                     $poultryFeedEntity->setMark($mark);
                     $em->persist($poultryFeedEntity);
                     $em->flush();
 
-                    $employeeBoardAttribute = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $distribution]);
-                    if ($employeeBoardAttribute) {
-                        $employeeBoardAttribute->setMark($entity->getMark());
-                        $em->persist($employeeBoardAttribute);
-                        $em->flush();
-                    }
+//                    $employeeBoardAttribute = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $distribution]);
+//                    if ($employeeBoardAttribute) {
+//                        $employeeBoardAttribute->setMark($entity->getMark());
+//                        $em->persist($employeeBoardAttribute);
+//                        $em->flush();
+//                    }
 
 //                    Sales Growth
                     $growthDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode' => 'growth', 'slug' => 'growth-' . $distribution->getSlug() . '-poultry-service'));
@@ -513,16 +515,18 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     }
 
                     $mark = $this->salesTargetCalculationAquaService($distribution->getSlug(), $entity->getTargetQuantity(), $entity->getSalesQuantity())[$distributionAqua->getSlug()];
+                    $entity->setMark($mark);
+                    $em->persist($entity);
                     $aquaFeedEntity->setMark($mark);
                     $em->persist($aquaFeedEntity);
                     $em->flush();
 
-                    $employeeBoardAttribute = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $distribution]);
-                    if ($employeeBoardAttribute) {
-                        $employeeBoardAttribute->setMark($entity->getMark());
-                        $em->persist($employeeBoardAttribute);
-                        $em->flush();
-                    }
+//                    $employeeBoardAttribute = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $distribution]);
+//                    if ($employeeBoardAttribute) {
+//                        $employeeBoardAttribute->setMark($entity->getMark());
+//                        $em->persist($employeeBoardAttribute);
+//                        $em->flush();
+//                    }
 
                     //                    Sales Growth
                     $growthDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode' => 'growth', 'slug' => 'growth-' . $distribution->getSlug() . '-aqua-service'));
@@ -560,16 +564,18 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     }
 
                     $mark = $this->salesTargetCalculationCattleService($distribution->getSlug(), $entity->getTargetQuantity(), $entity->getSalesQuantity())[$distributionCattle->getSlug()];
+                    $entity->setMark($mark);
+                    $em->persist($entity);
                     $cattleFeedEntity->setMark($mark);
                     $em->persist($cattleFeedEntity);
                     $em->flush();
 
-                    $employeeBoardAttribute = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $distribution]);
-                    if ($employeeBoardAttribute) {
-                        $employeeBoardAttribute->setMark($entity->getMark());
-                        $em->persist($employeeBoardAttribute);
-                        $em->flush();
-                    }
+//                    $employeeBoardAttribute = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $distribution]);
+//                    if ($employeeBoardAttribute) {
+//                        $employeeBoardAttribute->setMark($entity->getMark());
+//                        $em->persist($employeeBoardAttribute);
+//                        $em->flush();
+//                    }
 
                     //                    Sales Growth
                     $growthDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode' => 'growth', 'slug' => 'growth-' . $distribution->getSlug() . '-cattle-service'));
