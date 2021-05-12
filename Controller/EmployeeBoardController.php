@@ -364,7 +364,7 @@ class EmployeeBoardController extends AbstractController
         $attributes = $this->getDoctrine()->getRepository(MarkChart::class)->getAttributesForSummary();
 
         $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getKpiSummaryForFeedAndGrowth($entity);
-        $outstanding = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getLocationWiseOutstanding($locationsId, $entity->getYear(), $entity->getMonth());
+        $outstanding = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getLocationWiseOutstanding($locationsId, $entity);
         $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getLocationWiseDocSales($locationsId, $entity->getYear(), $entity->getMonth());
         $districtAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getDistrictAchievement($locationsId, $entity->getYear(), $entity->getMonth());
         $regionalAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getRegionalAchievement($locationsId, $entity->getYear(), $entity->getMonth());

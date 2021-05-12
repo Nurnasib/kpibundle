@@ -15,6 +15,7 @@ use App\Entity\Admin\Location;
 use App\Entity\Core\Agent;
 use Doctrine\ORM\EntityRepository;
 use Terminalbd\KpiBundle\Entity\AgentOutstanding;
+use Terminalbd\KpiBundle\Entity\EmployeeBoard;
 
 /**
  * This custom Doctrine repository contains some methods which are useful when
@@ -79,15 +80,15 @@ class AgentOutstandingRepository extends EntityRepository
         return $result;
     }
 
-    public function getLocationWiseOutstanding($locations, $year, $month)
+    public function getLocationWiseOutstanding($locations, EmployeeBoard $board)
     {
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.district','d');
         $qb->select('SUM(e.actualAmount) AS actualAmount', 'SUM(e.limitAmount) AS limitAmount', 'SUM(e.outstanding) AS outstanding');
         $qb->addSelect('d.name AS districtName');
         $qb->where('d.id IN (:districts)')->setParameter('districts',$locations);
-        $qb->andWhere('e.year =:year')->setParameter('year',$year);
-        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->andWhere('e.year =:year')->setParameter('year',$board->getYear());
+        $qb->andWhere('e.month =:month')->setParameter('month',$board->getMonth());
         $qb->groupBy('d.id');
         $results = $qb->getQuery()->getArrayResult();
 
@@ -97,31 +98,56 @@ class AgentOutstandingRepository extends EntityRepository
                 'actualAmount' => $result['actualAmount'],
                 'limitAmount' => $result['limitAmount'],
                 'percentage' => $result['limitAmount']>0?($result['actualAmount']*100)/$result['limitAmount']:0,
-                'mark' => $this->outstandingLimitCalculation($result['outstanding']),
+                'mark' => $this->outstandingLimitCalculation($result['outstanding'], $board),
             ];
         }
 
         return $data;
     }
 
-    private function outstandingLimitCalculation($outstandingValue)
+    private function outstandingLimitCalculation($outstandingValue, EmployeeBoard $board)
     {
-
         if($outstandingValue){
-            if($outstandingValue >= 2000000){
-                return 0;
-            }elseif ($outstandingValue>=1500000 && $outstandingValue<2000000){
-                return 4;
-            }elseif ($outstandingValue>=1000000 && $outstandingValue<1500000){
-                return 6;
-            }elseif ($outstandingValue>=500000 && $outstandingValue<1000000){
-                return 8;
-            }elseif ($outstandingValue<500000){
-                return 10;
+            if ($board->getEmployee()->getReportMode()->getSlug() == 'agm-kpi'){
+                if($outstandingValue >= 1500000){
+                    return 0;
+                }elseif ($outstandingValue >= 1400000 && $outstandingValue < 1500000){
+                    return 1;
+                }elseif ($outstandingValue >= 1200000 && $outstandingValue < 1400000){
+                    return 2;
+                }elseif ($outstandingValue >= 1000000 && $outstandingValue < 1200000){
+                    return 3;
+                }elseif ($outstandingValue < 1000000){
+                    return 4;
+                }
+            }elseif ($board->getEmployee()->getReportMode()->getSlug() == 'rsm-arsm-kpi'){
+                if($outstandingValue >= 1000000){
+                    return 0;
+                }elseif ($outstandingValue >= 900000 && $outstandingValue < 1000000){
+                    return 1;
+                }elseif ($outstandingValue >= 700000 && $outstandingValue < 900000){
+                    return 2;
+                }elseif ($outstandingValue >= 500000 && $outstandingValue < 700000){
+                    return 3;
+                }elseif ($outstandingValue < 500000){
+                    return 4;
+                }
+            }else{
+                if($outstandingValue >= 500000){
+                    return 0;
+                }elseif ($outstandingValue >= 400000 && $outstandingValue < 500000){
+                    return 1;
+                }elseif ($outstandingValue >= 300000 && $outstandingValue < 400000){
+                    return 2;
+                }elseif ($outstandingValue >= 200000 && $outstandingValue < 300000){
+                    return 3;
+                }elseif ($outstandingValue < 200000){
+                    return 4;
+                }
             }
+        }else{
+            return 0;
         }
-        return 0;
-
     }
 
     public function getMonthYearOutstanding($monthYear)

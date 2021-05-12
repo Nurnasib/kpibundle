@@ -258,7 +258,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     {
 //        dd(date("01-m-{$board->getYear()}",strtotime('February')));
         $em = $this->_em;
-        $monthlyNewFarmerIntroduceReport = $this->getAttributeForMonthlyReport($board, 'cattle-new-farm-introduce-report');
+/*        $monthlyNewFarmerIntroduceReport = $this->getAttributeForMonthlyReport($board, 'cattle-new-farm-introduce-report');
         if ($monthlyNewFarmerIntroduceReport) {
             $numberOfReports = 0;
             if ($numberOfReports >= 5){
@@ -271,7 +271,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $monthlyNewFarmerIntroduceReport->setTargetMark(5);
             $em->persist($monthlyNewFarmerIntroduceReport);
             $em->flush();
-        }
+        }*/
 
         $monthlyLessCostingFarmReport = $this->getAttributeForMonthlyReport($board, 'cattle-less-costing-farm-report');
         if ($monthlyLessCostingFarmReport) {
@@ -288,7 +288,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyAgentUpgradationReport = $this->getAttributeForMonthlyReport($board, 'cattle-agent-upgradation-report');
+/*        $monthlyAgentUpgradationReport = $this->getAttributeForMonthlyReport($board, 'cattle-agent-upgradation-report');
         if ($monthlyAgentUpgradationReport) {
             $numberOfReports = 0;
             if ($numberOfReports >= 2){
@@ -301,7 +301,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $monthlyAgentUpgradationReport->setTargetMark(3);
             $em->persist($monthlyAgentUpgradationReport);
             $em->flush();
-        }
+        }*/
     }
 
     public function updateEvaluationCriteriaAqua(EmployeeBoard $board, $filterBy)
@@ -324,9 +324,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyNewFarmIntroduceReport = $this->getAttributeForMonthlyReport($board, 'aqua-new-farm-introduce');
+/*        $monthlyNewFarmIntroduceReport = $this->getAttributeForMonthlyReport($board, 'aqua-new-farm-introduce');
         if ($monthlyNewFarmIntroduceReport) {
-//            (>=5) =5, 4=4, 3=3,2=2, 1=1,0=0
             $numberOfReports = 0;
             if ($numberOfReports >= 5){
                 $monthlyNewFarmIntroduceReport->setMark(5);
@@ -338,9 +337,9 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $monthlyNewFarmIntroduceReport->setTargetMark(5);
             $em->persist($monthlyNewFarmIntroduceReport);
             $em->flush();
-        }
+        }*/
 
-        $monthlyNewAgentCreationReport = $this->getAttributeForMonthlyReport($board, 'aqua-new-agent-creation-and-up-gradation-report');
+/*        $monthlyNewAgentCreationReport = $this->getAttributeForMonthlyReport($board, 'aqua-new-agent-creation-and-up-gradation-report');
         if ($monthlyNewAgentCreationReport) {
             $numberOfReports = 0;
 
@@ -354,7 +353,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $monthlyNewAgentCreationReport->setTargetMark(2);
             $em->persist($monthlyNewAgentCreationReport);
             $em->flush();
-        }
+        }*/
     }
 
     public function updateEvaluationCriteriaPoultry(EmployeeBoard $board, $filterBy)
@@ -397,7 +396,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $em->flush();
         }
 
-        $monthlyNewFarmerIntroduceReport = $this->getAttributeForMonthlyReport($board, 'poultry-new-farm-introduce-report');
+/*        $monthlyNewFarmerIntroduceReport = $this->getAttributeForMonthlyReport($board, 'poultry-new-farm-introduce-report');
 
         if ($monthlyNewFarmerIntroduceReport) {
             $numberOfReports = (int)$em->getRepository(FarmerIntroduceDetails::class)->getMonthlyNewFarmerIntroduceTotalReport($filterBy);
@@ -411,7 +410,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $monthlyNewFarmerIntroduceReport->setTargetMark(5);
             $em->persist($monthlyNewFarmerIntroduceReport);
             $em->flush();
-        }
+        }*/
     }
 
 
