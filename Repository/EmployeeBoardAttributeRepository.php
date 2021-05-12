@@ -491,14 +491,14 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'aqua-service') {
                     $distributionAqua = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode' => 'feed', 'slug' => $distribution->getSlug() . '-aqua-service'));
 
-                    $exist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard' => $board, 'markDistribution' => $distributionPoultry));
+                    $exist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard' => $board, 'markDistribution' => $distributionAqua));
                     if ($exist) {
                         $entity = $exist;
                     }
                     $entity->setEmployeeBoard($board);
                     $entity->setTargetQuantity($parameter['targetQuantity']);
                     $entity->setSalesQuantity($parameter['quantity']);
-                    $entity->setMarkDistribution($distributionPoultry);
+                    $entity->setMarkDistribution($distributionAqua);
 
                     $mark = $this->salesTargetCalculationAquaService($distribution->getSlug(), $entity->getTargetQuantity(), $entity->getSalesQuantity())[$distributionAqua->getSlug()];
                     $entity->setMark($mark);
@@ -538,14 +538,14 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'cattle-service') {
                     $distributionCattle = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode' => 'feed', 'slug' => $distribution->getSlug() . '-cattle-service'));
 
-                    $exist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard' => $board, 'markDistribution' => $distributionPoultry));
+                    $exist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard' => $board, 'markDistribution' => $distributionCattle));
                     if ($exist) {
                         $entity = $exist;
                     }
                     $entity->setEmployeeBoard($board);
                     $entity->setTargetQuantity($parameter['targetQuantity']);
                     $entity->setSalesQuantity($parameter['quantity']);
-                    $entity->setMarkDistribution($distributionPoultry);
+                    $entity->setMarkDistribution($distributionCattle);
 
                     $mark = $this->salesTargetCalculationCattleService($distribution->getSlug(), $entity->getTargetQuantity(), $entity->getSalesQuantity())[$distributionCattle->getSlug()];
                     $entity->setMark($mark);
