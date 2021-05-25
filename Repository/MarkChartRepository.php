@@ -236,6 +236,7 @@ class MarkChartRepository extends MaterializedPathRepository
         $qb->join('e.parent','p');
         $qb->where('p.slug = :slug')->setParameter('slug','sales');
         $qb->andWhere('e.salesMode = :mode')->setParameter('mode','feed');
+        $qb->andWhere('e.slug IN (:attrSlug)')->setParameter('attrSlug',['broiler', 'sonali', 'fish', 'layer', 'cattle']);
         $result = $qb->getQuery()->getResult();
         return $result;
     }
