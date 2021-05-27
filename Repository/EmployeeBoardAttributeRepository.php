@@ -447,12 +447,12 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                         $entity = $exist;
                     }
                     $entity->setEmployeeBoard($board);
-                    $entity->setTargetQuantity($parameter['targetQuantity']);
-                    $entity->setSalesQuantity($parameter['quantity']);
+                    $entity->setTargetQuantity($parameter['targetQuantity'] ?: 0);
+                    $entity->setSalesQuantity($parameter['quantity'] ?: 0);
                     $entity->setMarkDistribution($distributionPoultry);
 
                     $mark = $this->salesTargetCalculationPoultryService($distribution->getSlug(), $entity->getTargetQuantity(), $entity->getSalesQuantity())[$distributionPoultry->getSlug()];
-                    $entity->setMark($mark);
+                    $entity->setMark($mark ?: 0);
                     $em->persist($entity);
 
                     $employeeBoardAttribute = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $distributionPoultry]);
@@ -472,10 +472,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     }
                     $growthEntity->setEmployeeBoard($board);
                     $growthEntity->setMarkDistribution($growthDistribution);
-                    $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity']);
-                    $growthEntity->setSalesQuantity($parameter['quantity']);
+                    $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity'] ?: 0);
+                    $growthEntity->setSalesQuantity($parameter['quantity'] ?: 0);
 
-                    $growthEntity->setMark($this->salesGrowthCalculationPoultryService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'])[$growthDistribution->getSlug()]);
+                    $growthEntity->setMark($this->salesGrowthCalculationPoultryService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'])[$growthDistribution->getSlug()] ?: 0);
                     $em->persist($growthEntity);
                     $em->flush();
 
@@ -495,12 +495,12 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                         $entity = $exist;
                     }
                     $entity->setEmployeeBoard($board);
-                    $entity->setTargetQuantity($parameter['targetQuantity']);
-                    $entity->setSalesQuantity($parameter['quantity']);
+                    $entity->setTargetQuantity($parameter['targetQuantity'] ?: 0);
+                    $entity->setSalesQuantity($parameter['quantity'] ?: 0);
                     $entity->setMarkDistribution($distributionAqua);
 
                     $mark = $this->salesTargetCalculationAquaService($distribution->getSlug(), $entity->getTargetQuantity(), $entity->getSalesQuantity())[$distributionAqua->getSlug()];
-                    $entity->setMark($mark);
+                    $entity->setMark($mark ?: 0);
                     $em->persist($entity);
 
                     $employeeBoardAttribute = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $distributionAqua]);
@@ -519,10 +519,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     }
                     $growthEntity->setEmployeeBoard($board);
                     $growthEntity->setMarkDistribution($growthDistribution);
-                    $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity']);
-                    $growthEntity->setSalesQuantity($parameter['quantity']);
+                    $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity'] ?: 0);
+                    $growthEntity->setSalesQuantity($parameter['quantity'] ?: 0);
 
-                    $growthEntity->setMark($this->salesGrowthCalculationAquaService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'])[$growthDistribution->getSlug()]);
+                    $growthEntity->setMark($this->salesGrowthCalculationAquaService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'])[$growthDistribution->getSlug()] ?: 0);
                     $em->persist($growthEntity);
                     $em->flush();
 
@@ -542,8 +542,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                         $entity = $exist;
                     }
                     $entity->setEmployeeBoard($board);
-                    $entity->setTargetQuantity($parameter['targetQuantity']);
-                    $entity->setSalesQuantity($parameter['quantity']);
+                    $entity->setTargetQuantity($parameter['targetQuantity'] ?: 0);
+                    $entity->setSalesQuantity($parameter['quantity'] ?: 0);
                     $entity->setMarkDistribution($distributionCattle);
 
                     $mark = $this->salesTargetCalculationCattleService($distribution->getSlug(), $entity->getTargetQuantity(), $entity->getSalesQuantity())[$distributionCattle->getSlug()];
@@ -567,10 +567,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     }
                     $growthEntity->setEmployeeBoard($board);
                     $growthEntity->setMarkDistribution($growthDistribution);
-                    $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity']);
-                    $growthEntity->setSalesQuantity($parameter['quantity']);
+                    $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity'] ?: 0);
+                    $growthEntity->setSalesQuantity($parameter['quantity'] ?: 0);
 
-                    $growthEntity->setMark($this->salesGrowthCalculationCattleService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'])[$growthDistribution->getSlug()]);
+                    $growthEntity->setMark($this->salesGrowthCalculationCattleService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'])[$growthDistribution->getSlug()] ?: 0);
                     $em->persist($growthEntity);
                     $em->flush();
 
@@ -590,8 +590,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                         $entity = $exist;
                     }
                     $entity->setEmployeeBoard($board);
-                    $entity->setTargetQuantity($parameter['targetQuantity']);
-                    $entity->setSalesQuantity($parameter['quantity']);
+                    $entity->setTargetQuantity($parameter['targetQuantity'] ?: 0);
+                    $entity->setSalesQuantity($parameter['quantity'] ?: 0);
                     $entity->setMarkDistribution($distribution);
 
                     $mark = $this->salesTargetCalculation($entity->getTargetQuantity(), $entity->getSalesQuantity());
@@ -616,10 +616,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     }
                     $growthEntity->setEmployeeBoard($board);
                     $growthEntity->setMarkDistribution($growthDistribution);
-                    $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity']);
-                    $growthEntity->setSalesQuantity($parameter['quantity']);
+                    $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity'] ?: 0);
+                    $growthEntity->setSalesQuantity($parameter['quantity'] ?: 0);
 
-                    $growthEntity->setMark($this->salesGrowthCalculation($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'])[$growthDistribution->getSlug()]);
+                    $growthEntity->setMark($this->salesGrowthCalculation($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'])[$growthDistribution->getSlug()] ?: 0);
                     $em->persist($growthEntity);
                     $em->flush();
 
@@ -637,8 +637,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $discritAchivementDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'district-achievement'));
             $employeeBoardAttributeForDistrictAchivement = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $discritAchivementDistribution]);
             if ($employeeBoardAttributeForDistrictAchivement) {
-                $employeeBoardAttributeForDistrictAchivement->setTargetAchievement($totalQuantity);
-                $employeeBoardAttributeForDistrictAchivement->setTargetAmount($totalTargetQuantity);
+                $employeeBoardAttributeForDistrictAchivement->setTargetAchievement($totalQuantity ?: 0);
+                $employeeBoardAttributeForDistrictAchivement->setTargetAmount($totalTargetQuantity ?: 0);
                 $employeeBoardAttributeForDistrictAchivement->setMark($this->salesDistrictAchivementCalculation($totalActualMark, $totalAchivementMark));
                 $em->persist($employeeBoardAttributeForDistrictAchivement);
                 $em->flush();
@@ -647,8 +647,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $regionalAchivementDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'regional-achievement'));
             $employeeBoardAttributeForRegionalAchivement = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $regionalAchivementDistribution]);
             if ($employeeBoardAttributeForRegionalAchivement) {
-                $employeeBoardAttributeForRegionalAchivement->setTargetAchievement($totalQuantity);
-                $employeeBoardAttributeForRegionalAchivement->setTargetAmount($totalTargetQuantity);
+                $employeeBoardAttributeForRegionalAchivement->setTargetAchievement($totalQuantity ?: 0);
+                $employeeBoardAttributeForRegionalAchivement->setTargetAmount($totalTargetQuantity ?: 0);
                 $employeeBoardAttributeForRegionalAchivement->setMark($this->salesRegionalAchivementCalculation($totalActualMark, $totalAchivementMark));
                 $em->persist($employeeBoardAttributeForRegionalAchivement);
                 $em->flush();
@@ -672,6 +672,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $parameter = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'core-responsibilities', 'status' => 1));
 
         $entities = $this->individualTeamMemberMarks($employeeArrs, $parameter, $board->getYear(), $board->getMonth());
+//        $individualTeamDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'individual-team-members-achievement','status'=>1));
+
         $individualTeamDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'team-members-mark-on-core-activities', 'status' => 1));
 
         $individualEntity = new EmployeeBoardSubAttribute();
@@ -805,6 +807,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 //        $qb->groupBy('parameter.id');
 //        $qb->addGroupBy('ed.id');
         $result = $qb->getQuery()->getOneOrNullResult();
+
         return $result;
     }
 
