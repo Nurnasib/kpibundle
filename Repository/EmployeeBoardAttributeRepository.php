@@ -207,27 +207,35 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     private function twentyPercentGrowthAgentNumberPercentageCalculation($commonAgentBetweenYears, $twentyPercentGrowthAgents)
     {
-        $agentNumberWithPercentage = (count($twentyPercentGrowthAgents) * 100) / count($commonAgentBetweenYears);
+        if (count($commonAgentBetweenYears) > 0 && count($twentyPercentGrowthAgents) > 0){
+            $agentNumberWithPercentage = (count($twentyPercentGrowthAgents) * 100) / count($commonAgentBetweenYears);
 
-        if ($agentNumberWithPercentage >= 30) {
-            return 3;
-        } elseif ($agentNumberWithPercentage >= 10 && $agentNumberWithPercentage < 30) {
-            return 2;
-        } elseif ($agentNumberWithPercentage >= 1 && $agentNumberWithPercentage < 10) {
-            return 1;
+            if ($agentNumberWithPercentage >= 30) {
+                return 3;
+            } elseif ($agentNumberWithPercentage >= 10 && $agentNumberWithPercentage < 30) {
+                return 2;
+            } elseif ($agentNumberWithPercentage >= 1 && $agentNumberWithPercentage < 10) {
+                return 1;
+            } else {
+                return 0;
+            }
         } else {
-            return 0;
+          return 0;  
         }
     }
 
     private function twentyPercentGrowthAgentNumberPercentageCalculationAqua($commonAgentBetweenYears, $twentyPercentGrowthAgents)
     {
-        $agentNumberWithPercentage = (count($twentyPercentGrowthAgents) * 100) / count($commonAgentBetweenYears);
+        if (count($commonAgentBetweenYears) > 0 && count($twentyPercentGrowthAgents) > 0){
+            $agentNumberWithPercentage = (count($twentyPercentGrowthAgents) * 100) / count($commonAgentBetweenYears);
 
-        if ($agentNumberWithPercentage >= 20) {
-            return 2;
-        } elseif ($agentNumberWithPercentage > 0 && $agentNumberWithPercentage < 20) {
-            return 1;
+            if ($agentNumberWithPercentage >= 20) {
+                return 2;
+            } elseif ($agentNumberWithPercentage > 0 && $agentNumberWithPercentage < 20) {
+                return 1;
+            } else {
+                return 0;
+            }
         } else {
             return 0;
         }
@@ -235,23 +243,26 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     private function twentyPercentGrowthAgentNumberPercentageCalculationCattle($commonAgentBetweenYears, $twentyPercentGrowthAgents)
     {
-        $agentNumberWithPercentage = (count($twentyPercentGrowthAgents) * 100) / count($commonAgentBetweenYears);
+        if (count($commonAgentBetweenYears) > 0 && count($twentyPercentGrowthAgents) > 0){
+            $agentNumberWithPercentage = (count($twentyPercentGrowthAgents) * 100) / count($commonAgentBetweenYears);
 
-        if ($agentNumberWithPercentage >= 50) {
-            return 5;
-        } elseif ($agentNumberWithPercentage >= 40 && $agentNumberWithPercentage < 50) {
-            return 4;
-        } elseif ($agentNumberWithPercentage >= 30 && $agentNumberWithPercentage < 40) {
-            return 3;
-        } elseif ($agentNumberWithPercentage >= 20 && $agentNumberWithPercentage < 30) {
-            return 2;
-        } elseif ($agentNumberWithPercentage > 0 && $agentNumberWithPercentage < 20) {
-            return 1;
-        } else {
+            if ($agentNumberWithPercentage >= 50) {
+                return 5;
+            } elseif ($agentNumberWithPercentage >= 40 && $agentNumberWithPercentage < 50) {
+                return 4;
+            } elseif ($agentNumberWithPercentage >= 30 && $agentNumberWithPercentage < 40) {
+                return 3;
+            } elseif ($agentNumberWithPercentage >= 20 && $agentNumberWithPercentage < 30) {
+                return 2;
+            } elseif ($agentNumberWithPercentage > 0 && $agentNumberWithPercentage < 20) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }else {
             return 0;
         }
     }
-
 
     public function updateEvaluationCriteriaCattle(EmployeeBoard $board, $filterBy)
     {
@@ -861,9 +872,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     public function salesTargetCalculationPoultryService($productSlug, $target, $sales)
     {
         $returnValue = [];
+        $slug = $productSlug . '-poultry-service';
+
         if ($target > 0) {
             $action = (($sales * 100) / $target);
-            $slug = $productSlug . '-poultry-service';
             if ($productSlug == 'broiler') {
                 if ($action >= 100) {
                     $returnValue[$slug] = 7;
@@ -931,6 +943,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$slug] = 0;
                 }
             }
+        } else {
+            $returnValue[$slug] = 0;
         }
         return $returnValue;
     }
@@ -938,9 +952,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     public function salesTargetCalculationAquaService($productSlug, $target, $sales)
     {
         $returnValue = [];
+        $slug = $productSlug . '-aqua-service';
+
         if ($target > 0) {
             $action = (($sales * 100) / $target);
-            $slug = $productSlug . '-aqua-service';
             if ($productSlug == 'broiler') {
                 if ($action >= 100) {
                     $returnValue[$slug] = 4;
@@ -992,6 +1007,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$slug] = 0;
                 }
             }
+        } else {
+            $returnValue[$slug] = 0;
         }
         return $returnValue;
     }
@@ -999,10 +1016,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     public function salesTargetCalculationCattleService($productSlug, $target, $sales)
     {
         $returnValue = [];
+        $slug = $productSlug . '-cattle-service';
+
         if ($target > 0) {
             $action = (($sales * 100) / $target);
-            $slug = $productSlug . '-cattle-service';
-
             if ($productSlug == 'broiler') {
                 if ($action >= 100) {
                     $returnValue[$slug] = 3;
@@ -1054,6 +1071,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$slug] = 0;
                 }
             }
+        } else {
+            $returnValue[$slug] = 0;
         }
         return $returnValue;
     }
