@@ -153,7 +153,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             }
         }
         $agentsWithSalesQuantity = $em->getRepository(AgentOrder::class)->getAgentWithSalesQuantity($board, $locationsId);
-
         $commonAgentBetweenYears = array_intersect_key($agentsWithSalesQuantity[$board->getYear()], $agentsWithSalesQuantity[$prevYear]);  //Common agents and SalesQuantity(Current Year)
 
         foreach ($commonAgentBetweenYears as $agentId => $currentYearAgentSalesQty) {
@@ -673,7 +672,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $parameter = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'core-responsibilities', 'status' => 1));
 
         $entities = $this->individualTeamMemberMarks($employeeArrs, $parameter, $board->getYear(), $board->getMonth());
-//        $individualTeamDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'individual-team-members-achievement','status'=>1));
         $individualTeamDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'team-members-mark-on-core-activities', 'status' => 1));
 
         $individualEntity = new EmployeeBoardSubAttribute();
@@ -718,7 +716,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $outstandingDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'outstanding-limit-vs-actual-feed'));
         $employeeBoardAttributeForOutStandingLimit = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $outstandingDistribution]);
         if ($employeeBoardAttributeForOutStandingLimit) {
-            $employeeBoardAttributeForOutStandingLimit->setMark($this->outstandingLimitCalculation($outstandingAmount['outstanding']));
+            $employeeBoardAttributeForOutStandingLimit->setMark($this->outstandingLimitCalculation($board, $outstandingAmount['outstanding']));
             $em->persist($employeeBoardAttributeForOutStandingLimit);
             $em->flush();
         }
@@ -804,7 +802,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $qb->andWhere('parameter.id = :parameter')->setParameter('parameter', $parameter);
         $qb->andWhere('ed.year =:year')->setParameter('year', $year);
         $qb->andWhere('ed.month =:month')->setParameter('month', $month);
-//        $qb->groupBy('att.id');
+//        $qb->groupBy('parameter.id');
+//        $qb->addGroupBy('ed.id');
         $result = $qb->getQuery()->getOneOrNullResult();
         return $result;
     }
@@ -1444,24 +1443,55 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     }
 
-    public function outstandingLimitCalculation($outstandingValue)
+    public function outstandingLimitCalculation(EmployeeBoard $board, $outstandingValue)
     {
 
         if ($outstandingValue) {
-            if ($outstandingValue >= 500000) {
-                return 0;
-            } elseif ($outstandingValue >= 400000 && $outstandingValue < 500000) {
-                return 1;
-            } elseif ($outstandingValue >= 300000 && $outstandingValue < 400000) {
-                return 2;
-            } elseif ($outstandingValue >= 200000 && $outstandingValue < 300000) {
-                return 3;
-            } elseif ($outstandingValue < 200000) {
-                return 4;
+            if ($board->getEmployee()->getReportMode()->getSlug() == 'agm-kpi'){
+                if ($outstandingValue >= 1500000) {
+                    return 0;
+                } elseif ($outstandingValue >= 1400000 && $outstandingValue < 1500000) {
+                    return 1;
+                } elseif ($outstandingValue >= 1200000 && $outstandingValue < 1400000) {
+                    return 2;
+                } elseif ($outstandingValue >= 1000000 && $outstandingValue < 1200000) {
+                    return 3;
+                } elseif ($outstandingValue > 0 && $outstandingValue < 1000000) {
+                    return 4;
+                } else{
+                    return 5;
+                }
+            }elseif ($board->getEmployee()->getReportMode()->getSlug() == 'rsm-arsm-kpi'){
+                if ($outstandingValue >= 1000000) {
+                    return 0;
+                } elseif ($outstandingValue >= 900000 && $outstandingValue < 1000000) {
+                    return 1;
+                } elseif ($outstandingValue >= 700000 && $outstandingValue < 900000) {
+                    return 2;
+                } elseif ($outstandingValue >= 500000 && $outstandingValue < 700000) {
+                    return 3;
+                } elseif ($outstandingValue > 0 && $outstandingValue < 500000) {
+                    return 4;
+                } else{
+                    return 5;
+                }
+            }else{
+                if ($outstandingValue >= 500000) {
+                    return 0;
+                } elseif ($outstandingValue >= 400000 && $outstandingValue < 500000) {
+                    return 1;
+                } elseif ($outstandingValue >= 300000 && $outstandingValue < 400000) {
+                    return 2;
+                } elseif ($outstandingValue >= 200000 && $outstandingValue < 300000) {
+                    return 3;
+                } elseif ($outstandingValue > 0 && $outstandingValue < 200000) {
+                    return 4;
+                } else{
+                    return 5;
+                }
             }
         }
         return 0;
-
     }
 
     public function docSalesCollectionCalculation($collectionAmount, $salesAmount)
