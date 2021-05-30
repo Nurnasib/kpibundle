@@ -160,7 +160,6 @@ class EmployeeBoardController extends AbstractController
         foreach ($boardAttributes as $boardAttribute){
             $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][]=$boardAttribute;
         }
-
         return $this->render('@TerminalbdKpi/employeeboard/new.html.twig', [
             'board' => $entity,
 //            'marks' => $marks,
@@ -295,9 +294,10 @@ class EmployeeBoardController extends AbstractController
     {
 
         $entity = $this->getDoctrine()->getRepository(EmployeeBoard::class)->find($id);
-        $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardSummaryReport($entity);
+        $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->employeeBoardSummaryReport($entity);
+//        $abc = array_sum(array_column(array_column($marks,'mark'), ''));
         return $this->render('@TerminalbdKpi/employeeboard/report/summary.html.twig', [
-            'entity' => $entity,
+//            'entity' => $entity,
             'board' => $entity,
             'entities' => $marks,
         ]);
@@ -311,9 +311,9 @@ class EmployeeBoardController extends AbstractController
     {
 
         $entity = $this->getDoctrine()->getRepository(EmployeeBoard::class)->find($id);
-        $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardSummaryReport($entity);
+        $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->employeeBoardSummaryReport($entity);
         return $this->render('@TerminalbdKpi/employeeboard/report/summary-print.html.twig', [
-            'entity' => $entity,
+//            'entity' => $entity,
             'board' => $entity,
             'entities' => $marks,
         ]);

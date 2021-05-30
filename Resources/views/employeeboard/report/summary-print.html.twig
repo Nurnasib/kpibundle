@@ -29,63 +29,86 @@
 </table>
 
 {# New format END #}
-<table border="1" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse">
-    <thead>
-    <tr>
-        <th scope="col" style="width: 22%">Parameter</th>
-        <th scope="col">Marks</th>
-        <th scope="col">Weight</th>
-        <th scope="col">Obtain Marks</th>
-        <th scope="col">Grade</th>
-    </tr>
-    </thead>
-    <tbody>
+{% if entities is not empty and entities is iterable %}
 
-    {% set totalMark = 0 %}
-    {% for entity in entities %}
-        {% set totalMark = totalMark + entity.mark %}
-    {% endfor %}
+    <table border="1" cellpadding="0" cellspacing="0" width="100%">
+        <thead>
 
-    {% set totalActualMark = 0 %}
-    {% for entity in entities %}
-        {% set totalActualMark = totalActualMark + entity.actualMark %}
         <tr>
-            <td style="padding-left: 5px">{{ entity.activity }}</td>
-            <td align="center">{{ entity.actualMark }}</td>
-            <td align="center">{% if entity.mark > 0 %}{{ ((entity.mark*100)/entity.actualMark)|number_format(2) }}{% endif %}%</td>
-            <td align="center">{{ entity.mark }}</td>
-            {% if loop.index==1 %}
-                <td style="text-align: center; font-size: 35px; font-weight: 900" rowspan="{{ entities|length +1 }}">
-                    {% set grade='' %}
-                    {% if totalMark>=29 %}
-                        {% set grade='A' %}
-                    {% elseif totalMark>=27 and totalMark<29 %}
-                        {% set grade='B+' %}
-                    {% elseif totalMark>=25 and totalMark<27 %}
-                        {% set grade='B' %}
-                    {% elseif totalMark>=23 and totalMark<25 %}
-                        {% set grade='C' %}
-                    {% elseif totalMark<23 %}
-                        {% set grade='D' %}
-                    {% endif %}
-                    {{ grade }}
-                </td>
-            {% endif %}
+            <th scope="col" style="width: 22%; text-align: center">Parameter</th>
+            <th scope="col">Activity</th>
+            <th scope="col"style="text-align: center">Marks</th>
+            <th scope="col"style="text-align: center">Obtain Marks</th>
+            <th scope="col"style="text-align: center">%</th>
+            <th scope="col"style="text-align: center">Grade</th>
         </tr>
-    {% endfor %}
-    <tr>
-        <th class="text-right">Total Marks</th>
-        <th>{{ totalActualMark }}</th>
-        <th>{{ ((totalMark*100)/totalActualMark)|number_format(2) }}%</th>
-        <th>{{ totalMark }}</th>
-    </tr>
-    <tr>
-        <th colspan="6" class="text-center" style="padding: 10px"><strong>A=>29, B+>27, B>25, C>23, D<23</strong></th>
-    </tr>
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+        {% set totalActualMark = 0 %}
+        {% set totalObtainMark = 0 %}
+        {% set totalMarkParcentage = 0 %}
+
+        {% for key, activities in entities %}
+            {% for activity in activities %}
+                {% set totalActualMark = totalActualMark + activity.actualMark  %}
+                {% set totalObtainMark = totalObtainMark + activity.mark  %}
+                {% set markParcentage = (activity.mark * 100) / activity.actualMark %}
+                {% set totalMarkParcentage = (totalObtainMark * 100) / totalActualMark %}
+
+
+                <tr>
+                    {% if(loop.index==1) %}
+                        <td rowspan="{{ activities|length }}">{{ key }}</td>
+                    {% endif %}
+                    <td>{{ activity.activityName }}</td>
+                    <td>{{ activity.actualMark }}</td>
+                    <td>{{ activity.mark }}</td>
+                    <td>{{ markParcentage|number_format(2) }}</td>
+
+                    {% if (loop.parent.loop.index == 1) and loop.index == 1 %}
+                        <td style="text-align: center; font-size: 35px; font-weight: 900" rowspan="{{ (entities|multiArrayLength) }}">
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        {% endfor %}
+        <tr>
+            <td colspan="5" style="border: 0px"></td>
+            <td style="border: 0px">
+                {% set grade='' %}
+                {% if totalMarkParcentage >= 80 %}
+                    {% set grade='A' %}
+                {% elseif totalMarkParcentage >= 75 and totalMarkParcentage < 80 %}
+                    {% set grade='B+' %}
+                {% elseif totalMarkParcentage >= 70 and totalMarkParcentage < 75 %}
+                    {% set grade='B' %}
+                {% elseif totalMarkParcentage >= 65 and totalMarkParcentage < 70 %}
+                    {% set grade='C' %}
+                {% elseif totalMarkParcentage < 65 %}
+                    {% set grade='D' %}
+                {% endif %}
+                <p style="position:absolute; top: 50%; right: 20px;text-align: center; font-size: 35px; font-weight: 900">{{ grade }}</p>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" align="center"><b>All Total</b></td>
+            <td><b>{{ totalActualMark }}</b></td>
+            <td><b>{{ totalObtainMark }}</b></td>
+            <td><b>{{ totalMarkParcentage }}</b></td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <th colspan="6" class="text-center" style="padding: 10px; font-weight: 700;">Grade (A=>80%, B+=75-79%,  B=70%-74%,  C=65%-70%,  D<65%)</th>
+        </tr>
+        </tfoot>
+    </table>
+{% endif %}
 
 <style>
+    table tr td{
+        padding: 2px 5px;
+    }
     .list-unstyled li {
         color: #2b2e38;
     }

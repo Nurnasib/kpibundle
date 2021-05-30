@@ -64,16 +64,26 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         return $result;
     }
 
-    public function EmployeeBoardSummaryReport(EmployeeBoard $board)
+    public function employeeBoardSummaryReport(EmployeeBoard $board)
     {
 
         $qb = $this->createQueryBuilder('e');
-        $qb->select('SUM(e.actualMark) as actualMark', 'SUM(e.mark) as mark', 'a.name as activity');
-        $qb->join("e.activity", 'a');
+        $qb->join("e.parameter", 'parameter');
+        $qb->join("e.activity", 'activity');
+
+        $qb->select('parameter.name AS parameterName');
+        $qb->addSelect('SUM(e.actualMark) as actualMark', 'SUM(e.mark) as mark');
+        $qb->addSelect('activity.name AS activityName');
+
         $qb->where("e.employeeBoard = {$board->getId()}");
-        $qb->groupBy("a.id");
-        $result = $qb->getQuery()->getArrayResult();
-        return $result;
+        $qb->groupBy("activity.id");
+        $results = $qb->getQuery()->getArrayResult();
+        $data = [];
+        foreach ($results as $result){
+            $data[$result['parameterName']][] = $result;
+        }
+//        dd($data);
+        return $data;
     }
 
     public function insertMarkDistribution(EmployeeBoard $board, $entities)

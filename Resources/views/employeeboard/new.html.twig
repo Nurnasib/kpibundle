@@ -118,7 +118,9 @@
                                                                         <select class="markDistribution" data-id="{{ entity.attribute.id }}" data-action="{{ path('kpi_employee_board_attribute_update',{'id':entity.id}) }}" >
                                                                             <option value="">{{ 'Select mark particular'|trans }}</option>
                                                                             {% for markDistribution in entity.attribute.children %}
+                                                                                {% if markDistribution.status == 1 %}
                                                                                 <option  value="{{ markDistribution.id }}" {% if  entity.markDistribution is not empty and markDistribution.id ==  entity.markDistribution.id %} selected="selected" {% endif %}>{{ markDistribution.name }}</option>
+                                                                                {% endif %}
                                                                             {% endfor %}
                                                                         </select>
                                                                     {% else %}
