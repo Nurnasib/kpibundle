@@ -372,8 +372,8 @@
                                                     <td>{{ agentId|default('') }}</td>
                                                     <td>{{ details.agentName|default('') }}</td>
                                                     <td>{{ details.agentAddress|default('') }}</td>
-                                                    <td>{{ details[entity.year-1]|number_format(2) }}</td>
-                                                    <td>{{ details[entity.year]|number_format(2) }}</td>
+                                                    <td>{{ details[entity.year-1] }}</td>
+                                                    <td>{{ details[entity.year] }}</td>
 
 {#                                                    {% for totalAmount in details %}#}
 {#                                                        {% if loop.index == 1 %}#}

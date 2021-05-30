@@ -39,25 +39,34 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
         return $result;
     }
 
-    public function getKpiSummaryForFeedAndGrowth($id)
+    public function getKpiSummaryForFeedAndGrowth(EmployeeBoard $board)
     {
         $qb = $this->createQueryBuilder('e');
         $qb->select('e.targetQuantity', 'e.salesQuantity', 'e.mark');
         $qb->addSelect('markDistribution.name AS attributeName', 'markDistribution.salesMode');
 
         $qb->join('e.markDistribution', 'markDistribution');
-        $qb->where('e.employeeBoard = :id')->setParameter('id', $id);
+        $qb->where('e.employeeBoard = :id')->setParameter('id', $board);
 //        $qb->andWhere("markDistribution.slug = 'doc-sales-vs-collection'");
 
         $results = $qb->getQuery()->getArrayResult();
-
         $data = [];
         foreach ($results as $result){
+            if ($result['targetQuantity'] > 0){
+//                $percentage = ($result['salesQuantity']*100) / $result['targetQuantity'];
+
+                if ($result['salesMode'] == 'growth'){
+                    $percentage = (($result['salesQuantity'] - $result['targetQuantity'])*100) / $result['targetQuantity'];
+                }else {
+                    $percentage = ($result['salesQuantity']*100) / $result['targetQuantity'];
+                }
+
+            }
             $data[$result['salesMode']][] = [
                 'markParameter' => $result['attributeName'],
                 'targetQuantity' => $result['targetQuantity'],
                 'salesQuantity' => $result['salesQuantity'],
-                'percentage' => $result['targetQuantity']>0?($result['salesQuantity']*100)/$result['targetQuantity']:0,
+                'percentage' => $percentage,
                 'mark' => $result['mark'],
             ];
         }

@@ -486,7 +486,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity'] ?: 0);
                     $growthEntity->setSalesQuantity($parameter['quantity'] ?: 0);
 
-                    $growthEntity->setMark($this->salesGrowthCalculationPoultryService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'])[$growthDistribution->getSlug()] ?: 0);
+                    $growthEntity->setMark($this->salesGrowthCalculationPoultryService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['quantity'])[$growthDistribution->getSlug()] ?: 0);
                     $em->persist($growthEntity);
                     $em->flush();
 
@@ -533,7 +533,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity'] ?: 0);
                     $growthEntity->setSalesQuantity($parameter['quantity'] ?: 0);
 
-                    $growthEntity->setMark($this->salesGrowthCalculationAquaService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'])[$growthDistribution->getSlug()] ?: 0);
+                    $growthEntity->setMark($this->salesGrowthCalculationAquaService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['quantity'])[$growthDistribution->getSlug()] ?: 0);
                     $em->persist($growthEntity);
                     $em->flush();
 
@@ -581,7 +581,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity'] ?: 0);
                     $growthEntity->setSalesQuantity($parameter['quantity'] ?: 0);
 
-                    $growthEntity->setMark($this->salesGrowthCalculationCattleService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'])[$growthDistribution->getSlug()] ?: 0);
+                    $growthEntity->setMark($this->salesGrowthCalculationCattleService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['quantity'])[$growthDistribution->getSlug()] ?: 0);
+//                    dd($parameter);
                     $em->persist($growthEntity);
                     $em->flush();
 
@@ -630,7 +631,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity'] ?: 0);
                     $growthEntity->setSalesQuantity($parameter['quantity'] ?: 0);
 
-                    $growthEntity->setMark($this->salesGrowthCalculation($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'])[$growthDistribution->getSlug()] ?: 0);
+                    $growthEntity->setMark($this->salesGrowthCalculation($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['quantity'])[$growthDistribution->getSlug()] ?: 0);
                     $em->persist($growthEntity);
                     $em->flush();
 
@@ -1357,9 +1358,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     {
         $returnValue = [];
         if ($productSlug) {
+            $increase = $currentValue - $previousValue;
+            $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+
             if ($productSlug == 'broiler') {
-                $increase = $currentValue - $previousValue;
-                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
                 $growthSlug = 'growth-' . $productSlug . '-cattle-service';
                 if ($action >= 10) {
                     $returnValue[$growthSlug] = 3;
@@ -1370,10 +1372,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 } else {
                     $returnValue[$growthSlug] = 0;
                 }
+//                dd($increase, $currentValue, $previousValue, $returnValue);
+
 
             } elseif ($productSlug == 'sonali') {
-                $increase = $currentValue - $previousValue;
-                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
                 $growthSlug = 'growth-' . $productSlug . '-cattle-service';
                 if ($action >= 5) {
                     $returnValue[$growthSlug] = 2;
@@ -1381,8 +1383,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 1;
                 }
             } elseif ($productSlug == 'layer') {
-                $increase = $currentValue - $previousValue;
-                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+
                 $growthSlug = 'growth-' . $productSlug . '-cattle-service';
                 if ($action >= 10) {
                     $returnValue[$growthSlug] = 3;
@@ -1394,8 +1395,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 0;
                 }
             } elseif ($productSlug == 'fish') {
-                $increase = $currentValue - $previousValue;
-                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+
                 $growthSlug = 'growth-' . $productSlug . '-cattle-service';
                 if ($action >= 5) {
                     $returnValue[$growthSlug] = 2;
@@ -1403,8 +1403,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 1;
                 }
             } elseif ($productSlug == 'cattle') {
-                $increase = $currentValue - $previousValue;
-                $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
+
                 $growthSlug = 'growth-' . $productSlug . '-cattle-service';
                 if ($action >= 25) {
                     $returnValue[$growthSlug] = 15;
