@@ -105,20 +105,18 @@ class AgentDocSaleCollectionRepository extends EntityRepository
     private function docSalesCollectionCalculationMark($collectionAmount, $salesAmount)
     {
 
-        if($salesAmount>0){
-            $action = (($collectionAmount * 100 )/$salesAmount);
-            if($action >= 95) {
+        if ($salesAmount > 0) {
+            $action = (($collectionAmount * 100) / $salesAmount);
+            if ($action >= 100) {
                 return 5;
-            }elseif ($action < 95 and $action >= 90) {
+            } elseif ($action < 100 and $action >= 90) {
                 return 4;
-            }elseif ($action < 90 and $action >= 85) {
+            } elseif ($action < 90 and $action >= 85) {
                 return 3;
-            }elseif ($action < 85 and $action >= 80) {
+            } elseif ($action < 85 and $action >= 75) {
                 return 2;
-            }elseif ($action < 80 and $action >= 75) {
+            } elseif ($action < 75) {
                 return 1;
-            }else {
-                return 0;
             }
         }
         return 0;

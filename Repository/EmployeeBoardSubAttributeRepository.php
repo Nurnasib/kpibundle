@@ -48,13 +48,14 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
         $qb->join('e.markDistribution', 'markDistribution');
         $qb->where('e.employeeBoard = :id')->setParameter('id', $board);
         $qb->orderBy('markDistribution.ordering', 'ASC');
+        $qb->addOrderBy('markDistribution.salesMode', 'ASC');
 //        $qb->andWhere("markDistribution.slug = 'doc-sales-vs-collection'");
 
         $results = $qb->getQuery()->getArrayResult();
         $data = [];
         foreach ($results as $result){
+            $percentage = '';
             if ($result['targetQuantity'] > 0){
-//                $percentage = ($result['salesQuantity']*100) / $result['targetQuantity'];
 
                 if ($result['salesMode'] == 'growth'){
                     $percentage = (($result['salesQuantity'] - $result['targetQuantity'])*100) / $result['targetQuantity'];

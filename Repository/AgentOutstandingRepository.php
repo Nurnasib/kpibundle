@@ -109,40 +109,46 @@ class AgentOutstandingRepository extends EntityRepository
     {
         if($outstandingValue){
             if ($board->getEmployee()->getReportMode()->getSlug() == 'agm-kpi'){
-                if($outstandingValue >= 1500000){
+                if ($outstandingValue >= 1500000) {
                     return 0;
-                }elseif ($outstandingValue >= 1400000 && $outstandingValue < 1500000){
+                } elseif ($outstandingValue >= 1400000 && $outstandingValue < 1500000) {
                     return 1;
-                }elseif ($outstandingValue >= 1200000 && $outstandingValue < 1400000){
+                } elseif ($outstandingValue >= 1200000 && $outstandingValue < 1400000) {
                     return 2;
-                }elseif ($outstandingValue >= 1000000 && $outstandingValue < 1200000){
+                } elseif ($outstandingValue >= 1000000 && $outstandingValue < 1200000) {
                     return 3;
-                }elseif ($outstandingValue < 1000000){
+                } elseif ($outstandingValue > 0 && $outstandingValue < 1000000) {
                     return 4;
+                } else{
+                    return 5;
                 }
             }elseif ($board->getEmployee()->getReportMode()->getSlug() == 'rsm-arsm-kpi'){
-                if($outstandingValue >= 1000000){
+                if ($outstandingValue >= 1000000) {
                     return 0;
-                }elseif ($outstandingValue >= 900000 && $outstandingValue < 1000000){
+                } elseif ($outstandingValue >= 900000 && $outstandingValue < 1000000) {
                     return 1;
-                }elseif ($outstandingValue >= 700000 && $outstandingValue < 900000){
+                } elseif ($outstandingValue >= 700000 && $outstandingValue < 900000) {
                     return 2;
-                }elseif ($outstandingValue >= 500000 && $outstandingValue < 700000){
+                } elseif ($outstandingValue >= 500000 && $outstandingValue < 700000) {
                     return 3;
-                }elseif ($outstandingValue < 500000){
+                } elseif ($outstandingValue > 0 && $outstandingValue < 500000) {
                     return 4;
+                } else{
+                    return 5;
                 }
             }else{
-                if($outstandingValue >= 500000){
+                if ($outstandingValue >= 500000) {
                     return 0;
-                }elseif ($outstandingValue >= 400000 && $outstandingValue < 500000){
+                } elseif ($outstandingValue >= 400000 && $outstandingValue < 500000) {
                     return 1;
-                }elseif ($outstandingValue >= 300000 && $outstandingValue < 400000){
+                } elseif ($outstandingValue >= 300000 && $outstandingValue < 400000) {
                     return 2;
-                }elseif ($outstandingValue >= 200000 && $outstandingValue < 300000){
+                } elseif ($outstandingValue >= 200000 && $outstandingValue < 300000) {
                     return 3;
-                }elseif ($outstandingValue < 200000){
+                } elseif ($outstandingValue > 0 && $outstandingValue < 200000) {
                     return 4;
+                } else{
+                    return 5;
                 }
             }
         }else{
