@@ -366,14 +366,14 @@
                                         <tbody>
                                         {% if twentyPercentGrowthAgentSalesDetails is not empty %}
                                             {% for agentId, details in twentyPercentGrowthAgentSalesDetails %}
-                                                {% set prevYearSale = details['now'|date('Y')-1] %}
-                                                {% set currentYearSale = details['now'|date('Y')] %}
+                                                {% set prevYearSale = details[entity.year-1]|number_format(2) %}
+                                                {% set currentYearSale = details[entity.year]|number_format(2) %}
                                                 <tr>
                                                     <td>{{ agentId|default('') }}</td>
                                                     <td>{{ details.agentName|default('') }}</td>
                                                     <td>{{ details.agentAddress|default('') }}</td>
-                                                    <td>{{ details[entity.year-1] }}</td>
-                                                    <td>{{ details[entity.year] }}</td>
+                                                    <td>{{ details[entity.year-1]|number_format(2) }}</td>
+                                                    <td>{{ details[entity.year]|number_format(2) }}</td>
 
 {#                                                    {% for totalAmount in details %}#}
 {#                                                        {% if loop.index == 1 %}#}
