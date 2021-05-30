@@ -47,6 +47,7 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
 
         $qb->join('e.markDistribution', 'markDistribution');
         $qb->where('e.employeeBoard = :id')->setParameter('id', $board);
+        $qb->orderBy('markDistribution.ordering', 'ASC');
 //        $qb->andWhere("markDistribution.slug = 'doc-sales-vs-collection'");
 
         $results = $qb->getQuery()->getArrayResult();
