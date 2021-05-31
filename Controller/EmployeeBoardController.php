@@ -292,14 +292,21 @@ class EmployeeBoardController extends AbstractController
      */
     public function reportSummary($id): Response
     {
-
+        $totalObtainMark = 0;
+        $totalActualMark = 0;
         $entity = $this->getDoctrine()->getRepository(EmployeeBoard::class)->find($id);
         $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->employeeBoardSummaryReport($entity);
-//        $abc = array_sum(array_column(array_column($marks,'mark'), ''));
+        foreach ($marks as $mark) {
+            foreach ($mark as $item) {
+                $totalObtainMark += $item['mark'];
+                $totalActualMark += $item['actualMark'];
+            }
+        }
         return $this->render('@TerminalbdKpi/employeeboard/report/summary.html.twig', [
-//            'entity' => $entity,
             'board' => $entity,
             'entities' => $marks,
+            'totalObtainMark' => $totalObtainMark,
+            'totalActualMark' => $totalActualMark,
         ]);
 
     }
@@ -309,13 +316,21 @@ class EmployeeBoardController extends AbstractController
      */
     public function reportSummaryPdf($id): Response
     {
-
+        $totalObtainMark = 0;
+        $totalActualMark = 0;
         $entity = $this->getDoctrine()->getRepository(EmployeeBoard::class)->find($id);
         $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->employeeBoardSummaryReport($entity);
+        foreach ($marks as $mark) {
+            foreach ($mark as $item) {
+                $totalObtainMark += $item['mark'];
+                $totalActualMark += $item['actualMark'];
+            }
+        }
         return $this->render('@TerminalbdKpi/employeeboard/report/summary-print.html.twig', [
-//            'entity' => $entity,
             'board' => $entity,
             'entities' => $marks,
+            'totalObtainMark' => $totalObtainMark,
+            'totalActualMark' => $totalActualMark,
         ]);
 
     }
