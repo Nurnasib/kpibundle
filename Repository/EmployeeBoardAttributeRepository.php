@@ -623,7 +623,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
                     $employeeBoardAttribute = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $distribution]);
                     if ($employeeBoardAttribute) {
-                        $employeeBoardAttribute->setMark($entity->getMark());
+                        $employeeBoardAttribute->setMark($entity->getMark() ?: 0);
                         $em->persist($employeeBoardAttribute);
                         $em->flush();
                     }
@@ -876,7 +876,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             } else {
                 return 1;
             }
-
+        }else{
+            return 0;
         }
     }
 
