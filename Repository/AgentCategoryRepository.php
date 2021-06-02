@@ -277,20 +277,25 @@ class AgentCategoryRepository extends EntityRepository
         $results = $qb->getQuery()->getArrayResult();
         $data = [];
         foreach ($results as $result){
-            $data[$result['agentId']]= $result;
+            $data[(int)$result['agentId']]= $result;
         }
 
         $agentsId =[];
         foreach ($results as $result){
             $agentsId[]= $result['agentId'];
         }
+        $currentGrade = [];
         $agentCategory = $this->getAgentCurrentMonth($employeeBoard,$agentsId);
         foreach ($agentCategory as $key => $item) {
             if(array_key_exists($key, $data)){
                 $agentCategory[$key]['decemberGrade'] = $data[$key]['grade'];
                 $agentCategory[$key]['decemberAvg'] = $data[$key]['average'];
+                array_push($currentGrade, $item['currentMonthGrade']);
+
             }
         }
+        $agentCategory['totalAgent'] = count($agentCategory);
+        $agentCategory['totalUpgradeAgent'] = count(array_intersect($currentGrade, ['A','B','C']));
         return $agentCategory;
     }
 
@@ -316,8 +321,9 @@ class AgentCategoryRepository extends EntityRepository
         $results = $qb->getQuery()->getArrayResult();
         $data = [];
         foreach ($results as $result){
-            $data[$result['agentId']]= $result;
+            $data[(int)$result['agentId']]= $result;
         }
+
         return $data;
     }
 
@@ -354,20 +360,25 @@ class AgentCategoryRepository extends EntityRepository
         $results = $qb->getQuery()->getArrayResult();
         $data = [];
         foreach ($results as $result){
-            $data[$result['agentId']]= $result;
+            $data[(int)$result['agentId']]= $result;
         }
 
         $agentsId =[];
         foreach ($results as $result){
             $agentsId[]= $result['agentId'];
         }
+        $currentGrade = [];
         $agentCategory = $this->getAgentCurrentMonth($employeeBoard,$agentsId);
         foreach ($agentCategory as $key => $item) {
             if(array_key_exists($key, $data)){
                 $agentCategory[$key]['decemberGrade'] = $data[$key]['grade'];
                 $agentCategory[$key]['decemberAvg'] = $data[$key]['average'];
+                array_push($currentGrade, $item['currentMonthGrade']);
             }
         }
+
+        $agentCategory['totalAgent'] = count($agentCategory);
+        $agentCategory['totalUpgradeAgent'] = count(array_intersect($currentGrade, ['A','B']));
         return $agentCategory;
     }
 }

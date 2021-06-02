@@ -46,9 +46,11 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
         $qb->addSelect('markDistribution.name AS attributeName', 'markDistribution.salesMode');
 
         $qb->join('e.markDistribution', 'markDistribution');
+        $qb->join('markDistribution.parent', 'markDistributionParent');
         $qb->where('e.employeeBoard = :id')->setParameter('id', $board);
+        $qb->andWhere('markDistribution.salesMode IN (:salesMode)')->setParameter('salesMode', ['feed','growth']);
         $qb->orderBy('markDistribution.ordering', 'ASC');
-        $qb->addOrderBy('markDistribution.salesMode', 'ASC');
+        $qb->addOrderBy('markDistributionParent.ordering', 'ASC');
 //        $qb->andWhere("markDistribution.slug = 'doc-sales-vs-collection'");
 
         $results = $qb->getQuery()->getArrayResult();
@@ -72,6 +74,7 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
                 'mark' => $result['mark'],
             ];
         }
+//        dd($data);
         return $data;
     }
 }

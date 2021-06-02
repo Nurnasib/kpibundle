@@ -310,10 +310,11 @@ class AgentOrderRepository extends EntityRepository
             $data[$board->getYear()-1] = [];
         }
         $commonAgentBetweenYears = array_intersect_key($data[$board->getYear()],$data[$prevYear]);  //Common agents and SalesQuantity(Current Year)
-
+        $growthAgentNumber = 0;
         foreach ($commonAgentBetweenYears as $agentId => $currentYearAgentSalesQty) {
             if ($data[$prevYear][$agentId]){
                 if ($currentYearAgentSalesQty > $data[$prevYear][$agentId]){
+                    $growthAgentNumber++;
                     $growthPercentage = (($currentYearAgentSalesQty - $data[$prevYear][$agentId]) * 100) / $data[$prevYear][$agentId];
                     if ($growthPercentage >= 20){
                         $twentyPercentGrowthAgents[] = $agentId;
@@ -321,7 +322,11 @@ class AgentOrderRepository extends EntityRepository
                 }
             }
         }
-        return $this->getSalesDetails($twentyPercentGrowthAgents, $years, $board);
+        $returnData = $this->getSalesDetails($twentyPercentGrowthAgents, $years, $board);
+        $returnData['totalAgent'] = count($commonAgentBetweenYears);
+        $returnData['growthAgent'] = $growthAgentNumber;
+        $returnData['twentyPercentGrowthAgents'] = count($twentyPercentGrowthAgents);
+        return $returnData;
     }
 
     private function getSalesDetails($twentyPercentGrowthAgentsId, $years, $board)
@@ -342,9 +347,9 @@ class AgentOrderRepository extends EntityRepository
         $results = $qb->getQuery()->getArrayResult();
         $data = [];
         foreach ($results as $result){
-            $data[$result['agentId']][$result['year']] = $result['totalQuantity'];
-            $data[$result['agentId']]['agentName'] = $result['agentName'];
-            $data[$result['agentId']]['agentAddress'] = $result['agentThana'] . ' , ' . $result['agentDistrict'];
+            $data[(int)$result['agentId']][$result['year']] = $result['totalQuantity'];
+            $data[(int)$result['agentId']]['agentName'] = $result['agentName'];
+            $data[(int)$result['agentId']]['agentAddress'] = $result['agentThana'] . ' , ' . $result['agentDistrict'];
         }
         return $data;
 

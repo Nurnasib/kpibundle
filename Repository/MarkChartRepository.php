@@ -279,7 +279,7 @@ class MarkChartRepository extends MaterializedPathRepository
         return $result;
     }
 
-
+/*
     public function getAttributesForSummary()
     {
         $qb = $this->createQueryBuilder('e');
@@ -288,6 +288,6 @@ class MarkChartRepository extends MaterializedPathRepository
 
         $results = $qb->getQuery()->getArrayResult();
         return $results;
-    }
+    }*/
 
 }

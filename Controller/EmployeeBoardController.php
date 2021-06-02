@@ -376,31 +376,34 @@ class EmployeeBoardController extends AbstractController
         }
         $parameter = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(array('slug'=>'core-responsibilities','status'=>1));
 
-        $attributes = $this->getDoctrine()->getRepository(MarkChart::class)->getAttributesForSummary();
+//        $attributes = $this->getDoctrine()->getRepository(MarkChart::class)->getAttributesForSummary();
 
         $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getKpiSummaryForFeedAndGrowth($entity);
         $outstanding = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getLocationWiseOutstanding($locationsId, $entity);
         $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getLocationWiseDocSales($locationsId, $entity->getYear(), $entity->getMonth());
-        $districtAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getDistrictAchievement($locationsId, $entity->getYear(), $entity->getMonth());
-        $regionalAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getRegionalAchievement($locationsId, $entity->getYear(), $entity->getMonth());
         $individualTeamMemberMarks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getIndividualTeamMemberMarks($employeeArrs,$parameter, $entity->getYear(), $entity->getMonth());
-
 
         $dCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithDInDecember($entity);
         $cCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithCInDecember($entity);
         $twentyPercentGrowthAgentSalesDetails = $this->getDoctrine()->getRepository(AgentOrder::class)->getTwentyPercentGrowthAgentSalesDetails($entity, $locationsId);
+
+        $districtAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getDistrictAchievement($locationsId, $entity->getYear(), $entity->getMonth());
+        $regionalAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getRegionalAchievement($locationsId, $entity->getYear(), $entity->getMonth());
+        
+
         return $this->render('@TerminalbdKpi/employeeboard/report/salesDetails.html.twig', [
             'entity' => $entity,
             'feedAndGrowth' => $feedAndGrowth,
-            'attributes' => $attributes,
+//            'attributes' => $attributes,
             'outstanding' => $outstanding,
+            'dCategoryUpgrade' => $dCategoryUpgrade,
+            'cCategoryUpgrade' => $cCategoryUpgrade,
+            'twentyPercentGrowthAgentSalesDetails' => $twentyPercentGrowthAgentSalesDetails,
             'docSale' => $docSale,
             'districtAchievement' => $districtAchievement,
             'regionalAchievement' => $regionalAchievement,
             'individualTeamMemberMarks' => $individualTeamMemberMarks,
-            'dCategoryUpgrade' => $dCategoryUpgrade,
-            'cCategoryUpgrade' => $cCategoryUpgrade,
-            'twentyPercentGrowthAgentSalesDetails' => $twentyPercentGrowthAgentSalesDetails,
+
         ]);
 
     }
