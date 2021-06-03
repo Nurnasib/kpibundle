@@ -163,6 +163,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             }
         }
         $agentsWithSalesQuantity = $em->getRepository(AgentOrder::class)->getAgentWithSalesQuantity($board, $locationsId);
+//        dd($agentsWithSalesQuantity);
         $commonAgentBetweenYears = array_intersect_key($agentsWithSalesQuantity[$board->getYear()], $agentsWithSalesQuantity[$prevYear]);  //Common agents and SalesQuantity(Current Year)
 
         foreach ($commonAgentBetweenYears as $agentId => $currentYearAgentSalesQty) {
@@ -478,7 +479,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
                     $employeeBoardAttribute = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $distributionPoultry]);
                     if ($employeeBoardAttribute) {
-                        $employeeBoardAttribute->setMark($entity->getMark());
+                        $employeeBoardAttribute->setMark($entity->getMark() ?: 0);
                         $em->persist($employeeBoardAttribute);
                         $em->flush();
                     }
@@ -648,7 +649,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
                     $employeeBoardAttributeForGrowth = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $growthDistribution]);
                     if ($employeeBoardAttributeForGrowth) {
-                        $employeeBoardAttributeForGrowth->setMark($growthEntity->getMark());
+                        $employeeBoardAttributeForGrowth->setMark($growthEntity->getMark() ?: 0);
                         $em->persist($employeeBoardAttributeForGrowth);
                         $em->flush();
                     }
@@ -1452,7 +1453,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             } else {
                 return 0;
             }
-
+        } else {
+            return 0;
         }
 
     }
@@ -1470,7 +1472,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             } else {
                 return 0;
             }
-
+        } else {
+            return 0;
         }
 
     }

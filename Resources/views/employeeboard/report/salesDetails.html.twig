@@ -69,12 +69,12 @@
                             </div>
                             {% if feedAndGrowth is not empty %}
                                 {% for key, item in feedAndGrowth %}
-                                        <h5 class="bg-secondary p-1 text-white h5 w-100">{{ key == 'growth' ? 'Product Sales Growth' : 'Feed Achivement' }}</h5>
+                                        <h5 class="bg-secondary p-1 text-white h5 w-100">{{ key == 'feed' ? 'Feed Achivement' : 'Product Sales Growth' }}</h5>
                                         <table class="table table-striped table-bordered table-hover" id="datatable">
                                             <thead class="thead-dark">
                                             <tr>
                                                 <th scope="col">{{ 'Mark Parameter'|trans }}</th>
-                                                <th scope="col" width="20%">{{ key == 'growth' ? 'Previous Year' : 'Target Quantity' }}</th>
+                                                <th scope="col" width="20%">{{ key == 'feed' ? 'Target Quantity' : 'Previous Year' }}</th>
                                                 <th scope="col" width="20%">{{ 'Sales Quantity'|trans }}</th>
                                                 <th scope="col" width="20%">{{ 'Percentage'|trans }}</th>
                                                 <th scope="col" width="10%">{{ 'Marks'|trans }}</th>

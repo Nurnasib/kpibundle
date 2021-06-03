@@ -274,8 +274,12 @@ class AgentOrderRepository extends EntityRepository
         foreach ($results as $result){
             $data[$result['year']][$result['agentId']] = $result['totalQuantity'];
         }
+
         if (! array_key_exists($board->getYear()-1, $data)){
             $data[$board->getYear()-1] = [];
+        }
+        if (! array_key_exists($board->getYear(), $data)){
+            $data[$board->getYear()] = [];
         }
         return $data;
     }
