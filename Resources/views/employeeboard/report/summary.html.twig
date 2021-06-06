@@ -83,6 +83,7 @@
 
                                     </table>
                                     {# New format END #}
+{#                                    {{ dump(entities) }}#}
                                     {% if entities is not empty and entities is iterable %}
                                         <table class="table table-striped table-bordered table-hover">
                                             <thead class="thead-dark">
@@ -98,11 +99,11 @@
                                             </thead>
                                             <tbody>
 
-                                                {% set totalMarkParcentage = (totalObtainMark * 100) / totalActualMark %}
+                                                {% set totalMarkPercentage = (totalObtainMark * 100) / totalActualMark %}
 
                                                 {% for key, activities in entities %}
                                                     {% for activity in activities %}
-                                                        {% set markParcentage = (activity.mark * 100) / activity.actualMark %}
+                                                        {% set markPercentage = (activity.mark * 100) / activity.actualMark %}
                                                         <tr>
                                                             {% if(loop.index==1) %}
                                                             <td rowspan="{{ activities|length }}">{{ key }}</td>
@@ -110,20 +111,20 @@
                                                             <td>{{ activity.activityName }}</td>
                                                             <td>{{ activity.actualMark }}</td>
                                                             <td>{{ activity.mark }}</td>
-                                                            <td>{{ markParcentage|number_format(2) }}</td>
+                                                            <td>{{ markPercentage|number_format(2) }}</td>
 
                                                             {% if (loop.parent.loop.first) and loop.first %}
                                                                 <td style="text-align: center; font-size: 35px; font-weight: 900" rowspan="{{ (entities|multiArrayLength) + 1 }}">
                                                                     {% set grade='' %}
-                                                                    {% if totalMarkParcentage >= 80 %}
+                                                                    {% if totalMarkPercentage >= 80 %}
                                                                         {% set grade='A' %}
-                                                                    {% elseif totalMarkParcentage >= 75 and totalMarkParcentage < 80 %}
+                                                                    {% elseif totalMarkPercentage >= 75 and totalMarkPercentage < 80 %}
                                                                         {% set grade='B+' %}
-                                                                    {% elseif totalMarkParcentage >= 70 and totalMarkParcentage < 75 %}
+                                                                    {% elseif totalMarkPercentage >= 70 and totalMarkPercentage < 75 %}
                                                                         {% set grade='B' %}
-                                                                    {% elseif totalMarkParcentage >= 65 and totalMarkParcentage < 70 %}
+                                                                    {% elseif totalMarkPercentage >= 65 and totalMarkPercentage < 70 %}
                                                                         {% set grade='C' %}
-                                                                    {% elseif totalMarkParcentage < 65 %}
+                                                                    {% elseif totalMarkPercentage < 65 %}
                                                                         {% set grade='D' %}
                                                                     {% endif %}
                                                                     {{ grade }}
@@ -136,7 +137,7 @@
                                                     <td colspan="2" align="center"><b>All Total</b></td>
                                                     <td><b>{{ totalActualMark|number_format(2) }}</b></td>
                                                     <td><b>{{ totalObtainMark|number_format(2) }}</b></td>
-                                                    <td><b>{{ totalMarkParcentage|number_format(2) }}</b></td>
+                                                    <td><b>{{ totalMarkPercentage|number_format(2) }}</b></td>
                                                 </tr>
                                             </tbody>
                                             <tfoot>

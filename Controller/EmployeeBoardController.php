@@ -407,4 +407,67 @@ class EmployeeBoardController extends AbstractController
         return $this->redirectToRoute('kpi_employee_board');
     }
 
+    /**
+     * @param EmployeeBoard $board
+     * @Route("/{id}/team-member-summary/{mode}", defaults={"mode" = null}, name="team_member_summary")
+     */
+    public function teamMemberSummary(EmployeeBoard $board, $mode)
+    {
+        $lineManager = $board->getEmployee();
+
+        $employeesByLineManager = $this->getDoctrine()->getRepository(User::class)->findBy(['lineManager'=>$lineManager, 'enabled'=>1]);
+        $employeeArrs = [];
+        foreach ($employeesByLineManager as $childEmployee){
+            if(!empty($childEmployee)){
+                $employeeArrs[] = $childEmployee->getId();
+            }
+        }
+/*        $activities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(array('parent'=> 1,'status'=>1));
+        $activitiesId = [];
+        foreach ($activities as $activity){
+            if(!empty($activity)){
+                $activitiesId[] = $activity->getId();
+            }
+        }*/
+        $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($board,$employeeArrs);
+        if ($mode == 'pdf'){
+
+            // Configure Dompdf according to your needs
+            $pdfOptions = new Options();
+            $pdfOptions->set('defaultFont', 'Arial');
+
+            // Instantiate Dompdf with our options
+            $dompdf = new Dompdf($pdfOptions);
+
+            // Retrieve the HTML generated in our twig file
+            $html = $this->renderView('@TerminalbdKpi/employeeboard/report/teamMemberSummary-pdf.html.twig', [
+                'board' => $board,
+                'teamMemberSummary' => $teamMemberSummary,
+            ]);
+
+            // Load HTML to Dompdf
+            $dompdf->loadHtml($html);
+
+            // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
+            $dompdf->setPaper('legal', 'landscape');
+
+            // Render the HTML as PDF
+            $dompdf->render();
+
+            // Output the generated PDF to Browser (force download)
+            $fileName = $board->getMonth() . '-' . $board->getYear() . '-' . $board->getEmployee()->getName() . 'team-member-summary' . time();
+            $dompdf->stream( $fileName .  ".pdf", [
+                "Attachment" => false
+            ]);
+            die();
+
+        }
+        return $this->render('@TerminalbdKpi/employeeboard/report/teamMemberSummary.html.twig', [
+            'board' => $board,
+            'teamMemberSummary' => $teamMemberSummary,
+//            'activities' => $activities,
+        ]);
+
+    }
+
 }
