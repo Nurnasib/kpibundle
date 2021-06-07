@@ -413,9 +413,13 @@ class EmployeeBoardController extends AbstractController
      */
     public function teamMemberSummary(Request $request, $mode)
     {
+        $filterBy = $request->query->get('monthYear');
         $teamMemberSummary = [];
-        $monthYear = new \DateTime($request->query->get('monthYear'));
-//        if ($monthYear){
+        $monthYear = [];
+        if ($filterBy != null){
+            $monthYear = explode(',', $filterBy);
+        }
+        if (!empty($monthYear)){
             $lineManager = $this->getUser();
             $employeesByLineManager = $this->getDoctrine()->getRepository(User::class)->findBy(['lineManager'=>$lineManager, 'enabled'=>1]);
             $employeeArrs = [];
@@ -426,52 +430,42 @@ class EmployeeBoardController extends AbstractController
             }
             $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($monthYear,$employeeArrs);
 
+            if ($mode == 'pdf'){
 
-//        }
+                // Configure Dompdf according to your needs
+                $pdfOptions = new Options();
+                $pdfOptions->set('defaultFont', 'Arial');
 
+                // Instantiate Dompdf with our options
+                $dompdf = new Dompdf($pdfOptions);
 
+                // Retrieve the HTML generated in our twig file
+                $html = $this->renderView('@TerminalbdKpi/employeeboard/report/teamMemberSummary-pdf.html.twig', [
+                    'monthYear' => $monthYear,
+                    'teamMemberSummary' => $teamMemberSummary,
+                ]);
 
-/*        $activities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(array('parent'=> 1,'status'=>1));
-        $activitiesId = [];
-        foreach ($activities as $activity){
-            if(!empty($activity)){
-                $activitiesId[] = $activity->getId();
+                // Load HTML to Dompdf
+                $dompdf->loadHtml($html);
+
+                // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
+                $dompdf->setPaper('legal', 'landscape');
+
+                // Render the HTML as PDF
+                $dompdf->render();
+
+                // Output the generated PDF to Browser (force download)
+                $fileName = $monthYear[0] . '-' . $monthYear[1] . '-' . $this->getUser()->getName() . 'team-member-summary' . time();
+                $dompdf->stream( $fileName .  ".pdf", [
+                    "Attachment" => false
+                ]);
+                die();
+
             }
-        }*/
-        if ($mode == 'pdf'){
-
-            // Configure Dompdf according to your needs
-            $pdfOptions = new Options();
-            $pdfOptions->set('defaultFont', 'Arial');
-
-            // Instantiate Dompdf with our options
-            $dompdf = new Dompdf($pdfOptions);
-
-            // Retrieve the HTML generated in our twig file
-            $html = $this->renderView('@TerminalbdKpi/employeeboard/report/teamMemberSummary-pdf.html.twig', [
-                'monthYear' => $monthYear,
-                'teamMemberSummary' => $teamMemberSummary,
-            ]);
-
-            // Load HTML to Dompdf
-            $dompdf->loadHtml($html);
-
-            // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
-            $dompdf->setPaper('legal', 'landscape');
-
-            // Render the HTML as PDF
-            $dompdf->render();
-
-            // Output the generated PDF to Browser (force download)
-            $fileName = $monthYear->format('F') . '-' . $monthYear->format('Y') . '-' . $this->getUser()->getName() . 'team-member-summary' . time();
-            $dompdf->stream( $fileName .  ".pdf", [
-                "Attachment" => false
-            ]);
-            die();
 
         }
         return $this->render('@TerminalbdKpi/employeeboard/report/teamMemberSummary.html.twig', [
-            'monthYear' => $monthYear,
+            'filterBy' => $filterBy,
             'teamMemberSummary' => $teamMemberSummary,
 //            'activities' => $activities,
         ]);

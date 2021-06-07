@@ -1575,8 +1575,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $qb->addSelect('activity.name AS activityName','activity.id AS activityId');
 
         $qb->where('employee.id IN (:employee)')->setParameter('employee', $employeesId);
-        $qb->andWhere('board.year =:year')->setParameter('year', $monthYear->format('Y'));
-        $qb->andWhere('board.month =:month')->setParameter('month', $monthYear->format('F'));
+        $qb->andWhere('board.year =:year')->setParameter('year', $monthYear[1]);
+        $qb->andWhere('board.month =:month')->setParameter('month', $monthYear[0]);
         $qb->groupBy('activity.id');
         $qb->addGroupBy('employee.id');
         $results = $qb->getQuery()->getArrayResult();

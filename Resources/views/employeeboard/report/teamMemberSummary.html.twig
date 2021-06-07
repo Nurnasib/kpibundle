@@ -23,7 +23,7 @@
                     <div class="card-header-right">
                         {% if teamMemberSummary is not empty %}
                             <div class="btn-group btn-group-sm float-right" role="group" aria-label="Button group with nested dropdown">
-                                <a href="{{ path('team_member_summary',{mode: 'pdf', monthYear: monthYear|date('F,Y')}) }}" target="_blank" class="btn blue-bg white-font btn-sm"><i class="fa fa-file-pdf"></i> PDF</a>
+                                <a href="{{ path('team_member_summary',{mode: 'pdf', filterBy: filterBy}) }}" target="_blank" class="btn blue-bg white-font btn-sm"><i class="fa fa-file-pdf"></i> PDF</a>
                             </div>
                         {% endif %}
                     </div>
@@ -47,7 +47,7 @@
                                                 </select>
                                             </td>#}
                                         <td colspan="2">
-                                            <input autocomplete="off" type="text" class="form-control input-sm" placeholder="mm-yyyy" value="{{ monthYear|date('F,Y') }}" name="monthYear" id="inputMonth">
+                                            <input autocomplete="off" type="text" class="form-control input-sm" placeholder="mm-yyyy" value="{{ filterBy ?: '' }}" name="monthYear" id="inputMonth">
                                         </td>
 
                                         <td colspan="1">
@@ -62,12 +62,11 @@
                 </div>
             </div>
         {% endif %}
-
         {% if teamMemberSummary is not empty %}
             <div class="row">
                 <div class="card">
                     <div class="card-header pt-0 pb-0">
-                        <p class="btn green-bg white-font" style="cursor: auto;">{{ monthYear|date('F,Y') }}</p>
+                        <p class="btn green-bg white-font" style="cursor: auto;">{{ filterBy }}</p>
                     </div>
                     <div class="card-body pt-0">
                         <table class="table table-striped table-bordered table-hover" width="100%">

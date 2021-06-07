@@ -15,7 +15,7 @@
 .nav>li>a {
     position: relative;
     display: block;
-    padding: 10px 7px;
+    padding: 10px 0px;
 }
 
 .nav-tabs>li>a {
