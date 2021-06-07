@@ -23,7 +23,7 @@
                     <div class="card-header-right">
                         {% if teamMemberSummary is not empty %}
                             <div class="btn-group btn-group-sm float-right" role="group" aria-label="Button group with nested dropdown">
-                                <a href="{{ path('team_member_summary',{mode: 'pdf', filterBy: filterBy}) }}" target="_blank" class="btn blue-bg white-font btn-sm"><i class="fa fa-file-pdf"></i> PDF</a>
+                                <a href="{{ path('team_member_summary',{mode: 'pdf', monthYear: filterBy}) }}" target="_blank" class="btn blue-bg white-font btn-sm"><i class="fa fa-file-pdf"></i> PDF</a>
                             </div>
                         {% endif %}
                     </div>
