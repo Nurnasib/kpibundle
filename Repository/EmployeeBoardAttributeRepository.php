@@ -1561,29 +1561,30 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     }
 
 
-    public function getTeamMemberSummary(EmployeeBoard $board, $employeesId)
+    public function getTeamMemberSummary($monthYear, $employeesId)
     {
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.employeeBoard', 'board');
         $qb->join('board.employee', 'employee');
+        $qb->join('employee.designation', 'designation');
 //        $qb->join('e.parameter', 'parameter');
         $qb->join('e.activity', 'activity');
 
         $qb->select('SUM(e.mark) as mark', 'board.id AS boardId');
-        $qb->addSelect('employee.name AS employeeName','employee.id AS employeeId');
+        $qb->addSelect('employee.name AS employeeName','employee.id AS employeeId', 'designation.name AS employeeDesignation');
         $qb->addSelect('activity.name AS activityName','activity.id AS activityId');
 
         $qb->where('employee.id IN (:employee)')->setParameter('employee', $employeesId);
-        $qb->andWhere('board.year =:year')->setParameter('year', $board->getYear());
-        $qb->andWhere('board.month =:month')->setParameter('month', $board->getMonth());
+        $qb->andWhere('board.year =:year')->setParameter('year', $monthYear->format('Y'));
+        $qb->andWhere('board.month =:month')->setParameter('month', $monthYear->format('F'));
         $qb->groupBy('activity.id');
         $qb->addGroupBy('employee.id');
         $results = $qb->getQuery()->getArrayResult();
-
         $data = [];
         foreach ($results as $result) {
             $data[$result['employeeName']][$result['activityName']] = $result['mark'];
             $data[$result['employeeName']]['boardId'] = $result['boardId'];
+            $data[$result['employeeName']]['Designation'] = $result['employeeDesignation'];
         }
         return $data;
     }
