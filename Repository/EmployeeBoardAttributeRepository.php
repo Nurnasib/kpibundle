@@ -1579,6 +1579,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $qb->andWhere('board.month =:month')->setParameter('month', $monthYear[0]);
         $qb->groupBy('activity.id');
         $qb->addGroupBy('employee.id');
+        $qb->orderBy('e.id', 'ASC');
         $results = $qb->getQuery()->getArrayResult();
         $data = [];
         foreach ($results as $result) {

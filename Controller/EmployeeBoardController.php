@@ -441,7 +441,7 @@ class EmployeeBoardController extends AbstractController
 
                 // Retrieve the HTML generated in our twig file
                 $html = $this->renderView('@TerminalbdKpi/employeeboard/report/teamMemberSummary-pdf.html.twig', [
-                    'monthYear' => $monthYear,
+                    'filterBy' => $filterBy,
                     'teamMemberSummary' => $teamMemberSummary,
                 ]);
 
