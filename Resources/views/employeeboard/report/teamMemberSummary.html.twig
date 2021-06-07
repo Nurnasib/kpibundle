@@ -30,38 +30,39 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="card">
-                <div class="card-body">
-                    <div class="col-md-4 offset-4">
-                        <form id="teamMemberSummerySearchForm" action="{{ path('team_member_summary') }}" method="GET">
-                            <table class="table table-striped table-bordered table-hover dataTable">
-                                <thead class="thead-dark">
-                                <tr role="row" class="filter">
-                                    {% if is_granted('ROLE_ADMIN') %}
+        {% if not is_granted('ROLE_ADMIN') %}
+            <div class="row">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="col-md-4 offset-4">
+                            <form id="teamMemberSummerySearchForm" action="{{ path('team_member_summary') }}" method="GET">
+                                <table class="table table-striped table-bordered table-hover dataTable">
+                                    <thead class="thead-dark">
+                                    <tr role="row" class="filter">
+    {#                                        <td colspan="2">
+                                                <select name="" id="" class="form-control select2">
+                                                    <option value="">Employee1</option>
+                                                    <option value="">Employee2</option>
+                                                    <option value="">Employee3</option>
+                                                </select>
+                                            </td>#}
                                         <td colspan="2">
-                                            <select name="" id="" class="form-control select2">
-                                                <option value="">Employee1</option>
-                                                <option value="">Employee2</option>
-                                                <option value="">Employee3</option>
-                                            </select>
+                                            <input autocomplete="off" type="text" class="form-control input-sm" placeholder="mm-yyyy" value="{{ monthYear|date('F,Y') }}" name="monthYear" id="inputMonth">
                                         </td>
-                                    {% endif %}
-                                    <td colspan="2">
-                                        <input autocomplete="off" type="text" class="form-control input-sm" placeholder="mm-yyyy" value="{{ monthYear|date('F,Y') }}" name="monthYear" id="inputMonth">
-                                    </td>
 
-                                    <td colspan="1">
-                                        <button type="submit" class="btn btn-primary btn-sm btn-block" title="Search" value="Search"><i class="fa fa-search" aria-hidden="true"></i></button>
-                                    </td>
-                                </tr>
-                                </thead>
-                            </table>
-                        </form>
+                                        <td colspan="1">
+                                            <button type="submit" class="btn btn-primary btn-sm btn-block" title="Search" value="Search"><i class="fa fa-search" aria-hidden="true"></i></button>
+                                        </td>
+                                    </tr>
+                                    </thead>
+                                </table>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        {% endif %}
+
         {% if teamMemberSummary is not empty %}
             <div class="row">
                 <div class="card">
