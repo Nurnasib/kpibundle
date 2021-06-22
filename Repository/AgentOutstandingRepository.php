@@ -29,7 +29,7 @@ class AgentOutstandingRepository extends EntityRepository
 {
     public function insertAgentOutstanding($file, $keys,$allData, $month, $year)
     {
-
+        set_time_limit(0);
         $data = [];
         $addedId = [];
         $em = $this->_em;
@@ -40,18 +40,18 @@ class AgentOutstandingRepository extends EntityRepository
             $data[] = array_combine($keys,array_slice($value, null, $keysLength));
         }
         foreach ($data as $record){
-            $record['ActualAmount'] = (double)str_replace(',', '',$record['ActualAmount']);
-            $record['LimitAmount'] = (double)str_replace(',', '',$record['LimitAmount']);
+            $record['ActualAmount'] = (double)str_replace(',', '',$record['Net Outstanding']);
+            $record['LimitAmount'] = (double)str_replace(',', '',$record['Limit']);
 
-            $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'code' => $record['DistrictId']]);
+            $district = $em->getRepository(Location::class)->findOneBy(['level' => 4,'code' => $record['DistrictId']]);
             //Find agent
-            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' =>$record['AgentId']]);
+            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' => $record['AgentId']]);
             if ($findAgent) {
                 $agentOutstanding = new AgentOutstanding();
                 $agentOutstanding->setAgent($findAgent);
                 $agentOutstanding->setDistrict($district);
-                $agentOutstanding->setActualAmount((double)str_replace(' ', '',$record['ActualAmount']));
-                $agentOutstanding->setLimitAmount((double)str_replace(',', '',$record['LimitAmount']));
+                $agentOutstanding->setActualAmount($record['ActualAmount']?:0);
+                $agentOutstanding->setLimitAmount($record['LimitAmount']?:0);
                 $agentOutstanding->setOutstanding($record['ActualAmount']-$record['LimitAmount']);
                 $agentOutstanding->setCreatedAt(new \DateTime());
                 $agentOutstanding->setMonth($month);

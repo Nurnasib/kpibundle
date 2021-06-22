@@ -146,6 +146,7 @@ class AgentOrderRepository extends EntityRepository
 
     public function insertAgentSales($file, $keys, $allData, $month, $year)
     {
+        set_time_limit(0);
         $em =$this->_em;
         $addedId = [];
         $existingId = [];

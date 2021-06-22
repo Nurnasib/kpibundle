@@ -35,7 +35,7 @@ class FileUploadController extends AbstractController
     public function fileUpload(Request $request, TranslatorInterface $translator)
     {
         set_time_limit(0);
-        ini_set('memory_limit', '1024M');
+        ini_set('memory_limit', '5000M');
         $uploadFile = new DocumentUpload();
         $allowFileType = ['xlsx'];
 
@@ -83,6 +83,8 @@ class FileUploadController extends AbstractController
     public function insertDataFromUploadedFile(Request $request, DocumentUpload $file)
     {
         set_time_limit(0);
+        ini_set('memory_limit', '5000M');
+
         $monthYear = explode(',', $file->getMonthYear());
         $month = $monthYear[0];
         $year = $monthYear[1];

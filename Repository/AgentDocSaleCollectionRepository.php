@@ -28,6 +28,7 @@ class AgentDocSaleCollectionRepository extends EntityRepository
 {
     public function insertDocSalesCollection($file, $keys, $allData, $month, $year)
     {
+        set_time_limit(0);
         $data = [];
         $addedId = [];
         $em = $this->_em;

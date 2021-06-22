@@ -161,6 +161,7 @@ class LocationSalesTargetRepository extends EntityRepository
 
     public function insertTargetAmount($file, $keys, $allData, $month, $year)
     {
+        set_time_limit(0);
         $data = [];
         $addedId = [];
         $em = $this->_em;
@@ -171,25 +172,28 @@ class LocationSalesTargetRepository extends EntityRepository
         }
         foreach ($data as $record){
 
-            $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'code' => $record['DistrictId']]);
+            $district = $em->getRepository(Location::class)->findOneBy(['level' => 4,'code' => $record['DistrictId']]);
 
             unset($record['DistrictId']); //Remove DistrictId From $record
             unset($record['District']); //Remove District From $record
 
             array_splice($record, -2);   //Remove Last two item(month, year) from $record
+
             if ($district){
                 foreach ($record as $key => $item) {
                     $breedType = $em->getRepository(MarkChart::class)->findOneBy(['name' => $key]);   //Breed Name exists or Not into MarkChart
+
                     if ($breedType){
                         $districSales = new LocationSalesTarget();
 
-                        $exists = $em->getRepository(LocationSalesTarget::class)->findOneBy(['month' => $month, 'year' => $year, 'markDistribution' => $breedType, 'district'=>$district]);
+                        $exists = $em->getRepository(LocationSalesTarget::class)->findOneBy(['month' => $month, 'year' => $year, 'markDistribution' => $breedType, 'district' => $district]);
+
                         if ($exists){
                             $districSales = $exists;
                         }
                         $districSales->setDistrict($district);
                         $districSales->setMarkDistribution($breedType);
-                        $districSales->setQuantity($record[$key]);
+                        $districSales->setQuantity((float)trim($record[$key]));
                         $districSales->setMonth($month);
                         $districSales->setYear($year);
 
