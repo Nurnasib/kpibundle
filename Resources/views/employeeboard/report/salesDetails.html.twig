@@ -68,7 +68,7 @@
                                 {% endif %}
                             </div>
                             {% if feedAndGrowth is not empty %}
-                                {% for key, item in feedAndGrowth %}
+                                {% for key, item in feedAndGrowth|ksort %}
                                         <h5 class="bg-secondary p-1 text-white h5 w-100">{{ key == 'feed' ? 'Sales Feed Achivement' : 'Product Sales Growth' }}</h5>
                                         <table class="table table-striped table-bordered table-hover" id="datatable">
                                             <thead class="thead-dark">

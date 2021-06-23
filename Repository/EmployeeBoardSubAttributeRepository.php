@@ -74,7 +74,6 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
                 'mark' => $result['mark'],
             ];
         }
-//        dd($data);
         return $data;
     }
 }
