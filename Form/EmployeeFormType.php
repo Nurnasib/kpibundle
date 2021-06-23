@@ -63,12 +63,12 @@ class EmployeeFormType extends AbstractType
 
             ->add('email', EmailType::class, [
                 'attr' => ['autofocus' => true],
-                'required' => true,
+                'required' => false,
             ])
 
             ->add('mobile', TextType::class, [
                 'attr' => ['autofocus' => true,'class'=>'mobileLocal'],
-                'required' => true,
+                'required' => false,
             ])
 
             ->add('phone', TextType::class, [
@@ -251,7 +251,7 @@ class EmployeeFormType extends AbstractType
 
 
             ->add('designation', EntityType::class, array(
-                'required'    => true,
+                'required'    => false,
                 'class' => Setting::class,
                 'placeholder' => 'Choose a  Designation',
                 'choice_label' => 'name',
@@ -265,7 +265,7 @@ class EmployeeFormType extends AbstractType
             ))
 
             ->add('userGroup', EntityType::class, array(
-                'required'    => true,
+                'required'    => false,
                 'class' => Setting::class,
                 'placeholder' => 'Choose an  user group',
                 'choice_label' => 'name',
