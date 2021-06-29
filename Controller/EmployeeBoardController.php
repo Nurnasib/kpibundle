@@ -12,6 +12,7 @@
 namespace Terminalbd\KpiBundle\Controller;
 
 use App\Entity\User;
+use App\Repository\UserRepository;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Mpdf\Tag\Th;
@@ -37,6 +38,7 @@ use Terminalbd\KpiBundle\Entity\EmployeeSetup;
 use Terminalbd\KpiBundle\Entity\MarkChart;
 use Terminalbd\KpiBundle\Entity\SetupMatrix;
 use Terminalbd\KpiBundle\Form\EmployeeBoardFormType;
+use Terminalbd\KpiBundle\Form\TeamMemberSummaryFilterFormType;
 
 
 /**
@@ -409,67 +411,103 @@ class EmployeeBoardController extends AbstractController
 
     /**
      * @param EmployeeBoard $board
-     * @Route("/team-member-summary/{mode}", defaults={"mode" = null}, name="team_member_summary")
+     * @Route("/team-member-summary/{mode}", defaults={"mode" = null},methods={"GET"}, name="team_member_summary")
      */
-    public function teamMemberSummary(Request $request, $mode)
+    public function teamMemberSummary(Request $request, $mode, UserRepository $userRepository)
     {
-        $filterBy = $request->query->get('monthYear');
+        $lineManager = $userRepository->getLineManager();
         $teamMemberSummary = [];
-        $monthYear = [];
-        if ($filterBy != null){
-            $monthYear = explode(',', $filterBy);
+        $filterBy = [];
+        $user = $this->getUser();
+        $filterForm = $this->createForm(TeamMemberSummaryFilterFormType::class,null , ['user' => $this->getUser()]);
+        $filterForm->handleRequest($request);
+        if ($filterForm->isSubmitted()){
+            $filterBy = $filterForm->getData();
+            $StartDate = @strtotime($filterBy['startMonth'] . ' ' . $filterBy['year']);
+            $StopDate = @strtotime($filterBy['endMonth'] . ' ' . $filterBy['year']);
+
+            $months = $this->monthRange( $StartDate, $StopDate );
+
+            $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $user);
+
+
+            return $this->render('@TerminalbdKpi/employeeboard/report/teamMemberSummary.html.twig', [
+                'filterBy' => $filterBy,
+                'form' => $filterForm->createView(),
+                'teamMemberSummary' => $teamMemberSummary,
+                'months' => $months,
+//            'activities' => $activities,
+            ]);
         }
-        if (!empty($monthYear)){
-            $lineManager = $this->getUser();
-            $employeesByLineManager = $this->getDoctrine()->getRepository(User::class)->findBy(['lineManager'=>$lineManager, 'enabled'=>1]);
-            $employeeArrs = [];
-            foreach ($employeesByLineManager as $childEmployee){
-                if(!empty($childEmployee)){
-                    $employeeArrs[] = $childEmployee->getId();
-                }
-            }
-            $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($monthYear,$employeeArrs);
+        $monthYear = [];
+//        if ($filterBy != null){
+//            $monthYear = explode(',', $filterBy);
+//        }
 
-            if ($mode == 'pdf'){
+        if ($mode == 'pdf'){
 
-                // Configure Dompdf according to your needs
-                $pdfOptions = new Options();
-                $pdfOptions->set('defaultFont', 'Arial');
+            // Configure Dompdf according to your needs
+            $pdfOptions = new Options();
+            $pdfOptions->set('defaultFont', 'Arial');
 
-                // Instantiate Dompdf with our options
-                $dompdf = new Dompdf($pdfOptions);
+            // Instantiate Dompdf with our options
+            $dompdf = new Dompdf($pdfOptions);
 
-                // Retrieve the HTML generated in our twig file
-                $html = $this->renderView('@TerminalbdKpi/employeeboard/report/teamMemberSummary-pdf.html.twig', [
-                    'filterBy' => $filterBy,
-                    'teamMemberSummary' => $teamMemberSummary,
-                ]);
+            // Retrieve the HTML generated in our twig file
+            $html = $this->renderView('@TerminalbdKpi/employeeboard/report/teamMemberSummary-pdf.html.twig', [
+                'filterBy' => $filterBy,
+                'teamMemberSummary' => $teamMemberSummary,
+            ]);
 
-                // Load HTML to Dompdf
-                $dompdf->loadHtml($html);
+            // Load HTML to Dompdf
+            $dompdf->loadHtml($html);
 
-                // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
-                $dompdf->setPaper('legal', 'landscape');
+            // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
+            $dompdf->setPaper('legal', 'landscape');
 
-                // Render the HTML as PDF
-                $dompdf->render();
+            // Render the HTML as PDF
+            $dompdf->render();
 
-                // Output the generated PDF to Browser (force download)
-                $fileName = $monthYear[0] . '-' . $monthYear[1] . '-' . $this->getUser()->getName() . 'team-member-summary' . time();
-                $dompdf->stream( $fileName .  ".pdf", [
-                    "Attachment" => false
-                ]);
-                die();
-
-            }
+            // Output the generated PDF to Browser (force download)
+            $fileName = $monthYear[0] . '-' . $monthYear[1] . '-' . $this->getUser()->getName() . 'team-member-summary' . time();
+            $dompdf->stream( $fileName .  ".pdf", [
+                "Attachment" => false
+            ]);
+            die();
 
         }
         return $this->render('@TerminalbdKpi/employeeboard/report/teamMemberSummary.html.twig', [
             'filterBy' => $filterBy,
+            'form' => $filterForm->createView(),
             'teamMemberSummary' => $teamMemberSummary,
 //            'activities' => $activities,
         ]);
 
     }
+
+    /**
+     * Gets list of months between two dates
+     * @param  int $start Unix timestamp
+     * @param  int $end Unix timestamp
+     * @return array
+     */
+    private function monthRange( $start, $end ){
+
+        $current = $start;
+        $data = [];
+        while( $current < $end ){
+
+//            $next = @date('Y-M-01', $current) . "+1 month";
+            $next = @date('Y-M-01', $current);
+            $current = @strtotime($next);
+
+            $data[] = date('F', $current);
+
+            $next = @date('Y-M-01', $current) . "+1 month";
+            $current = @strtotime($next);
+        }
+        return $data;
+    }
+
 
 }

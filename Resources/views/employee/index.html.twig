@@ -34,14 +34,18 @@
                     <table class="table table-striped table-bordered table-hover" id="datatable">
                         <thead class="thead-dark">
                         <tr>
+                            <td scope="col" style="padding: 0 !important;"><a href="#" class="btn btn-sm purple-bg white-font"><i class="fa fa-th"></i>RSM</a></td>
+                        </tr>
+                        <tr>
+                            <th scope="col">S/L</th>
                             <th scope="col">ID</th>
-                            <th scope="col">ZONE</th>
-                            <th scope="col">District</th>
                             <th scope="col">Name</th>
-                            <th scope="col">Line Manager</th>
                             <th scope="col">Designation</th>
+                            <th scope="col">Line Manager</th>
                             <th scope="col">Report Mode</th>
+                            <th scope="col">Password</th>
                             <th scope="col">Mobile</th>
+                            <th scope="col" width="20%">Districts</th>
                             <th scope="col">User</th>
                             <th scope="col">Department</th>
                             <th scope="col">Status</th>
@@ -52,7 +56,69 @@
                         {% for entity in entities %}
                             <tr>
                                 <td>{{ loop.index }}</td>
-                                <td>{% if entity.zonal is not empty %}{{ entity.zonal.name }}{% endif %}</td>
+                                <td>{{ entity.userId }}</td>
+                                <td>{{ entity.name }}</td>
+                                <td>
+                                    <a
+                                            data-type="select"
+                                            class="editable"
+                                            id="designation-{% if entity.designation.id is defined and entity.designation.id is not empty %}{{ entity.designation.id }}{% endif %}"
+                                            data-name="designation"
+                                            href="#"
+                                            data-source="{{ path('kpi_designation_select',{id:entity.id}) }}"
+                                            data-url="{{ path('kpi_designation_inline_update',{id:entity.id}) }}"
+                                            data-pk="{% if entity.designation.id is defined and entity.designation.id is not empty %}{{ entity.designation.id }}{% endif %}"
+                                            data-value="{% if entity.designation.id is defined and entity.designation.id is not empty %}{{ entity.designation.id }}{% endif %}"
+                                            data-original-title="Select designation">
+                                        {% if entity.designation.name is defined and entity.designation.name is not empty %}{{ entity.designation.name }}{% endif %}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a
+                                            data-type="select"
+                                            class="editable"
+                                            id="lineManager-{% if entity.lineManager.id is defined and entity.lineManager.id is not empty %}{{ entity.lineManager.id }}{% endif %}"
+                                            data-name="lineManager"
+                                            href="#"
+                                            data-source="{{ path('kpi_line_manager_select',{id:entity.id}) }}"
+                                            data-url="{{ path('kpi_line_manager_inline_update',{id:entity.id}) }}"
+                                            data-pk="{% if entity.lineManager.id is defined and entity.lineManager.id is not empty %}{{ entity.lineManager.id }}{% endif %}"
+                                            data-value="{% if entity.lineManager.id is defined and entity.lineManager.id is not empty %}{{ entity.lineManager.id }}{% endif %}"
+                                            data-original-title="Select Line Manager">
+                                        {% if entity.lineManager.name is defined and entity.lineManager.name is not empty %}
+                                            {{ entity.lineManager.name|default('') }}
+                                        {% endif %}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a
+                                            data-type="select"
+                                            class="editable"
+                                            id="reportMode-{% if entity.reportMode.id is defined and entity.reportMode.id is not empty %}{{ entity.reportMode.id }}{% endif %}"
+                                            data-name="reportMode"
+                                            href="#"
+                                            data-source="{{ path('kpi_report_mode_select',{id:entity.id}) }}"
+                                            data-url="{{ path('kpi_report_mode_inline_update',{id:entity.id}) }}"
+                                            data-pk="{% if entity.reportMode.id is defined and entity.reportMode.id is not empty %}{{ entity.reportMode.id }}{% endif %}"
+                                            data-value="{% if entity.reportMode.id is defined and entity.reportMode.id is not empty %}{{ entity.reportMode.id }}{% endif %}"
+                                            data-original-title="Select Report Mode">
+                                        {% if entity.reportMode.name is defined and entity.reportMode.name is not empty %}
+                                            {{ entity.reportMode.name|default('') }}
+                                        {% endif %}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a
+                                            data-type="text"
+                                            class="editable"
+                                            id="password-{{ entity.id }}"
+                                            data-name="price"
+                                            href="javascript:"
+                                            data-url="{{ path('kpi_employee_inline_password',{'id':entity.id}) }}"
+                                            data-pk="{{ entity.id }}"
+                                            data-value="">password</a>
+                                </td>
+                                <td>{{ entity.mobile }}</td>
                                 <td>
                                     {% if entity.district is not empty %}
                                         {% for dist in entity.district %}
@@ -61,11 +127,6 @@
                                         {% endfor %}
                                     {% endif %}
                                 </td>
-                                <td>{{ entity.name }}</td>
-                                <td>{{ entity.lineManager.name|default('') }}</td>
-                                <td>{{ entity.designation.name|default('') }}</td>
-                                <td>{{ entity.reportMode.name|default('') }}</td>
-                                <td>{{ entity.mobile }}</td>
                                 <td>{{ entity.username }}</td>
                                 <td>{{ entity.department.name|default('') }}</td>
                                 <td>{{ entity.enabled == 1 ? "Enabled":"Disabled" }}</td>
@@ -88,13 +149,17 @@
     </div>
 {% endblock %}
 {% block cssBlock %}
+    <link rel="stylesheet" href="{{ asset('assets/plugins/bootstrap-editable/css/bootstrap-editable.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
 {% endblock  %}
 {% block javascripts %}
     {{ parent() }}
     <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+    <script type="application/javascript"  src="{{ asset('assets/plugins/bootstrap-editable/js/bootstrap4-editable.js') }}"></script>
+
 {% endblock  %}
 {% block documentready %}
+
     {{ parent() }}
     $('#datatable').DataTable( {
     "pageLength": 25,
@@ -103,4 +168,11 @@
     'orderable': false
     }]
     });
+
+
+
+    $.fn.editable.defaults.mode ='inline';
+{#    $.fn.editable.defaults.mode = 'popover';#}
+    $('.editable').editable();
+
 {% endblock %}

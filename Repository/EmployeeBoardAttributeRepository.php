@@ -1561,32 +1561,50 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     }
 
 
-    public function getTeamMemberSummary($monthYear, $employeesId)
+    public function getTeamMemberSummary($filterBy, $months, $user)
     {
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.employeeBoard', 'board');
         $qb->join('board.employee', 'employee');
         $qb->join('employee.designation', 'designation');
+        $qb->join('employee.lineManager', 'lineManager');
 //        $qb->join('e.parameter', 'parameter');
         $qb->join('e.activity', 'activity');
 
         $qb->select('SUM(e.mark) as mark', 'board.id AS boardId');
-        $qb->addSelect('employee.name AS employeeName','employee.id AS employeeId', 'designation.name AS employeeDesignation');
+        $qb->addSelect('employee.name AS employeeName','employee.id AS employeeId', 'employee.userId');
         $qb->addSelect('activity.name AS activityName','activity.id AS activityId');
+        $qb->addSelect('designation.name AS employeeDesignation');
+        $qb->addSelect('board.month');
 
-        $qb->where('employee.id IN (:employee)')->setParameter('employee', $employeesId);
-        $qb->andWhere('board.year =:year')->setParameter('year', $monthYear[1]);
-        $qb->andWhere('board.month =:month')->setParameter('month', $monthYear[0]);
-        $qb->groupBy('activity.id');
+        $qb->where('board.year =:year')->setParameter('year', $filterBy['year']);
+        if ($filterBy['employee']){
+            $qb->andWhere('employee.id = :employeeId')->setParameter('employeeId', $filterBy['employee']->getId());
+        } else{
+            if (!in_array('ROLE_ADMIN', $user->getRoles())){
+                $qb->andWhere('lineManager.id = :lineManagerId')->setParameter('lineManagerId', $user->getId());
+
+            }
+        }
+        $qb->andWhere('board.month IN (:months)')->setParameter('months', $months);
+        $qb->groupBy('board.month');
+        $qb->addGroupBy('activity.id');
         $qb->addGroupBy('employee.id');
         $qb->orderBy('e.id', 'ASC');
         $results = $qb->getQuery()->getArrayResult();
+
+
         $data = [];
         foreach ($results as $result) {
-            $data[$result['employeeName']][$result['activityName']] = $result['mark'];
-            $data[$result['employeeName']]['boardId'] = $result['boardId'];
-            $data[$result['employeeName']]['Designation'] = $result['employeeDesignation'];
+//            $data[$result['userId']]['monthCount'][] = $result['month'];
+            $data[$result['userId']]['data'][$result['month']][] = $result;
+            $data[$result['userId']]['activityName'][$result['activityName']]= $result['activityName'];
+            $data[$result['userId']]['mark'][$result['month']][$result['activityName']]= $result['mark'];
+//            $data[$result['userId']]['boardId'] = $result['boardId'];
+//            $data[$result['userId']]['Designation'] = $result['employeeDesignation'];
+//            $data[$result['userId']]['employeeName'] = $result['employeeName'];
         }
         return $data;
     }
+
 }

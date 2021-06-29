@@ -1,5 +1,10 @@
 <ul class="" aria-labelledby="navbarDropdownMenuLink">
-        <li><a class="dropdown-item" href="{{ path('team_member_summary') }}">Report</a></li>
+        <li><a class="dropdown-item" href="javascript:">Report</a>
+                <ul>
+                        <li><a class="dropdown-item" href="#">All Employee KPI</a></li>
+                        <li><a class="dropdown-item" href="{{ path('team_member_summary') }}">Employee Monthly KPI</a></li>
+                </ul>
+        </li>
         <li><a class="dropdown-item" href="{{ path('kpi_employee_board') }}">KPI Board</a></li>
 {#        <li><a class="dropdown-item" href="{{ path('kpi_setup') }}">KPI Setup</a></li>#}
         <li><a class="dropdown-item" href="{{ path('kpi_markchart_matrix') }}">KPI Format</a>

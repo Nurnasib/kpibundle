@@ -13,12 +13,15 @@ namespace Terminalbd\KpiBundle\Controller;
 
 use App\Entity\Admin\Location;
 use App\Entity\Core\ItemKeyValue;
+use App\Entity\Core\Setting;
 use App\Entity\User;
+use App\Repository\Core\SettingRepository;
 use App\Repository\UserRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -102,11 +105,10 @@ class EmployeeController extends AbstractController
 
     /**
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
-     * @Route("/{id}/reset-password", methods={"GET", "POST"}, name="kpi_employee_password")
+     * @Route("/{id}/reset-password", methods={"GET", "POST"}, name="kpi_employee_password", options={"expose"=true})
      */
     public function changeUserPassword(Request $request,UserRepository $userRepository , TranslatorInterface $translator ,UserPasswordEncoderInterface $passwordEncoder,$id): Response
     {
-
         $user = $this->getUser();
 
         /* @var $entity User */
@@ -130,6 +132,35 @@ class EmployeeController extends AbstractController
 
 
 
+     /**
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Route("/{id}/reset-inline-password", methods={"GET", "POST"}, name="kpi_employee_inline_password", options={"expose"=true})
+     */
+    public function changeInlineUserPassword(Request $request,UserRepository $userRepository , TranslatorInterface $translator ,UserPasswordEncoderInterface $passwordEncoder,$id): Response
+    {
+        $data = $request->request->all();
+        $id = $data['pk'];
+        $user = $this->getUser();
+        
+        $entity = $userRepository->findOneBy(['terminal'=> $user->getTerminal(),'id'=>$id]);
+        if($entity){
+            $password = $data['value'];
+            $entity->setPassword(
+                $passwordEncoder->encodePassword(
+                    $entity,
+                    $password
+                )
+            );
+            $this->getDoctrine()->getManager()->flush();
+            $message = $translator->trans('data.updated_successfully');
+            $this->addFlash('success', $message);
+        }
+        return new JsonResponse(['status' => 200]);
+
+    }
+
+
+
     private function getErrorsFromForm(FormInterface $form)
     {
         $errors = array();
@@ -146,6 +177,103 @@ class EmployeeController extends AbstractController
         return $errors;
     }
 
+    /**
+     * @Route("/designation-select", name="kpi_designation_select", options={"expose"=true})
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     */
 
+    public function selectDesignation(SettingRepository $settingRepository)
+    {
+        $designations = $settingRepository->getDesignations();
+        return New JsonResponse($designations);
+    }
+
+    /**
+     * @param Request $request
+     * @Route("/designation-inline-update/{id}", name="kpi_designation_inline_update", options={"expose"=true})
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     */
+    public function inlineUpdateDesignation(Request $request, User $user)
+    {
+
+        $data = $request->request->all();
+//        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['userId' => $userId]);
+
+        if (!$user) {
+            throw $this->createNotFoundException('Unable to find User');
+        }
+
+        $designation = $this->getDoctrine()->getRepository(Setting::class)->find($data['value']);
+        $user->setDesignation($designation);
+        $this->getDoctrine()->getManager()->flush();
+        return new JsonResponse(['status' => 200]);
+
+    }
+
+    /**
+     * @Route("/line-manager-select", name="kpi_line_manager_select", options={"expose"=true})
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     */
+
+    public function selectLineManager(UserRepository $repository)
+    {
+        $lineManagers = $repository->getLineManager();
+        return new JsonResponse($lineManagers);
+    }
+
+    /**
+     * @param Request $request
+     * @Route("/line-manager-inline-update/{id}", name="kpi_line_manager_inline_update", options={"expose"=true})
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     */
+    public function inlineUpdateLineManager(Request $request, User $user)
+    {
+
+        $data = $request->request->all();
+//        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['userId' => $userId]);
+
+        if (!$user) {
+            throw $this->createNotFoundException('Unable to find User');
+        }
+
+        $lineManager = $this->getDoctrine()->getRepository(User::class)->find($data['value']);
+        $user->setLineManager($lineManager);
+        $this->getDoctrine()->getManager()->flush();
+        return new JsonResponse(['status' => 200]);
+
+    }
+
+    /**
+     * @Route("/report-mode-select", name="kpi_report_mode_select", options={"expose"=true})
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     */
+
+    public function selectReportMode(SettingRepository $repository)
+    {
+        $reportModes = $repository->getReportModes();
+        return new JsonResponse($reportModes);
+    }
+
+    /**
+     * @param Request $request
+     * @Route("/report-mode-inline-update/{id}", name="kpi_report_mode_inline_update", options={"expose"=true})
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     */
+    public function inlineUpdateReportMode(Request $request, User $user)
+    {
+
+        $data = $request->request->all();
+//        $user = $this->getDoctrine()->getRepository(User::class)->find();
+
+        if (!$user) {
+            throw $this->createNotFoundException('Unable to find User');
+        }
+
+        $reportMode = $this->getDoctrine()->getRepository(Setting::class)->find($data['value']);
+        $user->setReportMode($reportMode);
+        $this->getDoctrine()->getManager()->flush();
+        return new JsonResponse(['status' => 200]);
+
+    }
 
 }
