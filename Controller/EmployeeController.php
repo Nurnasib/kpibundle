@@ -36,13 +36,24 @@ use Terminalbd\KpiBundle\Form\EmployeeFormType;
  */
 class EmployeeController extends AbstractController
 {
+    public function paginate(Request $request ,$entities)
+    {
+        $paginator  = $this->get('knp_paginator');
+        $pagination = $paginator->paginate(
+            $entities,
+            $request->query->get('page', 1)/*page number*/,
+            25  /*limit per page*/
+        );
+        return $pagination;
+    }
+
     /**
      * @Route("/", methods={"GET"}, name="kpi_employee")
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_CRM')")
      */
     public function index(Request $request): Response
     {
-        $entities = $this->getDoctrine()->getRepository(User::class)->findAll();
+        $entities = $this->getDoctrine()->getRepository(User::class)->findBy(['userMode' => 'KPI']);
         return $this->render('@TerminalbdKpi/employee/index.html.twig',['entities' => $entities]);
     }
 

@@ -38,7 +38,6 @@ use Terminalbd\KpiBundle\Entity\EmployeeSetup;
 use Terminalbd\KpiBundle\Entity\MarkChart;
 use Terminalbd\KpiBundle\Entity\SetupMatrix;
 use Terminalbd\KpiBundle\Form\EmployeeBoardFormType;
-use Terminalbd\KpiBundle\Form\TeamMemberSummaryFilterFormType;
 
 
 /**
@@ -244,8 +243,10 @@ class EmployeeBoardController extends AbstractController
     public function attributeUpdate(EmployeeBoardAttribute $entity): Response
     {
         $mark = $_REQUEST['mark'];
+
         if($mark){
             $attribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($mark);
+
             $em = $this->getDoctrine()->getManager();
             $entity->setMarkDistribution($attribute);
             $entity->setMark($attribute->getMark());
@@ -402,112 +403,16 @@ class EmployeeBoardController extends AbstractController
      */
     public function approve(EmployeeBoard $employeeBoard): Response
     {
+
+        $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
+        
         $em = $this->getDoctrine()->getManager();
+        
+        $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($employeeBoard,$entities); //update Actual mark & obtain mark
+
         $employeeBoard->setApprovedBy($this->getUser());
         $em->persist($employeeBoard);
         $em->flush();
         return $this->redirectToRoute('kpi_employee_board');
     }
-
-    /**
-     * @param EmployeeBoard $board
-     * @Route("/team-member-summary/{mode}", defaults={"mode" = null},methods={"GET"}, name="team_member_summary")
-     */
-    public function teamMemberSummary(Request $request, $mode, UserRepository $userRepository)
-    {
-        $lineManager = $userRepository->getLineManager();
-        $teamMemberSummary = [];
-        $filterBy = [];
-        $user = $this->getUser();
-        $filterForm = $this->createForm(TeamMemberSummaryFilterFormType::class,null , ['user' => $this->getUser()]);
-        $filterForm->handleRequest($request);
-        if ($filterForm->isSubmitted()){
-            $filterBy = $filterForm->getData();
-            $StartDate = @strtotime($filterBy['startMonth'] . ' ' . $filterBy['year']);
-            $StopDate = @strtotime($filterBy['endMonth'] . ' ' . $filterBy['year']);
-
-            $months = $this->monthRange( $StartDate, $StopDate );
-
-            $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $user);
-
-
-            return $this->render('@TerminalbdKpi/employeeboard/report/teamMemberSummary.html.twig', [
-                'filterBy' => $filterBy,
-                'form' => $filterForm->createView(),
-                'teamMemberSummary' => $teamMemberSummary,
-                'months' => $months,
-//            'activities' => $activities,
-            ]);
-        }
-        $monthYear = [];
-//        if ($filterBy != null){
-//            $monthYear = explode(',', $filterBy);
-//        }
-
-        if ($mode == 'pdf'){
-
-            // Configure Dompdf according to your needs
-            $pdfOptions = new Options();
-            $pdfOptions->set('defaultFont', 'Arial');
-
-            // Instantiate Dompdf with our options
-            $dompdf = new Dompdf($pdfOptions);
-
-            // Retrieve the HTML generated in our twig file
-            $html = $this->renderView('@TerminalbdKpi/employeeboard/report/teamMemberSummary-pdf.html.twig', [
-                'filterBy' => $filterBy,
-                'teamMemberSummary' => $teamMemberSummary,
-            ]);
-
-            // Load HTML to Dompdf
-            $dompdf->loadHtml($html);
-
-            // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
-            $dompdf->setPaper('legal', 'landscape');
-
-            // Render the HTML as PDF
-            $dompdf->render();
-
-            // Output the generated PDF to Browser (force download)
-            $fileName = $monthYear[0] . '-' . $monthYear[1] . '-' . $this->getUser()->getName() . 'team-member-summary' . time();
-            $dompdf->stream( $fileName .  ".pdf", [
-                "Attachment" => false
-            ]);
-            die();
-
-        }
-        return $this->render('@TerminalbdKpi/employeeboard/report/teamMemberSummary.html.twig', [
-            'filterBy' => $filterBy,
-            'form' => $filterForm->createView(),
-            'teamMemberSummary' => $teamMemberSummary,
-//            'activities' => $activities,
-        ]);
-
-    }
-
-    /**
-     * Gets list of months between two dates
-     * @param  int $start Unix timestamp
-     * @param  int $end Unix timestamp
-     * @return array
-     */
-    private function monthRange( $start, $end ){
-
-        $current = $start;
-        $data = [];
-        while( $current < $end ){
-
-//            $next = @date('Y-M-01', $current) . "+1 month";
-            $next = @date('Y-M-01', $current);
-            $current = @strtotime($next);
-
-            $data[] = date('F', $current);
-
-            $next = @date('Y-M-01', $current) . "+1 month";
-            $current = @strtotime($next);
-        }
-        return $data;
-    }
-
-
 }

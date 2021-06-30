@@ -92,6 +92,24 @@ class EmployeeBoard
      */
     private $approvedBy;
 
+    /**
+     * @var float
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $actualMark;
+
+    /**
+     * @var float
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $obtainMark;
+
+    /**
+     * @var string
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $grade;
+
     public function setId($id)
     {
         $this->id = $id;
@@ -263,6 +281,55 @@ class EmployeeBoard
     {
         $this->approvedBy = $approvedBy;
     }
+
+    /**
+     * @return float
+     */
+    public function getActualMark()
+    {
+        return $this->actualMark;
+    }
+
+    /**
+     * @param float $actualMark
+     */
+    public function setActualMark($actualMark)
+    {
+        $this->actualMark = $actualMark;
+    }
+
+    /**
+     * @return float
+     */
+    public function getObtainMark()
+    {
+        return $this->obtainMark;
+    }
+
+    /**
+     * @param float $obtainMark
+     */
+    public function setObtainMark($obtainMark)
+    {
+        $this->obtainMark = $obtainMark;
+    }
+
+    /**
+     * @return string
+     */
+    public function getGrade()
+    {
+        return $this->grade;
+    }
+
+    /**
+     * @param string $grade
+     */
+    public function setGrade($grade)
+    {
+        $this->grade = $grade;
+    }
+    
 
 
 }

@@ -146,6 +146,37 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         }
         
         $this->agentSalesGrowth($board);
+
+        $totalObtainMark = 0;
+        $totalActualMark = 0;
+        $grade = '';
+        $marks = $this->employeeBoardSummaryReport($board);
+        foreach ($marks as $mark) {
+            foreach ($mark as $item) {
+                $totalObtainMark += $item['mark'];
+                $totalActualMark += $item['actualMark'];
+            }
+        }
+//        dd($totalActualMark, $totalObtainMark);
+        $totalMarkPercentage = ($totalObtainMark * 100) / $totalActualMark;
+
+        if ($totalMarkPercentage >= 80){
+            $grade='A';
+        } elseif ($totalMarkPercentage >= 75 and $totalMarkPercentage < 80){
+            $grade='B+';
+        } elseif ($totalMarkPercentage >= 70 and $totalMarkPercentage < 75){
+            $grade='B';
+        } elseif ($totalMarkPercentage >= 65 and $totalMarkPercentage < 70){
+            $grade='C';
+        } else{
+            $grade='D';
+        }
+        $board->setObtainMark($totalObtainMark ?: 0);
+        $board->setActualMark($totalActualMark ?: 0);
+        $board->setGrade($grade);
+//        $em->persist($board);
+        $em->flush();
+
     }
 
     public function agentSalesGrowth(EmployeeBoard $board)
@@ -1571,11 +1602,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 //        $qb->join('e.parameter', 'parameter');
         $qb->join('e.activity', 'activity');
 
-        $qb->select('SUM(e.mark) as mark', 'board.id AS boardId');
+        $qb->select('SUM(e.mark) as mark');
         $qb->addSelect('employee.name AS employeeName','employee.id AS employeeId', 'employee.userId');
         $qb->addSelect('activity.name AS activityName','activity.id AS activityId');
         $qb->addSelect('designation.name AS employeeDesignation');
-        $qb->addSelect('board.month');
+        $qb->addSelect('board.month', 'board.obtainMark', 'board.grade', 'board.id AS boardId');
 
         $qb->where('board.year =:year')->setParameter('year', $filterBy['year']);
         if ($filterBy['employee']){
@@ -1597,7 +1628,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $data = [];
         foreach ($results as $result) {
 //            $data[$result['userId']]['monthCount'][] = $result['month'];
-            $data[$result['userId']]['data'][$result['month']][] = $result;
+            $data[$result['userId']]['data']['employeeName'] = $result['employeeName'];
+            $data[$result['userId']]['data']['designation'] = $result['employeeDesignation'];
+            $data[$result['userId']]['data'][$result['month']]['obtainMark'] = $result['obtainMark'];
+            $data[$result['userId']]['data'][$result['month']]['grade'] = $result['grade'];
+            $data[$result['userId']]['data'][$result['month']]['boardId'] = $result['boardId'];
             $data[$result['userId']]['activityName'][$result['activityName']]= $result['activityName'];
             $data[$result['userId']]['mark'][$result['month']][$result['activityName']]= $result['mark'];
 //            $data[$result['userId']]['boardId'] = $result['boardId'];

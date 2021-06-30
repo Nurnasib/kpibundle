@@ -21,9 +21,9 @@
                 <div class="card-header">
                     <h5>{{ 'KPI Team Member Summary for '|trans }}: {{ app.user.name }}</h5>
                     <div class="card-header-right">
-                        {% if teamMemberSummary is not empty %}
+                        {% if teamMemberSummary is defined and teamMemberSummary is not empty %}
                             <div class="btn-group btn-group-sm float-right" role="group" aria-label="Button group with nested dropdown">
-                                <a href="{{ path('team_member_summary',{mode: 'pdf', monthYear: filterBy}) }}" target="_blank" class="btn blue-bg white-font btn-sm"><i class="fa fa-file-pdf"></i> PDF</a>
+                                <a href="{{ path('all_team_member_summary',{mode: 'pdf', filterBy: filterBy}) }}" target="_blank" class="btn blue-bg white-font btn-sm"><i class="fa fa-file-pdf"></i> PDF</a>
                             </div>
                         {% endif %}
                     </div>
@@ -34,18 +34,13 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="col-md-8 offset-2">
-                            {{ form_start(form, {'id': 'teamMemberSummerySearchForm'}) }}
+                            {{ form_start(form) }}
                                 <table class="table table-striped table-bordered table-hover dataTable">
                                     <thead class="thead-dark">
                                     <tr role="row" class="filter">
                                         <th colspan="2">
-                                            {{ form_label(form.employee) }}
-                                            {{ form_widget(form.employee, {'attr': {'required':'required'}}) }}
-                                        </th>
-                                        <th colspan="2">
                                             {{ form_label(form.startMonth, 'Start Month') }}
                                             {{ form_widget(form.startMonth) }}
-
                                         </th>
                                         <th colspan="2">
                                             {{ form_label(form.endMonth, 'End Month') }}
@@ -67,30 +62,21 @@
                     </div>
                 </div>
             </div>
-        {% if teamMemberSummary is not empty %}
+        {% if teamMemberSummary is defined and teamMemberSummary is not empty %}
             <div class="row">
                 <div class="card">
-                    <div class="card-header">
-                        <table class="table table-striped" width="100%">
-                            <thead class="thead-dark">
-                            <tr>
-                                <th>
-                                    <h6>Employee ID: {{ filterBy['employee'].userId|default('') }}</h6>
-                                    <h6>Name: {{ filterBy['employee'].name|default('') }}</h6>
-                                </th>
-                                <th>
-                                    <h6>Designation: {{ filterBy['employee'].designation.name|default('') }}</h6>
-                                    <h6>Date of joining: {{ filterBy['employee'].joiningDate|date('d-m-Y') }}</h6>
-                                </th>
-                            </tr>
-                            </thead>
-                        </table>
+                    <div class="card-header pt-0 pb-0">
+{#                        <p class="btn green-bg white-font" style="cursor: auto;">January-2021</p>#}
                     </div>
                     <div class="card-body pt-0">
                         <table class="table table-striped table-bordered table-hover" width="100%">
                             <thead class="thead-dark">
                             <tr>
+                                <th>ID</th>
+                                <th>Employee</th>
+                                <th>Designation</th>
                                 <th>Month</th>
+                                {% if teamMemberSummary is not empty %}
                                 {% for employeeId, details in teamMemberSummary %}
                                     {% if loop.first %}
                                         {% if details['activityName'] is not empty %}
@@ -100,15 +86,22 @@
                                         {% endif %}
                                     {% endif %}
                                 {% endfor %}
+                                {% endif %}
                                 <th>Mark</th>
                                 <th>Grade</th>
                                 <th><i class="feather icon-settings"></i></th>
                             </tr>
                             </thead>
                             <tbody>
+                            {% if teamMemberSummary is not empty %}
                                 {% for employeeId, details in teamMemberSummary %}
                                     {% for month, activities in details['mark'] %}
                                         <tr>
+                                            {% if loop.first %}
+                                                <td rowspan="{{ teamMemberSummary[employeeId]['mark']|length }}">{{ employeeId }}</td>
+                                                <td rowspan="{{ teamMemberSummary[employeeId]['mark']|length }}">{{ details['data']['employeeName'] }}</td>
+                                                <td rowspan="{{ teamMemberSummary[employeeId]['mark']|length }}">{{ details['data']['designation'] }}</td>
+                                            {% endif %}
                                             <td>{{ month }}</td>
                                             {% if details['activityName'] is not empty %}
                                                 {% for activityName in details['activityName'] %}
@@ -127,6 +120,7 @@
                                         </tr>
                                     {% endfor %}
                                 {% endfor %}
+                            {% endif %}
 
                             {#{% if teamMemberSummary is not empty %}
                                 {% for employeeName, details in teamMemberSummary %}
