@@ -95,8 +95,11 @@ class TeamMemberSummaryFilterFormType extends AbstractType
     private function getYears($min, $max='current')
     {
         $years = range($min, ($max === 'current' ? date('Y') : $max));
-
         return array_combine($years, $years);
+
+/*        $b = ['Select Year' => null];
+        $yearsArray = array_combine($years, $years) + $b;
+        return $yearsArray;*/
     }
 
     public function configureOptions(OptionsResolver $resolver)
