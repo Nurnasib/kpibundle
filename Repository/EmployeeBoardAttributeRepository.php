@@ -1609,7 +1609,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $qb->addSelect('board.month', 'board.obtainMark', 'board.grade', 'board.id AS boardId');
 
         $qb->where('board.year =:year')->setParameter('year', $filterBy['year']);
-        if ($filterBy['employee']){
+        if (isset($filterBy['employee'])){
             $qb->andWhere('employee.id = :employeeId')->setParameter('employeeId', $filterBy['employee']->getId());
         } else{
             if (!in_array('ROLE_ADMIN', $user->getRoles())){
