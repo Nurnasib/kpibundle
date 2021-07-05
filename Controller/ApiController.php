@@ -96,6 +96,7 @@ class ApiController extends AbstractController
         }
     }
 
+
     public function checkDuplicateUserAction(Request $request)
     {
         $username = $request->request->get('username');
