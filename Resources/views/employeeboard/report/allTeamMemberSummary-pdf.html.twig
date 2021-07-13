@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>All Team Member Summary</title>
+    <style>
+        table tr td{
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+{% if teamMemberSummary is defined and teamMemberSummary is not empty %}
+    <div class="row">
+        <div class="card">
+            <div class="card-header pt-0 pb-0">
+                <h4 align="center">All Team Member Summary For</h4>
+                {% if not is_granted('ROLE_ADMIN') %}
+                    <h3 align="center">{{ app.user.name }}</h3>
+                {% endif %}
+                <h5 align="center">{{ '(' ~ filterBy.startMonth ~ ' - ' ~ filterBy.endMonth ~ ')' ~ ' - ' ~ filterBy.year }}</h5>
+            </div>
+            <div class="card-body" style="padding: 0; margin: 10px; overflow: auto">
+                <table cellpadding="0" cellspacing="0" border="1" width="100%">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Employee</th>
+                        <th>Designation</th>
+                        <th>Month</th>
+                        {% if teamMemberSummary is not empty %}
+                            {% for employeeId, details in teamMemberSummary %}
+                                {% if loop.first %}
+                                    {% if details['activityName'] is not empty %}
+                                        {% for activityName in details['activityName'] %}
+                                            <th>{{ activityName|default(0) }}</th>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        <th>Mark</th>
+                        <th>Grade</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% if teamMemberSummary is not empty %}
+                        {% for employeeId, details in teamMemberSummary %}
+                            {% for month, activities in details['mark'] %}
+                                <tr>
+                                    {% if loop.first %}
+                                        <td rowspan="{{ teamMemberSummary[employeeId]['mark']|length }}">{{ employeeId }}</td>
+                                        <td rowspan="{{ teamMemberSummary[employeeId]['mark']|length }}">{{ details['data']['employeeName'] }}</td>
+                                        <td rowspan="{{ teamMemberSummary[employeeId]['mark']|length }}">{{ details['data']['designation'] }}</td>
+                                    {% endif %}
+                                    <td>{{ month }}</td>
+                                    {% if details['activityName'] is not empty %}
+                                        {% for activityName in details['activityName'] %}
+                                            <td align="center">{{ teamMemberSummary[employeeId]['mark'][month][activityName]|default(0) }}</td>
+                                        {% endfor %}
+                                    {% endif %}
+                                    <td align="center">{{ teamMemberSummary[employeeId]['data'][month]['obtainMark']|default(0) }}</td>
+                                    <td align="center">{{ teamMemberSummary[employeeId]['data'][month]['grade']|default('') }}</td>
+
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endif %}
+                    </tbody>
+                    <tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endif %}
+</body>
+</html>

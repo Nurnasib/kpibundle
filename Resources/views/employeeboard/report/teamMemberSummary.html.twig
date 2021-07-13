@@ -23,7 +23,14 @@
                     <div class="card-header-right">
                         {% if teamMemberSummary is not empty %}
                             <div class="btn-group btn-group-sm float-right" role="group" aria-label="Button group with nested dropdown">
-                                <a href="{{ path('team_member_summary',{mode: 'pdf', monthYear: filterBy}) }}" target="_blank" class="btn blue-bg white-font btn-sm"><i class="fa fa-file-pdf"></i> PDF</a>
+                                {% set employee = '' %}
+                                {% set lineManager = '' %}
+                                {% if filterBy['employee'] is defined %}
+                                    {% set employee = filterBy['employee'].id %}
+                                {% elseif filterBy['lineManager'] is defined %}
+                                    {% set lineManager = filterBy['lineManager'] %}
+                                {% endif %}
+                                <a href="{{ path('team_member_summary_pdf', {filterBy: filterBy, employee: employee, lineManager: lineManager }) }}" target="_blank" class="btn blue-bg white-font btn-sm"><i class="fa fa-file-pdf"></i> PDF</a>
                             </div>
                         {% endif %}
                     </div>
@@ -39,8 +46,13 @@
                                     <thead class="thead-dark">
                                     <tr role="row" class="filter">
                                         <th colspan="2">
-                                            {{ form_label(form.employee) }}
-                                            {{ form_widget(form.employee, {'attr': {'required':'required'}}) }}
+                                            {% if is_granted('ROLE_ADMIN') %}
+                                                {{ form_label(form.lineManager, 'Line Manager') }}
+                                                {{ form_widget(form.lineManager, {'attr': {'required':'required'}}) }}
+                                                {% else %}
+                                                    {{ form_label(form.employee, 'Team Member') }}
+                                                    {{ form_widget(form.employee, {'attr': {'required':'required'}}) }}
+                                            {% endif %}
                                         </th>
                                         <th colspan="2">
                                             {{ form_label(form.startMonth, 'Start Month') }}
@@ -51,6 +63,10 @@
                                             {{ form_label(form.endMonth, 'End Month') }}
                                             {{ form_widget(form.endMonth) }}
                                         </th>
+{#                                        <th colspan="2">
+                                            {{ form_label(form.kpiFormat, 'KPI Format') }}
+                                            {{ form_widget(form.kpiFormat) }}
+                                        </th>#}
                                         <th colspan="2">
                                             {{ form_label(form.year) }}
                                             {{ form_widget(form.year) }}
@@ -68,110 +84,181 @@
                 </div>
             </div>
         {% if teamMemberSummary is not empty %}
-            <div class="row">
-                <div class="card">
-                    <div class="card-header">
-                        <table class="table table-striped" width="100%">
-                            <thead class="thead-dark">
-                            <tr>
-                                <th>
-                                    <h6>Employee ID: {{ filterBy['employee'].userId|default('') }}</h6>
-                                    <h6>Name: {{ filterBy['employee'].name|default('') }}</h6>
-                                </th>
-                                <th>
-                                    <h6>Designation: {{ filterBy['employee'].designation.name|default('') }}</h6>
-                                    <h6>Date of joining: {{ filterBy['employee'].joiningDate|date('d-m-Y') }}</h6>
-                                </th>
-                            </tr>
-                            </thead>
-                        </table>
-                    </div>
-                    <div class="card-body pt-0">
-                        <table class="table table-striped table-bordered table-hover" width="100%">
-                            <thead class="thead-dark">
-                            <tr>
-                                <th>Month</th>
-                                {% for employeeId, details in teamMemberSummary %}
-                                    {% if loop.first %}
-                                        {% if details['activityName'] is not empty %}
-                                            {% for activityName in details['activityName'] %}
-                                                <th>{{ activityName|default(0) }}</th>
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endif %}
-                                {% endfor %}
-                                <th>Mark</th>
-                                <th>Grade</th>
-                                <th><i class="feather icon-settings"></i></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                                {% for employeeId, details in teamMemberSummary %}
-                                    {% for month, activities in details['mark'] %}
-                                        <tr>
-                                            <td>{{ month }}</td>
+            {% if not is_granted('ROLE_ADMIN') %}
+                <div class="row">
+                    <div class="card">
+                        <div class="card-header">
+                            <table class="table table-striped" width="100%">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>
+                                            <h6>Employee ID: {{ filterBy['employee'].userId|default('') }}</h6>
+                                            <h6>Name: {{ filterBy['employee'].name|default('') }}</h6>
+                                        </th>
+                                        <th>
+                                            <h6>Designation: {{ filterBy['employee'].designation.name|default('') }}</h6>
+                                            <h6>Date of joining: {{ filterBy['employee'].joiningDate|date('d-m-Y') }}</h6>
+                                        </th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <div class="card-body" style="padding: 0; margin: 10px; overflow: auto">
+                            <table class="table table-striped table-bordered table-hover" width="100%">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th>Month</th>
+                                    {% for employeeId, details in teamMemberSummary %}
+                                        {% if loop.first %}
                                             {% if details['activityName'] is not empty %}
                                                 {% for activityName in details['activityName'] %}
-                                                    <td>{{ teamMemberSummary[employeeId]['mark'][month][activityName]|default(0) }}</td>
+                                                    <th>{{ activityName|default(0) }}</th>
                                                 {% endfor %}
                                             {% endif %}
-                                            <td>{{ teamMemberSummary[employeeId]['data'][month]['obtainMark']|default(0) }}</td>
-                                            <td>{{ teamMemberSummary[employeeId]['data'][month]['grade']|default('') }}</td>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <th>Mark</th>
+                                    <th>Grade</th>
+                                    <th><i class="feather icon-settings"></i></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% for employeeId, details in teamMemberSummary %}
+                                        {% for month, activities in details['mark'] %}
+                                            <tr>
+                                                <td>{{ month }}</td>
+                                                {% if details['activityName'] is not empty %}
+                                                    {% for activityName in details['activityName'] %}
+                                                        <td>{{ teamMemberSummary[employeeId]['mark'][month][activityName]|default(0) }}</td>
+                                                    {% endfor %}
+                                                {% endif %}
+                                                <td>{{ teamMemberSummary[employeeId]['data'][month]['obtainMark']|default(0) }}</td>
+                                                <td>{{ teamMemberSummary[employeeId]['data'][month]['grade']|default('') }}</td>
 
+                                                <td align="right">
+                                                    <div class="btn-group">
+                                                        <a class="btn btn-mini btn-info" target="_blank" href="{{ path('kpi_details_report', {id:teamMemberSummary[employeeId]['data'][month]['boardId']}) }}"><i class="feather icon-file"></i> Details</a>
+                                                        <a class="btn btn-mini purple-bg white-font" target="_blank" href="{{ path('kpi_summary_report', {id:teamMemberSummary[employeeId]['data'][month]['boardId']}) }}"><i class="feather icon-file"></i> Summary</a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="row">
+                    <div class="card">
+                        <div class="card-header pt-0 pb-0">
+                        </div>
+                        <div class="card-body" style="padding: 0; margin: 10px; overflow: auto">
+                            <table class="table table-striped table-bordered table-hover" width="100%">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Employee</th>
+                                    <th>Designation</th>
+                                    <th>Month</th>
+                                    {% if teamMemberSummary is not empty %}
+                                        {% for employeeId, details in teamMemberSummary %}
+                                            {% if loop.first %}
+                                                {% if details['activityName'] is not empty %}
+                                                    {% for activityName in details['activityName'] %}
+                                                        <th>{{ activityName|default(0) }}</th>
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    <th>Mark</th>
+                                    <th>Grade</th>
+                                    <th><i class="feather icon-settings"></i></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% if teamMemberSummary is not empty %}
+                                    {% for employeeId, details in teamMemberSummary %}
+                                        {% for month, activities in details['mark'] %}
+                                            <tr>
+                                                {% if loop.first %}
+                                                    <td rowspan="{{ teamMemberSummary[employeeId]['mark']|length }}">{{ employeeId }}</td>
+                                                    <td rowspan="{{ teamMemberSummary[employeeId]['mark']|length }}">{{ details['data']['employeeName'] }}</td>
+                                                    <td rowspan="{{ teamMemberSummary[employeeId]['mark']|length }}">{{ details['data']['designation'] }}</td>
+                                                {% endif %}
+                                                <td>{{ month }}</td>
+                                                {% if details['activityName'] is not empty %}
+                                                    {% for activityName in details['activityName'] %}
+                                                        <td>{{ teamMemberSummary[employeeId]['mark'][month][activityName]|default(0) }}</td>
+                                                    {% endfor %}
+                                                {% endif %}
+                                                <td>{{ teamMemberSummary[employeeId]['data'][month]['obtainMark']|default(0) }}</td>
+                                                <td>{{ teamMemberSummary[employeeId]['data'][month]['grade']|default('') }}</td>
+
+                                                <td align="right">
+                                                    <div class="btn-group">
+                                                        <a class="btn btn-mini btn-info" target="_blank"
+                                                           href="{{ path('kpi_details_report', {id:teamMemberSummary[employeeId]['data'][month]['boardId']}) }}"><i
+                                                                    class="feather icon-file"></i> Details</a>
+                                                        <a class="btn btn-mini purple-bg white-font" target="_blank"
+                                                           href="{{ path('kpi_summary_report', {id:teamMemberSummary[employeeId]['data'][month]['boardId']}) }}"><i
+                                                                    class="feather icon-file"></i> Summary</a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endfor %}
+                                {% endif %}
+
+                                {#{% if teamMemberSummary is not empty %}
+                                    {% for employeeName, details in teamMemberSummary %}
+                                        {% set totalObtainMark = 0 %}
+                                        <tr>
+                                            <td>{{ employeeName }}</td>
+                                            <td>{{ details.Designation }}</td>
+                                            {% for activity, obtainMark in details %}
+                                                {% if activity != 'boardId' and activity != 'Designation' %}
+                                                    {% set totalObtainMark = totalObtainMark + obtainMark %}
+                                                    <td>{{ obtainMark|default(0) }}</td>
+                                                {% endif %}
+                                            {% endfor %}
+
+                                            <td>{{ totalObtainMark }}</td>
+
+                                            {% set grade='' %}
+                                            {% if totalObtainMark >= 80 %}
+                                                {% set grade='A' %}
+                                            {% elseif totalObtainMark >= 75 and totalObtainMark < 80 %}
+                                                {% set grade='B+' %}
+                                            {% elseif totalObtainMark >= 70 and totalObtainMark < 75 %}
+                                                {% set grade='B' %}
+                                            {% elseif totalObtainMark >= 65 and totalObtainMark < 70 %}
+                                                {% set grade='C' %}
+                                            {% elseif totalObtainMark < 65 %}
+                                                {% set grade='D' %}
+                                            {% endif %}
+
+                                            <td>{{ grade }}</td>
                                             <td align="right">
                                                 <div class="btn-group">
-                                                    <a class="btn btn-mini btn-info" target="_blank" href="{{ path('kpi_details_report', {id:teamMemberSummary[employeeId]['data'][month]['boardId']}) }}"><i class="feather icon-file"></i> Details</a>
-                                                    <a class="btn btn-mini purple-bg white-font" target="_blank" href="{{ path('kpi_summary_report', {id:teamMemberSummary[employeeId]['data'][month]['boardId']}) }}"><i class="feather icon-file"></i> Summary</a>
+                                                    <a class="btn btn-mini btn-info" target="_blank" href="{{ path('kpi_details_report', {id:details.boardId}) }}"><i class="feather icon-file"></i> Details</a>
+                                                    <a class="btn btn-mini purple-bg white-font" target="_blank" href="{{ path('kpi_summary_report', {id:details.boardId}) }}"><i class="feather icon-file"></i> Summary</a>
                                                 </div>
                                             </td>
                                         </tr>
                                     {% endfor %}
-                                {% endfor %}
-
-                            {#{% if teamMemberSummary is not empty %}
-                                {% for employeeName, details in teamMemberSummary %}
-                                    {% set totalObtainMark = 0 %}
-                                    <tr>
-                                        <td>{{ employeeName }}</td>
-                                        <td>{{ details.Designation }}</td>
-                                        {% for activity, obtainMark in details %}
-                                            {% if activity != 'boardId' and activity != 'Designation' %}
-                                                {% set totalObtainMark = totalObtainMark + obtainMark %}
-                                                <td>{{ obtainMark|default(0) }}</td>
-                                            {% endif %}
-                                        {% endfor %}
-
-                                        <td>{{ totalObtainMark }}</td>
-
-                                        {% set grade='' %}
-                                        {% if totalObtainMark >= 80 %}
-                                            {% set grade='A' %}
-                                        {% elseif totalObtainMark >= 75 and totalObtainMark < 80 %}
-                                            {% set grade='B+' %}
-                                        {% elseif totalObtainMark >= 70 and totalObtainMark < 75 %}
-                                            {% set grade='B' %}
-                                        {% elseif totalObtainMark >= 65 and totalObtainMark < 70 %}
-                                            {% set grade='C' %}
-                                        {% elseif totalObtainMark < 65 %}
-                                            {% set grade='D' %}
-                                        {% endif %}
-
-                                        <td>{{ grade }}</td>
-                                        <td align="right">
-                                            <div class="btn-group">
-                                                <a class="btn btn-mini btn-info" target="_blank" href="{{ path('kpi_details_report', {id:details.boardId}) }}"><i class="feather icon-file"></i> Details</a>
-                                                <a class="btn btn-mini purple-bg white-font" target="_blank" href="{{ path('kpi_summary_report', {id:details.boardId}) }}"><i class="feather icon-file"></i> Summary</a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            {% endif %}#}
-                            </tbody>
-                            <tfoot>
-                        </table>
+                                {% endif %}#}
+                                </tbody>
+                                <tfoot>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div>
+
+            {% endif %}
         {% endif %}
         <!-- [ Main Content ] end -->
     </div>

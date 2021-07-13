@@ -1592,13 +1592,28 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     }
 
 
+    private function getActivities()
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.activity', 'activity');
+        $qb->select('activity.name AS activityName', 'activity.id');
+        $qb->orderBy('e.id', 'ASC');
+        $results = $qb->getQuery()->getArrayResult();
+
+        $data = [];
+        foreach ($results as $result){
+            $data[$result['activityName']] = $result['activityName'];
+        }
+        return $data;
+    }
     public function getTeamMemberSummary($filterBy, $months, $user)
     {
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.employeeBoard', 'board');
         $qb->join('board.employee', 'employee');
-        $qb->join('employee.designation', 'designation');
+        $qb->leftJoin('employee.designation', 'designation');
         $qb->join('employee.lineManager', 'lineManager');
+        $qb->join('employee.reportMode', 'reportMode');
 //        $qb->join('e.parameter', 'parameter');
         $qb->join('e.activity', 'activity');
 
@@ -1609,13 +1624,18 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $qb->addSelect('board.month', 'board.obtainMark', 'board.grade', 'board.id AS boardId');
 
         $qb->where('board.year =:year')->setParameter('year', $filterBy['year']);
+        if (isset($filterBy['kpiFormat'])){
+            $qb->andWhere('reportMode.id = :reportMode')->setParameter('reportMode', $filterBy['kpiFormat']);
+        }
+
         if (isset($filterBy['employee'])){
             $qb->andWhere('employee.id = :employeeId')->setParameter('employeeId', $filterBy['employee']->getId());
-        } else{
-            if (!in_array('ROLE_ADMIN', $user->getRoles())){
-                $qb->andWhere('lineManager.id = :lineManagerId')->setParameter('lineManagerId', $user->getId());
+        } elseif(isset($filterBy['lineManager'])){
+            $qb->andWhere('lineManager.id = :lineManagerId')->setParameter('lineManagerId', $filterBy['lineManager']);
+        }
+        if (! in_array('ROLE_ADMIN', $user->getRoles())){
+            $qb->andWhere('lineManager.id = :lineManagerId')->setParameter('lineManagerId', $user->getId());
 
-            }
         }
         $qb->andWhere('board.month IN (:months)')->setParameter('months', $months);
         $qb->groupBy('board.month');
@@ -1624,21 +1644,18 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $qb->orderBy('e.id', 'ASC');
         $results = $qb->getQuery()->getArrayResult();
 
-
         $data = [];
         foreach ($results as $result) {
-//            $data[$result['userId']]['monthCount'][] = $result['month'];
             $data[$result['userId']]['data']['employeeName'] = $result['employeeName'];
             $data[$result['userId']]['data']['designation'] = $result['employeeDesignation'];
             $data[$result['userId']]['data'][$result['month']]['obtainMark'] = $result['obtainMark'];
             $data[$result['userId']]['data'][$result['month']]['grade'] = $result['grade'];
             $data[$result['userId']]['data'][$result['month']]['boardId'] = $result['boardId'];
-            $data[$result['userId']]['activityName'][$result['activityName']]= $result['activityName'];
+            $data[$result['userId']]['activityName'] = $this->getActivities();
+//            $data[$result['userId']]['activityName'][$result['activityName']]= $result['activityName'];
             $data[$result['userId']]['mark'][$result['month']][$result['activityName']]= $result['mark'];
-//            $data[$result['userId']]['boardId'] = $result['boardId'];
-//            $data[$result['userId']]['Designation'] = $result['employeeDesignation'];
-//            $data[$result['userId']]['employeeName'] = $result['employeeName'];
         }
+//        dd($data);
         return $data;
     }
 

@@ -77,6 +77,7 @@ class EmployeeController extends AbstractController
         $em = $this->getDoctrine()->getManager();
         if ($form->isSubmitted() && $form->isValid()) {
             $this->get('kpi_bundle.user_manager')->setUserPassword($user, $form->get('password')->getData());
+            $user->setUserMode('KPI');
             $user->setTerminal($terminal);
             $em->persist($user);
             $em->flush();

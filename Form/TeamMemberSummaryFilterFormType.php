@@ -8,6 +8,7 @@
 
 namespace Terminalbd\KpiBundle\Form;
 
+use App\Entity\Core\Setting;
 use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -17,6 +18,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use function Matrix\add;
 
 class TeamMemberSummaryFilterFormType extends AbstractType
 {
@@ -24,28 +26,59 @@ class TeamMemberSummaryFilterFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $user = $options['user'];
-        $builder
-            ->add('employee', EntityType::class,[
+        $lineManagers = $options['lineManagers'];
+
+
+        if (in_array('ROLE_ADMIN', $user->getRoles())){
+/*            $builder->add('lineManager', EntityType::class, [
                 'class' => User::class,
-                'query_builder' => function(EntityRepository $repository) use($user){
-                if (in_array('ROLE_ADMIN', $user->getRoles())){
-                    return $repository->createQueryBuilder('e')
-                        ->where('e.enabled = 1')
-                        ->orderBy('e.name', 'ASC');
-                }else{
-                    return $repository->createQueryBuilder('e')
-                        ->join('e.lineManager', 'lineManager')
-                        ->where('e.enabled = 1')
-                        ->andWhere('lineManager.id = :lineManager')->setParameter('lineManager', $user->getId())
-                        ->orderBy('e.name', 'ASC');
-                }
+                'choice_label' => 'lineManager.name',
+                'placeholder' => 'Select Line Manager',
+                'query_builder' => function(EntityRepository $repository){
+                return $repository->createQueryBuilder('e')
+                    ->join('e.lineManager', 'lineManager')
+                    ->groupBy('lineManager.id');
                 },
-                'choice_label' => 'name',
-                'placeholder' => 'Select Employee',
-                'required' => false,
                 'attr' => [
                     'class' => 'select2'
                 ]
+            ]);*/
+            $builder->add('lineManager', ChoiceType::class,[
+                'choices' => $lineManagers,
+                'attr' => [
+                    'class' => 'select2'
+                ]
+            ]);
+        }else{
+            $builder
+                ->add('employee', EntityType::class,[
+                    'class' => User::class,
+                    'query_builder' => function(EntityRepository $repository) use($user){
+                            return $repository->createQueryBuilder('e')
+                                ->join('e.lineManager', 'lineManager')
+                                ->where('e.enabled = 1')
+                                ->andWhere('lineManager.id = :lineManager')->setParameter('lineManager', $user->getId())
+                                ->orderBy('e.name', 'ASC');
+                    },
+                    'choice_label' => 'name',
+                    'placeholder' => 'Select Team Member',
+                    'required' => false,
+                    'attr' => [
+                        'class' => 'select2'
+                    ]
+                ]);
+        }
+        $builder
+            ->add('kpiFormat', EntityType::class, [
+                'class' => Setting::class,
+                'choice_label' => 'name',
+                'placeholder' => 'Select Format',
+                'required' => false,
+                'query_builder' => function(EntityRepository $repository){
+                return $repository->createQueryBuilder('e')
+                    ->join('e.settingType', 'settingType')
+                    ->where('settingType.id = 6');
+                }
             ])
             ->add('startMonth', ChoiceType::class,[
                 'choices' => [
@@ -106,7 +139,8 @@ class TeamMemberSummaryFilterFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => null,
-            'user' => User::class
+            'user' => User::class,
+            'lineManagers' => User::class,
         ]);
     }
 
