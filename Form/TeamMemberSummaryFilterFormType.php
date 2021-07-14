@@ -47,7 +47,8 @@ class TeamMemberSummaryFilterFormType extends AbstractType
                 'choices' => $lineManagers,
                 'attr' => [
                     'class' => 'select2'
-                ]
+                ],
+                'placeholder' => 'Select line Manager'
             ]);
         }else{
             $builder
@@ -119,6 +120,7 @@ class TeamMemberSummaryFilterFormType extends AbstractType
             ->add('year', ChoiceType::class,[
                 'choices' => $this->getYears(2020),
                 'required' => true,
+                'placeholder' => 'Select Year'
             ])
             ->setMethod('GET')
 //            ->add('Submit', SubmitType::class)

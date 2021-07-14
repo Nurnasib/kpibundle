@@ -28,6 +28,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Terminalbd\KpiBundle\Form\EditEmployeeFormType;
+use Terminalbd\KpiBundle\Form\EmployeeFilterFormType;
 use Terminalbd\KpiBundle\Form\EmployeeFormType;
 
 
@@ -48,13 +49,27 @@ class EmployeeController extends AbstractController
     }
 
     /**
-     * @Route("/", methods={"GET"}, name="kpi_employee")
+     * @Route("/{filter}", defaults={"filter" = null}, methods={"GET"}, name="kpi_employee")
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_CRM')")
      */
-    public function index(Request $request): Response
+    public function index(Request $request, $filter): Response
     {
         $entities = $this->getDoctrine()->getRepository(User::class)->findBy(['userMode' => 'KPI']);
-        return $this->render('@TerminalbdKpi/employee/index.html.twig',['entities' => $entities]);
+
+        $searchForm = $this->createForm(EmployeeFilterFormType::class);
+        $searchForm->handleRequest($request);
+        if ($filter !== null){
+            $entities = $this->getDoctrine()->getRepository(User::class)->getFilteredEmployee($filter);
+        }
+        if ($searchForm->isSubmitted()){
+            $filterBy = $searchForm->getData();
+            $entities = $this->getDoctrine()->getRepository(User::class)->getSearchedEmployee($filterBy);
+        }
+        $data = $this->paginate($request, $entities);
+        return $this->render('@TerminalbdKpi/employee/index.html.twig',[
+            'entities' => $data,
+            'searchForm' => $searchForm->createView()
+        ]);
     }
 
 
