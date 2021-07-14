@@ -63,14 +63,18 @@ class AgentSalesController extends AbstractController
         $allData = $request->query->all();
         $requestData = isset($allData['monthYear'])?$allData['monthYear']:'';
         $requestAgent = isset($allData['agent'])?$allData['agent']:'';
+        $district = isset($allData['district'])?$allData['district']:'';
 //        $data = array('month'=>date('F'),'year'=>date('Y'),'agent'=>null);
-        $data = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>date('Y'),'agent'=>null);
+        $data = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>date('Y'),'agent'=>null, 'district' => null);
         if($requestData){
             $explode= explode(',',$requestData);
             $data = array('month'=>$explode[0],'year'=>$explode[1]);
         }
         if($requestAgent){
             $data['agent'] = $requestAgent;
+        }
+        if($district){
+            $data['district'] = $district;
         }
 
         $entities = $this->getDoctrine()->getRepository(AgentOrder::class)->findWithAgentSearch($data);
@@ -81,10 +85,11 @@ class AgentSalesController extends AbstractController
         return $this->render('@TerminalbdKpi/agent/sales.html.twig',
             [
                 'pagination' => $pagination,
-                'salesItems'=>$salesItems,
-                'items'=>$products,
-                'agentSalesQty'=>$agentSalesQty,
-                'selectedMonthYear'=>$requestData,
+                'salesItems'=> $salesItems,
+                'items'=> $products,
+                'agentSalesQty'=> $agentSalesQty,
+                'selectedMonthYear'=> $requestData,
+                'district'=> $district,
             ]
         );
     }

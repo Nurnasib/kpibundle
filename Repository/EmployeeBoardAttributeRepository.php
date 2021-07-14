@@ -500,6 +500,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     }
                     $entity->setEmployeeBoard($board);
                     $entity->setTargetQuantity($parameter['targetQuantity'] ?: 0);
+//                    $entity->setSalesAmount($parameter['quantity'] ?: 0);
                     $entity->setSalesQuantity($parameter['quantity'] ?: 0);
                     $entity->setMarkDistribution($distributionPoultry);
 
@@ -525,8 +526,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $growthEntity->setEmployeeBoard($board);
                     $growthEntity->setMarkDistribution($growthDistribution);
                     $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity'] ?: 0);
-                    $growthEntity->setSalesQuantity($parameter['quantity'] ?: 0);
-
+//                    $growthEntity->setSalesAmount($parameter['quantity'] ?: 0);
+                    $growthEntity->setSalesQuantity($parameter['salesGrouthCurrentQuantity'] ?: 0);
                     $growthEntity->setMark($this->salesGrowthCalculationPoultryService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['quantity'])[$growthDistribution->getSlug()] ?: 0);
                     $em->persist($growthEntity);
                     $em->flush();
@@ -548,6 +549,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     }
                     $entity->setEmployeeBoard($board);
                     $entity->setTargetQuantity($parameter['targetQuantity'] ?: 0);
+//                    $entity->setSalesAmount($parameter['quantity'] ?: 0);
                     $entity->setSalesQuantity($parameter['quantity'] ?: 0);
                     $entity->setMarkDistribution($distributionAqua);
 
@@ -572,8 +574,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $growthEntity->setEmployeeBoard($board);
                     $growthEntity->setMarkDistribution($growthDistribution);
                     $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity'] ?: 0);
-                    $growthEntity->setSalesQuantity($parameter['quantity'] ?: 0);
-
+//                    $growthEntity->setSalesAmount($parameter['quantity'] ?: 0);
+                    $growthEntity->setSalesQuantity($parameter['salesGrouthCurrentQuantity'] ?: 0);
                     $growthEntity->setMark($this->salesGrowthCalculationAquaService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['quantity'])[$growthDistribution->getSlug()] ?: 0);
                     $em->persist($growthEntity);
                     $em->flush();
@@ -595,6 +597,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     }
                     $entity->setEmployeeBoard($board);
                     $entity->setTargetQuantity($parameter['targetQuantity'] ?: 0);
+//                    $entity->setSalesAmount($parameter['quantity'] ?: 0);
                     $entity->setSalesQuantity($parameter['quantity'] ?: 0);
                     $entity->setMarkDistribution($distributionCattle);
 
@@ -620,8 +623,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $growthEntity->setEmployeeBoard($board);
                     $growthEntity->setMarkDistribution($growthDistribution);
                     $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity'] ?: 0);
-                    $growthEntity->setSalesQuantity($parameter['quantity'] ?: 0);
-
+//                    $growthEntity->setSalesAmount($parameter['quantity'] ?: 0);
+                    $growthEntity->setSalesQuantity($parameter['salesGrouthCurrentQuantity'] ?: 0);
                     $growthEntity->setMark($this->salesGrowthCalculationCattleService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['quantity'])[$growthDistribution->getSlug()] ?: 0);
 //                    dd($parameter);
                     $em->persist($growthEntity);
@@ -644,7 +647,9 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     }
                     $entity->setEmployeeBoard($board);
                     $entity->setTargetQuantity($parameter['targetQuantity'] ?: 0);
+//                    $entity->setSalesAmount($parameter['quantity'] ?: 0);
                     $entity->setSalesQuantity($parameter['quantity'] ?: 0);
+
                     $entity->setMarkDistribution($distribution);
 
                     $mark = $this->salesTargetCalculation($entity->getTargetQuantity(), $entity->getSalesQuantity());
@@ -670,7 +675,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $growthEntity->setEmployeeBoard($board);
                     $growthEntity->setMarkDistribution($growthDistribution);
                     $growthEntity->setTargetQuantity($parameter['salesGrouthPreviousQuantity'] ?: 0);
-                    $growthEntity->setSalesQuantity($parameter['quantity'] ?: 0);
+//                    $growthEntity->setSalesAmount($parameter['quantity'] ?: 0);
+                    $growthEntity->setSalesQuantity($parameter['salesGrouthCurrentQuantity'] ?: 0);
 
                     $growthEntity->setMark($this->salesGrowthCalculation($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['quantity'])[$growthDistribution->getSlug()] ?: 0);
                     $em->persist($growthEntity);

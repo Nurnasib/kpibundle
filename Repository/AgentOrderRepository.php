@@ -35,22 +35,25 @@ class AgentOrderRepository extends EntityRepository
         $year = isset($data['year']) ? $data['year']:'';
         $month = isset($data['month']) ? $data['month']:'';
         $qb = $this->createQueryBuilder('e');
-        $qb->join('e.agent','agent');
+        $qb->leftJoin('e.agent','agent');
         $qb->leftJoin('e.district','d');
         $qb->select('agent.id as customerId','agent.agentId as agentId','agent.name as agentName');
         $qb->addSelect('d.id as districtId','d.name as districtName');
         $qb->addSelect('e.month as month','e.year as year');
-        $qb->groupBy('agent.id','e.month','e.year');
+//        $qb->groupBy('agent.id','e.month','e.year');
+        $qb->groupBy('agent.id');
         $qb->where('e.year =:year')->setParameter('year',$year);
         $qb->andWhere('e.month =:month')->setParameter('month',$month);
 
         if(isset($data['agent'])){
             $qb->andWhere('agent.id =:agent')->setParameter('agent',$data['agent']);
         }
+        if(isset($data['district'])){
+            $qb->andWhere('d.name =:district')->setParameter('district', trim($data['district']));
+        }
 
         $qb->orderBy('agent.name','ASC');
-        $result = $qb->getQuery();
-        return $result;
+        return $qb->getQuery()->getArrayResult();
     }
 
     public function findWithAgentOrderOty($data)
