@@ -46,9 +46,17 @@
                                 <table width="100%">
                                     <thead>
                                     <tr>
-                                        <td width="14%"><input autocomplete="off" type="text" class="form-control  input-sm" placeholder="mm-yyyy" value="{{ selectedMonthYear|default('') }}" name="monthYear" id="inputMonth"></td>
-                                        <td width="30%"><select data-action="{{ path('district_search_select2') }}" name="district" class="districtSearch" id=""></select></td>
-                                        <td><button type="submit" class="btn btn-primary btn-sm" title="Search" value="Search"><i class="fa fa-search" aria-hidden="true"></i></button></td>
+                                        <td width="14%">
+                                            <input autocomplete="off" type="text" class="form-control  input-sm" placeholder="mm-yyyy" value="{{ selectedMonthYear|default('') }}" name="monthYear" id="inputMonth">
+                                        </td>
+                                        <td width="30%">
+                                            <select data-action="{{ path('district_search_select2') }}" name="district" class="districtSearch" id="">
+                                                <option value="">Select District</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <button type="submit" class="btn btn-primary btn-sm" title="Search" value="Search"><i class="fa fa-search" aria-hidden="true"></i></button>
+                                        </td>
                                     </tr>
                                     </thead>
                                 </table>
@@ -99,6 +107,16 @@
                             </table>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="count">
+                                Total Records: {{ entities.getTotalItemCount }}
+                            </div>
+                        </div>
+                        <div class="col-md-9 navigation" style="padding-right: 0;">
+                            {{ knp_pagination_render(entities) }}
+                        </div>
+                    </div>
 
                 </div>
             </div>
@@ -113,6 +131,9 @@
     <style>
         .ui-datepicker-calendar {
             display: none
+        }
+        .pagination{
+            float: right;
         }
     </style>
 {% endblock %}
@@ -181,8 +202,8 @@
     }
     });
 
-    $('#datatable').DataTable({
+{#    $('#datatable').DataTable({
     pageLength: 50,
-    });
+    });#}
 
 {% endblock %}

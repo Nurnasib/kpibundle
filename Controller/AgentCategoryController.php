@@ -21,6 +21,18 @@ use Terminalbd\KpiBundle\Entity\DocumentUpload;
  */
 class AgentCategoryController extends AbstractController
 {
+
+    public function paginate(Request $request ,$entities)
+    {
+        $paginator  = $this->get('knp_paginator');
+        $pagination = $paginator->paginate(
+            $entities,
+            $request->query->get('page', 1)/*page number*/,
+            25  /*limit per page*/
+        );
+        return $pagination;
+    }
+    
     /**
      * @return string
      * @Route("/", name="kpi_agent_category_index")
@@ -96,10 +108,11 @@ class AgentCategoryController extends AbstractController
         }
 
         $entities = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentGradeMonthWise($filterBy);
+        $data = $this->paginate($request, $entities);
         $prevYearGradeAndAverage = $this->getDoctrine()->getRepository(AgentCategory::class)->getPreviousYearCategoryAndAverage($prevYear);
 
         return $this->render('@TerminalbdKpi/agentCategory/month-wise-agent-grade.html.twig', [
-            'entities' => $entities,
+            'entities' => $data,
             'selectedMonthYear' => $requestData,
             'prevYearGradeAndAverage' => $prevYearGradeAndAverage,
         ]);

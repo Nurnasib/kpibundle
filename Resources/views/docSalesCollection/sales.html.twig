@@ -34,8 +34,9 @@
                                 <input autocomplete="off" type="text" class="form-control  input-sm" placeholder="mm-yyyy" value="{{ selectedMonthYear }}" name="monthYear" id="inputMonth">
                             </td>
                             <td colspan="2">
-                                <select data-action="{{ path('core_agent_search_select2') }}" name="agent" class="agentSearch" id=""></select>
-                                {#<input data-action="{{ path('core_agent_search_select2') }}" class='form-control col-lg-5 agentSearch' type='text' placeholder='select item' />#}
+                                <select data-action="{{ path('core_agent_search_select2') }}" name="agent" class="agentSearch" id="">
+                                    <option value="">Select Agent</option>
+                                </select>
                             </td>
 
                             <td colspan="1">
