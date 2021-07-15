@@ -33,6 +33,10 @@
                             <td colspan="2">
                                 <input autocomplete="off" type="text" class="form-control  input-sm" placeholder="mm-yyyy" value="{{ selectedMonthYear }}" name="monthYear" id="inputMonth">
                             </td>
+                            <td colspan="2">
+                                <select data-action="{{ path('core_agent_search_select2') }}" name="agent" class="agentSearch" id=""></select>
+                            </td>
+                            <td colspan="2"><input name="district" type="text" autocomplete="off" class="form-control input-sm" placeholder="District" value="{{ district }}"></td>
 
                             <td colspan="1">
                                 <button type="submit" class="btn btn-primary btn-sm" title="Search" value="Search"><i class="fa fa-search" aria-hidden="true"></i></button>
@@ -108,6 +112,44 @@
 {% endblock  %}
 {% block documentready %}
     {{ parent() }}
+{#    <script>#}
+
+        $('.agentSearch').select2({
+
+            ajax: {
+                url: Routing.generate('core_agent_search_select2'),
+                dataType: 'json',
+                delay: 250,
+                type: 'GET',
+                data: function (params) {
+
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data) {
+                    var arr = []
+                    {#console.log(data);#}
+                    $.each(data, function (index, value) {
+                        arr.push({
+                            id: index,
+                            text: value
+                        })
+                    })
+                    return {
+                        results: arr
+                    };
+                },
+                cache: true
+            },
+            escapeMarkup: function (markup) { return markup; },
+            minimumInputLength: 1
+        });
+
+
+
+
+
     $('#inputMonth').datepicker({
     changeMonth: true,
     changeYear: true,

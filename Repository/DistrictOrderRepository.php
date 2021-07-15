@@ -55,6 +55,9 @@ class DistrictOrderRepository extends EntityRepository
         $qb->groupBy('d.id','e.month','e.year');
         $qb->where('e.year =:year')->setParameter('year',$year);
         $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        if (isset($data['district'])){
+            $qb->andWhere('d.name = :district')->setParameter('district', trim($data['district']));
+        }
         $qb->orderBy('d.name','ASC');
         $result = $qb->getQuery()->getArrayResult();
         return $result;

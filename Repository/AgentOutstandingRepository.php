@@ -156,19 +156,25 @@ class AgentOutstandingRepository extends EntityRepository
         }
     }
 
-    public function getMonthYearOutstanding($monthYear)
+    public function getMonthYearOutstanding($monthYear, $agent, $district)
     {
         $year = isset($monthYear['year']) ? $monthYear['year']:'';
         $month = isset($monthYear['month']) ? $monthYear['month']:'';
 
-
         $qb = $this->createQueryBuilder('e');
-        $qb->join('e.agent', 'agent');
-        $qb->join('e.district', 'district');
+        $qb->leftJoin('e.agent', 'agent');
+        $qb->leftJoin('e.district', 'district');
         $qb->select('e.actualAmount', 'e.outstanding', 'e.limitAmount', 'e.month', 'e.year');
         $qb->addSelect('agent.name AS agentName', 'district.name AS districtName');
         $qb->where('e.month = :month')->setParameter('month', $month);
         $qb->andWhere('e.year = :year')->setParameter('year', $year);
+        if(!empty($agent)){
+            $qb->andWhere('agent.id =:agent')->setParameter('agent',$agent);
+        }
+        if(!empty($district)){
+            $qb->andWhere('district.name =:district')->setParameter('district', trim($district));
+        }
+
         $qb->groupBy('agent.id');
 
         $results = $qb->getQuery()->getArrayResult();

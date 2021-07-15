@@ -32,7 +32,9 @@ class OutstandingController extends AbstractController
      */
     public function agentOutstanding(Request $request)
     {
-        $requestMonthYear = $request->get('monthYear');
+        $requestMonthYear = $request->query->get('monthYear');
+        $agent = $request->query->get('agent');
+        $district = $request->query->get('district');
 
         $monthYear = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>Date('Y', strtotime(date('Y') . " last year")));
 
@@ -40,14 +42,14 @@ class OutstandingController extends AbstractController
             $explode= explode(',',$requestMonthYear);
             $monthYear = array('month'=>$explode[0],'year'=>$explode[1]);
         }
-
-        $entities = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getMonthYearOutstanding($monthYear);
+        $entities = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getMonthYearOutstanding($monthYear, $agent, $district);
         $pagination = $this->paginate($request,$entities);
 
         return $this->render('@TerminalbdKpi/outstanding/outstanding.html.twig', [
             'entities' => $pagination,
             'monthYear' => $monthYear,
             'selectedMonthYear'=>$requestMonthYear,
+            'district'=> $district,
         ]);
 
     }

@@ -52,10 +52,14 @@ class DistrictSalesController extends AbstractController
     {
         $requestData = $request->query->get('monthYear');
 //        $data = array('month'=>date('F'),'year'=>date('Y'));
-        $data = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>date('Y'));
+        $district = $request->query->get('district');
+        $data = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>date('Y'), 'district' => null);
         if($requestData){
             $explode= explode(',',$requestData);
             $data = array('month'=>$explode[0],'year'=>$explode[1]);
+        }
+        if($district){
+            $data['district'] = $district;
         }
         $entities = $this->getDoctrine()->getRepository(DistrictOrder::class)->findDistrictSearch($data);
         $districtSalesQty = $this->getDoctrine()->getRepository(DistrictOrder::class)->findDistrictOrderOty($data);
@@ -66,6 +70,7 @@ class DistrictSalesController extends AbstractController
                 'items'=>$products,
                 'districtSalesQty'=>$districtSalesQty,
                 'selectedMonthYear'=>$requestData,
+                'district'=> $district,
             ]
         );
     }
