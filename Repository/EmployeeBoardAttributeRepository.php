@@ -1250,7 +1250,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     }
     private function salesGrowthCalculationPoultryService($productSlug, $previousValue, $currentValue)
     {
-        dump($previousValue, $currentValue);
         $returnValue = [];
         if ($productSlug) {
             if ($productSlug == 'broiler') {
