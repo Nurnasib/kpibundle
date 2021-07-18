@@ -49,7 +49,7 @@ class EmployeeController extends AbstractController
     }
 
     /**
-     * @Route("/{filter}", defaults={"filter" = null}, methods={"GET"}, name="kpi_employee")
+     * @Route("/list/{filter}", defaults={"filter" = null}, methods={"GET"}, name="kpi_employee")
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_CRM')")
      */
     public function index(Request $request, $filter): Response
