@@ -33,8 +33,13 @@
                             <td colspan="2">
                                 <input autocomplete="off" type="text" class="form-control  input-sm" placeholder="mm-yyyy" value="{{ selectedMonthYear }}" name="monthYear" id="inputMonth">
                             </td>
-                            <td colspan="2">
+                            {#<td colspan="2">
                                 <input autocomplete="off" type="text" class="form-control  input-sm" placeholder="district" value="{{ district }}" name="district">
+                            </td>#}
+                            <td colspan="2">
+                                <select data-action="{{ path('district_search_select2') }}" name="district" class="districtSearch" id="">
+                                    <option value="">Select District</option>
+                                </select>
                             </td>
                             <td colspan="1">
                                 <button type="submit" class="btn btn-primary btn-sm" title="Search" value="Search"><i class="fa fa-search" aria-hidden="true"></i></button>
@@ -92,27 +97,62 @@
 
 {% endblock  %}
 {% block documentready %}
+{#    <script>#}
     {{ parent() }}
+
     $('#inputMonth').datepicker({
-    changeMonth: true,
-    changeYear: true,
-    dateFormat: 'MM,yy',
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: 'MM,yy',
 
-    onClose: function() {
-    var iMonth = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
-    var iYear = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
-    $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
-    },
+        onClose: function() {
+            var iMonth = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+            var iYear = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+            $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
+        },
 
-    beforeShow: function() {
-    if ((selDate = $(this).val()).length > 0)
-    {
-    iYear = selDate.substring(selDate.length - 4, selDate.length);
-    iMonth = jQuery.inArray(selDate.substring(0, selDate.length - 5), $(this).datepicker('option', 'monthNames'));
-    $(this).datepicker('option', 'defaultDate', new Date(iYear, iMonth, 1));
-    $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
-    }
-    }
+        beforeShow: function() {
+            if ((selDate = $(this).val()).length > 0)
+            {
+                iYear = selDate.substring(selDate.length - 4, selDate.length);
+                iMonth = jQuery.inArray(selDate.substring(0, selDate.length - 5), $(this).datepicker('option', 'monthNames'));
+                $(this).datepicker('option', 'defaultDate', new Date(iYear, iMonth, 1));
+                $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
+            }
+        }
     });
+
+    $('.districtSearch').select2({
+        ajax: {
+            url: $('.districtSearch').attr('data-action'),
+            dataType: 'json',
+            delay: 250,
+            type: 'GET',
+            data: function (params) {
+
+                return {
+                    q: params.term, // search term
+                };
+            },
+            processResults: function (data) {
+                var arr = []
+                {#console.log(data);#}
+                $.each(data, function (index, value) {
+                    arr.push({
+                        id: index,
+                        text: value
+                    })
+                })
+                return {
+                    results: arr
+                };
+            },
+            cache: true
+        },
+        escapeMarkup: function (markup) { return markup; },
+        minimumInputLength: 1
+    });
+
+
 {% endblock %}
 

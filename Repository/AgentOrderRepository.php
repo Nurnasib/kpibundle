@@ -49,7 +49,7 @@ class AgentOrderRepository extends EntityRepository
             $qb->andWhere('agent.id =:agent')->setParameter('agent',$data['agent']);
         }
         if(isset($data['district'])){
-            $qb->andWhere('d.name =:district')->setParameter('district', trim($data['district']));
+            $qb->andWhere('d.id =:district')->setParameter('district', $data['district']);
         }
 
         $qb->orderBy('agent.name','ASC');

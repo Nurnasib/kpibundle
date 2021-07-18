@@ -172,7 +172,7 @@ class AgentOutstandingRepository extends EntityRepository
             $qb->andWhere('agent.id =:agent')->setParameter('agent',$agent);
         }
         if(!empty($district)){
-            $qb->andWhere('district.name =:district')->setParameter('district', trim($district));
+            $qb->andWhere('district.id =:district')->setParameter('district', $district);
         }
 
         $qb->groupBy('agent.id');

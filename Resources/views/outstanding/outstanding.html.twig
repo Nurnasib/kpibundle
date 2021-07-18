@@ -38,7 +38,11 @@
                                     <option value="">Select Agent</option>
                                 </select>
                             </td>
-                            <td colspan="2"><input name="district" type="text" autocomplete="off" class="form-control input-sm" placeholder="District" value="{{ district }}"></td>
+                            <td  colspan="2">
+                                <select data-action="{{ path('district_search_select2') }}" name="district" class="districtSearch" id="">
+                                    <option value="">Select District</option>
+                                </select>
+                            </td>
 
                             <td colspan="1">
                                 <button type="submit" class="btn btn-primary btn-sm" title="Search" value="Search"><i class="fa fa-search" aria-hidden="true"></i></button>
@@ -148,7 +152,36 @@
             minimumInputLength: 1
         });
 
+        $('.districtSearch').select2({
+            ajax: {
+                url: $('.districtSearch').attr('data-action'),
+                dataType: 'json',
+                delay: 250,
+                type: 'GET',
+                data: function (params) {
 
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data) {
+                    var arr = []
+                    {#console.log(data);#}
+                    $.each(data, function (index, value) {
+                        arr.push({
+                            id: index,
+                            text: value
+                        })
+                    })
+                    return {
+                        results: arr
+                    };
+                },
+                cache: true
+            },
+            escapeMarkup: function (markup) { return markup; },
+            minimumInputLength: 1
+        });
 
 
 

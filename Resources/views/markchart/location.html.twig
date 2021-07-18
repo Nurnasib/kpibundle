@@ -114,7 +114,10 @@
 {% block javascripts %}
     {{ parent() }}
     <script type="application/javascript" src="{{ asset('bundles/terminalbdkpi/js/script.js') }}"></script>
+
 {% endblock  %}
 {% block documentready %}
     {{ parent() }}
+    $('#datatable').DataTable();
+
 {% endblock %}
