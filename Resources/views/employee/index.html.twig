@@ -74,9 +74,10 @@
                                 </tr>
                                 </thead>
                                 <tbody>
+                                {% set offset = entities.getItemNumberPerPage * (entities.currentPageNumber - 1) %}
                                 {% for entity in entities %}
                                     <tr>
-                                        <td>{{ loop.index }}</td>
+                                        <td>{{ loop.index + offset }}</td>
                                         <td>{{ entity.userId }}</td>
                                         <td>{{ entity.name }}</td>
                                         <td>
