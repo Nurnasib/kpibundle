@@ -154,7 +154,6 @@ class KpiReportController extends AbstractController
 
         $user = $this->getUser();
         $months = $this->monthRange( $StartDate, $StopDate );
-
         $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $user);
 
         // Configure Dompdf according to your needs
@@ -198,7 +197,7 @@ class KpiReportController extends AbstractController
 
         $current = $start;
         $data = [];
-        while( $current < $end ){
+        while( $current <= $end ){
 
 //            $next = @date('Y-M-01', $current) . "+1 month";
             $next = @date('Y-M-01', $current);
