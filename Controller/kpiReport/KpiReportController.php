@@ -226,7 +226,6 @@ class KpiReportController extends AbstractController
         $marksDistributions = [];
         $user = $this->getUser();
         $employee = $this->getDoctrine()->getRepository(EmployeeSetup::class)->getEmployeeList($user);
-//        dd($employee);
         $products = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->getProductTarget();
         $attributesAndMarks = $this->getDoctrine()->getRepository(MarkChart::class)->getAttributes();
 

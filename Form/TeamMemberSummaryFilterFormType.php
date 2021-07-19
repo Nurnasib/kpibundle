@@ -46,9 +46,10 @@ class TeamMemberSummaryFilterFormType extends AbstractType
             $builder->add('lineManager', ChoiceType::class,[
                 'choices' => $lineManagers,
                 'attr' => [
-                    'class' => 'select2'
+                    'class' => 'select2',
                 ],
-                'placeholder' => 'Select line Manager'
+                'placeholder' => 'Select line Manager',
+                'required' => false
             ]);
         }else{
             $builder
@@ -97,7 +98,7 @@ class TeamMemberSummaryFilterFormType extends AbstractType
                     'November' => 'November',
                     'December' => 'December',
                 ],
-                'required' => true,
+                'required' => false,
             ])
             ->add('endMonth', ChoiceType::class,[
                 'choices' => [
@@ -115,11 +116,11 @@ class TeamMemberSummaryFilterFormType extends AbstractType
                     'November' => 'November',
                     'December' => 'December',
                 ],
-                'required' => true
+                'required' => false
             ])
             ->add('year', ChoiceType::class,[
                 'choices' => $this->getYears(2020),
-                'required' => true,
+                'required' => false,
                 'placeholder' => 'Select Year'
             ])
             ->setMethod('GET')

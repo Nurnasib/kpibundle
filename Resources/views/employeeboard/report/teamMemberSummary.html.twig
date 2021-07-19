@@ -48,10 +48,10 @@
                                         <th colspan="2">
                                             {% if is_granted('ROLE_ADMIN') %}
                                                 {{ form_label(form.lineManager, 'Line Manager') }}
-                                                {{ form_widget(form.lineManager, {'attr': {'required':'required'}}) }}
+                                                {{ form_widget(form.lineManager) }}
                                                 {% else %}
                                                     {{ form_label(form.employee, 'Team Member') }}
-                                                    {{ form_widget(form.employee, {'attr': {'required':'required'}}) }}
+                                                    {{ form_widget(form.employee) }}
                                             {% endif %}
                                         </th>
                                         <th colspan="2">
