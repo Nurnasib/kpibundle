@@ -244,7 +244,7 @@ class EmployeeController extends AbstractController
 
     public function selectLineManager(UserRepository $repository)
     {
-        $lineManagers = $repository->getLineManager();
+        $lineManagers = $repository->getLineManagerForInlineUpdate();
         return new JsonResponse($lineManagers);
     }
 
