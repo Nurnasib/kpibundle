@@ -72,8 +72,9 @@
                 </div>
             </div>
         </div>
-        {% if teamMemberSummary is defined and teamMemberSummary is not empty %}
-            <div class="row">
+        {% if teamMemberSummary is defined %}
+            {% if teamMemberSummary is not empty %}
+                <div class="row">
                 <div class="card">
                     <div class="card-header pt-0 pb-0">
                         {#                        <p class="btn green-bg white-font" style="cursor: auto;">January-2021</p>#}
@@ -180,6 +181,15 @@
                     </div>
                 </div>
             </div>
+            {% else %}
+                <div class="row">
+                    <div class="card">
+                        <div class="card-header py-3 text-center font-italic">
+                            {{ 'No record has been found!'|trans }}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         {% endif %}
         <!-- [ Main Content ] end -->
     </div>

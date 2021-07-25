@@ -55,7 +55,7 @@ class KpiReportController extends AbstractController
         return $this->render('@TerminalbdKpi/employeeboard/report/teamMemberSummary.html.twig', [
             'filterBy' => $filterBy,
             'form' => $filterForm->createView(),
-            'teamMemberSummary' => $teamMemberSummary,
+//            'teamMemberSummary' => $teamMemberSummary,
 //            'activities' => $activities,
         ]);
 

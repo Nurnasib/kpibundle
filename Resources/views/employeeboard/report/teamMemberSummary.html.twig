@@ -21,7 +21,7 @@
                 <div class="card-header">
                     <h5>{{ 'KPI Team Member Summary for '|trans }}: {{ app.user.name }}</h5>
                     <div class="card-header-right">
-                        {% if teamMemberSummary is not empty %}
+                        {% if teamMemberSummary is defined and teamMemberSummary is not empty %}
                             <div class="btn-group btn-group-sm float-right" role="group" aria-label="Button group with nested dropdown">
                                 {% set employee = '' %}
                                 {% set lineManager = '' %}
@@ -83,8 +83,9 @@
                     </div>
                 </div>
             </div>
-        {% if teamMemberSummary is not empty %}
-            {% if not is_granted('ROLE_ADMIN') %}
+        {% if teamMemberSummary is defined %}
+            {% if teamMemberSummary is not empty %}
+                {% if not is_granted('ROLE_ADMIN') %}
                 <div class="row">
                     <div class="card">
                         <div class="card-header">
@@ -212,53 +213,22 @@
                                         {% endfor %}
                                     {% endfor %}
                                 {% endif %}
-
-                                {#{% if teamMemberSummary is not empty %}
-                                    {% for employeeName, details in teamMemberSummary %}
-                                        {% set totalObtainMark = 0 %}
-                                        <tr>
-                                            <td>{{ employeeName }}</td>
-                                            <td>{{ details.Designation }}</td>
-                                            {% for activity, obtainMark in details %}
-                                                {% if activity != 'boardId' and activity != 'Designation' %}
-                                                    {% set totalObtainMark = totalObtainMark + obtainMark %}
-                                                    <td>{{ obtainMark|default(0) }}</td>
-                                                {% endif %}
-                                            {% endfor %}
-
-                                            <td>{{ totalObtainMark }}</td>
-
-                                            {% set grade='' %}
-                                            {% if totalObtainMark >= 80 %}
-                                                {% set grade='A' %}
-                                            {% elseif totalObtainMark >= 75 and totalObtainMark < 80 %}
-                                                {% set grade='B+' %}
-                                            {% elseif totalObtainMark >= 70 and totalObtainMark < 75 %}
-                                                {% set grade='B' %}
-                                            {% elseif totalObtainMark >= 65 and totalObtainMark < 70 %}
-                                                {% set grade='C' %}
-                                            {% elseif totalObtainMark < 65 %}
-                                                {% set grade='D' %}
-                                            {% endif %}
-
-                                            <td>{{ grade }}</td>
-                                            <td align="right">
-                                                <div class="btn-group">
-                                                    <a class="btn btn-mini btn-info" target="_blank" href="{{ path('kpi_details_report', {id:details.boardId}) }}"><i class="feather icon-file"></i> Details</a>
-                                                    <a class="btn btn-mini purple-bg white-font" target="_blank" href="{{ path('kpi_summary_report', {id:details.boardId}) }}"><i class="feather icon-file"></i> Summary</a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                {% endif %}#}
                                 </tbody>
                                 <tfoot>
                             </table>
                         </div>
                     </div>
                 </div>
-
             {% endif %}
+            {% else %}
+                <div class="row">
+                    <div class="card">
+                        <div class="card-header py-3 text-center font-italic">
+                            {{ 'No record has been found!'|trans }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
         {% endif %}
         <!-- [ Main Content ] end -->
     </div>
