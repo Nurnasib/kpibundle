@@ -340,11 +340,10 @@ class EmployeeBoardController extends AbstractController
 
     /**
      *
-     * @Route("/{id}/report-sales-achivement", methods={"GET"}, name="kpi_report_sales_achivement")
+     * @Route("/{id}/report-sales-achivement/{mode}", defaults={"mode" = null}, methods={"GET"}, name="kpi_report_sales_achivement")
      */
-    public function salesAchivementSummary(EmployeeBoard $entity): Response
+    public function salesAchivementSummary(EmployeeBoard $entity, $mode, Request $request): Response
     {
-
         $locations = $entity->getEmployee()->getDistrict();
         $locationsId = array();
         if(!empty($locations)){
@@ -378,22 +377,87 @@ class EmployeeBoardController extends AbstractController
 
         $districtAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getDistrictAchievement($locationsId, $entity->getYear(), $entity->getMonth());
         $regionalAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getRegionalAchievement($locationsId, $entity->getYear(), $entity->getMonth());
+        
+        if ($mode == 'pdf'){
 
+            // Configure Dompdf according to your needs
+            $pdfOptions = new Options();
+            $pdfOptions->set('defaultFont', 'Arial');
 
-        return $this->render('@TerminalbdKpi/employeeboard/report/salesDetails.html.twig', [
-            'entity' => $entity,
-            'feedAndGrowth' => $feedAndGrowth,
+            // Instantiate Dompdf with our options
+            $dompdf = new Dompdf($pdfOptions);
+
+            // Retrieve the HTML generated in our twig file
+            $html = $this->renderView('@TerminalbdKpi/employeeboard/report/salesDetailsPdf.html.twig', [
+                'entity' => $entity,
+                'feedAndGrowth' => $feedAndGrowth,
 //            'attributes' => $attributes,
-            'outstanding' => $outstanding,
-            'dCategoryUpgrade' => $dCategoryUpgrade,
-            'cCategoryUpgrade' => $cCategoryUpgrade,
-            'twentyPercentGrowthAgentSalesDetails' => $twentyPercentGrowthAgentSalesDetails,
-            'docSale' => $docSale,
-            'districtAchievement' => $districtAchievement,
-            'regionalAchievement' => $regionalAchievement,
-            'individualTeamMemberMarks' => $individualTeamMemberMarks,
+                'outstanding' => $outstanding,
+                'dCategoryUpgrade' => $dCategoryUpgrade,
+                'cCategoryUpgrade' => $cCategoryUpgrade,
+                'twentyPercentGrowthAgentSalesDetails' => $twentyPercentGrowthAgentSalesDetails,
+                'docSale' => $docSale,
+                'districtAchievement' => $districtAchievement,
+                'regionalAchievement' => $regionalAchievement,
+                'individualTeamMemberMarks' => $individualTeamMemberMarks,
 
-        ]);
+            ]);
+
+            // Load HTML to Dompdf
+            $dompdf->loadHtml($html);
+
+            // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
+            $dompdf->setPaper('legal', 'portrait');
+
+            // Render the HTML as PDF
+            $dompdf->render();
+            $fileName = $request->get('_route') . '_' . $entity->getEmployee()->getName() . '_' . $entity->getMonth() . '_' . $entity->getYear() . '_' . time();
+            // Output the generated PDF to Browser (force download)
+            $dompdf->stream($fileName . ".pdf", [
+                "Attachment" => false
+            ]);
+            
+        }elseif ($mode == 'excel'){
+            $html = $this->renderView('@TerminalbdKpi/employeeboard/report/salesDetailsExcel.html.twig', [
+                'entity' => $entity,
+                'feedAndGrowth' => $feedAndGrowth,
+//            'attributes' => $attributes,
+                'outstanding' => $outstanding,
+                'dCategoryUpgrade' => $dCategoryUpgrade,
+                'cCategoryUpgrade' => $cCategoryUpgrade,
+                'twentyPercentGrowthAgentSalesDetails' => $twentyPercentGrowthAgentSalesDetails,
+                'docSale' => $docSale,
+                'districtAchievement' => $districtAchievement,
+                'regionalAchievement' => $regionalAchievement,
+                'individualTeamMemberMarks' => $individualTeamMemberMarks,
+
+            ]);
+
+            $fileName = $request->get('_route') . '_' . $entity->getEmployee()->getName() . '_' . $entity->getMonth() . '_' . $entity->getYear() . '_' . time() . '.xls';
+
+
+            header("Content-Type: application/vnd.ms-excel; charset=utf-8");
+            header("Content-Disposition: attachement; filename=$fileName");
+
+            echo $html;
+            die();
+            
+        }else{
+            return $this->render('@TerminalbdKpi/employeeboard/report/salesDetails.html.twig', [
+                'entity' => $entity,
+                'feedAndGrowth' => $feedAndGrowth,
+//            'attributes' => $attributes,
+                'outstanding' => $outstanding,
+                'dCategoryUpgrade' => $dCategoryUpgrade,
+                'cCategoryUpgrade' => $cCategoryUpgrade,
+                'twentyPercentGrowthAgentSalesDetails' => $twentyPercentGrowthAgentSalesDetails,
+                'docSale' => $docSale,
+                'districtAchievement' => $districtAchievement,
+                'regionalAchievement' => $regionalAchievement,
+                'individualTeamMemberMarks' => $individualTeamMemberMarks,
+
+            ]);
+        }
 
     }
 

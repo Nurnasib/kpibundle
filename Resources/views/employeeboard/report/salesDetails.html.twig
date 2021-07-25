@@ -40,6 +40,10 @@
                 <div class="portlet box green ">
                     <div class="portlet-title">
                         <div class="caption">{{ 'KPI Summary for '|trans }}: {{ entity.employee.name }} </div>
+                        <div class="btn-group float-right">
+                            <a href="{{ path('kpi_report_sales_achivement', {id: entity.id, mode: 'pdf'}) }}" target="_blank" class="btn purple-bg white-font">PDF</a>
+                            <a href="{{ path('kpi_report_sales_achivement', {id: entity.id, mode: 'excel'}) }}" target="_blank" class="btn blue-bg white-font">Excel</a>
+                        </div>
                     </div>
                     <div class="portlet-body form text-dark">
                         <div class="row form-body">
