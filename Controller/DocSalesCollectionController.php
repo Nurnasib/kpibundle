@@ -4,6 +4,7 @@
 namespace Terminalbd\KpiBundle\Controller;
 
 
+use App\Entity\Core\Agent;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,8 +33,13 @@ class DocSalesCollectionController extends AbstractController
      */
     public function docSalesCollection(Request $request)
     {
-        $requestMonthYear = $request->get('monthYear');
-        $requestAgent = $request->get('agent');
+        $requestMonthYear = $request->query->get('monthYear');
+        $requestAgentId = $request->query->get('agent');
+        if ($requestAgentId){
+            $agent = $this->getDoctrine()->getRepository(Agent::class)->find($requestAgentId);
+        }else{
+            $agent = null;
+        }
 
         $data = [
             'month' => Date('F', strtotime(date('F') . " last month")),
@@ -44,8 +50,8 @@ class DocSalesCollectionController extends AbstractController
             $explode= explode(',',$requestMonthYear);
             $data = ['month'=>$explode[0],'year'=>$explode[1]];
         }
-        if ($requestAgent){
-            $data['agent'] = $requestAgent;
+        if ($requestAgentId){
+            $data['agent'] = $requestAgentId;
         }
 
         $entities = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getMonthYearSalesCollection($data);
@@ -55,6 +61,7 @@ class DocSalesCollectionController extends AbstractController
             'entities' => $pagination,
 //            'monthYear' => $data,
             'selectedMonthYear' => $requestMonthYear,
+            'agent' => $agent,
         ]);
 
     }

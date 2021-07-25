@@ -156,7 +156,7 @@ class AgentOutstandingRepository extends EntityRepository
         }
     }
 
-    public function getMonthYearOutstanding($monthYear, $agent, $district)
+    public function getMonthYearOutstanding($monthYear, $agentId, $districtId)
     {
         $year = isset($monthYear['year']) ? $monthYear['year']:'';
         $month = isset($monthYear['month']) ? $monthYear['month']:'';
@@ -168,11 +168,11 @@ class AgentOutstandingRepository extends EntityRepository
         $qb->addSelect('agent.name AS agentName', 'district.name AS districtName');
         $qb->where('e.month = :month')->setParameter('month', $month);
         $qb->andWhere('e.year = :year')->setParameter('year', $year);
-        if(!empty($agent)){
-            $qb->andWhere('agent.id =:agent')->setParameter('agent',$agent);
+        if(!empty($agentId)){
+            $qb->andWhere('agent.id =:agent')->setParameter('agent',$agentId);
         }
-        if(!empty($district)){
-            $qb->andWhere('district.id =:district')->setParameter('district', $district);
+        if(!empty($districtId)){
+            $qb->andWhere('district.id =:district')->setParameter('district', $districtId);
         }
 
         $qb->groupBy('agent.id');

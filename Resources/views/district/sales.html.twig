@@ -38,7 +38,11 @@
                             </td>#}
                             <td colspan="2">
                                 <select data-action="{{ path('district_search_select2') }}" name="district" class="districtSearch" id="">
-                                    <option value="">Select District</option>
+                                    {% if district is defined and district is not null %}
+                                            <option value="{{ district.id }}">{{ district.name }}</option>
+                                        {% else %}
+                                            <option value="">Select District</option>
+                                    {% endif %}
                                 </select>
                             </td>
                             <td colspan="1">
@@ -56,19 +60,25 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for entity in pagination %}
+                        {% if pagination is defined and pagination is not empty %}
+                            {% for entity in pagination %}
+                                <tr>
+                                    <td scope="col">{{ loop.index }}</td>
+                                    <td class="districtId_{{ entity.districtId }}" scope="col">{{ entity.districtName }}</td>
+                                    <td scope="col">{{ entity.month }}</td>
+                                    <td scope="col">{{ entity.year }}</td>
+                                    {% for item in items %}
+                                        <td class="productId_{{ item.id }}" scope="col">
+                                            {{ districtSalesQty[entity.year][entity.month][entity.districtId][item.id]['quantity']|number_format(2)|default('') }}
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        {% else %}
                             <tr>
-                                <td scope="col">{{ loop.index }}</td>
-                                <td class="districtId_{{ entity.districtId }}" scope="col">{{ entity.districtName }}</td>
-                                <td scope="col">{{ entity.month }}</td>
-                                <td scope="col">{{ entity.year }}</td>
-                                {% for item in items %}
-                                    <td class="productId_{{ item.id }}" scope="col">
-                                        {{ districtSalesQty[entity.year][entity.month][entity.districtId][item.id]['quantity']|number_format(2)|default('') }}
-                                    </td>
-                                {% endfor %}
+                                <td class="text-center" colspan="20">No record has been found!</td>
                             </tr>
-                        {% endfor %}
+                        {% endif %}
                         </tbody>
                     </table>
 
@@ -136,7 +146,6 @@
             },
             processResults: function (data) {
                 var arr = []
-                {#console.log(data);#}
                 $.each(data, function (index, value) {
                     arr.push({
                         id: index,

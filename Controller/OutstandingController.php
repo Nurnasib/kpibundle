@@ -4,6 +4,8 @@
 namespace Terminalbd\KpiBundle\Controller;
 
 
+use App\Entity\Admin\Location;
+use App\Entity\Core\Agent;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -33,16 +35,28 @@ class OutstandingController extends AbstractController
     public function agentOutstanding(Request $request)
     {
         $requestMonthYear = $request->query->get('monthYear');
-        $agent = $request->query->get('agent');
-        $district = $request->query->get('district');
-
+        $agentId = $request->query->get('agent');
+        $districtId = $request->query->get('district');
+        
+        if ($agentId){
+            $agent = $this->getDoctrine()->getRepository(Agent::class)->find($agentId);
+        }else{
+            $agent = null;
+        }    
+        
+        if ($districtId){
+            $district = $this->getDoctrine()->getRepository(Location::class)->find($districtId);
+        }else{
+            $district = null;
+        }
+        
         $monthYear = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>Date('Y', strtotime(date('Y') . " last year")));
 
         if($requestMonthYear){
             $explode= explode(',',$requestMonthYear);
             $monthYear = array('month'=>$explode[0],'year'=>$explode[1]);
         }
-        $entities = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getMonthYearOutstanding($monthYear, $agent, $district);
+        $entities = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getMonthYearOutstanding($monthYear, $agentId, $districtId);
         $pagination = $this->paginate($request,$entities);
 
         return $this->render('@TerminalbdKpi/outstanding/outstanding.html.twig', [
@@ -50,6 +64,7 @@ class OutstandingController extends AbstractController
             'monthYear' => $monthYear,
             'selectedMonthYear'=>$requestMonthYear,
             'district'=> $district,
+            'agent'=> $agent,
         ]);
 
     }

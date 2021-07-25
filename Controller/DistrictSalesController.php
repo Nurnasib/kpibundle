@@ -12,6 +12,7 @@ namespace Terminalbd\KpiBundle\Controller;
 use App\Entity\Admin\Location;
 use App\Entity\Core\Agent;
 use App\Entity\Core\Setting;
+use http\QueryString;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -52,14 +53,19 @@ class DistrictSalesController extends AbstractController
     {
         $requestData = $request->query->get('monthYear');
 //        $data = array('month'=>date('F'),'year'=>date('Y'));
-        $district = $request->query->get('district');
+        $districtId = $request->query->get('district') ?: null;
+        if ($districtId){
+            $district = $this->getDoctrine()->getRepository(Location::class)->find($districtId);
+        }else{
+            $district = null;
+        }
         $data = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>date('Y'), 'district' => null);
         if($requestData){
             $explode= explode(',',$requestData);
             $data = array('month'=>$explode[0],'year'=>$explode[1]);
         }
-        if($district){
-            $data['district'] = $district;
+        if($districtId){
+            $data['district'] = $districtId;
         }
         $entities = $this->getDoctrine()->getRepository(DistrictOrder::class)->findDistrictSearch($data);
         $districtSalesQty = $this->getDoctrine()->getRepository(DistrictOrder::class)->findDistrictOrderOty($data);

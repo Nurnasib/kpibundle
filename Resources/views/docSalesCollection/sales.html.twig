@@ -35,7 +35,11 @@
                             </td>
                             <td colspan="2">
                                 <select data-action="{{ path('core_agent_search_select2') }}" name="agent" class="agentSearch" id="">
-                                    <option value="">Select Agent</option>
+                                    {% if agent is defined and agent is not null %}
+                                        <option value="{{ agent.id }}">{{ '(' ~ agent.agentId ~ ') ' ~  agent.name ~ ' (' ~ agent.agentGroup.name ~ ')' }}</option>
+                                    {% else %}
+                                        <option value="">Select Agent</option>
+                                    {% endif %}
                                 </select>
                             </td>
 
@@ -67,9 +71,9 @@
                                 </tr>
                             {% endfor %}
                         {% else %}
-{#                        <tr>
-                            <td colspan="7" style="text-align: center">{{ 'No record Found for '|trans }}{{ monthYear|join(', ') }}</td>
-                        </tr>#}
+                        <tr>
+                            <td colspan="15" class="text-center">{{ 'No record has been found!' }}</td>
+                        </tr>
                         {% endif %}
                         </tbody>
                     </table>

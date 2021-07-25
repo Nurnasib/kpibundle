@@ -62,19 +62,29 @@ class AgentSalesController extends AbstractController
     {
         $allData = $request->query->all();
         $requestData = isset($allData['monthYear'])?$allData['monthYear']:'';
-        $requestAgent = isset($allData['agent'])?$allData['agent']:'';
-        $district = isset($allData['district'])?$allData['district']:'';
-//        $data = array('month'=>date('F'),'year'=>date('Y'),'agent'=>null);
+        $requestAgentId = isset($allData['agent'])?$allData['agent']:'';
+        $districtId = isset($allData['district'])?$allData['district']:'';
+        if ($districtId){
+            $district = $this->getDoctrine()->getRepository(Location::class)->find($districtId);
+        }else{
+            $district = null;
+        }
+        if ($requestAgentId){
+            $agent = $this->getDoctrine()->getRepository(Agent::class)->find($requestAgentId);
+        }else{
+            $agent = null;
+        }
+        
         $data = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>date('Y'),'agent'=>null, 'district' => null);
         if($requestData){
             $explode= explode(',',$requestData);
             $data = array('month'=>$explode[0],'year'=>$explode[1]);
         }
-        if($requestAgent){
-            $data['agent'] = $requestAgent;
+        if($requestAgentId){
+            $data['agent'] = $requestAgentId;
         }
-        if($district){
-            $data['district'] = $district;
+        if($districtId){
+            $data['district'] = $districtId;
         }
 
         $entities = $this->getDoctrine()->getRepository(AgentOrder::class)->findWithAgentSearch($data);
@@ -90,6 +100,7 @@ class AgentSalesController extends AbstractController
                 'agentSalesQty'=> $agentSalesQty,
                 'selectedMonthYear'=> $requestData,
                 'district'=> $district,
+                'agent'=> $agent,
             ]
         );
     }

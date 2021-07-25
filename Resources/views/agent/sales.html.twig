@@ -42,12 +42,20 @@
                             </td>
                             <td colspan="3">
                                 <select data-action="{{ path('core_agent_search_select2') }}" name="agent" class="agentSearch" id="">
-                                    <option value="">Select Agent</option>
+                                    {% if agent is defined and agent is not null %}
+                                        <option value="{{ agent.id }}">{{ '(' ~ agent.agentId ~ ') ' ~  agent.name ~ ' (' ~ agent.agentGroup.name ~ ')' }}</option>
+                                    {% else %}
+                                        <option value="">Select Agent</option>
+                                    {% endif %}
                                 </select>
                             </td>
                             <td  colspan="2">
                                 <select data-action="{{ path('district_search_select2') }}" name="district" class="districtSearch" id="">
-                                    <option value="">Select District</option>
+                                    {% if district is defined and district is not null %}
+                                        <option value="{{ district.id }}">{{ district.name }}</option>
+                                    {% else %}
+                                            <option value="">Select District</option>
+                                    {% endif %}
                                 </select>
                             </td>
                             <td colspan="1">
@@ -66,22 +74,28 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for entity in pagination %}
+                        {% if pagination is defined and pagination is not empty %}
+                            {% for entity in pagination %}
+                                <tr>
+                                    <td class="customerId_{{ entity.customerId }}" scope="col">{{ entity.agentId }}</td>
+                                    <td scope="col">{{ entity.agentName }}</td>
+                                    <td scope="col">{{ entity.month }}</td>
+                                    <td scope="col">{{ entity.year }}</td>
+                                    <td scope="col">{{ entity.districtName }}</td>
+                                    {% for item in items %}
+                                        <td class="productId_{{ item.id }}" scope="col">
+                                            {% set salesItemId = entity.customerId~'-'~item.id %}
+                                            {{ agentSalesQty[entity.year][entity.month][entity.customerId][item.id]['quantity']|default('') }}
+                                            {#{% if salesItems.salesItemId is not empty %} {{ salesItems.salesItemId }}{% endif %}#}
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        {% else %}
                             <tr>
-                                <td class="customerId_{{ entity.customerId }}" scope="col">{{ entity.agentId }}</td>
-                                <td scope="col">{{ entity.agentName }}</td>
-                                <td scope="col">{{ entity.month }}</td>
-                                <td scope="col">{{ entity.year }}</td>
-                                <td scope="col">{{ entity.districtName }}</td>
-                                {% for item in items %}
-                                    <td class="productId_{{ item.id }}" scope="col">
-                                        {% set salesItemId = entity.customerId~'-'~item.id %}
-                                        {{ agentSalesQty[entity.year][entity.month][entity.customerId][item.id]['quantity']|default('') }}
-                                       {#{% if salesItems.salesItemId is not empty %} {{ salesItems.salesItemId }}{% endif %}#}
-                                    </td>
-                                {% endfor %}
+                                <td class="text-center" colspan="20">No record has been found!</td>
                             </tr>
-                        {% endfor %}
+                        {% endif %}
                         </tbody>
                     </table>
                     </div>
@@ -101,9 +115,6 @@
         </div>
         <!-- [ Main Content ] end -->
     </div>
-    <style>
-
-    </style>
 {% endblock %}
 {% block stylesheets %}
     {{ parent() }}
