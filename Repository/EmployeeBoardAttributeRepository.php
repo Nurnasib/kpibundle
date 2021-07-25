@@ -87,7 +87,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     public function insertMarkDistribution(EmployeeBoard $board, $entities)
     {
-
         $em = $this->_em;
         foreach ($entities as $parameter):
             if (!empty($parameter->getChildren())) {
@@ -612,7 +611,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                         $em->flush();
                     }
 
-                    //                    Sales Growth
+                    //Sales Growth
                     $growthDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode' => 'growth', 'slug' => 'growth-' . $distribution->getSlug() . '-cattle-service'));
                     $growthEntity = new EmployeeBoardSubAttribute();
 
@@ -1161,10 +1160,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     private function salesGrowthCalculation($productSlug, $previousValue, $currentValue)
     {
         $returnValue = [];
-
-
+        
         if ($productSlug) {
-
             if ($productSlug == 'broiler') {
                 $increase = $currentValue - $previousValue;
                 $action = $previousValue > 0 ? (($increase / $previousValue) * 100) : 0;
@@ -1177,8 +1174,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 3;
                 } elseif ($action < 5 and $action >= 3) {
                     $returnValue[$growthSlug] = 2;
-                } else {
+                }  elseif ($action < 3 and $action > 0) {
                     $returnValue[$growthSlug] = 1;
+                } else {
+                    $returnValue[$growthSlug] = 0;
                 }
 
             } elseif ($productSlug == 'sonali') {
@@ -1193,8 +1192,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 3;
                 } elseif ($action < 6 and $action >= 5) {
                     $returnValue[$growthSlug] = 2;
-                } else {
+                }  elseif ($action < 5 and $action > 0) {
                     $returnValue[$growthSlug] = 1;
+                } else {
+                    $returnValue[$growthSlug] = 0;
                 }
             } elseif ($productSlug == 'layer') {
                 $increase = $currentValue - $previousValue;
@@ -1208,8 +1209,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 3;
                 } elseif ($action < 6 and $action >= 4) {
                     $returnValue[$growthSlug] = 2;
-                } else {
+                }  elseif ($action < 4 and $action > 0) {
                     $returnValue[$growthSlug] = 1;
+                } else {
+                    $returnValue[$growthSlug] = 0;
                 }
             } elseif ($productSlug == 'fish') {
                 $increase = $currentValue - $previousValue;
@@ -1223,8 +1226,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 3;
                 } elseif ($action < 10 and $action >= 5) {
                     $returnValue[$growthSlug] = 2;
-                } else {
+                }  elseif ($action < 5 and $action > 0) {
                     $returnValue[$growthSlug] = 1;
+                } else {
+                    $returnValue[$growthSlug] = 0;
                 }
             } elseif ($productSlug == 'cattle') {
                 $increase = $currentValue - $previousValue;
@@ -1238,8 +1243,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 3;
                 } elseif ($action < 15 and $action >= 10) {
                     $returnValue[$growthSlug] = 2;
-                } else {
+                }  elseif ($action < 10 and $action > 0) {
                     $returnValue[$growthSlug] = 1;
+                } else {
+                    $returnValue[$growthSlug] = 0;
                 }
             } else {
                 return 0;
@@ -1264,7 +1271,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 5;
                 } elseif ($action < 5 and $action >= 3) {
                     $returnValue[$growthSlug] = 4;
-                } elseif ($action < 3 and $action >= 1) {
+                } elseif ($action < 3 and $action > 0) {
                     $returnValue[$growthSlug] = 1;
                 } else {
                     $returnValue[$growthSlug] = 0;
@@ -1282,7 +1289,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 4;
                 } elseif ($action < 6 and $action >= 5) {
                     $returnValue[$growthSlug] = 3;
-                } elseif ($action < 5 and $action >= 1) {
+                } elseif ($action < 5 and $action > 0) {
                     $returnValue[$growthSlug] = 1;
                 } else {
                     $returnValue[$growthSlug] = 0;
@@ -1299,7 +1306,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 5;
                 } elseif ($action < 5 and $action >= 3) {
                     $returnValue[$growthSlug] = 4;
-                } elseif ($action < 3 and $action >= 1) {
+                } elseif ($action < 3 and $action > 0) {
                     $returnValue[$growthSlug] = 1;
                 } else {
                     $returnValue[$growthSlug] = 0;
@@ -1310,7 +1317,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 $growthSlug = 'growth-' . $productSlug . '-poultry-service';
                 if ($action >= 10) {
                     $returnValue[$growthSlug] = 2;
-                } elseif ($action < 10 and $action >= 1) {
+                } elseif ($action < 10 and $action > 0) {
                     $returnValue[$growthSlug] = 1;
                 } else {
                     $returnValue[$growthSlug] = 0;
@@ -1360,8 +1367,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 $growthSlug = 'growth-' . $productSlug . '-aqua-service';
                 if ($action >= 5) {
                     $returnValue[$growthSlug] = 2;
-                } else {
+                } elseif ($action < 5 and $action > 0) {
                     $returnValue[$growthSlug] = 1;
+                } else {
+                    $returnValue[$growthSlug] = 0;
                 }
             } elseif ($productSlug == 'layer') {
                 $increase = $currentValue - $previousValue;
@@ -1369,8 +1378,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 $growthSlug = 'growth-' . $productSlug . '-aqua-service';
                 if ($action >= 5) {
                     $returnValue[$growthSlug] = 2;
-                } else {
+                } elseif ($action < 5 and $action > 0) {
                     $returnValue[$growthSlug] = 1;
+                } else {
+                    $returnValue[$growthSlug] = 0;
                 }
             } elseif ($productSlug == 'fish') {
                 $increase = $currentValue - $previousValue;
@@ -1384,8 +1395,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 13;
                 } elseif ($action < 10 and $action >= 8) {
                     $returnValue[$growthSlug] = 12;
-                } else {
+                } elseif ($action < 8 and $action > 0) {
                     $returnValue[$growthSlug] = 1;
+                } else {
+                    $returnValue[$growthSlug] = 0;
                 }
             } elseif ($productSlug == 'cattle') {
                 $increase = $currentValue - $previousValue;
@@ -1393,8 +1406,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 $growthSlug = 'growth-' . $productSlug . '-aqua-service';
                 if ($action >= 5) {
                     $returnValue[$growthSlug] = 2;
-                } else {
+                } elseif ($action < 5 and $action > 0) {
                     $returnValue[$growthSlug] = 1;
+                } else {
+                    $returnValue[$growthSlug] = 0;
                 }
             } else {
                 return 0;
@@ -1427,8 +1442,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 $growthSlug = 'growth-' . $productSlug . '-cattle-service';
                 if ($action >= 5) {
                     $returnValue[$growthSlug] = 2;
-                } else {
+                }elseif ($action < 5 and $action > 0) {
                     $returnValue[$growthSlug] = 1;
+                }else {
+                    $returnValue[$growthSlug] = 0;
                 }
             } elseif ($productSlug == 'layer') {
 
@@ -1447,8 +1464,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 $growthSlug = 'growth-' . $productSlug . '-cattle-service';
                 if ($action >= 5) {
                     $returnValue[$growthSlug] = 2;
-                } else {
+                }elseif ($action < 5 and $action > 0) {
                     $returnValue[$growthSlug] = 1;
+                } else {
+                    $returnValue[$growthSlug] = 0;
                 }
             } elseif ($productSlug == 'cattle') {
 
@@ -1463,7 +1482,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 12;
                 } elseif ($action < 10 and $action >= 6){
                     $returnValue[$growthSlug] = 6;
-                } elseif ($action < 6 and $action >= 1){
+                } elseif ($action < 6 and $action > 0){
                     $returnValue[$growthSlug] = 1;
                 } else {
                     $returnValue[$growthSlug] = 0;
