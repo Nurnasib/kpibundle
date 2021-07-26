@@ -98,11 +98,9 @@
                             {% for employeeId, details in teamMemberSummary %}
                                 {% for month, activities in details['mark'] %}
                                     <tr>
-                                        {% if loop.first %}
-                                            <td rowspan="{{ teamMemberSummary[employeeId]['mark']|length }}">{{ employeeId }}</td>
-                                            <td rowspan="{{ teamMemberSummary[employeeId]['mark']|length }}">{{ details['data']['employeeName'] }}</td>
-                                            <td rowspan="{{ teamMemberSummary[employeeId]['mark']|length }}">{{ details['data']['designation'] }}</td>
-                                        {% endif %}
+                                        <td>{{ employeeId }}</td>
+                                        <td>{{ details['data']['employeeName'] }}</td>
+                                        <td>{{ details['data']['designation'] }}</td>
                                         <td>{{ month }}</td>
                                         {% if details['activityName'] is not empty %}
                                             {% for activityName in details['activityName'] %}
