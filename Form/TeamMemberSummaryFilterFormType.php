@@ -74,7 +74,7 @@ class TeamMemberSummaryFilterFormType extends AbstractType
             ->add('kpiFormat', EntityType::class, [
                 'class' => Setting::class,
                 'choice_label' => 'name',
-                'placeholder' => 'Select Format',
+                'placeholder' => 'All Formats',
                 'required' => false,
                 'query_builder' => function(EntityRepository $repository){
                 return $repository->createQueryBuilder('e')
