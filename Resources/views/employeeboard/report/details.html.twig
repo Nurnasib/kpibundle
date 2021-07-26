@@ -23,9 +23,6 @@
                         <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
                             <a href="{{ path('kpi_employee_board') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>{{ 'Employee Board'|trans }}</a>
                             <a href="{{ path('kpi_summary_report',{'id':board.id}) }}" class="btn btn-sm green-bg white-font"><i class="fa fa-th-list"></i>{{ 'KPI Summary'|trans }}</a>
-                            <a href="{{ path('kpi_employee_board_preview',{'id':board.id,'mode':'print'}) }}" target="_blank" class="btn btn-sm yellow-bg white-font"><i class="fa fa-print"></i></a>
-{#                            <a href="{{ path('kpi_employee_board_preview',{'id':board.id,'mode':'pdf'}) }}" target="_blank" class="btn btn-sm blue-bg white-font"><i class="fa fa-file-pdf"></i></a>#}
-
                         </div>
                     </div>
                 </div>
@@ -36,6 +33,9 @@
                 <div class="portlet box green ">
                     <div class="portlet-title">
                         <div class="caption">{{ 'Manage KPI Details for '|trans }} : {{ board.employee.name }}</div>
+                        <div class="btn-group float-right">
+                            <a href="{{ path('kpi_employee_board_preview',{'id':board.id,'mode':'print'}) }}" target="_blank" class="btn yellow-bg white-font"><i class="fa fa-print"></i> Print</a>
+                        </div>
                     </div>
                     <style>
                         .list-unstyled li {
