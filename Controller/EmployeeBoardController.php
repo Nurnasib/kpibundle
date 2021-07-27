@@ -433,7 +433,7 @@ class EmployeeBoardController extends AbstractController
 
             ]);
 
-            $fileName = $request->get('_route') . '_' . $entity->getEmployee()->getName() . '_' . $entity->getMonth() . '_' . $entity->getYear() . '_' . time() . '.xls';
+            $fileName = $request->get('_route') . '_' . $entity->getEmployee()->getName() . '_' . $entity->getMonth() . '_' . $entity->getYear() . '_' . time() . '.xlsx';
 
 
             header("Content-Type: application/vnd.ms-excel; charset=utf-8");
