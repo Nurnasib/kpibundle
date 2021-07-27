@@ -28,7 +28,6 @@ class TeamMemberSummaryFilterFormType extends AbstractType
         $user = $options['user'];
         $lineManagers = $options['lineManagers'];
 
-
         if (in_array('ROLE_ADMIN', $user->getRoles())){
 /*            $builder->add('lineManager', EntityType::class, [
                 'class' => User::class,
@@ -49,7 +48,8 @@ class TeamMemberSummaryFilterFormType extends AbstractType
                     'class' => 'select2',
                 ],
                 'placeholder' => 'Select line Manager',
-                'required' => false
+                'required' => false,
+                'data' => array_values($lineManagers)[0],
             ]);
         }else{
             $builder
@@ -84,7 +84,6 @@ class TeamMemberSummaryFilterFormType extends AbstractType
             ])
             ->add('startMonth', ChoiceType::class,[
                 'choices' => [
-                    'Select Month' => null,
                     'January' => 'January',
                     'February' => 'February',
                     'March' => 'March',
@@ -99,10 +98,12 @@ class TeamMemberSummaryFilterFormType extends AbstractType
                     'December' => 'December',
                 ],
                 'required' => false,
+                'placeholder' => 'Select a Month',
+                'data' => date('F'),
+
             ])
             ->add('endMonth', ChoiceType::class,[
                 'choices' => [
-                    'Select Month' => null,
                     'January' => 'January',
                     'February' => 'February',
                     'March' => 'March',
@@ -116,12 +117,15 @@ class TeamMemberSummaryFilterFormType extends AbstractType
                     'November' => 'November',
                     'December' => 'December',
                 ],
-                'required' => false
+                'required' => false,
+                'placeholder' => 'Select a Month',
+                'data' => date('F'),
             ])
             ->add('year', ChoiceType::class,[
                 'choices' => $this->getYears(2020),
                 'required' => false,
-                'placeholder' => 'Select Year'
+                'placeholder' => 'Select Year',
+                'data' => date('Y'),
             ])
             ->setMethod('GET')
 //            ->add('Submit', SubmitType::class)
