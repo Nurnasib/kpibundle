@@ -1,0 +1,126 @@
+{% if not is_granted('ROLE_ADMIN') %}
+    <table>
+        <thead class="thead-dark">
+        <tr>
+            <th colspan="4" align="center">Summary for {{ filterBy['employee'].name|default('') }}
+                ({{ filterBy['year'] }})
+            </th>
+
+        <tr>
+            <th></th>
+        </tr>
+        </tr>
+        <tr>
+            <th>Employee ID: {{ filterBy['employee'].userId|default('') }}</th>
+            <th>Name: {{ filterBy['employee'].name|default('') }}</th>
+            <th>Designation: {{ filterBy['employee'].designation.name|default('') }}</th>
+            <th>Date of joining: {{ filterBy['employee'].joiningDate|date('d-m-Y') }}</th>
+        </tr>
+        <tr>
+            <th></th>
+        </tr>
+        </thead>
+    </table>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Month</th>
+            {% for employeeId, details in teamMemberSummary %}
+                {% if loop.first %}
+                    {% if details['activityName'] is not empty %}
+                        {% for activityName in details['activityName'] %}
+                            <th>{{ activityName|default(0) }}</th>
+                        {% endfor %}
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            <th>Mark</th>
+            <th>Grade</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if teamMemberSummary is not empty %}
+            {% for employeeId, details in teamMemberSummary %}
+                {% for month, activities in details['mark'] %}
+                    <tr>
+                        <td>{{ month }}</td>
+                        {% if details['activityName'] is not empty %}
+                            {% for activityName in details['activityName'] %}
+                                <td align="center">{{ teamMemberSummary[employeeId]['mark'][month][activityName]|default(0) }}</td>
+                            {% endfor %}
+                        {% endif %}
+                        <td align="center">{{ teamMemberSummary[employeeId]['data'][month]['obtainMark']|default(0) }}</td>
+                        <td align="center">{{ teamMemberSummary[employeeId]['data'][month]['grade']|default('') }}</td>
+
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="3" align="center">{{ 'No record has been found!' }}</td>
+            </tr>
+        {% endif %}
+        </tbody>
+        <tfoot>
+    </table>
+{% else %}
+
+    <table>
+        <thead>
+        <tr>
+            <th colspan="6" align="center">Team Member Summary</th>
+        </tr>
+        <tr>
+            <th colspan="6"
+                align="center">{{ '(' ~ filterBy.startMonth ~ ' - ' ~ filterBy.endMonth ~ ')' ~ ' - ' ~ filterBy.year }}</th>
+        </tr>
+        <tr>
+            <th>ID</th>
+            <th>Employee</th>
+            <th>Designation</th>
+            <th>Month</th>
+            {% if teamMemberSummary is not empty %}
+                {% for employeeId, details in teamMemberSummary %}
+                    {% if loop.first %}
+                        {% if details['activityName'] is not empty %}
+                            {% for activityName in details['activityName'] %}
+                                <th>{{ activityName|default(0) }}</th>
+                            {% endfor %}
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            <th>Mark</th>
+            <th>Grade</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if teamMemberSummary is not empty %}
+            {% for employeeId, details in teamMemberSummary %}
+                {% for month, activities in details['mark'] %}
+                    <tr>
+                        <td>{{ employeeId }}</td>
+                        <td>{{ details['data']['employeeName'] }}</td>
+                        <td>{{ details['data']['designation'] }}</td>
+                        <td>{{ month }}</td>
+                        {% if details['activityName'] is not empty %}
+                            {% for activityName in details['activityName'] %}
+                                <td align="center">{{ teamMemberSummary[employeeId]['mark'][month][activityName]|default(0) }}</td>
+                            {% endfor %}
+                        {% endif %}
+                        <td align="center">{{ teamMemberSummary[employeeId]['data'][month]['obtainMark']|default(0) }}</td>
+                        <td align="center">{{ teamMemberSummary[employeeId]['data'][month]['grade']|default('') }}</td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="6" align="center">{{ 'No record has been found!' }}</td>
+            </tr>
+        {% endif %}
+
+        </tbody>
+        <tfoot>
+    </table>
+{% endif %}

@@ -13,17 +13,17 @@
     </style>
 </head>
 <body>
-{% if teamMemberSummary is not empty %}
+{#{% if teamMemberSummary is not empty %}#}
     {% if not is_granted('ROLE_ADMIN') %}
         <h3 align="center">Summary for {{ filterBy['employee'].name|default('') }} ({{ filterBy['year'] }})</h3>
 
-        <table cellpadding="0" cellspacing="0" border="1" width="100%">
+        <table cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 15px">
             <thead class="thead-dark">
             <tr>
-                <th>Employee ID: {{ filterBy['employee'].userId|default('') }}</th>
-                <th>Name: {{ filterBy['employee'].name|default('') }}</th>
-                <th>Designation: {{ filterBy['employee'].designation.name|default('') }}</th>
-                <th>Date of joining: {{ filterBy['employee'].joiningDate|date('d-m-Y') }}</th>
+                <th align="left">Employee ID: {{ filterBy['employee'].userId|default('') }}</th>
+                <th align="left">Name: {{ filterBy['employee'].name|default('') }}</th>
+                <th align="left">Designation: {{ filterBy['employee'].designation.name|default('') }}</th>
+                <th align="left">Date of joining: {{ filterBy['employee'].joiningDate|date('d-m-Y') }}</th>
             </tr>
             </thead>
         </table>
@@ -45,21 +45,27 @@
             </tr>
             </thead>
             <tbody>
-            {% for employeeId, details in teamMemberSummary %}
-                {% for month, activities in details['mark'] %}
-                    <tr>
-                        <td>{{ month }}</td>
-                        {% if details['activityName'] is not empty %}
-                            {% for activityName in details['activityName'] %}
-                                <td align="center">{{ teamMemberSummary[employeeId]['mark'][month][activityName]|default(0) }}</td>
-                            {% endfor %}
-                        {% endif %}
-                        <td align="center">{{ teamMemberSummary[employeeId]['data'][month]['obtainMark']|default(0) }}</td>
-                        <td align="center">{{ teamMemberSummary[employeeId]['data'][month]['grade']|default('') }}</td>
+            {% if teamMemberSummary is not empty %}
+                {% for employeeId, details in teamMemberSummary %}
+                    {% for month, activities in details['mark'] %}
+                        <tr>
+                            <td>{{ month }}</td>
+                            {% if details['activityName'] is not empty %}
+                                {% for activityName in details['activityName'] %}
+                                    <td align="center">{{ teamMemberSummary[employeeId]['mark'][month][activityName]|default(0) }}</td>
+                                {% endfor %}
+                            {% endif %}
+                            <td align="center">{{ teamMemberSummary[employeeId]['data'][month]['obtainMark']|default(0) }}</td>
+                            <td align="center">{{ teamMemberSummary[employeeId]['data'][month]['grade']|default('') }}</td>
 
-                    </tr>
+                        </tr>
+                    {% endfor %}
                 {% endfor %}
-            {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="3" align="center">{{ 'No record has been found!' }}</td>
+                </tr>
+            {% endif %}
             </tbody>
             <tfoot>
         </table>
@@ -112,6 +118,10 @@
                                     </tr>
                                 {% endfor %}
                             {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" align="center">{{ 'No record has been found!' }}</td>
+                                </tr>
                         {% endif %}
 
                         </tbody>
@@ -122,6 +132,6 @@
         </div>
 
     {% endif %}
-{% endif %}
+{#{% endif %}#}
 </body>
 </html>

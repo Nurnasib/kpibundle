@@ -30,7 +30,16 @@ class KpiReportController extends AbstractController
     {
         $lineManagers = $userRepository->getLineManager();
         $teamMemberSummary = [];
-        $filterBy = [];
+        $filterBy = [
+            'lineManager' => array_values($lineManagers)[0],
+            'startMonth' => date('F'),
+            'endMonth' => date('F'),
+            'endMonth' => date('F'),
+            'year' => (int)date('Y'),
+        ];
+        $StartDate = @strtotime(date('F') . ' ' . (int)date('Y'));
+        $StopDate = @strtotime(date('F') . ' ' . (int)date('Y'));
+
         $user = $this->getUser();
         $filterForm = $this->createForm(TeamMemberSummaryFilterFormType::class,null , ['user' => $this->getUser(), 'lineManagers' => $lineManagers])->remove('kpiFormat');
         $filterForm->handleRequest($request);
@@ -38,77 +47,66 @@ class KpiReportController extends AbstractController
             $filterBy = $filterForm->getData();
             $StartDate = @strtotime($filterBy['startMonth'] . ' ' . $filterBy['year']);
             $StopDate = @strtotime($filterBy['endMonth'] . ' ' . $filterBy['year']);
-
             $months = $this->monthRange( $StartDate, $StopDate );
-
             $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $user);
 
-            return $this->render('@TerminalbdKpi/employeeboard/report/teamMemberSummary.html.twig', [
-                'filterBy' => $filterBy,
-                'form' => $filterForm->createView(),
-                'teamMemberSummary' => $teamMemberSummary,
-                'months' => $months,
-//            'activities' => $activities,
-            ]);
+            if ($request->query->has('pdf')){
+                
+                // Configure Dompdf according to your needs
+                $pdfOptions = new Options();
+                $pdfOptions->set('defaultFont', 'Arial');
+
+                // Instantiate Dompdf with our options
+                $dompdf = new Dompdf($pdfOptions);
+
+                // Retrieve the HTML generated in our twig file
+                $html = $this->renderView('@TerminalbdKpi/employeeboard/report/teamMemberSummary-pdf.html.twig', [
+                    'filterBy' => $filterBy,
+                    'teamMemberSummary' => $teamMemberSummary,
+                ]);
+
+                // Load HTML to Dompdf
+                $dompdf->loadHtml($html);
+
+                // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
+                $dompdf->setPaper('legal', 'landscape');
+
+                // Render the HTML as PDF
+                $dompdf->render();
+
+                // Output the generated PDF to Browser (force download)
+                $fileName = $request->get('_route') . '-' . time();
+                $dompdf->stream( $fileName .  ".pdf", [
+                    "Attachment" => false
+                ]);
+                die();
+
+            }elseif ($request->query->has('excel')){
+
+                $html = $this->renderView('@TerminalbdKpi/employeeboard/report/teamMemberSummary-excel.html.twig', [
+                    'filterBy' => $filterBy,
+                    'teamMemberSummary' => $teamMemberSummary,
+                ]);
+                $fileName = $request->get('_route').'_'.time().'.xls';
+                header("Content-Type: application/vnd.ms-excel; charset=utf-8");
+                header("Content-Disposition: attachement; filename=$fileName");
+                echo $html;
+                die();
+            }
         }
+
+        $months = $this->monthRange( $StartDate, $StopDate );
+        $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $user);
 
         return $this->render('@TerminalbdKpi/employeeboard/report/teamMemberSummary.html.twig', [
             'filterBy' => $filterBy,
             'form' => $filterForm->createView(),
-//            'teamMemberSummary' => $teamMemberSummary,
-//            'activities' => $activities,
-        ]);
-
-    }
-
-    /**
-     * @Route("/team-member-summary-pdf", name="team_member_summary_pdf")
-     */
-    public function teamMemberSummaryPdf(Request $request)
-    {
-
-        $user = $this->getUser();
-
-        $filterBy = $request->query->get('filterBy');
-        $filterBy['employee'] = $this->getDoctrine()->getRepository(User::class)->find($request->query->get('employee'));
-
-        $StartDate = @strtotime($filterBy['startMonth'] . ' ' . $filterBy['year']);
-        $StopDate = @strtotime($filterBy['endMonth'] . ' ' . $filterBy['year']);
-
-        $months = $this->monthRange( $StartDate, $StopDate );
-
-        $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $user);
-
-        // Configure Dompdf according to your needs
-        $pdfOptions = new Options();
-        $pdfOptions->set('defaultFont', 'Arial');
-
-        // Instantiate Dompdf with our options
-        $dompdf = new Dompdf($pdfOptions);
-
-        // Retrieve the HTML generated in our twig file
-        $html = $this->renderView('@TerminalbdKpi/employeeboard/report/teamMemberSummary-pdf.html.twig', [
-            'filterBy' => $filterBy,
+            'months' => $months,
             'teamMemberSummary' => $teamMemberSummary,
         ]);
 
-        // Load HTML to Dompdf
-        $dompdf->loadHtml($html);
-
-        // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
-        $dompdf->setPaper('legal', 'landscape');
-
-        // Render the HTML as PDF
-        $dompdf->render();
-
-        // Output the generated PDF to Browser (force download)
-        $fileName = $request->get('_route') . '-' . time();
-        $dompdf->stream( $fileName .  ".pdf", [
-            "Attachment" => false
-        ]);
-        die();
     }
-
+    
     /**
      * @Route("/all-team-member-summary", name="all_team_member_summary")
      */
@@ -116,30 +114,80 @@ class KpiReportController extends AbstractController
     {
         $lineManagers = $userRepository->getLineManager();
 
-        $filterBy = [];
+        $filterBy = [
+            "kpiFormat" => null,
+            "startMonth" => date('F'),
+            "endMonth" => date('F'),
+            "year" => (int)date('Y'),
+        ];
+        $StartDate = @strtotime(date('F') . ' ' . (int)date('Y'));
+        $StopDate = @strtotime(date('F') . ' ' . (int)date('Y'));
+
         $user = $this->getUser();
         $filterForm = $this->createForm(TeamMemberSummaryFilterFormType::class,null , ['user' => $this->getUser(), 'lineManagers' => $lineManagers])->remove('lineManager')->remove('employee');
         $filterForm->handleRequest($request);
         if ($filterForm->isSubmitted()){
             $filterBy = $filterForm->getData();
+
             $filterBy['kpiFormat'] = $filterBy['kpiFormat'] ? $filterBy['kpiFormat']->getId(): null;
             $StartDate = @strtotime($filterBy['startMonth'] . ' ' . $filterBy['year']);
             $StopDate = @strtotime($filterBy['endMonth'] . ' ' . $filterBy['year']);
 
             $months = $this->monthRange( $StartDate, $StopDate );
-
             $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $user);
 
-            return $this->render('@TerminalbdKpi/employeeboard/report/allTeamMemberSummary.html.twig', [
-                'filterBy' => $filterBy,
-                'form' => $filterForm->createView(),
-                'teamMemberSummary' => $teamMemberSummary,
-                'months' => $months,
-//            'activities' => $activities,
-            ]);
+            if ($request->query->has('pdf')){
+                
+                // Configure Dompdf according to your needs
+                $pdfOptions = new Options();
+                $pdfOptions->set('defaultFont', 'Arial');
+
+                // Instantiate Dompdf with our options
+                $dompdf = new Dompdf($pdfOptions);
+
+                // Retrieve the HTML generated in our twig file
+                $html = $this->renderView('@TerminalbdKpi/employeeboard/report/allTeamMemberSummary-pdf.html.twig', [
+                    'filterBy' => $filterBy,
+                    'teamMemberSummary' => $teamMemberSummary,
+                ]);
+
+                // Load HTML to Dompdf
+                $dompdf->loadHtml($html);
+
+                // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
+                $dompdf->setPaper('legal', 'landscape');
+
+                // Render the HTML as PDF
+                $dompdf->render();
+
+                // Output the generated PDF to Browser (force download)
+                $fileName = $request->get('_route') . '-' . time();
+                $dompdf->stream( $fileName .  ".pdf", [
+                    "Attachment" => false
+                ]);
+                die();
+            }elseif ($request->query->has('excel')){
+                
+                $html = $this->renderView('@TerminalbdKpi/employeeboard/report/allTeamMemberSummary-excel.html.twig', [
+                    'filterBy' => $filterBy,
+                    'teamMemberSummary' => $teamMemberSummary,
+                ]);
+                $fileName = $request->get('_route').'_'.time().'.xls';
+                header("Content-Type: application/vnd.ms-excel; charset=utf-8");
+                header("Content-Disposition: attachement; filename=$fileName");
+                echo $html;
+                die();
+
+            }
         }
+        $months = $this->monthRange( $StartDate, $StopDate );
+
+        $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $user);
         return $this->render('@TerminalbdKpi/employeeboard/report/allTeamMemberSummary.html.twig', [
+            'filterBy' => $filterBy,
             'form' => $filterForm->createView(),
+            'teamMemberSummary' => $teamMemberSummary,
+            'months' => $months,
         ]);
     }
 

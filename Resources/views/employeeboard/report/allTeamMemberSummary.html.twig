@@ -21,7 +21,7 @@
             <div class="card">
                 <div class="card-header">
                     <h5>{{ 'KPI Team Member Summary for '|trans }}: {{ app.user.name }}</h5>
-                    <div class="card-header-right">
+                    {#<div class="card-header-right">
                         {% if teamMemberSummary is defined and teamMemberSummary is not empty %}
                             <div class="btn-group btn-group-sm float-right" role="group"
                                  aria-label="Button group with nested dropdown">
@@ -30,7 +30,7 @@
                                     PDF</a>
                             </div>
                         {% endif %}
-                    </div>
+                    </div>#}
                 </div>
             </div>
         </div>
@@ -60,9 +60,20 @@
                                 </th>
 
                                 <th colspan="1">
-                                    <button type="submit" class="btn btn-primary btn-sm btn-block" title="Search"
-                                            value="Search" style="margin-top: 25px"><i class="fa fa-search"
-                                                                                       aria-hidden="true"></i></button>
+                                    <div class="btn-group">
+                                        <button type="submit" name="search" class="btn btn-primary btn-sm"
+                                                title="Search" value="search" style="margin-top: 25px"><i
+                                                    class="fa fa-search" aria-hidden="true"></i></button>
+                                        <button type="reset" class="btn purple-bg btn-sm white-font" title="Reset" value="reset" style="margin-top: 25px"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+                                        <button type="submit" name="pdf" value="pdf" target="_blank" title="Pdf"
+                                                class="btn blue-bg btn-sm white-font" style="margin-top: 25px"><i
+                                                    class="fa fa-file-pdf"></i> PDF
+                                        </button>
+                                        <button type="submit" name="excel" value="excel" target="_blank" title="Excel"
+                                                class="btn green-bg white-font btn-sm" style="margin-top: 25px"><i
+                                                    class="fa fa-file-excel"></i> Excel
+                                        </button>
+                                    </div>
                                 </th>
                             </tr>
                             </thead>
