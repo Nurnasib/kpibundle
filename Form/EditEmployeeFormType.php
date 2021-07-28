@@ -90,6 +90,18 @@ class EditEmployeeFormType extends AbstractType
                 'required' => false,
 
             ])
+            ->add('lastPromotionDate', TextType::class, [
+                'attr' => ['autofocus' => true,'class'=>'datePicker col-md-6', 'placeholder' => 'Last Promotion Date', 'autocomplete' => 'off'],
+                'required' => false,
+
+            ])
+
+
+            ->add('resignDate', TextType::class, [
+                'attr' => ['autofocus' => true,'class'=>'datePicker col-md-6', 'placeholder' => 'Resign Date', 'autocomplete' => 'off'],
+                'required' => false,
+
+            ])
 
 
             ->add('userId', TextType::class, [

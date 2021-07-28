@@ -78,7 +78,7 @@ class EmployeeFormType extends AbstractType
 
 
             ->add('joiningDate', TextType::class, [
-                'attr' => ['autofocus' => true,'class'=>'datePicker col-md-6', 'placeholder' => 'Joining date'],
+                'attr' => ['autofocus' => true,'class'=>'datePicker col-md-6', 'placeholder' => 'Joining date', 'autocomplete' => 'off'],
                 'required' => false,
 
             ])

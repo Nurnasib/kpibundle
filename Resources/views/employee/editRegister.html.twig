@@ -271,6 +271,26 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        {{ form_label(form.resignDate, 'Resign Date', {'label_attr': {'class': 'col-md-4'}}) }}
+                                                        <div class="col-md-8">
+                                                            {{ form_widget(form.resignDate) }}
+                                                            {{ form_errors(form.resignDate) }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        {{ form_label(form.lastPromotionDate, 'Promotion Date', {'label_attr': {'class': 'col-md-4'}}) }}
+                                                        <div class="col-md-8">
+                                                            {{ form_widget(form.lastPromotionDate) }}
+                                                            {{ form_errors(form.lastPromotionDate) }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
                                         </div>
                                         <div class="clearfix"></div>
