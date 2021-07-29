@@ -77,7 +77,7 @@ class KpiReportController extends AbstractController
                 // Output the generated PDF to Browser (force download)
                 $fileName = $request->get('_route') . '-' . time();
                 $dompdf->stream( $fileName .  ".pdf", [
-                    "Attachment" => false
+                    "Attachment" => true
                 ]);
                 die();
 
@@ -163,7 +163,7 @@ class KpiReportController extends AbstractController
                 // Output the generated PDF to Browser (force download)
                 $fileName = $request->get('_route') . '-' . time();
                 $dompdf->stream( $fileName .  ".pdf", [
-                    "Attachment" => false
+                    "Attachment" => true
                 ]);
                 die();
             }elseif ($request->query->has('excel')){
@@ -190,51 +190,7 @@ class KpiReportController extends AbstractController
             'months' => $months,
         ]);
     }
-
-    /**
-     * @Route("/all-team-member-summary-pdf", name="all_team_member_summary_pdf")
-     */
-    public function allTeamMemberSummaryPdf(Request $request)
-    {
-        $filterBy = $request->query->get('filterBy');
-        $StartDate = @strtotime($filterBy['startMonth'] . ' ' . $filterBy['year']);
-        $StopDate = @strtotime($filterBy['endMonth'] . ' ' . $filterBy['year']);
-
-        $user = $this->getUser();
-        $months = $this->monthRange( $StartDate, $StopDate );
-        $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $user);
-
-        // Configure Dompdf according to your needs
-        $pdfOptions = new Options();
-        $pdfOptions->set('defaultFont', 'Arial');
-
-        // Instantiate Dompdf with our options
-        $dompdf = new Dompdf($pdfOptions);
-
-        // Retrieve the HTML generated in our twig file
-        $html = $this->renderView('@TerminalbdKpi/employeeboard/report/allTeamMemberSummary-pdf.html.twig', [
-            'filterBy' => $filterBy,
-            'teamMemberSummary' => $teamMemberSummary,
-        ]);
-
-        // Load HTML to Dompdf
-        $dompdf->loadHtml($html);
-
-        // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
-        $dompdf->setPaper('legal', 'landscape');
-
-        // Render the HTML as PDF
-        $dompdf->render();
-
-        // Output the generated PDF to Browser (force download)
-        $fileName = $request->get('_route') . '-' . time();
-        $dompdf->stream( $fileName .  ".pdf", [
-            "Attachment" => false
-        ]);
-        die();
-    }
-
-
+    
     /**
      * Gets list of months between two dates
      * @param  int $start Unix timestamp
