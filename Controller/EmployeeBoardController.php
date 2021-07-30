@@ -71,8 +71,6 @@ class EmployeeBoardController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted()){
             $filterBy = $form->getData();
-            $var = count(array_keys($filterBy, null)) == count($filterBy);
-            dump($filterBy, $var);
             if (count(array_keys($filterBy, null)) == count($filterBy)){
                 $entities = [];
             }else{
