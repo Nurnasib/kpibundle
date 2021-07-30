@@ -71,8 +71,13 @@ class EmployeeBoardController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted()){
             $filterBy = $form->getData();
-            $entities = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getEmployeeBoardListFilterBy($user, $filterBy);
-
+            $var = count(array_keys($filterBy, null)) == count($filterBy);
+            dump($filterBy, $var);
+            if (count(array_keys($filterBy, null)) == count($filterBy)){
+                $entities = [];
+            }else{
+                $entities = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getEmployeeBoardListFilterBy($user, $filterBy);
+            }
         }
         $data = $this->paginate($request, $entities);
         return $this->render('@TerminalbdKpi/employeeboard/index.html.twig',[
