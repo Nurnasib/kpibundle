@@ -28,11 +28,10 @@ class EmployeeBoardRepository extends EntityRepository
 
     public function getEmployeeBoardList(User $user)
     {
+        $userGroup = $user->getUserGroup()->getSlug();
 
-//        $area  = $user->getArea();
         $userRoles = $user->getRoles();
         $qb = $this->createQueryBuilder('s');
-//        $qb->join('s.employeeSetup','e');
         $qb->join('s.employee','u');
         $qb->leftJoin('u.lineManager','lm');
         $qb->leftJoin('u.designation','d');
@@ -45,24 +44,58 @@ class EmployeeBoardRepository extends EntityRepository
         $qb->addSelect('createdBy.name AS createdByName');
         $qb->addSelect('approvedBy.name AS approvedByName');
         $qb->addSelect('reportMode.name AS reportFormat');
-/*        if($area == "Zonal"){
-            $zonal = $user->getZonal()->getId();
-            $qb->where('u.zonal = :zonal')->setParameter('zonal',$zonal);
-            $qb->andWhere("u.area= 'regional'");
-            $qb->andWhere("u.id != {$user->getId()}");
-        }elseif($area == "Regional") {
-            $regional = $user->getRegional()->getId();
-            $qb->where('u.regional = :regional')->setParameter('regional', $regional);
-            $qb->andWhere("u.area = 'upozila'");
-            $qb->andWhere("u.id != {$user->getId()}");
-        }*/
 
-        if(!in_array('ROLE_ADMIN', $userRoles)){
+        if ($userGroup != 'administrator'){
             $qb->where('s.createdBy = :user')->setParameter('user', $user);
         }
         $qb->orderBy('s.created','DESC');
         $result = $qb->getQuery()->getArrayResult();
         return $result;
+
+    }
+
+    public function getEmployeeBoardListFilterBy(User $user, $filterBy)
+    {
+        $userGroup = $user->getUserGroup()->getSlug();
+
+        $qb = $this->createQueryBuilder('s');
+        $qb->join('s.employee','u');
+        $qb->leftJoin('u.lineManager','lm');
+        $qb->leftJoin('u.designation','d');
+        $qb->leftJoin('s.createdBy', 'createdBy');
+        $qb->leftJoin('s.approvedBy', 'approvedBy');
+        $qb->leftJoin('u.reportMode', 'reportMode');
+        $qb->select('s.id as id','s.month as month','s.year as year','s.status','s.created');
+        $qb->addSelect('u.name as name','d.name as designation');
+        $qb->addSelect('lm.name as lineManager');
+        $qb->addSelect('createdBy.name AS createdByName');
+        $qb->addSelect('approvedBy.name AS approvedByName');
+        $qb->addSelect('reportMode.name AS reportFormat');
+
+        if ($filterBy['employee']){
+            $qb->andWhere('u.id = :employeeId')->setParameter('employeeId', $filterBy['employee']->getId());
+        }
+        if ($filterBy['designation']){
+            $qb->andWhere('d.id = :designationId')->setParameter('designationId', $filterBy['designation']->getId());
+        }
+        if ($filterBy['kpiFormat']){
+            $qb->andWhere('reportMode.id = :reportModeId')->setParameter('reportModeId', $filterBy['kpiFormat']->getId());
+        }
+        if ($filterBy['lineManager']){
+            $qb->andWhere('lm.id = :lineManagerId')->setParameter('lineManagerId', $filterBy['lineManager']);
+        }
+        if ($filterBy['month']){
+            $qb->andWhere('s.month = :month')->setParameter('month', $filterBy['month']);
+        }
+        if ($filterBy['year']){
+            $qb->andWhere('s.year = :year')->setParameter('year', $filterBy['year']);
+        }
+        if (in_array('createdBy', $filterBy) && isset($filterBy['createdBy'])){
+            $qb->andWhere('createdBy.id = :createdById')->setParameter('createdById', $filterBy['createdBy']);
+        }
+
+        $qb->orderBy('s.created','DESC');
+        return $qb->getQuery()->getArrayResult();
 
     }
 

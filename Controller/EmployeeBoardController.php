@@ -38,6 +38,7 @@ use Terminalbd\KpiBundle\Entity\EmployeeSetup;
 use Terminalbd\KpiBundle\Entity\MarkChart;
 use Terminalbd\KpiBundle\Entity\SetupMatrix;
 use Terminalbd\KpiBundle\Form\EmployeeBoardFormType;
+use Terminalbd\KpiBundle\Form\KpiBoardSearchFilterFormType;
 
 
 /**
@@ -46,14 +47,38 @@ use Terminalbd\KpiBundle\Form\EmployeeBoardFormType;
  */
 class EmployeeBoardController extends AbstractController
 {
+    private function paginate(Request $request ,$entities)
+    {
+        $paginator  = $this->get('knp_paginator');
+        $pagination = $paginator->paginate(
+            $entities,
+            $request->query->get('page', 1)/*page number*/,
+            25  /*limit per page*/
+        );
+        return $pagination;
+    }
+    
     /**
      * @Route("/", methods={"GET"}, name="kpi_employee_board", options={"expose"=true})
      */
-    public function index(Request $request): Response
+    public function index(Request $request, UserRepository $userRepository): Response
     {
+        $lineManagers = $userRepository->getLineManager();
         $user = $this->getUser();
         $entities = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getEmployeeBoardList($user);
-        return $this->render('@TerminalbdKpi/employeeboard/index.html.twig',['entities' => $entities]);
+
+        $form = $this->createForm(KpiBoardSearchFilterFormType::class,null, ['user' => $user, 'lineManagers' => $lineManagers]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted()){
+            $filterBy = $form->getData();
+            $entities = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getEmployeeBoardListFilterBy($user, $filterBy);
+
+        }
+        $data = $this->paginate($request, $entities);
+        return $this->render('@TerminalbdKpi/employeeboard/index.html.twig',[
+            'entities' => $data,
+            'form' => $form->createView(),
+        ]);
     }
 
     /**

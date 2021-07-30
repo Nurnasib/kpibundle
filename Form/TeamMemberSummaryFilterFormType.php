@@ -29,19 +29,6 @@ class TeamMemberSummaryFilterFormType extends AbstractType
         $lineManagers = $options['lineManagers'];
 
         if (in_array('ROLE_ADMIN', $user->getRoles())){
-/*            $builder->add('lineManager', EntityType::class, [
-                'class' => User::class,
-                'choice_label' => 'lineManager.name',
-                'placeholder' => 'Select Line Manager',
-                'query_builder' => function(EntityRepository $repository){
-                return $repository->createQueryBuilder('e')
-                    ->join('e.lineManager', 'lineManager')
-                    ->groupBy('lineManager.id');
-                },
-                'attr' => [
-                    'class' => 'select2'
-                ]
-            ]);*/
             $builder->add('lineManager', ChoiceType::class,[
                 'choices' => $lineManagers,
                 'attr' => [

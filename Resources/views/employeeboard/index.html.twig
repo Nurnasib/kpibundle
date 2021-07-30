@@ -30,8 +30,63 @@
         </div>
         <div class="row">
             <div class="card">
+                <div class="card-body">
+                    <div class="col-md-12">
+                        {{ form_start(form) }}
+                            <table class="table table-bordered ">
+                                <thead class="thead-dark">
+                                <tr role="row" class="filter">
+                                    <th colspan="2">
+                                        {{ form_label(form.employee, 'Employee') }}
+                                        {{ form_widget(form.employee) }}
+                                    </th>
+                                    <th colspan="2">
+                                        {{ form_label(form.designation) }}
+                                        {{ form_widget(form.designation) }}
+                                    </th>
+                                    <th colspan="2">
+                                        {{ form_label(form.kpiFormat, "Format") }}
+                                        {{ form_widget(form.kpiFormat) }}
+                                    </th>
+                                    <th colspan="2">
+                                        {{ form_label(form.lineManager) }}
+                                        {{ form_widget(form.lineManager) }}
+                                    </th>
+                                    <th colspan="2">
+                                        {{ form_label(form.month) }}
+                                        {{ form_widget(form.month) }}
+                                    </th>
+                                    <th colspan="2">
+                                        {{ form_label(form.year) }}
+                                        {{ form_widget(form.year) }}
+                                    </th>
+                                    {% if app.user.userGroup.slug == 'administrator' %}
+                                        <th colspan="2">
+                                            {{ form_label(form.createdBy) }}
+                                            {{ form_widget(form.createdBy) }}
+                                        </th>
+                                    {% endif %}
+
+                                    <th colspan="1">
+                                        <div class="btn-group" style="margin-top: 25px">
+                                            <button type="submit" name="search" class="btn btn-primary btn-sm"
+                                                    title="Search" value="search"><i
+                                                        class="fa fa-search" aria-hidden="true"></i></button>
+                                            <button type="reset" class="btn purple-bg btn-sm white-font" title="Reset" value="reset"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+                                        </div>
+                                    </th>
+                                </tr>
+                                </thead>
+                            </table>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card">
                 <div class="card-block">
-                    <table class="table table-striped table-bordered table-hover" id="datatable">
+                    <table class="table table-striped table-bordered table-hover">
                         <thead class="thead-dark">
                         <tr>
                             <th scope="col">{{ 'S/N'|trans }}</th>
@@ -49,52 +104,74 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for entity  in entities %}
-                            <tr>
-                                <td>{{ loop.index }}</td>
-                                <td>{{ entity.created|date('d-m-Y')|default('') }}</td>
-                                <td>{{ entity.name|default('') }}</td>
-                                <td>{{ entity.designation|default('') }}</td>
-                                <td>{{ entity.reportFormat|default('') }}</td>
-                                <td>{{ entity.lineManager|default('') }}</td>
-                                <td>{{ entity.month|default('') }}</td>
-                                <td>{{ entity.year|default('') }}</td>
-                                <td>{{ entity.createdByName|default('') }}</td>
-                                <td>{{ entity.approvedByName == null ? 'No': 'Yes' }}</td>
-                                <td>{{ entity.approvedByName|default('') }}</td>
-                                <td align="right">
-                                    <div class="btn-group">
-                                        {% if not is_granted("ROLE_ADMIN") %}
-                                            {% if entity.approvedByName is null %}
-                                                <a class="btn btn-mini yellow-bg white-font" href="{{ path('kpi_employee_board_edit',{'id':entity.id}) }}"><i class="feather icon-edit"></i> Edit</a>
-                                                <a class="btn btn-transparent btn-mini red-font remove" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i></a>
-                                            {% endif %}
+                        {% if entities is defined and entities is not empty %}
+                            {% for entity  in entities %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ entity.created|date('d-m-Y')|default('') }}</td>
+                                    <td>{{ entity.name|default('') }}</td>
+                                    <td>{{ entity.designation|default('') }}</td>
+                                    <td>{{ entity.reportFormat|default('') }}</td>
+                                    <td>{{ entity.lineManager|default('') }}</td>
+                                    <td>{{ entity.month|default('') }}</td>
+                                    <td>{{ entity.year|default('') }}</td>
+                                    <td>{{ entity.createdByName|default('') }}</td>
+                                    <td>{{ entity.approvedByName == null ? 'No': 'Yes' }}</td>
+                                    <td>{{ entity.approvedByName|default('') }}</td>
+                                    <td align="right">
+                                        <div class="btn-group">
+                                            {% if not is_granted("ROLE_ADMIN") %}
+                                                {% if entity.approvedByName is null %}
+                                                    <a class="btn btn-mini yellow-bg white-font" href="{{ path('kpi_employee_board_edit',{'id':entity.id}) }}"><i class="feather icon-edit"></i> Edit</a>
+                                                    <a class="btn btn-transparent btn-mini red-font remove" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i></a>
+                                                {% endif %}
 
                                             {% else %}
                                                 {% if entity.approvedByName is null %}
                                                     <a class="btn btn-mini yellow-bg white-font" href="{{ path('kpi_employee_board_edit',{'id':entity.id}) }}"><i class="feather icon-edit"></i> Edit</a>
                                                 {% endif %}
                                                 <a class="btn btn-transparent btn-mini red-font remove" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i></a>
-                                        {% endif %}
+                                            {% endif %}
 
-                                        <a class="btn btn-mini btn-info" href="{{ path('kpi_details_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Details</a>
-                                        <a class="btn btn-mini blue-bg white-font" href="{{ path('kpi_report_sales_achivement',{'id':entity.id}) }}"><i class="feather icon-file"></i> Achive</a>
-                                        <a class="btn btn-mini purple-bg white-font" href="{{ path('kpi_summary_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Summary</a>
+                                            <a class="btn btn-mini btn-info" href="{{ path('kpi_details_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Details</a>
+                                            <a class="btn btn-mini blue-bg white-font" href="{{ path('kpi_report_sales_achivement',{'id':entity.id}) }}"><i class="feather icon-file"></i> Achive</a>
+                                            <a class="btn btn-mini purple-bg white-font" href="{{ path('kpi_summary_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Summary</a>
 
-                                    </div>
-                                </td>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td class="text-center" colspan="12">{{ 'No record has been found!'|trans }}</td>
                             </tr>
-                        {% endfor %}
+                        {% endif %}
                         </tbody>
                     </table>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="count">
+                                Total Records: {{ entities.getTotalItemCount }}
+                            </div>
+                        </div>
+                        <div class="col-md-9 navigation" style="padding-right: 0;">
+                            {{ knp_pagination_render(entities) }}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
         <!-- [ Main Content ] end -->
     </div>
 {% endblock %}
 {% block cssBlock %}
     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+    <style>
+        .pagination{
+            float: right;
+        }
+    </style>
 {% endblock  %}
 {% block javascripts %}
     {{ parent() }}
@@ -102,11 +179,4 @@
 {% endblock  %}
 {% block documentready %}
     {{ parent() }}
-    $('#datatable').DataTable( {
-    "pageLength": 25,
-    'columnDefs': [ {
-    'targets': -1,
-    'orderable': false
-    }]
-    });
 {% endblock %}
