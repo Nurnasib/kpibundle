@@ -24,8 +24,6 @@
                         <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
                             <a href="{{ path('kpi_board_new') }}" class="btn btn-sm  green-bg white-font"><i class="fas fa-plus"></i>{{ 'Add New'|trans }}</a>
                             <a href="{{ path('kpi_employee_board') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>{{ 'KPI Board'|trans }}</a>
-                            <a href="{{ path('kpi_employee_board_preview',{'id':board.id,'mode':'print'}) }}" class="btn btn-sm yellow-bg white-font"><i class="fa fa-print"></i></a>
-                            {#<a href="{{ path('kpi_employee_board_preview',{'id':board.id,'mode':'print'}) }}" class="btn btn-sm purple-bg white-font"><i class="fa fa-download"></i></a>#}
                         </div>
                     </div>
                 </div>
@@ -36,8 +34,10 @@
                 <div class="portlet box green ">
                     <div class="portlet-title">
                         <div class="caption">{{ 'Manage KPI Element'|trans }} </div>
-                        <a type="button" href="{{ path('kpi_approve',{'id':board.id}) }}" id="statusUpdate" name="statusUpdate" class="btn blue-bg text-white float-right statusUpdate" >Approved</a>
-
+                        <div class="btn-group float-right">
+                            <a href="{{ path('kpi_approve',{'id':board.id}) }}" id="statusUpdate" name="statusUpdate" class="btn blue-bg text-white" >Approved</a>
+                            <a href="{{ path('kpi_employee_board_preview',{'id':board.id,'mode':'print'}) }}" class="btn yellow-bg white-font"><i class="fa fa-print"></i> Print</a>
+                        </div>
                     </div>
                     <div class="portlet-body form">
                         {# New format #}
@@ -63,16 +63,16 @@
                             <tr>
                                 <th>
                                     <ul class="header-info">
-                                        <li>Name of the Employee:{{ board.employee.name }}</li>
-                                        <li>Date of Joining:{% if board.employee is not empty %}{{ board.employee.joiningDate|date('d-m-Y') }}{% endif %}</li>
-                                        <li>Line Manager:{% if board.employee.lineManager is not empty %}{{ board.employee.lineManager.name }}{% endif %}</li>
-                                        <li>ZONE:{% if board.employee.zonal is not empty %}{{ board.employee.zonal.name }}{% endif %}</li>
+                                        <li>Name of the Employee: {{ board.employee.name }}</li>
+                                        <li>Date of Joining: {% if board.employee is not empty %}{{ board.employee.joiningDate|date('d-m-Y') }}{% endif %}</li>
+                                        <li>Line Manager: {% if board.employee.lineManager is not empty %}{{ board.employee.lineManager.name }}{% endif %}</li>
+                                        <li>ZONE: {% if board.employee.zonal is not empty %}{{ board.employee.zonal.name }}{% endif %}</li>
                                     </ul>
                                 </th>
                                 <th>
                                     <ul class="header-info">
-                                        <li>Emp ID:{% if board.employee is not empty %}{{ board.employee.userId }}{% endif %}</li>
-                                        <li>Designation:{% if board.employee.designation is not empty %}{{ board.employee.designation.name }}{% endif %}</li>
+                                        <li>Emp ID: {% if board.employee is not empty %}{{ board.employee.userId }}{% endif %}</li>
+                                        <li>Designation: {% if board.employee.designation is not empty %}{{ board.employee.designation.name }}{% endif %}</li>
                                     </ul>
                                 </th>
                             </tr>
