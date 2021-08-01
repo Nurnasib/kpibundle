@@ -56,6 +56,7 @@ class EmployeeBoardRepository extends EntityRepository
 
     public function getEmployeeBoardListFilterBy(User $user, $filterBy)
     {
+        $userGroup = $user->getUserGroup()->getSlug();
 
         $qb = $this->createQueryBuilder('s');
         $qb->join('s.employee','u');
@@ -92,7 +93,9 @@ class EmployeeBoardRepository extends EntityRepository
         if (array_key_exists('createdBy', $filterBy) && isset($filterBy['createdBy'])){
             $qb->andWhere('createdBy.id = :createdById')->setParameter('createdById', $filterBy['createdBy']);
         }
-
+        if ($userGroup != 'administrator'){
+            $qb->andWhere('s.createdBy = :user')->setParameter('user', $user);
+        }
         $qb->orderBy('s.created','DESC');
         return $qb->getQuery()->getArrayResult();
 
