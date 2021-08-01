@@ -22,6 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Terminalbd\KpiBundle\Entity\Setting;
 use Terminalbd\KpiBundle\Form\SettingFormType;
+use Terminalbd\KpiBundle\Form\SettingSearchFilterFormType;
 
 /**
  * @Route("/kpi/setting")
@@ -29,14 +30,41 @@ use Terminalbd\KpiBundle\Form\SettingFormType;
  */
 class SettingController extends AbstractController
 {
+    private function paginate(Request $request ,$entities)
+    {
+        $paginator  = $this->get('knp_paginator');
+        $pagination = $paginator->paginate(
+            $entities,
+            $request->query->get('page', 1)/*page number*/,
+            25  /*limit per page*/
+        );
+        return $pagination;
+    }
+    
     /**
      * @Route("/", methods={"GET"}, name="kpi_setting")
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
      */
     public function index(Request $request): Response
     {
-        $entitys = $this->getDoctrine()->getRepository(Setting::class)->findAll();
-        return $this->render('@TerminalbdKpi/setting/index.html.twig',['entities' => $entitys]);
+        $entities = $this->getDoctrine()->getRepository(Setting::class)->findAll();
+
+        $form = $this->createForm(SettingSearchFilterFormType::class);
+        $form->handleRequest($request);
+        if ($form->isSubmitted()){
+            $filterBy = $form->getData();
+            if (count(array_keys($filterBy, null)) == count($filterBy)){
+                $entities = [];
+            }else{
+                $entities = $this->getDoctrine()->getRepository(Setting::class)->getSearchedSetting($filterBy);
+            }
+
+        }
+        $data = $this->paginate($request, $entities);
+        return $this->render('@TerminalbdKpi/setting/index.html.twig',[
+            'entities' => $data,
+            'form' => $form->createView(),
+        ]);
     }
 
     /**

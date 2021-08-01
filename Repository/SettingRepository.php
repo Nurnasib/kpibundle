@@ -35,4 +35,19 @@ class SettingRepository extends EntityRepository
         return $result;
     }
 
+    public function getSearchedSetting($filterBy)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->leftJoin('e.settingType', 'settingType');
+        $qb->select('e');
+        if (isset($filterBy['name'])){
+            $qb->andWhere('e.id = :settingId')->setParameter('settingId', $filterBy['name']->getId());
+        }
+        if (isset($filterBy['type'])){
+            $qb->andWhere('settingType.id = :settingTypeId')->setParameter('settingTypeId', $filterBy['type']->getId());
+        }
+        
+        return $qb->getQuery()->getResult();
+    }
+
 }
