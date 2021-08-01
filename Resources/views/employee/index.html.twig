@@ -68,7 +68,7 @@
                                         <button type="submit" name="search" class="btn btn-primary btn-sm"
                                                 title="Search" value="search"><i
                                                     class="fa fa-search" aria-hidden="true"></i></button>
-                                        <a href="{{ path('kpi_employee') }}" type="reset" class="btn purple-bg btn-sm white-font" title="Reset"
+                                        <a href="{{ path('kpi_employee') }}" class="btn purple-bg btn-sm white-font" title="Reset"
                                                 value="reset"><i class="fa fa-refresh" aria-hidden="true"></i></a>
                                     </div>
                                 </th>
@@ -230,14 +230,6 @@
     <link rel="stylesheet" href="{{ asset('assets/plugins/bootstrap-editable/css/bootstrap-editable.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
     <style>
-        #employeeSearchForm table thead tr th {
-            height: 39px;
-        }
-
-        #employeeSearchForm table thead tr th input, #employeeSearchForm table thead tr th button {
-            height: 100%;
-        }
-
         .pagination {
             float: right;
         }

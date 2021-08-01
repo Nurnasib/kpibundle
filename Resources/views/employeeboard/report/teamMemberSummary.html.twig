@@ -21,23 +21,6 @@
             <div class="card">
                 <div class="card-header">
                     <h5>{{ 'KPI Team Member Summary for '|trans }}: {{ app.user.name }}</h5>
-                    {# <div class="card-header-right">
-                         {% if teamMemberSummary is defined and teamMemberSummary is not empty %}
-                             <div class="btn-group btn-group-sm float-right" role="group"
-                                  aria-label="Button group with nested dropdown">
-                                 {% set employee = '' %}
-                                 {% set lineManager = '' %}
-                                 {% if filterBy['employee'] is defined %}
-                                     {% set employee = filterBy['employee'].id %}
-                                 {% elseif filterBy['lineManager'] is defined %}
-                                     {% set lineManager = filterBy['lineManager'] %}
-                                 {% endif %}
-                                 <a href="{{ path('team_member_summary_pdf', {filterBy: filterBy, employee: employee, lineManager: lineManager }) }}"
-                                    target="_blank" class="btn blue-bg white-font btn-sm"><i class="fa fa-file-pdf"></i>
-                                     PDF</a>
-                             </div>
-                         {% endif %}
-                     </div>#}
                 </div>
             </div>
         </div>
@@ -67,10 +50,6 @@
                                     {{ form_label(form.endMonth, 'End Month') }}
                                     {{ form_widget(form.endMonth) }}
                                 </th>
-                                {#                                        <th colspan="2">
-                                                                            {{ form_label(form.kpiFormat, 'KPI Format') }}
-                                                                            {{ form_widget(form.kpiFormat) }}
-                                                                        </th>#}
                                 <th colspan="2">
                                     {{ form_label(form.year) }}
                                     {{ form_widget(form.year) }}
@@ -81,7 +60,7 @@
                                         <button type="submit" name="search" class="btn btn-primary btn-sm"
                                                 title="Search" value="search"><i
                                                     class="fa fa-search" aria-hidden="true"></i></button>
-                                        <button type="reset" class="btn purple-bg btn-sm white-font" title="Reset" value="reset"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+                                        <a href="{{ path('team_member_summary') }}" class="btn purple-bg btn-sm white-font" title="Reset" value="reset"><i class="fa fa-refresh" aria-hidden="true"></i></a>
                                         <button type="submit" name="pdf" value="pdf" target="_blank" title="Pdf"
                                                 class="btn blue-bg btn-sm white-font"><i
                                                     class="fa fa-file-pdf"></i> PDF

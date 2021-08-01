@@ -33,7 +33,10 @@ class AgentSearchFilterFormType extends AbstractType
         $builder
             ->add('agentName', EntityType::class,[
                 'class' => Agent::class,
-                'choice_label' => 'name',
+                'choice_label' => function($agent){
+                $agent = '(' . $agent->getAgentId() . ') ' . $agent->getName();
+                return $agent;
+                },
                 'query_builder' => function(EntityRepository $repository){
                 return $repository->createQueryBuilder('e')
                     ->orderBy('e.name', 'ASC');
