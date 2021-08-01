@@ -49,26 +49,31 @@ class EmployeeController extends AbstractController
     }
 
     /**
-     * @Route("/list/{filter}", defaults={"filter" = null}, methods={"GET"}, name="kpi_employee")
+     * @Route("/list", methods={"GET"}, name="kpi_employee")
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_CRM')")
      */
-    public function index(Request $request, $filter): Response
+    public function index(Request $request, UserRepository $userRepository): Response
     {
+        $lineManagers = $userRepository->getLineManager();
+        $user = $this->getUser();
+
         $entities = $this->getDoctrine()->getRepository(User::class)->findBy(['userMode' => 'KPI']);
 
-        $searchForm = $this->createForm(EmployeeFilterFormType::class);
+        $searchForm = $this->createForm(EmployeeFilterFormType::class,null, ['lineManagers' => $lineManagers]);
+
         $searchForm->handleRequest($request);
-        if ($filter !== null){
-            $entities = $this->getDoctrine()->getRepository(User::class)->getFilteredEmployee($filter);
-        }
         if ($searchForm->isSubmitted()){
             $filterBy = $searchForm->getData();
-            $entities = $this->getDoctrine()->getRepository(User::class)->getSearchedEmployee($filterBy);
+            if (count(array_keys($filterBy, null)) == count($filterBy)){
+                $entities = [];
+            } else{
+                $entities = $this->getDoctrine()->getRepository(User::class)->getSearchedEmployee($filterBy);
+            }
         }
         $data = $this->paginate($request, $entities);
         return $this->render('@TerminalbdKpi/employee/index.html.twig',[
             'entities' => $data,
-            'searchForm' => $searchForm->createView()
+            'form' => $searchForm->createView()
         ]);
     }
 

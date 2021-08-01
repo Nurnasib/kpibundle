@@ -50,7 +50,10 @@ class KpiBoardSearchFilterFormType extends AbstractType
         $builder
             ->add('employee', EntityType::class, [
                 'class' => User::class,
-                'choice_label' => 'name',
+                'choice_label' => function($user){
+                    $employee = '( ' . $user->getUserId() . ' ) ' . $user->getName();
+                    return $employee;
+                },
                 'query_builder' => function (EntityRepository $er) use ($userId, $userGroup) {
                     if($userGroup=='administrator'){
                         return $er->createQueryBuilder('e')
