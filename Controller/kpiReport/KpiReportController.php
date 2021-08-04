@@ -112,6 +112,7 @@ class KpiReportController extends AbstractController
      */
     public function allTeamMemberSummary(Request $request, UserRepository $userRepository)
     {
+        
         $lineManagers = $userRepository->getLineManager();
 
         $filterBy = [

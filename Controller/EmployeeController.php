@@ -17,6 +17,8 @@ use App\Entity\Core\Setting;
 use App\Entity\User;
 use App\Repository\Core\SettingRepository;
 use App\Repository\UserRepository;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -306,6 +308,49 @@ class EmployeeController extends AbstractController
         $this->getDoctrine()->getManager()->flush();
         return new JsonResponse(['status' => 200]);
 
+    }
+
+    /**
+     * @Route("/hierarchy/{mode}",defaults={"mode" = null}, name="kpi_employee_hierarchy")
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     */
+
+    public function employeeHierarchy(UserRepository $repository, $mode, Request $request)
+    {
+        $data = $repository->getEmployeeHierarchy();
+
+        if ($mode == 'pdf'){
+            // Configure Dompdf according to your needs
+            $pdfOptions = new Options();
+            $pdfOptions->set('defaultFont', 'Arial');
+
+            // Instantiate Dompdf with our options
+            $dompdf = new Dompdf($pdfOptions);
+
+            // Retrieve the HTML generated in our twig file
+            $html = $this->renderView('@TerminalbdKpi/employee/employeeHierarchy-pdf.html.twig',[
+                'data' => $data,
+            ]);
+
+            // Load HTML to Dompdf
+            $dompdf->loadHtml($html);
+
+            // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
+            $dompdf->setPaper('legal', 'landscape');
+
+            // Render the HTML as PDF
+            $dompdf->render();
+
+            // Output the generated PDF to Browser (force download)
+            $fileName = $request->get('_route') . '-' . time();
+            $dompdf->stream( $fileName .  ".pdf", [
+                "Attachment" => true
+            ]);
+            die();
+        }
+        return $this->render('@TerminalbdKpi/employee/employeeHierarchy.html.twig',[
+            'data' => $data,
+        ]);
     }
 
 }

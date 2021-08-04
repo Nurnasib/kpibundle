@@ -227,8 +227,10 @@
     </div>
 {% endblock %}
 {% block cssBlock %}
-    <link rel="stylesheet" href="{{ asset('assets/plugins/bootstrap-editable/css/bootstrap-editable.css') }}">
+
+{#    <link rel="stylesheet" href="{{ asset('assets/plugins/bootstrap-editable/css/bootstrap-editable.css') }}">#}
     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+
     <style>
         .pagination {
             float: right;
@@ -239,6 +241,10 @@
             font-size: .875rem;
             line-height: 1.5;
             border-radius: .2rem;
+        }
+        .editable-click, a.editable-click, a.editable-click:hover {
+            text-decoration: none;
+            border-bottom: dashed 1px #0088cc;
         }
     </style>
 {% endblock %}
