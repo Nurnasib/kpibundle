@@ -45,8 +45,11 @@ class AgentCategoryController extends AbstractController
         ]);
 
     }
+
     /**
      * @Route("/{id}/insert-agent-category", name="kpi_insert_agent_category")
+     * @param DocumentUpload $file
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function insertAgentCategory(DocumentUpload $file)
     {
@@ -65,7 +68,7 @@ class AgentCategoryController extends AbstractController
             $em->persist($file);
             $em->flush();*/
 
-            $this->addFlash('success', 'Data has been inserted successfully into Database!');
+            $this->addFlash('success', 'Grade has been updated successfully!');
             return $this->redirectToRoute('kpi_file_upload_index');
         }else{
             $this->addFlash('error', 'Something Wrong!');
