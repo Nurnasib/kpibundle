@@ -36,7 +36,7 @@ class ApiController extends AbstractController
         //  $errors = $response['response']['errors'];
         $data = $response;
         //$this->getDoctrine()->getRepository(Location::class)->apiInsert($data);
-        return $this->render('@TerminalbdCrm/defult/index.html.twig');
+        return $this->render('@TerminalbdCrm/default/index.html.twig');
     }
 
 
@@ -53,7 +53,7 @@ class ApiController extends AbstractController
         $get_data = $api->callAPI($method, $url, false);
         $response = json_decode($get_data, true);
         $this->getDoctrine()->getRepository(Agent::class)->apiInsert($response);
-        return $this->render('@TerminalbdCrm/defult/index.html.twig');
+        return $this->render('@TerminalbdCrm/default/index.html.twig');
     }
 
 
@@ -75,7 +75,7 @@ class ApiController extends AbstractController
         echo "<pre>";
         var_dump($data);
         exit;
-        //  return $this->render('@TerminalbdCrm/defult/index.html.twig');
+        //  return $this->render('@TerminalbdCrm/default/index.html.twig');
     }
 
     /**
@@ -92,7 +92,7 @@ class ApiController extends AbstractController
         $get_data = $api->callAPI($method, $url, false);
         $response = json_decode($get_data, true);
         $this->getDoctrine()->getRepository(LocationSalesTarget::class)->apiInsert($response);
-        //  return $this->render('@TerminalbdCrm/defult/index.html.twig');
+        //  return $this->render('@TerminalbdCrm/default/index.html.twig');
     }
 
 }

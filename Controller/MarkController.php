@@ -30,7 +30,7 @@ class MarkController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      */
     function index() {
-        return $this->render('@TerminalbdKpi/defult/index.html.twig');
+        return $this->render('@TerminalbdKpi/default/index.html.twig');
     }
 
     /**
