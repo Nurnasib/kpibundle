@@ -254,7 +254,9 @@ class FileUploadController extends AbstractController
         $fileInfo = $request->query->all();
         $file = $this->getDoctrine()->getRepository(DocumentUpload::class)->find($fileInfo['id']);
         $uploadDir = $this->get('kernel')->getProjectDir() . '/public/uploads/excel/';
-        unlink($uploadDir.$file->getFileName());
+        if (file_exists($uploadDir.$file->getFileName())){
+            unlink($uploadDir.$file->getFileName());
+        }
 
         $em = $this->getDoctrine()->getManager();
 
