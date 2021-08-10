@@ -29,6 +29,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Terminalbd\KpiBundle\Entity\EmployeeDistrictHistory;
 use Terminalbd\KpiBundle\Form\EditEmployeeFormType;
 use Terminalbd\KpiBundle\Form\EmployeeFilterFormType;
 use Terminalbd\KpiBundle\Form\EmployeeFormType;
@@ -53,6 +54,9 @@ class EmployeeController extends AbstractController
     /**
      * @Route("/list", methods={"GET"}, name="kpi_employee")
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_CRM')")
+     * @param Request $request
+     * @param UserRepository $userRepository
+     * @return Response
      */
     public function index(Request $request, UserRepository $userRepository): Response
     {
@@ -83,6 +87,8 @@ class EmployeeController extends AbstractController
     /**
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_CRM')")
      * @Route("/register", methods={"GET", "POST"}, name="kpi_employee_register")
+     * @param Request $request
+     * @return Response
      */
     public function register(Request $request): Response
     {
@@ -115,6 +121,9 @@ class EmployeeController extends AbstractController
     /**
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_CRM')")
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="kpi_employee_edit")
+     * @param Request $request
+     * @param $id
+     * @return Response
      */
     public function edit(Request $request ,$id): Response
     {
@@ -128,7 +137,26 @@ class EmployeeController extends AbstractController
         $form->handleRequest($request);
         //  $errors = $this->getErrorsFromForm($form);
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
+            $districts = $form->getData()->getDistrict();
+            $districtNameArray = [];
+            foreach ($districts as $district){
+                $districtNameArray[]= $district->getName();
+            }
+            $districtsName = implode(', ',$districtNameArray);
+
+            $history = new EmployeeDistrictHistory();
+            $date = new \DateTime('now');
+
+            $history->setEmployee($post);
+            $history->setDistrict($districtsName);
+            $history->setMonth($date->format('F'));
+            $history->setYear($date->format('Y'));
+            $history->setUpdatedBy($this->getUser());
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($history);
+            $em->flush();
+
             return $this->redirectToRoute('kpi_employee_edit',array('id'=> $post->getId()));
         }
         return $this->render('@TerminalbdKpi/employee/editRegister.html.twig', [
@@ -140,6 +168,12 @@ class EmployeeController extends AbstractController
     /**
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
      * @Route("/{id}/reset-password", methods={"GET", "POST"}, name="kpi_employee_password", options={"expose"=true})
+     * @param Request $request
+     * @param UserRepository $userRepository
+     * @param TranslatorInterface $translator
+     * @param UserPasswordEncoderInterface $passwordEncoder
+     * @param $id
+     * @return Response
      */
     public function changeUserPassword(Request $request,UserRepository $userRepository , TranslatorInterface $translator ,UserPasswordEncoderInterface $passwordEncoder,$id): Response
     {
@@ -165,10 +199,15 @@ class EmployeeController extends AbstractController
     }
 
 
-
-     /**
+    /**
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
      * @Route("/{id}/reset-inline-password", methods={"GET", "POST"}, name="kpi_employee_inline_password", options={"expose"=true})
+     * @param Request $request
+     * @param UserRepository $userRepository
+     * @param TranslatorInterface $translator
+     * @param UserPasswordEncoderInterface $passwordEncoder
+     * @param $id
+     * @return Response
      */
     public function changeInlineUserPassword(Request $request,UserRepository $userRepository , TranslatorInterface $translator ,UserPasswordEncoderInterface $passwordEncoder,$id): Response
     {
@@ -214,6 +253,8 @@ class EmployeeController extends AbstractController
     /**
      * @Route("/designation-select", name="kpi_designation_select", options={"expose"=true})
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @param SettingRepository $settingRepository
+     * @return JsonResponse
      */
 
     public function selectDesignation(SettingRepository $settingRepository)
@@ -224,6 +265,8 @@ class EmployeeController extends AbstractController
 
     /**
      * @param Request $request
+     * @param User $user
+     * @return JsonResponse
      * @Route("/designation-inline-update/{id}", name="kpi_designation_inline_update", options={"expose"=true})
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
      */
@@ -247,6 +290,8 @@ class EmployeeController extends AbstractController
     /**
      * @Route("/line-manager-select", name="kpi_line_manager_select", options={"expose"=true})
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @param UserRepository $repository
+     * @return JsonResponse
      */
 
     public function selectLineManager(UserRepository $repository)
@@ -257,6 +302,8 @@ class EmployeeController extends AbstractController
 
     /**
      * @param Request $request
+     * @param User $user
+     * @return JsonResponse
      * @Route("/line-manager-inline-update/{id}", name="kpi_line_manager_inline_update", options={"expose"=true})
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
      */
@@ -280,6 +327,8 @@ class EmployeeController extends AbstractController
     /**
      * @Route("/report-mode-select", name="kpi_report_mode_select", options={"expose"=true})
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @param SettingRepository $repository
+     * @return JsonResponse
      */
 
     public function selectReportMode(SettingRepository $repository)
@@ -290,6 +339,8 @@ class EmployeeController extends AbstractController
 
     /**
      * @param Request $request
+     * @param User $user
+     * @return JsonResponse
      * @Route("/report-mode-inline-update/{id}", name="kpi_report_mode_inline_update", options={"expose"=true})
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
      */
@@ -313,6 +364,10 @@ class EmployeeController extends AbstractController
     /**
      * @Route("/hierarchy/{mode}",defaults={"mode" = null}, name="kpi_employee_hierarchy")
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @param UserRepository $repository
+     * @param $mode
+     * @param Request $request
+     * @return Response
      */
 
     public function employeeHierarchy(UserRepository $repository, $mode, Request $request)
@@ -351,6 +406,21 @@ class EmployeeController extends AbstractController
         return $this->render('@TerminalbdKpi/employee/employeeHierarchy.html.twig',[
             'data' => $data,
         ]);
+    }
+
+    /**
+     * @Route("/{id}/details", name="kpi_employee_details", options={"expose"=true})
+     * @param User $employee
+     */
+    public function employeeDetails(User $employee)
+    {
+        $districtHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->getDistricts($employee);
+
+        $html = $this->renderView('@TerminalbdKpi/employee/employeeDetails.twig',[
+            'districtHistory' => $districtHistory,
+            'employee' => $employee,
+        ]);
+        return new JsonResponse(array('html'=>$html));
     }
 
 }

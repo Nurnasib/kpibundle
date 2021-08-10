@@ -1,0 +1,96 @@
+<style>
+/*    table.employee-info tr td:first-child{
+        width: 15%;
+    }*/
+    table.employee-info tr td{
+        border: 0 !important;
+    }
+</style>
+<div class="row">
+    <div class="col-md-12">
+        <table class="employee-info table">
+            <thead></thead>
+            <tbody>
+            <tr>
+                <td class="control-label">Name:</td>
+                <td class="control-label">{{ employee.name|default('') }}</td>
+                <td>Department: </td>
+                <td>{{ employee.department.name|default('') }}</td>
+            </tr>
+            <tr>
+                <td>ID: </td>
+                <td>{{ employee.userId|default('') }}</td>
+                <td>Format: </td>
+                <td>{{ employee.reportMode.name|default('') }}</td>
+            </tr>
+
+            <tr>
+                <td>Designation: </td>
+                <td>{{ employee.designation.name|default('') }}</td>
+                <td>Working Area: </td>
+                <td>{% for district in employee.district %}{{ district.name }}{% if not loop.last %},{% endif %} {% endfor %}</td>
+            </tr>
+
+            <tr>
+                <td>Mobile: </td>
+                <td>{{ employee.mobile|default('') }}</td>
+                <td>Address: </td>
+                <td>{{ employee.address|default('') }}</td>
+            </tr>
+            <tr>
+                <td>Email: </td>
+                <td>{{ employee.email|default('') }}</td>
+                <td>Access Roles: </td>
+                <td>
+                    {% if employee.roles is not empty %}
+                        {% for role in employee.roles %}
+                            {{ role }}
+                            {% if not loop.last %},{% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </td>
+            </tr>
+
+            <tr>
+                <td>Zonal Area: </td>
+                <td>{{ employee.zonal.name|default('') }}</td>
+                <td>Regional Area: </td>
+                <td>{{ employee.regional.name|default('') }}</td>
+            </tr>
+
+            <tr>
+                <td>Service Mode: </td>
+                <td>{{ employee.serviceMode.name|default('') }}</td>
+                <td>Line Manager: </td>
+                <td>{{ employee.lineManager.name|default('') }}</td>
+            </tr>
+            <tr>
+                <td>Joining Date: </td>
+                <td>{{ employee.joiningDate|date('d-m-Y') }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-bordered table-striped table-hover">
+            <thead class="thead-dark">
+            <tr>
+                <th>Month/Year</th>
+                <th>Districts</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if districtHistory is defined and districtHistory is not empty %}
+                {% for data in districtHistory %}
+                    <tr>
+                        <td>{{ data.month ~ ', ' ~ data.year }}</td>
+                        <td>{{ data.district }}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
