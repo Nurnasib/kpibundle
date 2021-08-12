@@ -136,7 +136,7 @@ class EmployeeController extends AbstractController
         $form->remove('phone');
         $form->handleRequest($request);
         //  $errors = $this->getErrorsFromForm($form);
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted()) {
             $districts = $form->getData()->getDistrict();
             $districtNameArray = [];
             foreach ($districts as $district){
@@ -399,7 +399,7 @@ class EmployeeController extends AbstractController
             // Output the generated PDF to Browser (force download)
             $fileName = $request->get('_route') . '-' . time();
             $dompdf->stream( $fileName .  ".pdf", [
-                "Attachment" => true
+                "Attachment" => false
             ]);
             die();
         }
@@ -422,5 +422,6 @@ class EmployeeController extends AbstractController
         ]);
         return new JsonResponse(array('html'=>$html));
     }
+
 
 }
