@@ -399,7 +399,7 @@ class EmployeeController extends AbstractController
             // Output the generated PDF to Browser (force download)
             $fileName = $request->get('_route') . '-' . time();
             $dompdf->stream( $fileName .  ".pdf", [
-                "Attachment" => false
+                "Attachment" => true
             ]);
             die();
         }
