@@ -67,7 +67,7 @@ class EditEmployeeFormType extends AbstractType
                 'class' => User::class,
                 'placeholder' => 'Choose a  line manager',
                 'choice_label' => 'name',
-                'attr'=>array('class'=>'span12 m-wrap'),
+                'attr'=>array('class'=>'span12 m-wrap select2'),
                 'query_builder' => function(EntityRepository $er){
                     return $er->createQueryBuilder('e')
                         ->where("e.enabled =1")

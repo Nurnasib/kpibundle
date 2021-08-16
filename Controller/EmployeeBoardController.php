@@ -341,9 +341,12 @@ class EmployeeBoardController extends AbstractController
         ]);
 
     }
+
     /**
      *
      * @Route("/{id}/report-summary-print", methods={"GET"}, name="kpi_summary_report_print")
+     * @param $id
+     * @return Response
      */
     public function reportSummaryPdf($id): Response
     {
@@ -369,6 +372,10 @@ class EmployeeBoardController extends AbstractController
     /**
      *
      * @Route("/{id}/report-sales-achivement/{mode}", defaults={"mode" = null}, methods={"GET"}, name="kpi_report_sales_achivement")
+     * @param EmployeeBoard $entity
+     * @param $mode
+     * @param Request $request
+     * @return Response
      */
     public function salesAchivementSummary(EmployeeBoard $entity, $mode, Request $request): Response
     {
@@ -392,8 +399,6 @@ class EmployeeBoardController extends AbstractController
         }
         $parameter = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(array('slug'=>'core-responsibilities','status'=>1));
 
-//        $attributes = $this->getDoctrine()->getRepository(MarkChart::class)->getAttributesForSummary();
-
         $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getKpiSummaryForFeedAndGrowth($entity);
         $outstanding = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getLocationWiseOutstanding($locationsId, $entity);
         $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getLocationWiseDocSales($locationsId, $entity->getYear(), $entity->getMonth());
@@ -403,9 +408,6 @@ class EmployeeBoardController extends AbstractController
         $cCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithCInDecember($entity);
         $twentyPercentGrowthAgentSalesDetails = $this->getDoctrine()->getRepository(AgentOrder::class)->getTwentyPercentGrowthAgentSalesDetails($entity, $locationsId);
 
-        $districtAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getDistrictAchievement($locationsId, $entity->getYear(), $entity->getMonth());
-        $regionalAchievement = $this->getDoctrine()->getRepository(DistrictOrder::class)->getRegionalAchievement($locationsId, $entity->getYear(), $entity->getMonth());
-        
         if ($mode == 'pdf'){
 
             // Configure Dompdf according to your needs
@@ -419,14 +421,11 @@ class EmployeeBoardController extends AbstractController
             $html = $this->renderView('@TerminalbdKpi/employeeboard/report/salesDetailsPdf.html.twig', [
                 'entity' => $entity,
                 'feedAndGrowth' => $feedAndGrowth,
-//            'attributes' => $attributes,
                 'outstanding' => $outstanding,
                 'dCategoryUpgrade' => $dCategoryUpgrade,
                 'cCategoryUpgrade' => $cCategoryUpgrade,
                 'twentyPercentGrowthAgentSalesDetails' => $twentyPercentGrowthAgentSalesDetails,
                 'docSale' => $docSale,
-                'districtAchievement' => $districtAchievement,
-                'regionalAchievement' => $regionalAchievement,
                 'individualTeamMemberMarks' => $individualTeamMemberMarks,
 
             ]);
@@ -455,8 +454,6 @@ class EmployeeBoardController extends AbstractController
                 'cCategoryUpgrade' => $cCategoryUpgrade,
                 'twentyPercentGrowthAgentSalesDetails' => $twentyPercentGrowthAgentSalesDetails,
                 'docSale' => $docSale,
-                'districtAchievement' => $districtAchievement,
-                'regionalAchievement' => $regionalAchievement,
                 'individualTeamMemberMarks' => $individualTeamMemberMarks,
 
             ]);
@@ -480,8 +477,6 @@ class EmployeeBoardController extends AbstractController
                 'cCategoryUpgrade' => $cCategoryUpgrade,
                 'twentyPercentGrowthAgentSalesDetails' => $twentyPercentGrowthAgentSalesDetails,
                 'docSale' => $docSale,
-                'districtAchievement' => $districtAchievement,
-                'regionalAchievement' => $regionalAchievement,
                 'individualTeamMemberMarks' => $individualTeamMemberMarks,
 
             ]);
@@ -492,6 +487,8 @@ class EmployeeBoardController extends AbstractController
 
     /**
      * @Route("/{id}/approve", methods={"GET"}, name="kpi_approve")
+     * @param EmployeeBoard $employeeBoard
+     * @return Response
      */
     public function approve(EmployeeBoard $employeeBoard): Response
     {
