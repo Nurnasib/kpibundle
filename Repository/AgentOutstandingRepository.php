@@ -16,6 +16,8 @@ use App\Entity\Core\Agent;
 use Doctrine\ORM\EntityRepository;
 use Terminalbd\KpiBundle\Entity\AgentOutstanding;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
+use Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute;
+use Terminalbd\KpiBundle\Entity\MarkChart;
 
 /**
  * This custom Doctrine repository contains some methods which are useful when
@@ -82,6 +84,8 @@ class AgentOutstandingRepository extends EntityRepository
 
     public function getLocationWiseOutstanding($locations, EmployeeBoard $board)
     {
+        $em = $this->_em;
+
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.district','d');
         $qb->select('SUM(e.actualAmount) AS actualAmount', 'SUM(e.limitAmount) AS limitAmount', 'SUM(e.outstanding) AS outstanding');
@@ -95,65 +99,16 @@ class AgentOutstandingRepository extends EntityRepository
         $data = [];
         foreach ($results as $result){
             $data[$result['districtName']] = [
-                'actualAmount' => $result['actualAmount'],
-                'limitAmount' => $result['limitAmount'],
-                'percentage' => $result['limitAmount']>0?($result['actualAmount']*100)/$result['limitAmount']:0,
-                'mark' => $this->outstandingLimitCalculation($result['outstanding'], $board),
+                'actualAmount' => (double)$result['actualAmount'],
+                'limitAmount' => (double)$result['limitAmount'],
+                'outstanding' => (double)$result['outstanding'],
             ];
         }
 
+        $outstandingDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'outstanding-limit-vs-actual-feed'));
+        $employeeBoardAttributeForOutStandingLimit = $em->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $outstandingDistribution]);
+        $data['mark'] = (int)$employeeBoardAttributeForOutStandingLimit->getMark();
         return $data;
-    }
-
-    private function outstandingLimitCalculation($outstandingValue, EmployeeBoard $board)
-    {
-        if($outstandingValue){
-            if ($board->getEmployee()->getReportMode()->getSlug() == 'agm-kpi'){
-                if ($outstandingValue >= 1500000) {
-                    return 0;
-                } elseif ($outstandingValue >= 1400000 && $outstandingValue < 1500000) {
-                    return 1;
-                } elseif ($outstandingValue >= 1200000 && $outstandingValue < 1400000) {
-                    return 2;
-                } elseif ($outstandingValue >= 1000000 && $outstandingValue < 1200000) {
-                    return 3;
-                } elseif ($outstandingValue > 0 && $outstandingValue < 1000000) {
-                    return 4;
-                } else{
-                    return 5;
-                }
-            }elseif ($board->getEmployee()->getReportMode()->getSlug() == 'rsm-arsm-kpi'){
-                if ($outstandingValue >= 1000000) {
-                    return 0;
-                } elseif ($outstandingValue >= 900000 && $outstandingValue < 1000000) {
-                    return 1;
-                } elseif ($outstandingValue >= 700000 && $outstandingValue < 900000) {
-                    return 2;
-                } elseif ($outstandingValue >= 500000 && $outstandingValue < 700000) {
-                    return 3;
-                } elseif ($outstandingValue > 0 && $outstandingValue < 500000) {
-                    return 4;
-                } else{
-                    return 5;
-                }
-            }else{
-                if ($outstandingValue >= 500000) {
-                    return 0;
-                } elseif ($outstandingValue >= 400000 && $outstandingValue < 500000) {
-                    return 1;
-                } elseif ($outstandingValue >= 300000 && $outstandingValue < 400000) {
-                    return 2;
-                } elseif ($outstandingValue >= 200000 && $outstandingValue < 300000) {
-                    return 3;
-                } elseif ($outstandingValue > 0 && $outstandingValue < 200000) {
-                    return 4;
-                } else{
-                    return 5;
-                }
-            }
-        }else{
-            return 0;
-        }
     }
 
     public function getMonthYearOutstanding($monthYear, $agentId, $districtId)

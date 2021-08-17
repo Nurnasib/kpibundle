@@ -29,6 +29,10 @@
                             <td align="left" >{{ entity.employee.name }}</td>
                         </tr>
                         <tr>
+                            <th align="left" width="25%">{{ 'Employee Id: '|trans }}</th>
+                            <td align="left" >{{ entity.employee.userId }}</td>
+                        </tr>
+                        <tr>
                             <th align="left" width="25%">{{ 'Month & Year: '|trans }}</th>
                             <td align="left" >{{ entity.month }}, {{ entity.year }}</td>
                         </tr>
@@ -94,21 +98,36 @@
                             <th scope="col">{{ 'District'|trans }}</th>
                             <th scope="col" width="20%">{{ 'Total Actual Amount'|trans }}</th>
                             <th scope="col" width="20%">{{ 'Total Limit Amount'|trans }}</th>
-                            <th scope="col" width="20%">{{ 'Percentage'|trans }}</th>
-                            <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
+                            <th scope="col" width="20%">{{ 'Outstanding'|trans }}</th>
+                            <th scope="col" width="10%">{{ 'Mark'|trans }}</th>
                         </tr>
                         </thead>
                         <tbody>
                         {% if outstanding is not empty %}
+                            {% set totalActual = 0 %}
+                            {% set totalLimit = 0 %}
+                            {% set totalOutstanding = 0 %}
                             {% for key, amount in outstanding %}
-                                <tr>
-                                    <td>{{ key|default() }}</td>
-                                    <td align="right">{{ amount.actualAmount|number_format(2,'.', ',')|default() }}</td>
-                                    <td align="right">{{ amount.limitAmount|number_format(2,'.',',')|default() }}</td>
-                                    <td align="right">{{ amount.percentage|number_format(2,'.')|default() }} %</td>
-                                    <td align="center">{{ amount.mark|default() }}</td>
-                                </tr>
+                                {% if key != 'mark' %}
+                                    {% set totalActual = totalActual + amount.actualAmount %}
+                                    {% set totalLimit = totalLimit + amount.limitAmount %}
+                                    {% set totalOutstanding = totalOutstanding + amount.outstanding %}
+                                    <tr>
+                                        <td>{{ key|default() }}</td>
+                                        <td>{{ amount.actualAmount|number_format(2,'.',',')|default() }}</td>
+                                        <td>{{ amount.limitAmount|number_format(2,'.',',')|default() }}</td>
+                                        <td>{{ amount.outstanding|number_format(2,'.')|default() }}</td>
+                                        <td>{{ amount.mark|default() }}</td>
+                                    </tr>
+                                {% endif %}
                             {% endfor %}
+                            <tr>
+                                <th>{{ 'Total'|trans }}</th>
+                                <th>{{ totalActual|number_format(2,'.', ',')|default() }}</th>
+                                <th>{{ totalLimit|number_format(2,'.', ',')|default() }}</th>
+                                <th>{{ totalOutstanding|number_format(2,'.', ',')|default() }}</th>
+                                <td>{{ outstanding['mark']|default('') }}</td>
+                            </tr>
                         {% else %}
                             <tr>
                                 <td colspan="10" align="center">{{ 'No record found!'|trans }}</td>
@@ -130,15 +149,28 @@
                         </thead>
                         <tbody>
                         {% if docSale is not empty %}
+                            {% set totalCollection = 0 %}
+                            {% set totalSales = 0 %}
                             {% for key, amount in docSale %}
-                                <tr>
-                                    <td>{{ key|default() }}</td>
-                                    <td align="right">{{ amount.totalSalesAmount|number_format(2,'.', ',')|default() }}</td>
-                                    <td align="right">{{ amount.totalCollectionAmount|number_format(2,'.',',')|default() }}</td>
-                                    <td align="right">{{ amount.percentage|number_format(2,'.')|default() }} %</td>
-                                    <td align="center">{{ amount.mark|default() }}</td>
-                                </tr>
+                                {% if key != 'mark' %}
+                                    {% set totalCollection = totalCollection + amount.salesAmount %}
+                                    {% set totalSales = totalSales + amount.collectionAmount %}
+                                    <tr>
+                                        <td>{{ key|default() }}</td>
+                                        <td>{{ amount.salesAmount|number_format(2,'.', ',')|default() }}</td>
+                                        <td>{{ amount.collectionAmount|number_format(2,'.',',')|default() }}</td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                {% endif %}
                             {% endfor %}
+                            <tr>
+                                <th>{{ 'Total'|trans }}</th>
+                                <th>{{ totalCollection|number_format(2,'.', ',')|default(0) }}</th>
+                                <th>{{ totalSales|number_format(2,'.', ',')|default(0) }}</th>
+                                <th>{{ ((totalSales * 100) / totalCollection)|number_format(2,'.', ',')|default(0) }} %</th>
+                                <th>{{ docSale['mark']|default(0) }}</th>
+                            </tr>
                         {% else %}
                             <tr>
                                 <td colspan="10" align="center">{{ 'No record found!'|trans }}</td>
@@ -277,17 +309,34 @@
                                 <th scope="col">{{ 'Employee'|trans }}</th>
                                 <th scope="col" width="20%">{{ 'Actual Mark'|trans }}</th>
                                 <th scope="col" width="10%">{{ 'Mark'|trans }}</th>
+                                <th scope="col" width="10%">{{ 'Percentage'|trans }}</th>
+                                <th scope="col" width="10%">{{ 'Obtain Mark'|trans }}</th>
                             </tr>
                             </thead>
                             <tbody>
                             {% if individualTeamMemberMarks is not empty %}
+                                {% set totalActualMark = 0 %}
+                                {% set totalMark = 0 %}
                                 {% for key, member in individualTeamMemberMarks %}
-                                    <tr>
-                                        <td>{{ key|capitalize|default('') }}</td>
-                                        <td align="center">{{ member.actualMark|default('') }}</td>
-                                        <td align="center">{{ member.mark|default('') }}</td>
-                                    </tr>
+                                    {% if key != 'obtainMark' %}
+                                        {% set totalActualMark = totalActualMark + member.actualMark %}
+                                        {% set totalMark = totalMark + member.mark %}
+                                        <tr>
+                                            <td>{{ key|capitalize|default('') }}</td>
+                                            <td>{{ member.actualMark|default('') }}</td>
+                                            <td>{{ member.mark|default('') }}</td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    {% endif %}
                                 {% endfor %}
+                                <tr>
+                                    <th>{{ "Total"|trans }}</th>
+                                    <th>{{ totalActualMark|default('0') }}</th>
+                                    <th>{{ totalMark|default('0') }}</th>
+                                    <th>{{ ((totalMark * 100) / totalActualMark)|number_format(2)|default(0) }} %</th>
+                                    <th>{{ individualTeamMemberMarks['obtainMark']|default('0') }}</th>
+                                </tr>
                             {% else %}
                                 <tr>
                                     <td colspan="10" align="center">{{ 'No record found!'|trans }}</td>

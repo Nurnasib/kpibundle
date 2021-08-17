@@ -49,28 +49,32 @@
                         <div class="row form-body">
                             <div class="form-inner-no-space">
                                 <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>{{ 'Employee Name'|trans }}</strong></label>
+                                    <label class="col-md-2 control-label"><strong>{{ 'Employee Name:'|trans }}</strong></label>
                                     <label class="col-md-10 control-label">{{ entity.employee.name }}</label>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>{{ 'Month & Year'|trans }}</strong></label>
+                                    <label class="col-md-2 control-label"><strong>{{ 'Employee Id:'|trans }}</strong></label>
+                                    <label class="col-md-10 control-label">{{ entity.employee.userId }}</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label"><strong>{{ 'Month & Year:'|trans }}</strong></label>
                                     <label class="col-md-10 control-label">{{ entity.month }},{{ entity.year }}</label>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>{{ 'Designation'|trans }}</strong></label>
+                                    <label class="col-md-2 control-label"><strong>{{ 'Designation:'|trans }}</strong></label>
                                     <label class="col-md-10 control-label">{{ entity.employee.designation.name }}</label>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>{{ 'Working Area'|trans }}</strong></label>
+                                    <label class="col-md-2 control-label"><strong>{{ 'Working Area:'|trans }}</strong></label>
                                     <label class="col-md-10 control-label">{% for district in entity.employee.district %}{{ district.name }}{% if not loop.last %},{% endif %} {% endfor %}</label>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>{{ 'Format'|trans }}</strong></label>
+                                    <label class="col-md-2 control-label"><strong>{{ 'Format:'|trans }}</strong></label>
                                     <label class="col-md-10 control-label">{{ entity.employee.reportMode.name|default('') }}</label>
                                 </div>
                                 {% if entity.employee.department is not empty %}
                                     <div class="form-group">
-                                        <label class="col-md-2 control-label"><strong>{{ 'Department'|trans }}</strong></label>
+                                        <label class="col-md-2 control-label"><strong>{{ 'Department:'|trans }}</strong></label>
                                         <label class="col-md-10 control-label">{{ entity.employee.department.name }}</label>
                                     </div>
                                 {% endif %}
@@ -115,21 +119,36 @@
                                     <th scope="col">{{ 'District'|trans }}</th>
                                     <th scope="col" width="20%">{{ 'Total Actual Amount'|trans }}</th>
                                     <th scope="col" width="20%">{{ 'Total Limit Amount'|trans }}</th>
-                                    <th scope="col" width="20%">{{ 'Percentage'|trans }}</th>
-                                    <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Outstanding'|trans }}</th>
+                                    <th scope="col" width="10%">{{ 'Mark'|trans }}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {% if outstanding is not empty %}
+                                    {% set totalActual = 0 %}
+                                    {% set totalLimit = 0 %}
+                                    {% set totalOutstanding = 0 %}
                                     {% for key, amount in outstanding %}
-                                        <tr>
-                                            <td>{{ key|default() }}</td>
-                                            <td>{{ amount.actualAmount|number_format(2,'.', ',')|default() }}</td>
-                                            <td>{{ amount.limitAmount|number_format(2,'.',',')|default() }}</td>
-                                            <td>{{ amount.percentage|number_format(2,'.')|default() }} %</td>
-                                            <td>{{ amount.mark|default() }}</td>
-                                        </tr>
+                                        {% if key != 'mark' %}
+                                            {% set totalActual = totalActual + amount.actualAmount %}
+                                            {% set totalLimit = totalLimit + amount.limitAmount %}
+                                            {% set totalOutstanding = totalOutstanding + amount.outstanding %}
+                                            <tr>
+                                                <td>{{ key|default() }}</td>
+                                                <td>{{ amount.actualAmount|number_format(2,'.',',')|default() }}</td>
+                                                <td>{{ amount.limitAmount|number_format(2,'.',',')|default() }}</td>
+                                                <td>{{ amount.outstanding|number_format(2,'.')|default() }}</td>
+                                                <td>{{ amount.mark|default() }}</td>
+                                            </tr>
+                                        {% endif %}
                                     {% endfor %}
+                                    <tr>
+                                        <th>{{ 'Total'|trans }}</th>
+                                        <th>{{ totalActual|number_format(2,'.', ',')|default() }}</th>
+                                        <th>{{ totalLimit|number_format(2,'.', ',')|default() }}</th>
+                                        <th>{{ totalOutstanding|number_format(2,'.', ',')|default() }}</th>
+                                        <td>{{ outstanding['mark']|default('') }}</td>
+                                    </tr>
                                 {% else %}
                                     <tr>
                                         <td colspan="10" align="center">{{ 'No record found!'|trans }}</td>
@@ -145,21 +164,34 @@
                                     <th scope="col">{{ 'District'|trans }}</th>
                                     <th scope="col" width="20%">{{ 'Total Sales Amount'|trans }}</th>
                                     <th scope="col" width="20%">{{ 'Total Collection Amount'|trans }}</th>
-                                    <th scope="col" width="20%">{{ 'Percentage'|trans }}</th>
-                                    <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
+                                    <th scope="col" width="10%">{{ 'Percentage'|trans }}</th>
+                                    <th scope="col" width="10%">{{ 'Mark'|trans }}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {% if docSale is not empty %}
+                                    {% set totalCollection = 0 %}
+                                    {% set totalSales = 0 %}
                                     {% for key, amount in docSale %}
-                                        <tr>
-                                            <td>{{ key|default() }}</td>
-                                            <td>{{ amount.totalSalesAmount|number_format(2,'.', ',')|default() }}</td>
-                                            <td>{{ amount.totalCollectionAmount|number_format(2,'.',',')|default() }}</td>
-                                            <td>{{ amount.percentage|number_format(2,'.')|default() }} %</td>
-                                            <td>{{ amount.mark|default() }}</td>
-                                        </tr>
+                                        {% if key != 'mark' %}
+                                            {% set totalCollection = totalCollection + amount.salesAmount %}
+                                            {% set totalSales = totalSales + amount.collectionAmount %}
+                                            <tr>
+                                                <td>{{ key|default() }}</td>
+                                                <td>{{ amount.salesAmount|number_format(2,'.', ',')|default() }}</td>
+                                                <td>{{ amount.collectionAmount|number_format(2,'.',',')|default() }}</td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                        {% endif %}
                                     {% endfor %}
+                                    <tr>
+                                        <th>{{ 'Total'|trans }}</th>
+                                        <th>{{ totalCollection|number_format(2,'.', ',')|default(0) }}</th>
+                                        <th>{{ totalSales|number_format(2,'.', ',')|default(0) }}</th>
+                                        <th>{{ ((totalSales * 100) / totalCollection)|number_format(2,'.', ',')|default(0) }} %</th>
+                                        <th>{{ docSale['mark']|default(0) }}</th>
+                                    </tr>
                                 {% else %}
                                     <tr>
                                         <td colspan="10" align="center">{{ 'No record found!'|trans }}</td>
@@ -295,25 +327,41 @@
                                 </table>
                             {% endif %}
                             {% if (entity.employee.reportMode.slug == 'agm-kpi' or entity.employee.reportMode.slug == 'rsm-arsm-kpi') %}
-                                <h5 class="h5 bg-secondary p-1 text-white w-100">Team members ach(=100%) mark on core
-                                    activities</h5>
+                                <h5 class="h5 bg-secondary p-1 text-white w-100">Team members ach(=100%) mark on core activities</h5>
                                 <table class="table table-striped table-bordered table-hover" id="datatable">
                                     <thead class="thead-dark">
                                     <tr>
                                         <th scope="col">{{ 'Employee'|trans }}</th>
                                         <th scope="col" width="20%">{{ 'Actual Mark'|trans }}</th>
                                         <th scope="col" width="10%">{{ 'Mark'|trans }}</th>
+                                        <th scope="col" width="10%">{{ 'Percentage'|trans }}</th>
+                                        <th scope="col" width="10%">{{ 'Obtain Mark'|trans }}</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {% if individualTeamMemberMarks is not empty %}
+                                        {% set totalActualMark = 0 %}
+                                        {% set totalMark = 0 %}
                                         {% for key, member in individualTeamMemberMarks %}
-                                            <tr>
-                                                <td>{{ key|capitalize|default('') }}</td>
-                                                <td>{{ member.actualMark|default('') }}</td>
-                                                <td>{{ member.mark|default('') }}</td>
-                                            </tr>
+                                            {% if key != 'obtainMark' %}
+                                                {% set totalActualMark = totalActualMark + member.actualMark %}
+                                                {% set totalMark = totalMark + member.mark %}
+                                                <tr>
+                                                    <td>{{ key|capitalize|default('') }}</td>
+                                                    <td>{{ member.actualMark|default('') }}</td>
+                                                    <td>{{ member.mark|default('') }}</td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                            {% endif %}
                                         {% endfor %}
+                                        <tr>
+                                            <th>{{ "Total"|trans }}</th>
+                                            <th>{{ totalActualMark|default('0') }}</th>
+                                            <th>{{ totalMark|default('0') }}</th>
+                                            <th>{{ ((totalMark * 100) / totalActualMark)|number_format(2)|default(0) }} %</th>
+                                            <th>{{ individualTeamMemberMarks['obtainMark']|default('0') }}</th>
+                                        </tr>
                                     {% else %}
                                         <tr>
                                             <td colspan="10" align="center">{{ 'No record found!'|trans }}</td>
@@ -322,73 +370,6 @@
                                     </tbody>
                                 </table>
                             {% endif %}
-
-{#                            {% if entity.employee.reportMode.slug == 'agm-kpi' %}
-                                <h5 class="h5 bg-secondary p-1 text-white w-100">All Regional Achievement status on
-                                    Total Feed</h5>
-                                <table class="table table-striped table-bordered table-hover" id="datatable">
-                                    <thead class="thead-dark">
-                                    <tr>
-                                        <th scope="col">{{ 'Region'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Total Target Quantity'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Total Achieve Quantity'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Percentage'|trans }}</th>
-                                        <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% if regionalAchievement is not empty %}
-                                        {% for key, amount in regionalAchievement %}
-                                            <tr>
-                                                <td>{{ key|default() }}</td>
-                                                <td>{{ amount.targetQuantity|number_format(2,'.', ',')|default() }}</td>
-                                                <td>{{ amount.achieveQuantity|number_format(2,'.',',')|default() }}</td>
-                                                <td>{{ amount.percentage|number_format(2,'.')|default() }} %</td>
-                                                <td>{{ amount.mark|default() }}</td>
-                                            </tr>
-                                        {% endfor %}
-                                    {% else %}
-                                        <tr>
-                                            <td colspan="10" align="center">{{ 'No record found!'|trans }}</td>
-                                        </tr>
-                                    {% endif %}
-                                    </tbody>
-                                </table>
-                            {% endif %}#}
-
-{#                            {% if (entity.employee.reportMode.slug == 'agm-kpi' or entity.employee.reportMode.slug == 'rsm-arsm-kpi') %}
-                                <h5 class="h5 bg-secondary p-1 text-white w-100">All District Achievement on Total
-                                    Feed</h5>
-                                <table class="table table-striped table-bordered table-hover" id="datatable">
-                                    <thead class="thead-dark">
-                                    <tr>
-                                        <th scope="col">{{ 'District'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Total Target Quantity'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Total Achieve Quantity'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Percentage'|trans }}</th>
-                                        <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% if districtAchievement is not empty %}
-                                        {% for key, amount in districtAchievement %}
-                                            <tr>
-                                                <td>{{ key|default() }}</td>
-                                                <td>{{ amount.targetQuantity|number_format(2,'.', ',')|default() }}</td>
-                                                <td>{{ amount.achieveQuantity|number_format(2,'.',',')|default() }}</td>
-                                                <td>{{ amount.percentage|number_format(2,'.')|default() }} %</td>
-                                                <td>{{ amount.mark|default() }}</td>
-                                            </tr>
-                                        {% endfor %}
-                                    {% else %}
-                                        <tr>
-                                            <td colspan="10" align="center">{{ 'No record found!'|trans }}</td>
-                                        </tr>
-                                    {% endif %}
-                                    </tbody>
-                                </table>
-                            {% endif %}#}
-
 
                             {% if (entity.employee.reportMode.slug == 'spo-format' or entity.employee.reportMode.slug == 'aqua-service' or entity.employee.reportMode.slug == 'cattle-service') %}
                                 <h5 class="h5 bg-secondary p-1 text-white w-100">Agents Sales 20% Growth (Only for permanent agents: Will consider same period from previous year)</h5>

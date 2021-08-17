@@ -15,6 +15,9 @@ use App\Entity\Admin\Location;
 use App\Entity\Core\Agent;
 use Doctrine\ORM\EntityRepository;
 use Terminalbd\KpiBundle\Entity\AgentDocSaleCollection;
+use Terminalbd\KpiBundle\Entity\EmployeeBoard;
+use Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute;
+use Terminalbd\KpiBundle\Entity\MarkChart;
 
 /**
  * This custom Doctrine repository contains some methods which are useful when
@@ -76,8 +79,10 @@ class AgentDocSaleCollectionRepository extends EntityRepository
         $result = $qb->getQuery()->getOneOrNullResult();
         return $result;
     }
-    public function getLocationWiseDocSales($locations, $year, $month)
+    public function getLocationWiseDocSales($locations, EmployeeBoard $board)
     {
+        $em = $this->_em;
+
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.district','d');
 //        $qb->join('e.agent','a');
@@ -85,25 +90,27 @@ class AgentDocSaleCollectionRepository extends EntityRepository
 //        $qb->addSelect('a.name as agentName');
         $qb->addSelect('d.name AS districtName');
         $qb->where('d.id IN (:districts)')->setParameter('districts',$locations);
-        $qb->andWhere('e.year =:year')->setParameter('year',$year);
-        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->andWhere('e.year =:year')->setParameter('year',$board->getYear());
+        $qb->andWhere('e.month =:month')->setParameter('month',$board->getMonth());
         $qb->groupBy('d.id');
         $results = $qb->getQuery()->getArrayResult();
         $data = [];
         foreach ($results as $result){
             $data[$result['districtName']] = array(
-                'totalSalesAmount'=>$result['totalSalesAmount'],
-                'totalCollectionAmount'=>$result['totalCollectionAmount'],
-                'percentage'=>$result['totalSalesAmount']>0?($result['totalCollectionAmount']*100)/$result['totalSalesAmount']:0,
-                'mark'=>$this->docSalesCollectionCalculationMark($result['totalCollectionAmount'], $result['totalSalesAmount']),
+                'salesAmount'=> (double)$result['totalSalesAmount'],
+                'collectionAmount'=> (double)$result['totalCollectionAmount'],
             );
         }
+        $docSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'doc-sales-vs-collection'));
+
+        $employeeBoardAttributeForDocSales = $em->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $docSalesDistribution]);
+        $data['mark'] = (int)$employeeBoardAttributeForDocSales->getMark();
         return $data;
     }
 
 
 
-    private function docSalesCollectionCalculationMark($collectionAmount, $salesAmount)
+/*    private function docSalesCollectionCalculationMark($collectionAmount, $salesAmount)
     {
 
         if ($salesAmount > 0) {
@@ -122,7 +129,7 @@ class AgentDocSaleCollectionRepository extends EntityRepository
         }
         return 0;
 
-    }
+    }*/
 
 
     public function getMonthYearSalesCollection($data)

@@ -746,6 +746,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $individualEntity->setMarkDistribution($individualTeamDistribution);
 
 //        dd($this->individualTeamMemberCalculation($entities['actualMark'], $entities['mark'] ));
+
         $individualEntity->setMark($this->individualTeamMemberCalculation($entities['actualMark'], $entities['mark']));
         $em->persist($individualEntity);
         $em->flush();
@@ -773,9 +774,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         }
 
         $outstandingAmount = $em->getRepository(AgentOutstanding::class)->getLocationWiseTotalOutstanding($arrs, $board->getYear(), $board->getMonth());
+
         $outstandingDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'outstanding-limit-vs-actual-feed'));
         $employeeBoardAttributeForOutStandingLimit = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $outstandingDistribution]);
         if ($employeeBoardAttributeForOutStandingLimit) {
+//            dd($this->outstandingLimitCalculation($board, $outstandingAmount['outstanding']));
             $employeeBoardAttributeForOutStandingLimit->setMark($this->outstandingLimitCalculation($board, $outstandingAmount['outstanding']));
             $em->persist($employeeBoardAttributeForOutStandingLimit);
             $em->flush();
@@ -869,7 +872,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         return $result;
     }
 
-    public function getIndividualTeamMemberMarks($employees, $parameter, $year, $month)
+    public function getIndividualTeamMemberMarks($employees, $parameter, EmployeeBoard $board)
     {
         $em = $this->_em;
         $qb = $this->createQueryBuilder('e');
@@ -880,8 +883,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $qb->addSelect('em.name AS employeeName');
         $qb->where('em.id IN (:employee)')->setParameter('employee', $employees);
         $qb->andWhere('parameter.id = :parameter')->setParameter('parameter', $parameter);
-        $qb->andWhere('ed.year =:year')->setParameter('year', $year);
-        $qb->andWhere('ed.month =:month')->setParameter('month', $month);
+        $qb->andWhere('ed.year =:year')->setParameter('year', $board->getYear());
+        $qb->andWhere('ed.month =:month')->setParameter('month', $board->getMonth());
         $qb->groupBy('em.id');
         $results = $qb->getQuery()->getArrayResult();
 
@@ -890,10 +893,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $data[$result['employeeName']] = [
                 'mark' => $result['mark'],
                 'actualMark' => $result['actualMark'],
-                'targetAmount' => $result['targetAmount'],
-                'targetAchievement' => $result['targetAchievement'],
             ];
         }
+        $individualTeamDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'team-members-mark-on-core-activities', 'status' => 1));
+        $employeeBoardAttributeForIndividualTeam = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $individualTeamDistribution]);
+        $data['obtainMark'] = $employeeBoardAttributeForIndividualTeam->getMark();
         return $data;
     }
 
