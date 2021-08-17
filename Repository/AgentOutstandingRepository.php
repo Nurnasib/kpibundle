@@ -52,7 +52,7 @@ class AgentOutstandingRepository extends EntityRepository
                 $agentOutstanding->setDistrict($district);
                 $agentOutstanding->setActualAmount($record['ActualAmount']?:0);
                 $agentOutstanding->setLimitAmount($record['LimitAmount']?:0);
-                $agentOutstanding->setOutstanding($record['ActualAmount']-$record['LimitAmount']);
+                $agentOutstanding->setOutstanding($record['LimitAmount'] - $record['ActualAmount']);
                 $agentOutstanding->setCreatedAt(new \DateTime());
                 $agentOutstanding->setMonth($month);
                 $agentOutstanding->setYear($year);
