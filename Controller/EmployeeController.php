@@ -30,6 +30,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Terminalbd\KpiBundle\Entity\EmployeeDistrictHistory;
+use Terminalbd\KpiBundle\Entity\EmployeeReportFormatHistory;
 use Terminalbd\KpiBundle\Form\EditEmployeeFormType;
 use Terminalbd\KpiBundle\Form\EmployeeFilterFormType;
 use Terminalbd\KpiBundle\Form\EmployeeFormType;
@@ -122,13 +123,13 @@ class EmployeeController extends AbstractController
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_CRM')")
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="kpi_employee_edit")
      * @param Request $request
-     * @param $id
+     * @param User $post
      * @return Response
      */
-    public function edit(Request $request ,$id): Response
+    public function edit(Request $request ,User $post): Response
     {
         $data = $request->request->all();
-        $post = $this->getDoctrine()->getRepository(User::class)->findOneBy(['id'=> $id]);
+//        $post = $this->getDoctrine()->getRepository(User::class)->findOneBy(['id'=> $id]);
         $terminal = $this->getUser()->getTerminal();
         $userRepo = $this->getDoctrine()->getRepository(User::class);
         $form = $this->createForm(EditEmployeeFormType::class, $post, array('terminal' => $terminal,'userRepo' => $userRepo))
@@ -137,24 +138,42 @@ class EmployeeController extends AbstractController
         $form->handleRequest($request);
         //  $errors = $this->getErrorsFromForm($form);
         if ($form->isSubmitted()) {
+            $em = $this->getDoctrine()->getManager();
+            $lastAssignDistrict = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $post], ['id' => 'DESC']);
+            $lastAssignReportFormat = $this->getDoctrine()->getRepository(EmployeeReportFormatHistory::class)->findOneBy(['employee' => $post], ['id' => 'DESC']);
             $districts = $form->getData()->getDistrict();
+            $reportFormat = $form->getData()->getReportMode();
+
             $districtNameArray = [];
             foreach ($districts as $district){
                 $districtNameArray[]= $district->getName();
             }
             $districtsName = implode(', ',$districtNameArray);
 
-            $history = new EmployeeDistrictHistory();
-            $date = new \DateTime('now');
+            if ($lastAssignDistrict == null || $lastAssignDistrict->getDistrict() != $districtsName){
+                $districtHistory = new EmployeeDistrictHistory();
+                $date = new \DateTime('now');
 
-            $history->setEmployee($post);
-            $history->setDistrict($districtsName);
-            $history->setMonth($date->format('F'));
-            $history->setYear($date->format('Y'));
-            $history->setUpdatedBy($this->getUser());
+                $districtHistory->setEmployee($post);
+                $districtHistory->setDistrict($districtsName);
+                $districtHistory->setMonth($date->format('F'));
+                $districtHistory->setYear($date->format('Y'));
+                $districtHistory->setUpdatedBy($this->getUser());
+                $em->persist($districtHistory);
+            }
 
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($history);
+            if ($lastAssignReportFormat == null || $lastAssignReportFormat->getReportFormat()->getId() != $reportFormat->getId()){
+                $reportFormatHistory = new EmployeeReportFormatHistory();
+                $date = new \DateTime('now');
+
+                $reportFormatHistory->setEmployee($post);
+                $reportFormatHistory->setReportFormat($reportFormat);
+                $reportFormatHistory->setMonth($date->format('F'));
+                $reportFormatHistory->setYear($date->format('Y'));
+                $reportFormatHistory->setUpdatedBy($this->getUser());
+                $em->persist($reportFormatHistory);
+            }
+
             $em->flush();
 
             return $this->redirectToRoute('kpi_employee_edit',array('id'=> $post->getId()));
@@ -355,6 +374,23 @@ class EmployeeController extends AbstractController
         }
 
         $reportMode = $this->getDoctrine()->getRepository(Setting::class)->find($data['value']);
+
+        $lastAssignReportFormat = $this->getDoctrine()->getRepository(EmployeeReportFormatHistory::class)->findOneBy(['employee' => $user], ['id' => 'DESC']);
+
+        if ($lastAssignReportFormat == null || $lastAssignReportFormat->getReportFormat()->getId() != $reportMode->getId()){
+            $reportFormatHistory = new EmployeeReportFormatHistory();
+            $date = new \DateTime('now');
+
+            $reportFormatHistory->setEmployee($user);
+            $reportFormatHistory->setReportFormat($reportMode);
+            $reportFormatHistory->setMonth($date->format('F'));
+            $reportFormatHistory->setYear($date->format('Y'));
+            $reportFormatHistory->setUpdatedBy($this->getUser());
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($reportFormatHistory);
+        }
+
+
         $user->setReportMode($reportMode);
         $this->getDoctrine()->getManager()->flush();
         return new JsonResponse(['status' => 200]);
