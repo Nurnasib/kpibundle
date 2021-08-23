@@ -39,7 +39,6 @@ class KpiReportController extends AbstractController
             'lineManager' => array_values($lineManagers)[0],
             'startMonth' => date('F'),
             'endMonth' => date('F'),
-            'endMonth' => date('F'),
             'year' => (int)date('Y'),
         ];
         $StartDate = @strtotime(date('F') . ' ' . (int)date('Y'));
