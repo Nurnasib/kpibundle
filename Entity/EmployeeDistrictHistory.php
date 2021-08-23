@@ -29,7 +29,7 @@ class EmployeeDistrictHistory
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="districtHistories")
      * @ORM\JoinColumn(referencedColumnName="id")
      */
     private $employee;

@@ -14,6 +14,8 @@ namespace Terminalbd\KpiBundle\Repository;
 use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
+use Terminalbd\KpiBundle\Entity\EmployeeDistrictHistory;
+use function Doctrine\ORM\QueryBuilder;
 
 /**
  * This custom Doctrine repository contains some methods which are useful when
@@ -25,15 +27,44 @@ use Terminalbd\KpiBundle\Entity\EmployeeBoard;
  */
 class EmployeeDistrictHistoryRepository extends EntityRepository
 {
-    public function getDistricts(User $employee)
+    public function getDistrictHistory($filterBy)
     {
         $em = $this->_em;
 
-        $query = "SELECT * FROM kpi_employee_district_history WHERE id IN (SELECT MAX(id) FROM kpi_employee_district_history GROUP BY month,year ) AND employee_id = :employeeId";
+        $query = "SELECT core_user.name, core_user.user_id, kpi_employee_district_history.district FROM kpi_employee_district_history JOIN core_user ON core_user.id = kpi_employee_district_history.employee_id WHERE kpi_employee_district_history.id IN (SELECT MAX(kpi_employee_district_history.id) FROM kpi_employee_district_history GROUP BY employee_id,month,year ) AND month = :month AND year = :year";
 
         $stmt = $em->getConnection()->prepare($query);
-        $stmt->bindValue('employeeId', $employee->getId());
+        $stmt->bindValue('month', $filterBy['month']);
+        $stmt->bindValue('year', $filterBy['year']);
         $stmt->execute();
-        return $stmt->fetchAll();
+        $records =  $stmt->fetchAll();
+
+        $history = [];
+
+        foreach ($records as $record){
+            $history[$record['user_id']] = [
+                'districts' => $record['district'],
+            ];
+        }
+
+        $qb = $this->_em->createQueryBuilder();
+        $qb->select('u.id','u.userId','u.name AS employeeName', 'district.name AS districtName')
+            ->from(User::class, 'u')
+            ->leftJoin('u.district', 'district')
+            ->where("u.userMode = 'KPI'")
+            ->andWhere('u.enabled = 1')
+        ;
+        $allEmployees = $qb->getQuery()->getArrayResult();
+        $allEmployeesArray = [];
+        foreach ($allEmployees as $allEmployee) {
+            $allEmployeesArray[$allEmployee['userId']]['employeeName']=  $allEmployee['employeeName'];
+            $allEmployeesArray[$allEmployee['userId']]['userId']=  $allEmployee['userId'];
+            $allEmployeesArray[$allEmployee['userId']]['districts'][]=  $allEmployee['districtName'];
+        }
+        foreach ($allEmployeesArray as $item) {
+            $allEmployeesArray[$item['userId']]['districts'] = implode(', ', $item['districts']);
+        }
+
+        return ['allEmployee' => $allEmployeesArray, 'history' => $history];
     }
 }

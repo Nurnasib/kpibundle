@@ -11,9 +11,11 @@ use Symfony\Component\Routing\Annotation\Route;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
 use Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute;
+use Terminalbd\KpiBundle\Entity\EmployeeDistrictHistory;
 use Terminalbd\KpiBundle\Entity\EmployeeSetup;
 use Terminalbd\KpiBundle\Entity\LocationSalesTarget;
 use Terminalbd\KpiBundle\Entity\MarkChart;
+use Terminalbd\KpiBundle\Form\DistrictHistorySearchFilterFormType;
 use Terminalbd\KpiBundle\Form\TeamMemberSummaryFilterFormType;
 
 /**
@@ -25,6 +27,9 @@ class KpiReportController extends AbstractController
 {
     /**
      * @Route("/team-member-summary", name="team_member_summary")
+     * @param Request $request
+     * @param UserRepository $userRepository
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function teamMemberSummary(Request $request, UserRepository $userRepository)
     {
@@ -106,9 +111,12 @@ class KpiReportController extends AbstractController
         ]);
 
     }
-    
+
     /**
      * @Route("/all-team-member-summary", name="all_team_member_summary")
+     * @param Request $request
+     * @param UserRepository $userRepository
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function allTeamMemberSummary(Request $request, UserRepository $userRepository)
     {
@@ -191,6 +199,69 @@ class KpiReportController extends AbstractController
             'months' => $months,
         ]);
     }
+
+    /**
+     * @param Request $request
+     * @Route("/district-history", name="district_history")
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function districtHistory(Request $request)
+    {
+        $filterBy = [
+            'month' => date('F'),
+            'year' => date('Y'),
+        ];
+        $form = $this->createForm(DistrictHistorySearchFilterFormType::class);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()){
+            $filterBy = $form->getData();
+            $data = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->getDistrictHistory($filterBy);
+
+            if ($request->query->has('pdf')){
+
+                // Configure Dompdf according to your needs
+                $pdfOptions = new Options();
+                $pdfOptions->set('defaultFont', 'Arial');
+
+                // Instantiate Dompdf with our options
+                $dompdf = new Dompdf($pdfOptions);
+
+                // Retrieve the HTML generated in our twig file
+                $html = $this->renderView('@TerminalbdKpi/employeeboard/report/districtHistory-pdf.html.twig', [
+                    'data' => $data,
+                    'filterBy' => $filterBy
+                ]);
+
+                // Load HTML to Dompdf
+                $dompdf->loadHtml($html);
+
+                // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
+                $dompdf->setPaper('legal', 'landscape');
+
+                // Render the HTML as PDF
+                $dompdf->render();
+
+                // Output the generated PDF to Browser (force download)
+                $fileName = $request->get('_route') . '-' . time();
+                $dompdf->stream( $fileName .  ".pdf", [
+                    "Attachment" => false
+                ]);
+                die();
+            }
+        }
+        $data = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->getDistrictHistory($filterBy);
+        return $this->render('@TerminalbdKpi/employeeboard/report/districtHistory.html.twig',[
+            'form' => $form->createView(),
+            'data' => $data
+        ]);
+    }
+
+
+
+
+
+
+
     
     /**
      * Gets list of months between two dates
@@ -228,7 +299,8 @@ class KpiReportController extends AbstractController
      */
     public function generateKpiReport()
     {
-        $marksDistributions = [];
+        return false;
+/*        $marksDistributions = [];
         $user = $this->getUser();
         $employee = $this->getDoctrine()->getRepository(EmployeeSetup::class)->getEmployeeList($user);
         $products = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->getProductTarget();
@@ -239,7 +311,7 @@ class KpiReportController extends AbstractController
             dd($product);
             $agentOrder = $this->getDoctrine()->getRepository(AgentOrder::class)->getCompletedAmount($key);
 
-        }
+        }*/
 
         /*        foreach ($attributesAndMarks as $attributesAndMark) {
         //            echo $attributesAndMark['attributesName'] . '<br>';
@@ -251,8 +323,8 @@ class KpiReportController extends AbstractController
                 $marksDistributions = $this->getDoctrine()->getRepository(MarkChart::class)->getMarkDistribution('Poultry');
         //        dd($attributesAndMarks);*/
 
-        return $this->render('@TerminalbdKpi/kpiReport/index.html.twig',[
+/*        return $this->render('@TerminalbdKpi/kpiReport/index.html.twig',[
             'attributesAndMarks'  => $attributesAndMarks
-        ]);
+        ]);*/
     }
 }

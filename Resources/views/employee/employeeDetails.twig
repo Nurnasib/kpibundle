@@ -72,25 +72,3 @@
         </table>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-12">
-        <table class="table table-bordered table-striped table-hover">
-            <thead class="thead-dark">
-            <tr>
-                <th>Month/Year</th>
-                <th>Districts</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% if districtHistory is defined and districtHistory is not empty %}
-                {% for data in districtHistory %}
-                    <tr>
-                        <td>{{ data.month ~ ', ' ~ data.year }}</td>
-                        <td>{{ data.district }}</td>
-                    </tr>
-                {% endfor %}
-            {% endif %}
-            </tbody>
-        </table>
-    </div>
-</div>

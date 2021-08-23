@@ -38,6 +38,7 @@ class EmployeeFilterFormType extends AbstractType
                         ->join('e.userGroup','ug')
                         ->where('e.enabled =1')
                         ->andWhere("ug.slug =:slug")->setParameter('slug','employee')
+                        ->andWhere("e.userMode = 'KPI'")
                         ->orderBy('e.name', 'ASC');
 
                 },

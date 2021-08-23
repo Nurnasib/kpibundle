@@ -97,7 +97,7 @@
                                 <th scope="col">Password</th>
                                 <th scope="col">Mobile</th>
                                 <th scope="col" width="20%">Districts</th>
-                                <th scope="col">User</th>
+                                <th scope="col">Email</th>
                                 <th scope="col">Department</th>
                                 <th scope="col">Status</th>
                                 <th scope="col text-center"><i class="feather icon-settings"></i></th>
@@ -180,7 +180,7 @@
                                                 {% endfor %}
                                             {% endif %}
                                         </td>
-                                        <td>{{ entity.username }}</td>
+                                        <td>{{ entity.email }}</td>
                                         <td>{{ entity.department.name|default('') }}</td>
                                         <td>{{ entity.enabled == 1 ? "Enabled":"Disabled" }}</td>
                                         {#<td>{{ entity.customerGroup.name }}</td>#}
@@ -251,9 +251,9 @@
     </div>
     <style>
         .modal-lg {
-            width: 75%;
-            max-width: 95%;
-            height: 100%;
+            width: 65%;
+            max-width: 65%;
+            /*height: 100%;*/
             padding: 0;
         }
 
@@ -292,8 +292,7 @@
 {% block javascripts %}
     {{ parent() }}
     <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
-    <script type="application/javascript"
-            src="{{ asset('assets/plugins/bootstrap-editable/js/bootstrap4-editable.js') }}"></script>
+    <script type="application/javascript" src="{{ asset('assets/plugins/bootstrap-editable/js/bootstrap4-editable.js') }}"></script>
 
 {% endblock %}
 {% block documentready %}

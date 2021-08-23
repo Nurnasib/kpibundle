@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+
+<div style="text-align: center">
+    <h3 style="margin: 5px">{{ 'District Histroy '|trans }}</h3>
+    <h5 style="margin: 5px">{{ filterBy['month'] ~ ',' ~ filterBy['year'] }}</h5>
+</div>
+
+<table width="100%" cellpadding="5" cellspacing="0" border="1">
+    <thead>
+    <tr>
+        <th>S/L</th>
+        <th>ID</th>
+        <th>Employee</th>
+        <th>Districts</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% if data is defined and data is not empty %}
+        {% for employeeId,record in data['allEmployee'] %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ employeeId|default('') }}</td>
+                <td>{{ record.employeeName|default('') }}</td>
+                <td>
+                    {% if data['history'][employeeId] is defined %}
+                        {{ data['history'][employeeId]['districts'] }}
+                    {% else %}
+                        {{ record.districts|default('') }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    {% else %}
+        <tr>
+            <td colspan="4">{{ 'No record has been found!'|trans }}</td>
+        </tr>
+    {% endif %}
+    </tbody>
+    <tfoot>
+</table>
+</body>
+</html>

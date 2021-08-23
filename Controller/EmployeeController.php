@@ -450,10 +450,8 @@ class EmployeeController extends AbstractController
      */
     public function employeeDetails(User $employee)
     {
-        $districtHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->getDistricts($employee);
 
         $html = $this->renderView('@TerminalbdKpi/employee/employeeDetails.twig',[
-            'districtHistory' => $districtHistory,
             'employee' => $employee,
         ]);
         return new JsonResponse(array('html'=>$html));
