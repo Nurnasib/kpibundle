@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @Route("/kpi/location-sales")
  * @author Md Shafiqul Islam <shafiqabs@gmail.com>
+ * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
  */
 class LocationSalesTargetController extends AbstractController
 {
@@ -30,8 +31,9 @@ class LocationSalesTargetController extends AbstractController
     /**
      * Lists all Post entities.
      * @Route("/", methods={"GET"}, name="kpi_location_sales")
+     * @param Request $request
+     * @return Response
      */
-
     public  function location(Request $request): Response
     {
         set_time_limit(0);
@@ -61,9 +63,9 @@ class LocationSalesTargetController extends AbstractController
 
     /**
      * updateLocationSales a LocationSalesTarget entity.
-     *
      * @Route("/{id}/update-location-sales-target", methods={"GET"}, name="kpi_markchart_location_sales_target")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @param $id
+     * @return Response
      */
     public function updateLocationSales($id) : Response
     {

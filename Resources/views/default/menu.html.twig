@@ -1,41 +1,43 @@
 <ul class="" aria-labelledby="navbarDropdownMenuLink">
-        <li><a class="dropdown-item" href="javascript:">Report</a>
-                <ul>
-                        <li><a class="dropdown-item" href="{{ path('all_team_member_summary') }}">All Employee KPI</a></li>
-                        <li><a class="dropdown-item" href="{{ path('team_member_summary') }}">Employee Monthly KPI</a></li>
-                        <li><a class="dropdown-item" href="{{ path('district_history') }}">Employee District</a></li>
-                </ul>
-        </li>
         <li><a class="dropdown-item" href="{{ path('kpi_employee_board') }}">KPI Board</a></li>
-{#        <li><a class="dropdown-item" href="{{ path('kpi_setup') }}">KPI Setup</a></li>#}
-        <li><a class="dropdown-item" href="{{ path('kpi_markchart_matrix') }}">KPI Format</a>
-        {% if modes is not empty %}
-                <ul>
-                        <li><a class="dropdown-item" href="{{ path('kpi_markchart') }}">Mark Chart</a></li>
-                        {% for mode in modes %}
-                                <li><a href="{{ path('kpi_markchart_matrix',{'slug':mode.slug}) }}">{{ mode.name }}</a></li>
-                        {% endfor %}
-                </ul>
-                {% endif %}
-        </li>
-        <li><a class="dropdown-item" href="{{ path('kpi_location_sales') }}">District Sales Target</a></li>
-        <li><a class="dropdown-item" href="javascript:">Sales</a>
-                <ul>
-                        <li><a class="dropdown-item" href="{{ path('kpi_district_sales') }}">District Sales</a></li>
-                        <li><a class="dropdown-item" href="{{ path('kpi_agent_sales') }}">Agent Sales</a></li>
-                        <li><a class="dropdown-item" href="{{ path('kpi_doc_sales_collection') }}">DOC vs Collection</a></li>
-                        <li><a class="dropdown-item" href="{{ path('kpi_outstanding') }}">Agent Outstanding</a></li>
-                        <li><a class="dropdown-item" href="{{ path('kpi_agent') }}">Agent</a></li>
-                        <li><a class="dropdown-item" href="{{ path('kpi_month_wise_agent_grade') }}">Agent Grade</a></li>
-                </ul>
-        </li>
-        <li><a class="dropdown-item" href="javascript:">Master Data</a>
-                <ul>
-                        <li><a class="dropdown-item" href="{{ path('kpi_employee') }}">KPI Employee</a></li>
-                        <li><a class="dropdown-item" href="{{ path('kpi_employee_hierarchy') }}">KPI Employee Hierarchy</a></li>
-                        <li><a class="dropdown-item" href="{{ path('kpi_file_upload_index') }}">Data Import</a></li>
-                        <li><a class="dropdown-item" href="{{ path('kpi_setting') }}">Setting</a></li>
-                        <li><a class="dropdown-item" href="{{ path('kpi_setting_new') }}">New Setting</a></li>
-                </ul>
-        </li>
+        {% if is_granted('ROLE_ADMIN') %}
+                <li><a class="dropdown-item" href="javascript:">Report</a>
+                        <ul>
+                                <li><a class="dropdown-item" href="{{ path('all_team_member_summary') }}">All Employee KPI</a></li>
+                                <li><a class="dropdown-item" href="{{ path('team_member_summary') }}">Employee Monthly KPI</a></li>
+                                <li><a class="dropdown-item" href="{{ path('district_history') }}">Employee District</a></li>
+                        </ul>
+                </li>
+                <li><a class="dropdown-item" href="{{ path('kpi_markchart_matrix') }}">KPI Format</a>
+                        {% if modes is not empty %}
+                                <ul>
+                                        <li><a class="dropdown-item" href="{{ path('kpi_markchart') }}">Mark Chart</a></li>
+                                        {% for mode in modes %}
+                                                <li><a href="{{ path('kpi_markchart_matrix',{'slug':mode.slug}) }}">{{ mode.name }}</a></li>
+                                        {% endfor %}
+                                </ul>
+                        {% endif %}
+                </li>
+                <li><a class="dropdown-item" href="{{ path('kpi_location_sales') }}">District Sales Target</a></li>
+                <li><a class="dropdown-item" href="javascript:">Sales</a>
+                        <ul>
+                                <li><a class="dropdown-item" href="{{ path('kpi_district_sales') }}">District Sales</a></li>
+                                <li><a class="dropdown-item" href="{{ path('kpi_agent_sales') }}">Agent Sales</a></li>
+                                <li><a class="dropdown-item" href="{{ path('kpi_doc_sales_collection') }}">DOC vs Collection</a></li>
+                                <li><a class="dropdown-item" href="{{ path('kpi_outstanding') }}">Agent Outstanding</a></li>
+                                <li><a class="dropdown-item" href="{{ path('kpi_agent') }}">Agent</a></li>
+                                <li><a class="dropdown-item" href="{{ path('kpi_month_wise_agent_grade') }}">Agent Grade</a></li>
+                        </ul>
+                </li>
+                <li><a class="dropdown-item" href="javascript:">Master Data</a>
+                        <ul>
+                                <li><a class="dropdown-item" href="{{ path('kpi_employee') }}">KPI Employee</a></li>
+                                <li><a class="dropdown-item" href="{{ path('kpi_employee_hierarchy') }}">KPI Employee Hierarchy</a></li>
+                                <li><a class="dropdown-item" href="{{ path('kpi_file_upload_index') }}">Data Import</a></li>
+                                <li><a class="dropdown-item" href="{{ path('kpi_setting') }}">Setting</a></li>
+                                <li><a class="dropdown-item" href="{{ path('kpi_setting_new') }}">New Setting</a></li>
+                        </ul>
+                </li>
+        {% endif %}
+
     </ul>

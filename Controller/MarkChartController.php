@@ -29,22 +29,23 @@ use Terminalbd\KpiBundle\Form\MarkChartFormType;
 /**
  * @Route("/kpi/mark-chart")
  * @author Md Shafiqul Islam <shafiqabs@gmail.com>
+ * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
  */
 class MarkChartController extends AbstractController
 {
     /**
      * @Route("/", methods={"GET"}, name="kpi_markchart")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
      */
-    public function index(Request $request): Response
+    public function index(): Response
     {
         $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findAll();
         return $this->render('@TerminalbdKpi/markchart/index.html.twig',['entities' => $entities]);
     }
 
     /**
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
      * @Route("/new", methods={"GET", "POST"}, name="kpi_markchart_new")
+     * @param Request $request
+     * @return Response
      */
     public function new(Request $request): Response
     {
@@ -77,7 +78,9 @@ class MarkChartController extends AbstractController
      * Displays a form to edit an existing Post entity.
      *
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="kpi_markchart_edit")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @param Request $request
+     * @param MarkChart $entity
+     * @return Response
      */
     public function edit(Request $request, MarkChart $entity): Response
     {
@@ -105,7 +108,8 @@ class MarkChartController extends AbstractController
      * Deletes a Setting entity.
      *
      * @Route("/{id}/delete", methods={"GET"}, name="kpi_markchart_delete")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @param $id
+     * @return Response
      */
     public function delete($id): Response
     {
@@ -120,9 +124,9 @@ class MarkChartController extends AbstractController
     /**
      *
      * @Route("/markchart-matrix", methods={"GET"}, name="kpi_markchart_matrix")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @param Request $request
+     * @return Response
      */
-
     public function markChartMatrix(Request $request)
     {
         $mode = $request->query->get('slug');
@@ -148,7 +152,9 @@ class MarkChartController extends AbstractController
     /**
      *
      * @Route("/{id}/update-ordering", methods={"GET"}, name="kpi_markchart_format_ordering")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @param Request $request
+     * @param $id
+     * @return JsonResponse
      */
     public function updateOrdering(Request $request, $id)
     {

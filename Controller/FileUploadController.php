@@ -7,6 +7,7 @@ use App\Entity\Admin\Location;
 use App\Entity\Core\Agent;
 use App\Entity\Core\Setting;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,11 +25,13 @@ use Terminalbd\KpiBundle\Form\FileUploadFormType;
  * Class FileUploadController
  * @package Terminalbd\KpiBundle\Controller\FileUpload
  * @Route("/kpi/file-upload", name="")
+ * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
  */
 class FileUploadController extends AbstractController
 {
     /**
      * @param Request $request
+     * @param TranslatorInterface $translator
      * @return \Symfony\Component\HttpFoundation\Response
      * @Route("/", name="kpi_file_upload_index")
      */
@@ -76,11 +79,11 @@ class FileUploadController extends AbstractController
     }
 
     /**
-     * @param Request $request
+     * @param DocumentUpload $file
      * @return \Symfony\Component\HttpFoundation\Response
      * @Route("/{id}/insert-data", name="kpi_file_upload_insert_data")
      */
-    public function insertDataFromUploadedFile(Request $request, DocumentUpload $file)
+    public function insertDataFromUploadedFile(DocumentUpload $file)
     {
         set_time_limit(0);
         ini_set('memory_limit', '5000M');
@@ -142,7 +145,7 @@ class FileUploadController extends AbstractController
     }
 
     /**
-     * @param Request $request
+     * @param DocumentUpload $file
      * @return \Symfony\Component\HttpFoundation\Response
      * @Route("/{id}/insert-data-district-wise", name="kpi_insert_data_district_wise")
      */
@@ -246,6 +249,7 @@ class FileUploadController extends AbstractController
 
     /**
      * @param Request $request
+     * @param TranslatorInterface $translator
      * @return \Symfony\Component\HttpFoundation\Response
      * @Route("/delete-file", name="kpi_file_upload_file_delete")
      */

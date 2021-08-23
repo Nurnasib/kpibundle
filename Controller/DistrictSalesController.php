@@ -13,6 +13,7 @@ use App\Entity\Admin\Location;
 use App\Entity\Core\Agent;
 use App\Entity\Core\Setting;
 use http\QueryString;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,6 +29,7 @@ use Terminalbd\KpiBundle\Service\Api;
 /**
  * @Route("/kpi/district")
  * @author Md Shafiqul Islam <shafiqabs@gmail.com>
+ * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
  */
 
 class DistrictSalesController extends AbstractController
@@ -48,6 +50,8 @@ class DistrictSalesController extends AbstractController
     /**
      * Lists all Post entities.
      * @Route("/sales", methods={"GET"}, name="kpi_district_sales")
+     * @param Request $request
+     * @return Response
      */
     public function sales(Request $request): Response
     {

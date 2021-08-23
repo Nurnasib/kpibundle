@@ -27,6 +27,7 @@ use Terminalbd\KpiBundle\Form\SettingSearchFilterFormType;
 /**
  * @Route("/kpi/setting")
  * @author Md Shafiqul Islam <shafiqabs@gmail.com>
+ * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
  */
 class SettingController extends AbstractController
 {
@@ -40,10 +41,11 @@ class SettingController extends AbstractController
         );
         return $pagination;
     }
-    
+
     /**
      * @Route("/", methods={"GET"}, name="kpi_setting")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @param Request $request
+     * @return Response
      */
     public function index(Request $request): Response
     {
@@ -68,8 +70,9 @@ class SettingController extends AbstractController
     }
 
     /**
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
      * @Route("/new", methods={"GET", "POST"}, name="kpi_setting_new")
+     * @param Request $request
+     * @return Response
      */
     public function new(Request $request): Response
     {
@@ -102,7 +105,9 @@ class SettingController extends AbstractController
      * Displays a form to edit an existing Post entity.
      *
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="kpi_setting_edit")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @param Request $request
+     * @param Setting $entity
+     * @return Response
      */
 
     public function edit(Request $request, Setting $entity): Response
@@ -130,7 +135,8 @@ class SettingController extends AbstractController
      * Deletes a Setting entity.
      *
      * @Route("/{id}/delete", methods={"GET"}, name="kpi_setting_delete")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @param $id
+     * @return Response
      */
     public function delete($id): Response
     {
@@ -141,9 +147,4 @@ class SettingController extends AbstractController
         $this->addFlash('success', 'post.deleted_successfully');
         return new Response('Success');
     }
-
-    
-
-
-
 }

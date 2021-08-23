@@ -5,6 +5,7 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,6 +23,7 @@ use Terminalbd\KpiBundle\Form\TeamMemberSummaryFilterFormType;
  * Class KpiReportController
  * @package Terminalbd\KpiBundle\Controller\kpiReport
  * @Route("/kpi/report")
+ * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
  */
 class KpiReportController extends AbstractController
 {

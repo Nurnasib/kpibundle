@@ -446,7 +446,9 @@ class EmployeeController extends AbstractController
 
     /**
      * @Route("/{id}/details", name="kpi_employee_details", options={"expose"=true})
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
      * @param User $employee
+     * @return JsonResponse
      */
     public function employeeDetails(User $employee)
     {
