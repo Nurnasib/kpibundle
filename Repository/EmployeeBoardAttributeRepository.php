@@ -131,7 +131,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $this->updateDocSales($board);
         $this->updateCategoryUpgrade($board);
 
-        $filterBy = [];
+/*        $filterBy = [];
         $filterBy['employeeId'] = $board->getEmployee()->getId();
         $filterBy['monthStart'] = date("{$board->getYear()}-m-01", strtotime($board->getMonth()));
         $filterBy['monthEnd'] = date("{$board->getYear()}-m-t", strtotime($board->getMonth()));
@@ -142,7 +142,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $this->updateEvaluationCriteriaAqua($board, $filterBy);
         } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'cattle-service') {
             $this->updateEvaluationCriteriaCattle($board, $filterBy);
-        }
+        }*/
         
         $this->agentSalesGrowth($board);
 
@@ -356,7 +356,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     public function updateEvaluationCriteriaAqua(EmployeeBoard $board, $filterBy)
     {
-//        dd(date("01-m-{$board->getYear()}",strtotime('February')));
         $em = $this->_em;
 
         $monthlyLessCostingFarmReport = $this->getAttributeForMonthlyReport($board, 'aqua-less-costing-farm-report');
@@ -896,8 +895,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             ];
         }
         $individualTeamDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'team-members-mark-on-core-activities', 'status' => 1));
-        $employeeBoardAttributeForIndividualTeam = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $individualTeamDistribution]);
-        $data['obtainMark'] = $employeeBoardAttributeForIndividualTeam->getMark();
+        if ($individualTeamDistribution){
+            $employeeBoardAttributeForIndividualTeam = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $individualTeamDistribution]);
+            $data['obtainMark'] = $employeeBoardAttributeForIndividualTeam ? $employeeBoardAttributeForIndividualTeam->getMark() : 0;
+        }
         return $data;
     }
 

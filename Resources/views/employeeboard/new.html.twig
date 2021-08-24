@@ -109,7 +109,20 @@
                                                             <td rowspan="{{ activity|length }}" {#class="parameter"#}><span>{{ entity.activity.name }}</span></td>
                                                         {% endif %}
                                                         {% if entity.attribute.status == 1 %}
-                                                            <td>{{ entity.attribute.name }}</td>
+                                                            <td>
+                                                                {{ entity.attribute.name }}
+{#                                                            {% if entity.activity.slug == 'customer-development' and entity.attribute.slug != 'aqua-develop-existing-customer-sales-volume' %}
+                                                                ( <input type="number" value="{{ entity.achieveReport }}" class="form-control customerDevelopment" id="customer-development-{{ entity.attribute.id }}" data-id="{{ entity.attribute.id }}" data-action="{{ path('kpi_employee_update_customer_development',{'id':entity.id}) }}" style="width: 10%; display: inline-block"> )
+                                                            {% endif %}#}
+
+                                                                {% if entity.activity.slug == 'customer-development' and entity.attribute.slug != 'aqua-develop-existing-customer-sales-volume' and entity.attribute.slug != 'cattle-develop-existing-customer-sales-volume' %}
+                                                                    <div style="display: flex; align-items: center">
+                                                                        <label for="customer-development-{{ entity.attribute.id }}" style="margin-bottom: 0; margin-right: 5px">Number of reports: </label>
+                                                                        <input type="number" min="0" oninput="validity.valid||(value='')" value="{{ entity.achieveReport }}" class="form-control customerDevelopment" id="customer-development-{{ entity.attribute.id }}" data-id="{{ entity.attribute.id }}" data-action="{{ path('kpi_employee_update_customer_development',{'id':entity.id}) }}" style="width: 10%">
+                                                                    </div>
+                                                                {% endif %}
+                                                            </td>
+
                                                             <td>{{ entity.attribute.mark }}</td>
                                                             <td>
 

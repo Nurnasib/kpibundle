@@ -100,12 +100,6 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            {% if board.actualMark > 0 %}
-                                                {% set totalMarkPercentage = (board.obtainMark * 100) / board.actualMark %}
-                                            {% else %}
-                                                {% set totalMarkPercentage = 0 %}
-                                            {% endif %}
-
                                                 {% for key, activities in entities %}
                                                     {% for activity in activities %}
                                                         {% set markPercentage = (activity.mark * 100) / activity.actualMark %}
@@ -126,9 +120,17 @@
                                                 {% endfor %}
                                                 <tr>
                                                     <td colspan="2" align="center"><b>All Total</b></td>
-                                                    <td><b>{{ board.actualMark|number_format(2) }}</b></td>
-                                                    <td><b>{{ board.obtainMark|number_format(2) }}</b></td>
-                                                    <td><b>{{ totalMarkPercentage|number_format(2) }}</b></td>
+                                                    <td><b>{{ totalActualMark|number_format(2) }}</b></td>
+                                                    <td><b>{{ totalObtainMark|number_format(2) }}</b></td>
+                                                    <td>
+                                                        <b>
+                                                            {% if totalActualMark > 0 %}
+                                                                {{ ((totalObtainMark * 100) / totalActualMark)|number_format(2) }}
+                                                                {% else %}
+                                                                0.00
+                                                            {% endif %}
+                                                        </b>
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                             <tfoot>

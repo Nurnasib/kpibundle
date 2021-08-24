@@ -267,11 +267,12 @@ class EmployeeBoardController extends AbstractController
      * Deletes a Setting entity.
      *
      * @Route("/{id}/attribute-update", methods={"GET"}, name="kpi_employee_board_attribute_update")
+     * @param EmployeeBoardAttribute $entity
+     * @return Response
      */
     public function attributeUpdate(EmployeeBoardAttribute $entity): Response
     {
         $mark = $_REQUEST['mark'];
-
         if($mark){
             $attribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($mark);
 
@@ -288,6 +289,8 @@ class EmployeeBoardController extends AbstractController
     /**
      *
      * @Route("/{id}/report-details", methods={"GET"}, name="kpi_details_report")
+     * @param $id
+     * @return Response
      */
     public function reportDetails($id): Response
     {
@@ -320,13 +323,14 @@ class EmployeeBoardController extends AbstractController
     /**
      *
      * @Route("/{id}/report-summary", methods={"GET"}, name="kpi_summary_report")
+     * @param EmployeeBoard $board
+     * @return Response
      */
-    public function reportSummary($id): Response
+    public function reportSummary(EmployeeBoard $board): Response
     {
         $totalObtainMark = 0;
         $totalActualMark = 0;
-        $entity = $this->getDoctrine()->getRepository(EmployeeBoard::class)->find($id);
-        $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->employeeBoardSummaryReport($entity);
+        $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->employeeBoardSummaryReport($board);
         foreach ($marks as $mark) {
             foreach ($mark as $item) {
                 $totalObtainMark += $item['mark'];
@@ -334,7 +338,7 @@ class EmployeeBoardController extends AbstractController
             }
         }
         return $this->render('@TerminalbdKpi/employeeboard/report/summary.html.twig', [
-            'board' => $entity,
+            'board' => $board,
             'entities' => $marks,
             'totalObtainMark' => $totalObtainMark,
             'totalActualMark' => $totalActualMark,
@@ -345,15 +349,14 @@ class EmployeeBoardController extends AbstractController
     /**
      *
      * @Route("/{id}/report-summary-print", methods={"GET"}, name="kpi_summary_report_print")
-     * @param $id
+     * @param EmployeeBoard $board
      * @return Response
      */
-    public function reportSummaryPdf($id): Response
+    public function reportSummaryPdf(EmployeeBoard $board): Response
     {
         $totalObtainMark = 0;
         $totalActualMark = 0;
-        $entity = $this->getDoctrine()->getRepository(EmployeeBoard::class)->find($id);
-        $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->employeeBoardSummaryReport($entity);
+        $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->employeeBoardSummaryReport($board);
         foreach ($marks as $mark) {
             foreach ($mark as $item) {
                 $totalObtainMark += $item['mark'];
@@ -361,7 +364,7 @@ class EmployeeBoardController extends AbstractController
             }
         }
         return $this->render('@TerminalbdKpi/employeeboard/report/summary-print.html.twig', [
-            'board' => $entity,
+            'board' => $board,
             'entities' => $marks,
             'totalObtainMark' => $totalObtainMark,
             'totalActualMark' => $totalActualMark,
@@ -503,5 +506,56 @@ class EmployeeBoardController extends AbstractController
         $em->persist($employeeBoard);
         $em->flush();
         return $this->redirectToRoute('kpi_employee_board');
+    }
+
+
+    /**
+     * @param EmployeeBoardAttribute $boardAttribute
+     * @param Request $request
+     * @return JsonResponse
+     * @Route("/{id}/update-customer-development", name="kpi_employee_update_customer_development")
+     */
+    public function updateCustomerDevelopment(EmployeeBoardAttribute $boardAttribute, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $numberOfReports = $request->query->get('numberOfReports');
+
+        if ($boardAttribute->getAttribute()->getSlug() === 'poultry-antibiotic-free-farm-report' || $boardAttribute->getAttribute()->getSlug() === 'poultry-less-costing-farm-report' || $boardAttribute->getAttribute()->getSlug() === 'aqua-less-costing-farm-report'){
+            if ($numberOfReports >= 4){
+                $boardAttribute->setMark(4);
+            }elseif ($numberOfReports < 4 && $numberOfReports > 0){
+                $boardAttribute->setMark($numberOfReports * 1);
+            }else{
+                $boardAttribute->setMark(0);
+            }
+        }elseif ($boardAttribute->getAttribute()->getSlug() === 'monthly-new-farm-introduce-to-nourish-family-5-per-month' || $boardAttribute->getAttribute()->getSlug() ==='5-cattle-included-per-month-in-your-head' || $boardAttribute->getAttribute()->getSlug() === 'monthly-new-fish-farm-introduce-to-nourish-family-5-per-month' || $boardAttribute->getAttribute()->getSlug() === 'cattle-less-costing-farm-report' || $boardAttribute->getAttribute()->getSlug() === 'monthly-new-cattle-farm-introduce-to-nourish-family-5-per-month'){
+            if ($numberOfReports >= 5){
+                $boardAttribute->setMark(5);
+            }elseif ($numberOfReports < 5 && $numberOfReports > 0){
+                $boardAttribute->setMark($numberOfReports * 1);
+            }else{
+                $boardAttribute->setMark(0);
+            }
+        }elseif ($boardAttribute->getAttribute()->getSlug() === 'monthly-new-fish-agent-sub-agent-introduce-to-nourish-family-1-per-month'){
+            if ($numberOfReports >= 2){
+                $boardAttribute->setMark(2);
+            }elseif ($numberOfReports < 2 && $numberOfReports > 0){
+                $boardAttribute->setMark($numberOfReports * 1);
+            }else{
+                $boardAttribute->setMark(0);
+            }
+        }elseif ($boardAttribute->getAttribute()->getSlug() === 'monthly-new-cattle-agent-sub-agent-introduce-to-nourish-family-2-per-month'){
+            if ($numberOfReports >= 3){
+                $boardAttribute->setMark(3);
+            }elseif ($numberOfReports < 3 && $numberOfReports > 0){
+                $boardAttribute->setMark($numberOfReports * 1);
+            }else{
+                $boardAttribute->setMark(0);
+            }
+        }
+        $boardAttribute->setAchieveReport($numberOfReports);
+        $em->flush();
+
+        return new JsonResponse($boardAttribute->getMark());
     }
 }

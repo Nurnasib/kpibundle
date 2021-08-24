@@ -189,7 +189,13 @@
                                         <th>{{ 'Total'|trans }}</th>
                                         <th>{{ totalCollection|number_format(2,'.', ',')|default(0) }}</th>
                                         <th>{{ totalSales|number_format(2,'.', ',')|default(0) }}</th>
-                                        <th>{{ ((totalSales * 100) / totalCollection)|number_format(2,'.', ',')|default(0) }} %</th>
+                                        <th>
+                                            {% if totalCollection != 0 %}
+                                                {{ ((totalSales * 100) / totalCollection)|number_format(2,'.', ',')|default(0) }} %
+                                            {% else %}
+                                                0.00%
+                                            {% endif %}
+                                        </th>
                                         <th>{{ docSale['mark']|default(0) }}</th>
                                     </tr>
                                 {% else %}
@@ -359,7 +365,13 @@
                                             <th>{{ "Total"|trans }}</th>
                                             <th>{{ totalActualMark|default('0') }}</th>
                                             <th>{{ totalMark|default('0') }}</th>
-                                            <th>{{ ((totalMark * 100) / totalActualMark)|number_format(2)|default(0) }} %</th>
+                                            <th>
+                                                {% if totalActualMark != 0 %}
+                                                    {{ ((totalMark * 100) / totalActualMark)|number_format(2)|default(0) }} %
+                                                    {% else %}
+                                                    0.00 %
+                                                {% endif %}
+                                            </th>
                                             <th>{{ individualTeamMemberMarks['obtainMark']|default('0') }}</th>
                                         </tr>
                                     {% else %}
