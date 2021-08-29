@@ -27,7 +27,7 @@ class EmployeeFilterFormType extends AbstractType
         $lineManagers = $options['lineManagers'];
         $loginUser = $options['loginUser'];
 
-        if ($loginUser->getUserGroup()->getSlug() == 'administrator'){
+        if (in_array('ROLE_ADMIN', $loginUser->getRoles())){
             $builder->add('lineManager', ChoiceType::class,[
                 'choices' => $lineManagers,
                 'attr' => [
@@ -44,7 +44,7 @@ class EmployeeFilterFormType extends AbstractType
                     return '(' . $user->getUserId() . ') ' . $user->getName();
                 },
                 'query_builder' => function (EntityRepository $er) use($loginUser) {
-                if ($loginUser->getUserGroup()->getSlug() != 'administrator'){
+                if (!in_array('ROLE_ADMIN', $loginUser->getRoles())){
                     return $er->createQueryBuilder('e')
                         ->join('e.lineManager','lineManager')
                         ->where('e.enabled =1')

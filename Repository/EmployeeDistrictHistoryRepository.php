@@ -33,9 +33,17 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
 
         $query = "SELECT core_user.name, core_user.user_id, kpi_employee_district_history.district FROM kpi_employee_district_history JOIN core_user ON core_user.id = kpi_employee_district_history.employee_id WHERE kpi_employee_district_history.id IN (SELECT MAX(kpi_employee_district_history.id) FROM kpi_employee_district_history GROUP BY employee_id,month,year ) AND month = :month AND year = :year";
 
+        if (!in_array('ROLE_ADMIN', $filterBy['user']->getRoles())){
+            $query .= " AND core_user.line_manager_id = :lineManagerId";
+        }
+
         $stmt = $em->getConnection()->prepare($query);
         $stmt->bindValue('month', $filterBy['month']);
         $stmt->bindValue('year', $filterBy['year']);
+
+        if (!in_array('ROLE_ADMIN', $filterBy['user']->getRoles())){
+            $stmt->bindValue('lineManagerId', $filterBy['user']->getId());
+        }
         $stmt->execute();
         $records =  $stmt->fetchAll();
 
@@ -52,8 +60,12 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
             ->from(User::class, 'u')
             ->leftJoin('u.district', 'district')
             ->where("u.userMode = 'KPI'")
-            ->andWhere('u.enabled = 1')
-        ;
+            ->andWhere('u.enabled = 1');
+        if (!in_array('ROLE_ADMIN', $filterBy['user']->getRoles())){
+            $qb->leftJoin('u.lineManager', 'lineManager')
+                ->andWhere('lineManager.id = :lineManagerId')->setParameter('lineManagerId', $filterBy['user']->getId());
+        }
+
         $allEmployees = $qb->getQuery()->getArrayResult();
         $allEmployeesArray = [];
         foreach ($allEmployees as $allEmployee) {

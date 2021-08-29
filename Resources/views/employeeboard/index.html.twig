@@ -48,10 +48,12 @@
                                         {{ form_label(form.kpiFormat, "Format") }}
                                         {{ form_widget(form.kpiFormat) }}
                                     </th>
-                                    <th colspan="2">
-                                        {{ form_label(form.lineManager) }}
-                                        {{ form_widget(form.lineManager) }}
-                                    </th>
+                                    {% if is_granted('ROLE_ADMIN') %}
+                                        <th colspan="2">
+                                            {{ form_label(form.lineManager) }}
+                                            {{ form_widget(form.lineManager) }}
+                                        </th>
+                                    {% endif %}
                                     <th colspan="2">
                                         {{ form_label(form.month) }}
                                         {{ form_widget(form.month) }}
@@ -60,7 +62,7 @@
                                         {{ form_label(form.year) }}
                                         {{ form_widget(form.year) }}
                                     </th>
-                                    {% if app.user.userGroup.slug == 'administrator' %}
+                                    {% if is_granted('ROLE_ADMIN') %}
                                         <th colspan="2">
                                             {{ form_label(form.createdBy) }}
                                             {{ form_widget(form.createdBy) }}

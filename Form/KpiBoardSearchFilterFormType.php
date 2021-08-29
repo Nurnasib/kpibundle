@@ -33,10 +33,8 @@ class KpiBoardSearchFilterFormType extends AbstractType
     {
         $user = $options['user'];
         $lineManagers = $options['lineManagers'];
-        $userId = $user->getId();
-        $userGroup = $user->getUserGroup()?$user->getUserGroup()->getSlug():'';
-        
-        if ($userGroup == 'administrator'){
+
+        if (in_array('ROLE_ADMIN', $user->getRoles())){
             $builder
                 ->add('createdBy', ChoiceType::class,[
                     'choices' => $lineManagers,
@@ -45,17 +43,25 @@ class KpiBoardSearchFilterFormType extends AbstractType
                     ],
                     'placeholder' => 'Select created by',
                     'required' => false,
-                ]);
+                ])
+                ->add('lineManager', ChoiceType::class,[
+                    'choices' => $lineManagers,
+                    'attr' => [
+                        'class' => 'select2',
+                    ],
+                    'placeholder' => 'Select line manager',
+                    'required' => false,
+                ])
+            ;
         }
         $builder
             ->add('employee', EntityType::class, [
                 'class' => User::class,
                 'choice_label' => function($user){
-                    $employee = '( ' . $user->getUserId() . ' ) ' . $user->getName();
-                    return $employee;
+                    return'( ' . $user->getUserId() . ' ) ' . $user->getName();
                 },
-                'query_builder' => function (EntityRepository $er) use ($userId, $userGroup) {
-                    if($userGroup=='administrator'){
+                'query_builder' => function (EntityRepository $er) use ($user) {
+                    if(in_array('ROLE_ADMIN', $user->getRoles())){
                         return $er->createQueryBuilder('e')
                             ->join('e.userGroup','ug')
                             ->where('e.enabled =1')
@@ -65,7 +71,7 @@ class KpiBoardSearchFilterFormType extends AbstractType
                         return $er->createQueryBuilder('e')
                             ->join('e.lineManager','lm')
                             ->where('e.enabled =1')
-                            ->andWhere("lm.id =:lmId")->setParameter('lmId',$userId)
+                            ->andWhere("lm.id =:lmId")->setParameter('lmId', $user->getId())
                             ->orderBy('e.name', 'ASC');
                     }
                 },
@@ -102,15 +108,7 @@ class KpiBoardSearchFilterFormType extends AbstractType
                 'required' => false,
 
             ])
-            ->add('lineManager', ChoiceType::class,[
-                'choices' => $lineManagers,
-                'attr' => [
-                    'class' => 'select2',
-                ],
-                'placeholder' => 'Select line manager',
-                'required' => false,
-            ])
-            
+
             ->add('month', ChoiceType::class,[
                 'choices' => [
                     'January' => 'January',

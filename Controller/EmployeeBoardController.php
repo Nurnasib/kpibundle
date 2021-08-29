@@ -57,9 +57,12 @@ class EmployeeBoardController extends AbstractController
         );
         return $pagination;
     }
-    
+
     /**
      * @Route("/", methods={"GET"}, name="kpi_employee_board", options={"expose"=true})
+     * @param Request $request
+     * @param UserRepository $userRepository
+     * @return Response
      */
     public function index(Request $request, UserRepository $userRepository): Response
     {
@@ -87,6 +90,8 @@ class EmployeeBoardController extends AbstractController
     /**
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN')")
      * @Route("/new", methods={"GET", "POST"}, name="kpi_board_new")
+     * @param Request $request
+     * @return Response
      */
     public function new(Request $request): Response
     {
@@ -138,6 +143,9 @@ class EmployeeBoardController extends AbstractController
 
     /**
      * @Route("/{setup}/kpi-generate/", methods={"GET", "POST"}, name="kpi_employee_board_generate")
+     * @param Request $request
+     * @param EmployeeSetup $setup
+     * @return Response
      */
     public function generate(Request $request, EmployeeSetup $setup): Response
     {
@@ -166,6 +174,9 @@ class EmployeeBoardController extends AbstractController
      * Displays a form to edit an existing Post entity.
      *
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="kpi_employee_board_edit")
+     * @param Request $request
+     * @param EmployeeBoard $entity
+     * @return Response
      */
 
     public function edit(Request $request, EmployeeBoard $entity): Response
@@ -196,8 +207,12 @@ class EmployeeBoardController extends AbstractController
             'arrayData' => $arrayData,
         ]);
     }
+
     /**
      * @Route("/{id}/preview", methods={"GET"}, name="kpi_employee_board_preview")
+     * @param Request $request
+     * @param EmployeeBoard $entity
+     * @return Response
      */
     public function detailsPreview(Request $request, EmployeeBoard $entity): Response
     {
@@ -252,12 +267,13 @@ class EmployeeBoardController extends AbstractController
      *
      * @Route("/{id}/delete", methods={"GET"}, name="kpi_employee_board_delete")
      * @Security("is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_ADMIN')")
+     * @param EmployeeBoard $board
+     * @return Response
      */
-    public function delete($id): Response
+    public function delete(EmployeeBoard $board): Response
     {
-        $entity = $this->getDoctrine()->getRepository(EmployeeBoard::class)->find($id);
         $em = $this->getDoctrine()->getManager();
-        $em->remove($entity);
+        $em->remove($board);
         $em->flush();
         $this->addFlash('success', 'post.deleted_successfully');
         return $this->redirectToRoute('kpi_employee_board');

@@ -23,7 +23,7 @@ use Terminalbd\KpiBundle\Form\TeamMemberSummaryFilterFormType;
  * Class KpiReportController
  * @package Terminalbd\KpiBundle\Controller\kpiReport
  * @Route("/kpi/report")
- * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+ * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_KPI_LINE_MANAGER')")
  */
 class KpiReportController extends AbstractController
 {
@@ -211,11 +211,14 @@ class KpiReportController extends AbstractController
         $filterBy = [
             'month' => date('F'),
             'year' => date('Y'),
+            'user' => $this->getUser(),
         ];
         $form = $this->createForm(DistrictHistorySearchFilterFormType::class);
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()){
+        if ($form->isSubmitted()){
             $filterBy = $form->getData();
+            $filterBy['user'] = $this->getUser();
+
             $data = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->getDistrictHistory($filterBy);
 
             if ($request->query->has('pdf')){

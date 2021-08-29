@@ -9,14 +9,17 @@
                         </ul>
                 </li>
                 <li><a class="dropdown-item" href="{{ path('kpi_markchart_matrix') }}">KPI Format</a>
-                        {% if modes is not empty %}
-                                <ul>
-                                        <li><a class="dropdown-item" href="{{ path('kpi_markchart') }}">Mark Chart</a></li>
-                                        {% for mode in modes %}
-                                                <li><a href="{{ path('kpi_markchart_matrix',{'slug':mode.slug}) }}">{{ mode.name }}</a></li>
-                                        {% endfor %}
-                                </ul>
+                    <ul>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <li><a class="dropdown-item" href="{{ path('kpi_markchart') }}">Mark Chart</a></li>
                         {% endif %}
+                        {% if modes is not empty %}
+                            {% for mode in modes %}
+                                <li><a href="{{ path('kpi_markchart_matrix',{'slug':mode.slug}) }}">{{ mode.name }}</a></li>
+                            {% endfor %}
+                        {% endif %}
+
+                    </ul>
                 </li>
                 <li><a class="dropdown-item" href="{{ path('kpi_location_sales') }}">District Sales Target</a></li>
                 <li><a class="dropdown-item" href="javascript:">Sales</a>
@@ -39,8 +42,10 @@
                             {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI_EXECUTIVE') %}
                                 <li><a class="dropdown-item" href="{{ path('kpi_file_upload_index') }}">Data Import</a></li>
                             {% endif %}
-                            <li><a class="dropdown-item" href="{{ path('kpi_setting') }}">Setting</a></li>
-                            <li><a class="dropdown-item" href="{{ path('kpi_setting_new') }}">New Setting</a></li>
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <li><a class="dropdown-item" href="{{ path('kpi_setting') }}">Setting</a></li>
+                                <li><a class="dropdown-item" href="{{ path('kpi_setting_new') }}">New Setting</a></li>
+                            {% endif %}
                         </ul>
                 </li>
         {% endif %}
