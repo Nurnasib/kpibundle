@@ -55,10 +55,12 @@
                                     {{ form_label(form.kpiFormat, "Format") }}
                                     {{ form_widget(form.kpiFormat) }}
                                 </th>
-                                <th colspan="2">
-                                    {{ form_label(form.lineManager) }}
-                                    {{ form_widget(form.lineManager) }}
-                                </th>
+                                {% if app.user.userGroup.slug == 'administrator' %}
+                                    <th colspan="2">
+                                        {{ form_label(form.lineManager) }}
+                                        {{ form_widget(form.lineManager) }}
+                                    </th>
+                                {% endif %}
                                 <th colspan="2">
                                     {{ form_label(form.department) }}
                                     {{ form_widget(form.department) }}

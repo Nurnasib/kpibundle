@@ -1,6 +1,6 @@
 <ul class="" aria-labelledby="navbarDropdownMenuLink">
-        <li><a class="dropdown-item" href="{{ path('kpi_employee_board') }}">KPI Board</a></li>
-        {% if is_granted('ROLE_ADMIN') %}
+        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI_LINE_MANAGER') %}
+                <li><a class="dropdown-item" href="{{ path('kpi_employee_board') }}">KPI Board</a></li>
                 <li><a class="dropdown-item" href="javascript:">Report</a>
                         <ul>
                                 <li><a class="dropdown-item" href="{{ path('all_team_member_summary') }}">All Employee KPI</a></li>
@@ -31,11 +31,16 @@
                 </li>
                 <li><a class="dropdown-item" href="javascript:">Master Data</a>
                         <ul>
-                                <li><a class="dropdown-item" href="{{ path('kpi_employee') }}">KPI Employee</a></li>
+                            <li><a class="dropdown-item" href="{{ path('kpi_employee') }}">KPI Employee</a></li>
+
+                            {% if is_granted('ROLE_ADMIN') %}
                                 <li><a class="dropdown-item" href="{{ path('kpi_employee_hierarchy') }}">KPI Employee Hierarchy</a></li>
+                            {% endif %}
+                            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI_EXECUTIVE') %}
                                 <li><a class="dropdown-item" href="{{ path('kpi_file_upload_index') }}">Data Import</a></li>
-                                <li><a class="dropdown-item" href="{{ path('kpi_setting') }}">Setting</a></li>
-                                <li><a class="dropdown-item" href="{{ path('kpi_setting_new') }}">New Setting</a></li>
+                            {% endif %}
+                            <li><a class="dropdown-item" href="{{ path('kpi_setting') }}">Setting</a></li>
+                            <li><a class="dropdown-item" href="{{ path('kpi_setting_new') }}">New Setting</a></li>
                         </ul>
                 </li>
         {% endif %}

@@ -54,7 +54,7 @@ class EmployeeController extends AbstractController
 
     /**
      * @Route("/list", methods={"GET"}, name="kpi_employee")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_CRM')")
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_CRM') or is_granted('ROLE_KPI_LINE_MANAGER')")
      * @param Request $request
      * @param UserRepository $userRepository
      * @return Response
@@ -64,9 +64,10 @@ class EmployeeController extends AbstractController
         $lineManagers = $userRepository->getLineManager();
         $user = $this->getUser();
 
-        $entities = $this->getDoctrine()->getRepository(User::class)->findBy(['userMode' => 'KPI']);
+//        $entities = $this->getDoctrine()->getRepository(User::class)->findBy(['userMode' => 'KPI']);
+        $entities = $this->getDoctrine()->getRepository(User::class)->getKpiEmployees($user);
 
-        $searchForm = $this->createForm(EmployeeFilterFormType::class,null, ['lineManagers' => $lineManagers]);
+        $searchForm = $this->createForm(EmployeeFilterFormType::class,null, ['lineManagers' => $lineManagers, 'loginUser' => $user]);
 
         $searchForm->handleRequest($request);
         if ($searchForm->isSubmitted()){

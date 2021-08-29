@@ -25,21 +25,40 @@ class EmployeeFilterFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $lineManagers = $options['lineManagers'];
+        $loginUser = $options['loginUser'];
 
+        if ($loginUser->getUserGroup()->getSlug() == 'administrator'){
+            $builder->add('lineManager', ChoiceType::class,[
+                'choices' => $lineManagers,
+                'attr' => [
+                    'class' => 'select2',
+                ],
+                'placeholder' => 'Select line manager',
+                'required' => false,
+            ]);
+        }
         $builder
             ->add('employee', EntityType::class, [
                 'class' => User::class,
                 'choice_label' => function($user){
-                $employee = '(' . $user->getUserId() . ') ' . $user->getName();
-                return $employee;
+                    return '(' . $user->getUserId() . ') ' . $user->getName();
                 },
-                'query_builder' => function (EntityRepository $er) {
+                'query_builder' => function (EntityRepository $er) use($loginUser) {
+                if ($loginUser->getUserGroup()->getSlug() != 'administrator'){
+                    return $er->createQueryBuilder('e')
+                        ->join('e.lineManager','lineManager')
+                        ->where('e.enabled =1')
+                        ->andWhere("e.userMode = 'KPI'")
+                        ->andWhere('lineManager.id = :lineManagerId')->setParameter('lineManagerId', $loginUser->getId())
+                        ->orderBy('e.name', 'ASC');
+                }else{
                     return $er->createQueryBuilder('e')
                         ->join('e.userGroup','ug')
                         ->where('e.enabled =1')
                         ->andWhere("ug.slug =:slug")->setParameter('slug','employee')
                         ->andWhere("e.userMode = 'KPI'")
                         ->orderBy('e.name', 'ASC');
+                }
 
                 },
                 'attr'=>[
@@ -75,14 +94,6 @@ class EmployeeFilterFormType extends AbstractType
                 'required' => false,
 
             ])
-            ->add('lineManager', ChoiceType::class,[
-                'choices' => $lineManagers,
-                'attr' => [
-                    'class' => 'select2',
-                ],
-                'placeholder' => 'Select line manager',
-                'required' => false,
-            ])
             ->add('employeeMobile', TextType::class,[
                 'attr' => [
                     'placeholder' => 'Mobile Number'
@@ -115,6 +126,7 @@ class EmployeeFilterFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => null,
             'lineManagers' => User::class,
+            'loginUser' => User::class,
         ]);
     }
 
