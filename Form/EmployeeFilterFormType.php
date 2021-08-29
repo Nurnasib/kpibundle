@@ -53,9 +53,7 @@ class EmployeeFilterFormType extends AbstractType
                         ->orderBy('e.name', 'ASC');
                 }else{
                     return $er->createQueryBuilder('e')
-                        ->join('e.userGroup','ug')
                         ->where('e.enabled =1')
-                        ->andWhere("ug.slug =:slug")->setParameter('slug','employee')
                         ->andWhere("e.userMode = 'KPI'")
                         ->orderBy('e.name', 'ASC');
                 }
