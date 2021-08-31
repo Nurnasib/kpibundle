@@ -54,7 +54,7 @@ class EmployeeController extends AbstractController
 
     /**
      * @Route("/list", methods={"GET"}, name="kpi_employee")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_CRM') or is_granted('ROLE_KPI_LINE_MANAGER')")
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_KPI_LINE_MANAGER')")
      * @param Request $request
      * @param UserRepository $userRepository
      * @return Response
@@ -64,7 +64,6 @@ class EmployeeController extends AbstractController
         $lineManagers = $userRepository->getLineManager();
         $user = $this->getUser();
 
-//        $entities = $this->getDoctrine()->getRepository(User::class)->findBy(['userMode' => 'KPI']);
         $entities = $this->getDoctrine()->getRepository(User::class)->getKpiEmployees($user);
 
         $searchForm = $this->createForm(EmployeeFilterFormType::class,null, ['lineManagers' => $lineManagers, 'loginUser' => $user]);
@@ -75,7 +74,7 @@ class EmployeeController extends AbstractController
             if (count(array_keys($filterBy, null)) == count($filterBy)){
                 $entities = [];
             } else{
-                $entities = $this->getDoctrine()->getRepository(User::class)->getSearchedEmployee($filterBy);
+                $entities = $this->getDoctrine()->getRepository(User::class)->getSearchedEmployee($filterBy, $user);
             }
         }
         $data = $this->paginate($request, $entities);
@@ -87,7 +86,7 @@ class EmployeeController extends AbstractController
 
 
     /**
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_CRM')")
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
      * @Route("/register", methods={"GET", "POST"}, name="kpi_employee_register")
      * @param Request $request
      * @return Response
@@ -121,23 +120,21 @@ class EmployeeController extends AbstractController
     }
 
     /**
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_CRM')")
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="kpi_employee_edit")
      * @param Request $request
      * @param User $post
      * @return Response
      */
-    public function edit(Request $request ,User $post): Response
+    public function edit(Request $request, User $post): Response
     {
         $data = $request->request->all();
-//        $post = $this->getDoctrine()->getRepository(User::class)->findOneBy(['id'=> $id]);
         $terminal = $this->getUser()->getTerminal();
         $userRepo = $this->getDoctrine()->getRepository(User::class);
         $form = $this->createForm(EditEmployeeFormType::class, $post, array('terminal' => $terminal,'userRepo' => $userRepo))
             ->add('SaveAndCreate', SubmitType::class);
         $form->remove('phone');
         $form->handleRequest($request);
-        //  $errors = $this->getErrorsFromForm($form);
         if ($form->isSubmitted()) {
             $em = $this->getDoctrine()->getManager();
             $lastAssignDistrict = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $post], ['id' => 'DESC']);
@@ -447,7 +444,7 @@ class EmployeeController extends AbstractController
 
     /**
      * @Route("/{id}/details", name="kpi_employee_details", options={"expose"=true})
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_KPI_LINE_MANAGER')")
      * @param User $employee
      * @return JsonResponse
      */

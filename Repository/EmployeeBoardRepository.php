@@ -56,7 +56,6 @@ class EmployeeBoardRepository extends EntityRepository
 
     public function getEmployeeBoardListFilterBy(User $user, $filterBy)
     {
-        $userGroup = $user->getUserGroup()->getSlug();
 
         $qb = $this->createQueryBuilder('s');
         $qb->join('s.employee','u');
@@ -81,7 +80,7 @@ class EmployeeBoardRepository extends EntityRepository
         if ($filterBy['kpiFormat']){
             $qb->andWhere('reportMode.id = :reportModeId')->setParameter('reportModeId', $filterBy['kpiFormat']->getId());
         }
-        if ($filterBy['lineManager']){
+        if (isset($filterBy['lineManager'])){
             $qb->andWhere('lm.id = :lineManagerId')->setParameter('lineManagerId', $filterBy['lineManager']);
         }
         if ($filterBy['month']){
@@ -93,7 +92,7 @@ class EmployeeBoardRepository extends EntityRepository
         if (array_key_exists('createdBy', $filterBy) && isset($filterBy['createdBy'])){
             $qb->andWhere('createdBy.id = :createdById')->setParameter('createdById', $filterBy['createdBy']);
         }
-        if ($userGroup != 'administrator'){
+        if (!in_array('ROLE_ADMIN', $user->getRoles())){
             $qb->andWhere('s.createdBy = :user')->setParameter('user', $user);
         }
         $qb->orderBy('s.created','DESC');

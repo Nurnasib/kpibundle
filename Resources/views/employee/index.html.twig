@@ -22,8 +22,13 @@
                     <h5>{{ 'KPI Employee'|trans }}</h5>
                     <div class="card-header-right">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
-                            <a href="{{ path('kpi_employee_register') }}" class="btn btn-sm  green-bg white-font"><i
-                                        class="fa fa-plus"></i>{{ 'New Employee'|trans }}</a>
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <a
+                                        href="{{ path('kpi_employee_register') }}"
+                                        class="btn btn-sm  green-bg white-font">
+                                    <i class="fa fa-plus"></i>{{ 'New Employee'|trans }}
+                                </a>
+                            {% endif %}
                             <a href="{{ path('kpi_employee') }}" class="btn btn-sm gray-bg white-font"><i
                                         class="fa fa-th-large"></i>{{ 'Employee'|trans }}</a>
                         </div>
@@ -97,7 +102,9 @@
                                 <th scope="col">Designation</th>
                                 <th scope="col">Line Manager</th>
                                 <th scope="col">Report Mode</th>
-                                <th scope="col">Password</th>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <th scope="col">Password</th>
+                                {% endif %}
                                 <th scope="col">Mobile</th>
                                 <th scope="col" width="20%">Districts</th>
                                 <th scope="col">Email</th>
@@ -112,68 +119,77 @@
                                 {% for entity in entities %}
                                     <tr>
                                         <td>{{ loop.index + offset }}</td>
-                                        <td>{{ entity.userId }}</td>
-                                        <td>{{ entity.name }}</td>
-                                        <td>
-                                            <a
-                                                    data-type="select"
-                                                    class="editable"
-                                                    id="designation-{% if entity.designation.id is defined and entity.designation.id is not empty %}{{ entity.designation.id }}{% endif %}"
-                                                    data-name="designation"
-                                                    href="#"
-                                                    data-source="{{ path('kpi_designation_select',{id:entity.id}) }}"
-                                                    data-url="{{ path('kpi_designation_inline_update',{id:entity.id}) }}"
-                                                    data-pk="{% if entity.designation.id is defined and entity.designation.id is not empty %}{{ entity.designation.id }}{% endif %}"
-                                                    data-value="{% if entity.designation.id is defined and entity.designation.id is not empty %}{{ entity.designation.id }}{% endif %}"
-                                                    data-original-title="Select designation">
-                                                {% if entity.designation.name is defined and entity.designation.name is not empty %}{{ entity.designation.name }}{% endif %}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <a
-                                                    data-type="select"
-                                                    class="editable"
-                                                    id="lineManager-{% if entity.lineManager.id is defined and entity.lineManager.id is not empty %}{{ entity.lineManager.id }}{% endif %}"
-                                                    data-name="lineManager"
-                                                    href="#"
-                                                    data-source="{{ path('kpi_line_manager_select',{id:entity.id}) }}"
-                                                    data-url="{{ path('kpi_line_manager_inline_update',{id:entity.id}) }}"
-                                                    data-pk="{% if entity.lineManager.id is defined and entity.lineManager.id is not empty %}{{ entity.lineManager.id }}{% endif %}"
-                                                    data-value="{% if entity.lineManager.id is defined and entity.lineManager.id is not empty %}{{ entity.lineManager.id }}{% endif %}"
-                                                    data-original-title="Select Line Manager">
-                                                {% if entity.lineManager.name is defined and entity.lineManager.name is not empty %}
-                                                    {{ entity.lineManager.name|default('') }}
-                                                {% endif %}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <a
-                                                    data-type="select"
-                                                    class="editable"
-                                                    id="reportMode-{% if entity.reportMode.id is defined and entity.reportMode.id is not empty %}{{ entity.reportMode.id }}{% endif %}"
-                                                    data-name="reportMode"
-                                                    href="#"
-                                                    data-source="{{ path('kpi_report_mode_select',{id:entity.id}) }}"
-                                                    data-url="{{ path('kpi_report_mode_inline_update',{id:entity.id}) }}"
-                                                    data-pk="{% if entity.reportMode.id is defined and entity.reportMode.id is not empty %}{{ entity.reportMode.id }}{% endif %}"
-                                                    data-value="{% if entity.reportMode.id is defined and entity.reportMode.id is not empty %}{{ entity.reportMode.id }}{% endif %}"
-                                                    data-original-title="Select Report Mode">
-                                                {% if entity.reportMode.name is defined and entity.reportMode.name is not empty %}
-                                                    {{ entity.reportMode.name|default('') }}
-                                                {% endif %}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <a
-                                                    data-type="text"
-                                                    class="editable"
-                                                    id="password-{{ entity.id }}"
-                                                    data-name="price"
-                                                    href="javascript:"
-                                                    data-url="{{ path('kpi_employee_inline_password',{'id':entity.id}) }}"
-                                                    data-pk="{{ entity.id }}"
-                                                    data-value="">password</a>
-                                        </td>
+                                        <td>{{ entity.userId|default('') }}</td>
+                                        <td>{{ entity.name|default('') }}</td>
+                                        {% if not is_granted('ROLE_ADMIN') %}
+                                            <td>{{ entity.designation.name|default('') }}</td>
+                                            <td>{{ entity.lineManager.name|default('') }}</td>
+                                            <td>{{ entity.reportMode.name|default('') }}</td>
+                                        {% endif %}
+
+                                        {% if is_granted('ROLE_ADMIN') %}
+                                            <td>
+                                                <a
+                                                        data-type="select"
+                                                        class="editable"
+                                                        id="designation-{% if entity.designation.id is defined and entity.designation.id is not empty %}{{ entity.designation.id }}{% endif %}"
+                                                        data-name="designation"
+                                                        href="#"
+                                                        data-source="{{ path('kpi_designation_select',{id:entity.id}) }}"
+                                                        data-url="{{ path('kpi_designation_inline_update',{id:entity.id}) }}"
+                                                        data-pk="{% if entity.designation.id is defined and entity.designation.id is not empty %}{{ entity.designation.id }}{% endif %}"
+                                                        data-value="{% if entity.designation.id is defined and entity.designation.id is not empty %}{{ entity.designation.id }}{% endif %}"
+                                                        data-original-title="Select designation">
+                                                    {% if entity.designation.name is defined and entity.designation.name is not empty %}{{ entity.designation.name }}{% endif %}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a
+                                                        data-type="select"
+                                                        class="editable"
+                                                        id="lineManager-{% if entity.lineManager.id is defined and entity.lineManager.id is not empty %}{{ entity.lineManager.id }}{% endif %}"
+                                                        data-name="lineManager"
+                                                        href="#"
+                                                        data-source="{{ path('kpi_line_manager_select',{id:entity.id}) }}"
+                                                        data-url="{{ path('kpi_line_manager_inline_update',{id:entity.id}) }}"
+                                                        data-pk="{% if entity.lineManager.id is defined and entity.lineManager.id is not empty %}{{ entity.lineManager.id }}{% endif %}"
+                                                        data-value="{% if entity.lineManager.id is defined and entity.lineManager.id is not empty %}{{ entity.lineManager.id }}{% endif %}"
+                                                        data-original-title="Select Line Manager">
+                                                    {% if entity.lineManager.name is defined and entity.lineManager.name is not empty %}
+                                                        {{ entity.lineManager.name|default('') }}
+                                                    {% endif %}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a
+                                                        data-type="select"
+                                                        class="editable"
+                                                        id="reportMode-{% if entity.reportMode.id is defined and entity.reportMode.id is not empty %}{{ entity.reportMode.id }}{% endif %}"
+                                                        data-name="reportMode"
+                                                        href="#"
+                                                        data-source="{{ path('kpi_report_mode_select',{id:entity.id}) }}"
+                                                        data-url="{{ path('kpi_report_mode_inline_update',{id:entity.id}) }}"
+                                                        data-pk="{% if entity.reportMode.id is defined and entity.reportMode.id is not empty %}{{ entity.reportMode.id }}{% endif %}"
+                                                        data-value="{% if entity.reportMode.id is defined and entity.reportMode.id is not empty %}{{ entity.reportMode.id }}{% endif %}"
+                                                        data-original-title="Select Report Mode">
+                                                    {% if entity.reportMode.name is defined and entity.reportMode.name is not empty %}
+                                                        {{ entity.reportMode.name|default('') }}
+                                                    {% endif %}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a
+                                                        data-type="text"
+                                                        class="editable"
+                                                        id="password-{{ entity.id }}"
+                                                        data-name="price"
+                                                        href="javascript:"
+                                                        data-url="{{ path('kpi_employee_inline_password',{'id':entity.id}) }}"
+                                                        data-pk="{{ entity.id }}"
+                                                        data-value="">password</a>
+                                            </td>
+                                        {% endif %}
+
                                         <td>{{ entity.mobile }}</td>
                                         <td>
                                             {% if entity.district is not empty %}
@@ -186,21 +202,32 @@
                                         <td>{{ entity.email }}</td>
                                         <td>{{ entity.department.name|default('') }}</td>
                                         <td>{{ entity.enabled == 1 ? "Enabled":"Disabled" }}</td>
-                                        {#<td>{{ entity.customerGroup.name }}</td>#}
-                                        {#<td>{% if entity.agent is not empty %}{{ entity.agent.name }}{% endif %}</td>#}
-                                        {#<td>{% if  entity.location is not empty %}{{ entity.location.name }}{% endif %}</td>#}
                                         <td>
                                             <div class="btn-group">
-                                                <a class="btn btn-mini yellow-bg white-font"
-                                                   href="{{ path('kpi_employee_edit',{'id':entity.id}) }}"><i
-                                                            class="feather icon-edit"></i> Edit</a>
+                                                {% if is_granted('ROLE_ADMIN') %}
+                                                    <a
+                                                            class="btn btn-mini yellow-bg white-font"
+                                                            href="{{ path('kpi_employee_edit',{'id':entity.id}) }}">
+                                                        <i class="feather icon-edit"></i> Edit
+                                                    </a>
+                                                {% endif %}
 
-                                                <a class="btn btn-mini blue-bg white-font" data-toggle="modal" data-action="{{ path('kpi_employee_details',{'id':entity.id}) }}" data-target="#myModal" href=""><i
-                                                            class="feather icon-eye"></i> View</a>
-                                                {#<a class="btn btn-mini blue-bg white-font" data-action="" href="{{ path('kpi_employee_details',{'id':entity.id}) }}" target="_blank"><i class="feather icon-eye"></i> View</a>#}
-                                                <a class="btn btn-mini purple-bg white-font"
-                                                   href="{{ path('kpi_employee_password',{'id':entity.id}) }}"><i
-                                                            class="feather icon-lock"></i> Chhange Password</a>
+                                                <a
+                                                        class="btn btn-mini blue-bg white-font"
+                                                        data-toggle="modal"
+                                                        data-action="{{ path('kpi_employee_details',{'id':entity.id}) }}"
+                                                        data-target="#myModal"
+                                                        href="">
+                                                    <i class="feather icon-eye"></i> View
+                                                </a>
+                                                {% if is_granted('ROLE_ADMIN') %}
+                                                    <a
+                                                            class="btn btn-mini purple-bg white-font"
+                                                            href="{{ path('kpi_employee_password',{'id':entity.id}) }}">
+                                                        <i class="feather icon-lock"></i> Chhange Password
+                                                    </a>
+                                                {% endif %}
+
                                             </div>
                                         </td>
                                     </tr>
