@@ -53,13 +53,14 @@ class EmployeeController extends AbstractController
     }
 
     /**
-     * @Route("/list", methods={"GET"}, name="kpi_employee")
+     * @Route("/list/{mode}", defaults={"mode" = null}, methods={"GET"}, name="kpi_employee")
      * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_KPI_LINE_MANAGER')")
      * @param Request $request
      * @param UserRepository $userRepository
+     * @param $mode
      * @return Response
      */
-    public function index(Request $request, UserRepository $userRepository): Response
+    public function index(Request $request, UserRepository $userRepository, $mode): Response
     {
         $lineManagers = $userRepository->getLineManager();
         $user = $this->getUser();
@@ -78,6 +79,16 @@ class EmployeeController extends AbstractController
             }
         }
         $data = $this->paginate($request, $entities);
+        if ($mode == 'excel'){
+            $html = $this->renderView('@TerminalbdKpi/employee/employee-excel.html.twig',[
+                'entities' => $entities,
+            ]);
+            $fileName = $request->get('_route').'_'.time().'.xls';
+            header("Content-Type: application/vnd.ms-excel; charset=utf-8");
+            header("Content-Disposition: attachment; filename=$fileName");
+            echo $html;
+            die();
+        }
         return $this->render('@TerminalbdKpi/employee/index.html.twig',[
             'entities' => $data,
             'form' => $searchForm->createView()
@@ -450,12 +461,12 @@ class EmployeeController extends AbstractController
      */
     public function employeeDetails(User $employee)
     {
-
         $html = $this->renderView('@TerminalbdKpi/employee/employeeDetails.twig',[
             'employee' => $employee,
         ]);
         return new JsonResponse(array('html'=>$html));
     }
+
 
 
 }
