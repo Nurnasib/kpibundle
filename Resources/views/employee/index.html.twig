@@ -25,12 +25,19 @@
                             {% if is_granted('ROLE_ADMIN') %}
                                 <a
                                         href="{{ path('kpi_employee_register') }}"
-                                        class="btn btn-sm  green-bg white-font">
+                                        class="btn btn-sm green-bg white-font">
                                     <i class="fa fa-plus"></i>{{ 'New Employee'|trans }}
                                 </a>
                             {% endif %}
                             <a href="{{ path('kpi_employee') }}" class="btn btn-sm gray-bg white-font"><i
                                         class="fa fa-th-large"></i>{{ 'Employee'|trans }}</a>
+{#                            {% if is_granted('ROLE_ADMIN') %}
+                                <a
+                                        href="#"
+                                        class="btn btn-sm blue-bg white-font">
+                                    <i class="fa fa-download"></i>{{ 'All Employee'|trans }}
+                                </a>
+                            {% endif %}#}
                         </div>
                     </div>
                 </div>

@@ -40,15 +40,8 @@
             <tr>
                 <td>Email: </td>
                 <td>{{ employee.email|default('') }}</td>
-                <td>Access Roles: </td>
-                <td>
-                    {% if employee.roles is not empty %}
-                        {% for role in employee.roles %}
-                            {{ role }}
-                            {% if not loop.last %},{% endif %}
-                        {% endfor %}
-                    {% endif %}
-                </td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>

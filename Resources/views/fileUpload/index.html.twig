@@ -42,14 +42,15 @@
 
                                         {% endif %}
 
-{#                                        {% if entity.title|replace({' ': "-"})|lower == 'agent-sales' and entity.status == 2 %}
-                                            <a class="btn btn-mini bg-secondary white-font" href="{{ path('kpi_insert_agent_category',{'id':entity.id}) }}"><i class="feather icon-upload"></i> ImportAgentCategory</a>
-                                        {% endif %}#}
-
                                         {% if entity.status == 0 %}
                                             <a class="btn btn-mini bg-primary white-font" href="{{ path('kpi_file_upload_insert_data',{'id':entity.id}) }}"><i class="feather icon-upload"></i> Import</a>
                                         {% endif %}
+                                        {% if entity.status == 0 and not is_granted('ROLE_ADMIN') %}
                                         <a data-action="{{ path('kpi_file_upload_file_delete',{'id':entity.id}) }}" class="btn  btn-transparent btn-mini red-font remove" href="javascript:"><i class="fa fa-remove"></i></a>
+                                            {% elseif is_granted('ROLE_ADMIN') %}
+                                                <a data-action="{{ path('kpi_file_upload_file_delete',{'id':entity.id}) }}" class="btn  btn-transparent btn-mini red-font remove" href="javascript:"><i class="fa fa-remove"></i></a>
+                                        {% endif %}
+
                                     </div>
                                 </td>
                             </tr>
@@ -124,7 +125,7 @@
     });
 
     $('#datatable').DataTable( {
-    pageLength: 100,
+    pageLength: 25,
     columnDefs: [ {
     targets: -1,
     orderable: false

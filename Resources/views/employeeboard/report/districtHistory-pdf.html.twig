@@ -18,7 +18,7 @@
     <thead>
     <tr>
         <th>S/L</th>
-        <th>ID</th>
+        <th>Employee ID</th>
         <th>Employee</th>
         <th>Districts</th>
     </tr>
@@ -27,7 +27,7 @@
     {% if data is defined and data is not empty %}
         {% for employeeId,record in data['allEmployee'] %}
             <tr>
-                <td>{{ loop.index }}</td>
+                <td align="center">{{ loop.index }}</td>
                 <td>{{ employeeId|default('') }}</td>
                 <td>{{ record.employeeName|default('') }}</td>
                 <td>

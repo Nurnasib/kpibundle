@@ -25,7 +25,7 @@ use Terminalbd\KpiBundle\Form\FileUploadFormType;
  * Class FileUploadController
  * @package Terminalbd\KpiBundle\Controller\FileUpload
  * @Route("/kpi/file-upload", name="")
- * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+ * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_KPI_EXECUTIVE')")
  */
 class FileUploadController extends AbstractController
 {
@@ -43,7 +43,7 @@ class FileUploadController extends AbstractController
         $allowFileType = ['xlsx'];
 
         $entities = [];
-        $entities = $this->getDoctrine()->getRepository(DocumentUpload::class)->findAll();
+        $entities = $this->getDoctrine()->getRepository(DocumentUpload::class)->findBy([], ['createdAt' => 'DESC']);
         $form = $this->createForm(FileUploadFormType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
@@ -217,7 +217,6 @@ class FileUploadController extends AbstractController
             return $action;
 
         }
-
         return 0;
 
     }
