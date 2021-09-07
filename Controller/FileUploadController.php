@@ -194,7 +194,7 @@ class FileUploadController extends AbstractController
 
             $districtOrder->setCreated($salesDate);
             $districtOrder->setUpdated(new \DateTime());
-            $districtOrder->setStatus(1);
+            $districtOrder->setStatus(2);
             $em->persist($districtOrder);
             $em->flush();
         }

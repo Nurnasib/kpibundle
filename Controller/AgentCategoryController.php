@@ -64,9 +64,9 @@ class AgentCategoryController extends AbstractController
 
         $returnValue = $this->getDoctrine()->getRepository(AgentCategory::class)->insertAgentOrderInAgentCategory($monthName, $year, $file);
         if($returnValue){
-/*            $file->setStatus(3);
+            $file->setStatus(3);
             $em->persist($file);
-            $em->flush();*/
+            $em->flush();
 
             $this->addFlash('success', 'Grade has been updated successfully!');
             return $this->redirectToRoute('kpi_file_upload_index');
