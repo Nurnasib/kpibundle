@@ -45,7 +45,7 @@
                                         <div class="form-group">
                                             {{ form_label(form.employee, 'Employee Name'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
                                             <div class="col-md-8">
-                                                <span class="not-blank"> {{ 'Required'|trans }}</span>
+                                                <span class="not-blank"> *</span>
                                                 {{ form_widget(form.employee) }}
                                                 {{ form_errors(form.employee) }}
                                             </div>

@@ -11,7 +11,7 @@
                 <div class="form-group">
                     {{ form_label(form.name, 'label.name', {'label_attr': {'class': 'col-md-4'}}) }}
                     <div class="col-md-8">
-                        <span class="not-blank"> {{ 'Required'|trans }}</span>
+                        <span class="not-blank"> *</span>
                         {{ form_widget(form.name) }}
                         {{ form_errors(form.name) }}
                     </div>
@@ -19,7 +19,7 @@
                 <div class="form-group">
                     {{ form_label(form.mobile, 'label.mobile', {'label_attr': {'class': 'col-md-4'}}) }}
                     <div class="col-md-8">
-                        <span class="not-blank"> {{ 'Required'|trans }}</span>
+                        <span class="not-blank"> *</span>
                         {{ form_widget(form.mobile) }}
                         {{ form_errors(form.mobile) }}
                     </div>

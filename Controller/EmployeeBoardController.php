@@ -105,11 +105,20 @@ class EmployeeBoardController extends AbstractController
         $form->handleRequest($request);
         $data = $request->request->all();
         if ($form->isSubmitted() && $form->isValid()) {
+            $emp = $form['employee']->getData();
             $employee = $data['employee_board_form']['employee'];
+
             $monthYear = explode(',', $data['employee_board_form']['monthYear']);
             $month = $monthYear[0];
             $year = $monthYear[1];
 
+            $totalTeamMember = $this->getDoctrine()->getRepository(User::class)->findBy(['lineManager' => $emp]);
+            $generatedTeamMember = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findBy(['employee' => $totalTeamMember, 'month' => $month, 'year' => $year]);
+
+            if (count($totalTeamMember) != count($generatedTeamMember)){
+                $this->addFlash('error',  "{$emp->getName()} has not generated all team members KPI of {$month}, {$year} under him. So you won't be able to generate KPI of {$emp->getName()} for this month.");
+                return $this->redirectToRoute('kpi_board_new');
+            }
 
             $exist = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findOneBy(
                 array('employee' => $employee,'month'=>$month, 'year'=>$year)

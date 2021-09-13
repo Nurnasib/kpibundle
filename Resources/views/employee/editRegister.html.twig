@@ -50,7 +50,7 @@
                                                 <div class="form-group">
                                                     {{ form_label(form.userGroup, 'User Group'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
                                                     <div class="col-md-8">
-                                                        <span class="not-blank"> {{ 'Required'|trans }}</span>
+                                                        <span class="not-blank"> *</span>
                                                         {{ form_widget(form.userGroup) }}
                                                         {{ form_errors(form.userGroup) }}
                                                     </div>
@@ -58,7 +58,7 @@
                                                 <div class="form-group">
                                                     {{ form_label(form.name, 'Full Name', {'label_attr': {'class': 'col-md-4'}}) }}
                                                     <div class="col-md-8">
-                                                        <span class="not-blank"> {{ 'Required'|trans }}</span>
+                                                        <span class="not-blank"> *</span>
                                                         {{ form_widget(form.name) }}
                                                         {{ form_errors(form.name) }}
                                                     </div>
@@ -77,7 +77,7 @@
                                                 <div class="form-group">
                                                     {{ form_label(form.mobile, 'label.mobile', {'label_attr': {'class': 'col-md-4'}}) }}
                                                     <div class="col-md-8">
-                                                        <span class="not-blank"> {{ 'Required'|trans }}</span>
+                                                        <span class="not-blank"> *</span>
                                                         {{ form_widget(form.mobile) }}
                                                         {{ form_errors(form.mobile) }}
                                                     </div>
@@ -85,7 +85,7 @@
                                                 <div class="form-group">
                                                     {{ form_label(form.email, 'label.email', {'label_attr': {'class': 'col-md-4'}}) }}
                                                     <div class="col-md-8">
-                                                        <span class="not-blank"> {{ 'Required'|trans }}</span>
+                                                        <span class="not-blank"> *</span>
                                                         {{ form_widget(form.email, {'attr': {'class': 'form-control input-lg'}}) }}
                                                         {{ form_errors(form.email) }}
 
@@ -192,7 +192,7 @@
                                                     <div class="form-group">
                                                         {{ form_label(form.userId, 'UserID'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
                                                         <div class="col-md-8">
-                                                            <span class="not-blank"> {{ 'Required'|trans }}</span>
+                                                            <span class="not-blank"> *</span>
                                                             {{ form_widget(form.userId) }}
                                                             {{ form_errors(form.userId) }}
                                                         </div>
@@ -222,7 +222,7 @@
                                                     <div class="form-group">
                                                         {{ form_label(form.designation, 'Responsible Of', {'label_attr': {'class': 'col-md-4'}}) }}
                                                         <div class="col-md-8">
-                                                            <span class="not-blank"> {{ 'Required'|trans }}</span>
+                                                            <span class="not-blank"> *</span>
                                                             {{ form_widget(form.responsibleOf) }}
                                                             {{ form_errors(form.responsibleOf) }}
                                                         </div>
@@ -234,7 +234,7 @@
                                                     <div class="form-group">
                                                         {{ form_label(form.designation, 'Designation', {'label_attr': {'class': 'col-md-4'}}) }}
                                                         <div class="col-md-8">
-                                                            <span class="not-blank"> {{ 'Required'|trans }}</span>
+                                                            <span class="not-blank"> *</span>
                                                             {{ form_widget(form.designation) }}
                                                             {{ form_errors(form.designation) }}
                                                         </div>

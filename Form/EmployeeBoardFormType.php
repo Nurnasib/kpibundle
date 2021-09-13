@@ -63,7 +63,9 @@ class EmployeeBoardFormType extends AbstractType
                     }
                 },
                 'attr'=>['class'=>'select2'],
-                'choice_label' => 'nameDesignation',
+                'choice_label' => function($user){
+                    return'(' . $user->getUserId() . ') ' . $user->getName() . ' (' . $user->getDesignation()->getName() . ')';
+                },
                 'placeholder' => 'Choose a employee',
             ])
             ->add('status',CheckboxType::class,[
