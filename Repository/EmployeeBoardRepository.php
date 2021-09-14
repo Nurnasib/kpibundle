@@ -13,6 +13,7 @@ namespace Terminalbd\KpiBundle\Repository;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
+use function Doctrine\ORM\QueryBuilder;
 
 /**
  * This custom Doctrine repository contains some methods which are useful when
@@ -132,6 +133,17 @@ class EmployeeBoardRepository extends EntityRepository
             $data[$row['upozila']] = $row;
         }
         return $data;
+    }
+
+    public function getGeneratedTeamMember($totalTeamMember, $month, $year)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->where('e.year = :year')->setParameter('year', $year)
+            ->andWhere('e.month = :month')->setParameter('month', $month)
+            ->andWhere($qb->expr()->isNotNull('e.approvedBy'))
+            ->andWhere('e.employee IN (:employee)')->setParameter('employee', $totalTeamMember)
+            ;
+        return $qb->getQuery()->getResult();
     }
 
 
