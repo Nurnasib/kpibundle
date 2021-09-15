@@ -269,7 +269,7 @@ class EmployeeBoard
     /**
      * @return User
      */
-    public function getApprovedBy(): User
+    public function getApprovedBy()
     {
         return $this->approvedBy;
     }

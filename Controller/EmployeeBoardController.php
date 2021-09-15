@@ -190,18 +190,13 @@ class EmployeeBoardController extends AbstractController
 
     public function edit(Request $request, EmployeeBoard $entity): Response
     {
-        $data = $request->request->all();
+        if ($entity->getApprovedBy()){
+            return $this->redirectToRoute('kpi_employee_board');
+        }
         $em = $this->getDoctrine()->getManager();
         $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
 
         $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($entity,$entities);
-
-
-/*        $gradeLetters = ['C','D'];
-        $categoryUpgradationMark = $this->getDoctrine()->getRepository(AgentCategory::class)->getCategoryUpgradationMarks($entity,$gradeLetters);
-        dump($categoryUpgradationMark);*/
-
-
 
         $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($entity);
         $arrayData=[];
@@ -211,8 +206,6 @@ class EmployeeBoardController extends AbstractController
         }
         return $this->render('@TerminalbdKpi/employeeboard/new.html.twig', [
             'board' => $entity,
-//            'marks' => $marks,
-//            'entities' => $entities,
             'arrayData' => $arrayData,
         ]);
     }
