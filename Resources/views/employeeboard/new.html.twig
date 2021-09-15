@@ -118,7 +118,7 @@
                                                                 {% if entity.activity.slug == 'customer-development' and entity.attribute.slug != 'aqua-develop-existing-customer-sales-volume' and entity.attribute.slug != 'cattle-develop-existing-customer-sales-volume' %}
                                                                     <div style="display: flex; align-items: center">
                                                                         <label for="customer-development-{{ entity.attribute.id }}" style="margin-bottom: 0; margin-right: 5px">Number of reports: </label>
-                                                                        <input type="number" min="0" oninput="validity.valid||(value='')" value="{{ entity.achieveReport }}" class="form-control customerDevelopment" id="customer-development-{{ entity.attribute.id }}" data-id="{{ entity.attribute.id }}" data-action="{{ path('kpi_employee_update_customer_development',{'id':entity.id}) }}" style="width: 10%">
+                                                                        <input type="text" oninput="validity.valid||(value='')" value="{{ entity.achieveReport }}" class="form-control customerDevelopment" id="customer-development-{{ entity.attribute.id }}" data-id="{{ entity.attribute.id }}" data-action="{{ path('kpi_employee_update_customer_development',{'id':entity.id}) }}" style="width: 10%">
                                                                     </div>
                                                                 {% endif %}
                                                             </td>
@@ -166,16 +166,17 @@
         <!-- [ Main Content ] end -->
     </div>
 <style>
-.activity li{
 
+input.customerDevelopment {
+    background: #daae82;
+    color: #000000;
+    font-weight: bold;
 }
-.activity li .attribute{
-
+select.markDistribution {
+    background: #daae82;
+    color: #000000;
+    font-weight: bold;
 }
-.activity li .attribute li .markDistribution{
-
-}
-
 .parameter{
     position: relative;
     /*    border-left: 34px solid #369;
@@ -244,4 +245,25 @@
         }
     });
     });#}
+
+    (function($) {
+        $.fn.inputFilter = function(inputFilter) {
+            return this.on("input keydown keyup mousedown mouseup select contextmenu drop", function() {
+                if (inputFilter(this.value)) {
+                    this.oldValue = this.value;
+                    this.oldSelectionStart = this.selectionStart;
+                    this.oldSelectionEnd = this.selectionEnd;
+                } else if (this.hasOwnProperty("oldValue")) {
+                    this.value = this.oldValue;
+                    this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+                } else {
+                    this.value = "";
+                }
+            });
+        };
+    }(jQuery));
+
+    $("input.customerDevelopment").inputFilter(function(value) {
+        return /^-?\d*[.,]?\d*$/.test(value);
+    });
 {% endblock  %}
