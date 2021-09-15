@@ -562,10 +562,8 @@ class EmployeeBoardController extends AbstractController
                 $boardAttribute->setMark(0);
             }
         }elseif ($boardAttribute->getAttribute()->getSlug() === 'monthly-new-fish-agent-sub-agent-introduce-to-nourish-family-1-per-month'){
-            if ($numberOfReports >= 2){
+            if ($numberOfReports >= 1){
                 $boardAttribute->setMark(2);
-            }elseif ($numberOfReports < 2 && $numberOfReports > 0){
-                $boardAttribute->setMark($numberOfReports * 1);
             }else{
                 $boardAttribute->setMark(0);
             }
