@@ -60,7 +60,9 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
             ->from(User::class, 'u')
             ->leftJoin('u.district', 'district')
             ->where("u.userMode = 'KPI'")
-            ->andWhere('u.enabled = 1');
+            ->andWhere('u.enabled = 1')
+            ->orderBy('u.userId', 'ASC')
+        ;
         if (!in_array('ROLE_ADMIN', $filterBy['user']->getRoles())){
             $qb->leftJoin('u.lineManager', 'lineManager')
                 ->andWhere('lineManager.id = :lineManagerId')->setParameter('lineManagerId', $filterBy['user']->getId());

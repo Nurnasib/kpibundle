@@ -327,7 +327,7 @@ class KpiReportController extends AbstractController
                 $marksDistributions = $this->getDoctrine()->getRepository(MarkChart::class)->getMarkDistribution('Poultry');
         //        dd($attributesAndMarks);*/
 
-/*        return $this->render('@TerminalbdKpi/kpiReport/index.html.twig',[
+/*        return $this->render('@TerminalbdKpi/kpiReport/bank-satement.html.twig',[
             'attributesAndMarks'  => $attributesAndMarks
         ]);*/
     }

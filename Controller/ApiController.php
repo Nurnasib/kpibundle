@@ -75,7 +75,7 @@ class ApiController extends AbstractController
         echo "<pre>";
         var_dump($data);
         exit;
-        //  return $this->render('@TerminalbdCrm/default/index.html.twig');
+        //  return $this->render('@TerminalbdCrm/default/bank-satement.html.twig');
     }
 
     /**
@@ -92,7 +92,7 @@ class ApiController extends AbstractController
         $get_data = $api->callAPI($method, $url, false);
         $response = json_decode($get_data, true);
         $this->getDoctrine()->getRepository(LocationSalesTarget::class)->apiInsert($response);
-        //  return $this->render('@TerminalbdCrm/default/index.html.twig');
+        //  return $this->render('@TerminalbdCrm/default/bank-satement.html.twig');
     }
 
 }
