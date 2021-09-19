@@ -220,7 +220,6 @@ class KpiReportController extends AbstractController
             $filterBy['user'] = $this->getUser();
 
             $data = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->getDistrictHistory($filterBy);
-
             if ($request->query->has('pdf')){
 
                 // Configure Dompdf according to your needs
