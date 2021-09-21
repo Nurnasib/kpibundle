@@ -290,6 +290,7 @@ class EmployeeBoardController extends AbstractController
      */
     public function attributeUpdate(EmployeeBoardAttribute $entity): Response
     {
+        $board = $entity->getEmployeeBoard();
         $mark = $_REQUEST['mark'];
         if($mark){
             $attribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($mark);
@@ -298,6 +299,7 @@ class EmployeeBoardController extends AbstractController
             $entity->setMarkDistribution($attribute);
             $entity->setMark($attribute->getMark());
             $em->flush();
+            $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->gradeUpdate($board);
             return new Response($attribute->getMark());
         }
         return new Response(0);
@@ -535,6 +537,7 @@ class EmployeeBoardController extends AbstractController
      */
     public function updateCustomerDevelopment(EmployeeBoardAttribute $boardAttribute, Request $request)
     {
+        $board = $boardAttribute->getEmployeeBoard();
         $em = $this->getDoctrine()->getManager();
         $numberOfReports = $request->query->get('numberOfReports');
 
@@ -571,6 +574,7 @@ class EmployeeBoardController extends AbstractController
         }
         $boardAttribute->setAchieveReport($numberOfReports);
         $em->flush();
+        $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->gradeUpdate($board);
 
         return new JsonResponse($boardAttribute->getMark());
     }

@@ -108,8 +108,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                                 }
 
                             }
-
-
                         endforeach;
                     }
                 endforeach;
@@ -145,7 +143,13 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         }*/
         
         $this->agentSalesGrowth($board);
+        $this->gradeUpdate($board);
 
+    }
+
+    public function gradeUpdate(EmployeeBoard $board)
+    {
+        $em = $this->_em;
         $totalObtainMark = 0;
         $totalActualMark = 0;
         $grade = '';
@@ -156,7 +160,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 $totalActualMark += $item['actualMark'];
             }
         }
-//        dd($totalActualMark, $totalObtainMark);
         $totalMarkPercentage = ($totalObtainMark * 100) / $totalActualMark;
 
         if ($totalMarkPercentage >= 80){
@@ -175,7 +178,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $board->setGrade($grade);
 //        $em->persist($board);
         $em->flush();
-
     }
 
     public function agentSalesGrowth(EmployeeBoard $board)
