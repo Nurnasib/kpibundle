@@ -292,7 +292,6 @@ class KpiReportController extends AbstractController
             $membersId[] = $member['id'];
         }
 
-
         $kpiRecords = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getMonthlyStatus($requestYear, $membersId);
         return $this->render('@TerminalbdKpi/employeeboard/report/monthlyStatus.html.twig',[
             'kpiRecords' => $kpiRecords,

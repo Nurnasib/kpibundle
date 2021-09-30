@@ -48,8 +48,11 @@
 
                                     <th colspan="1">
                                         <div class="btn-group">
-                                            <button type="submit" title="search" class="btn btn-primary btn-sm"><i class="fa fa-search" aria-hidden="true"></i></button>
-                                            <a href="{{ path('monthly_generated_kpi_status') }}" class="btn purple-bg btn-sm white-font" title="Reset" value="reset"><i class="fa fa-refresh" aria-hidden="true"></i></a>
+                                            <button type="submit" title="search" class="btn btn-primary btn-sm"><i
+                                                        class="fa fa-search" aria-hidden="true"></i></button>
+                                            <a href="{{ path('monthly_generated_kpi_status') }}"
+                                               class="btn purple-bg btn-sm white-font" title="Reset" value="reset"><i
+                                                        class="fa fa-refresh" aria-hidden="true"></i></a>
                                         </div>
                                     </th>
                                 </tr>
@@ -101,7 +104,10 @@
                                         {% endfor %}
                                     </tr>
                                 {% endfor %}
-
+                            {% else %}
+                                <tr>
+                                    <td colspan="16" align="center">{{ 'No Records Found!' }}</td>
+                                </tr>
                             {% endif %}
                             </tbody>
                             <tfoot>
