@@ -539,40 +539,33 @@ class EmployeeBoardController extends AbstractController
     {
         $board = $boardAttribute->getEmployeeBoard();
         $em = $this->getDoctrine()->getManager();
-        $numberOfReports = $request->query->get('numberOfReports');
-
-        if ($boardAttribute->getAttribute()->getSlug() === 'poultry-antibiotic-free-farm-report' || $boardAttribute->getAttribute()->getSlug() === 'poultry-less-costing-farm-report' || $boardAttribute->getAttribute()->getSlug() === 'aqua-less-costing-farm-report'){
-            if ($numberOfReports >= 4){
+        $mark = $request->query->get('mark');
+        if ($boardAttribute->getAttribute()->getSlug() === 'monthly-broiler-sonali-fcr-report-after-sale'){
+            if ($mark >= 4){
                 $boardAttribute->setMark(4);
-            }elseif ($numberOfReports < 4 && $numberOfReports > 0){
-                $boardAttribute->setMark($numberOfReports * 1);
             }else{
-                $boardAttribute->setMark(0);
+                $boardAttribute->setMark($mark);
             }
-        }elseif ($boardAttribute->getAttribute()->getSlug() === 'monthly-new-farm-introduce-to-nourish-family-5-per-month' || $boardAttribute->getAttribute()->getSlug() ==='5-cattle-included-per-month-in-your-head' || $boardAttribute->getAttribute()->getSlug() === 'monthly-new-fish-farm-introduce-to-nourish-family-5-per-month' || $boardAttribute->getAttribute()->getSlug() === 'cattle-less-costing-farm-report' || $boardAttribute->getAttribute()->getSlug() === 'monthly-new-cattle-farm-introduce-to-nourish-family-5-per-month'){
-            if ($numberOfReports >= 5){
-                $boardAttribute->setMark(5);
-            }elseif ($numberOfReports < 5 && $numberOfReports > 0){
-                $boardAttribute->setMark($numberOfReports * 1);
-            }else{
-                $boardAttribute->setMark(0);
-            }
-        }elseif ($boardAttribute->getAttribute()->getSlug() === 'monthly-new-fish-agent-sub-agent-introduce-to-nourish-family-1-per-month'){
-            if ($numberOfReports >= 1){
+        }elseif ($boardAttribute->getAttribute()->getSlug() === 'monthly-broiler-sonali-before-sale-report-layer-performance-report' || $boardAttribute->getAttribute()->getSlug() === 'monthly-broiler-sonali-life-cycle-report-layer-life-cycle-report' || $boardAttribute->getAttribute()->getSlug() === 'monthly-antibiotic-free-farm-develop'){
+            if ($mark >= 2){
                 $boardAttribute->setMark(2);
             }else{
-                $boardAttribute->setMark(0);
+                $boardAttribute->setMark($mark);
             }
-        }elseif ($boardAttribute->getAttribute()->getSlug() === 'monthly-new-cattle-agent-sub-agent-introduce-to-nourish-family-2-per-month'){
-            if ($numberOfReports >= 3){
-                $boardAttribute->setMark(3);
-            }elseif ($numberOfReports < 3 && $numberOfReports > 0){
-                $boardAttribute->setMark($numberOfReports * 1);
+        }elseif ($boardAttribute->getAttribute()->getSlug() === 'monthly-less-costing-model-farm-develop' || $boardAttribute->getAttribute()->getSlug() === 'monthly-farmers-training-program-10-15-farmers'){
+            if ($mark >= 1){
+                $boardAttribute->setMark(1);
             }else{
-                $boardAttribute->setMark(0);
+                $boardAttribute->setMark($mark);
+            }
+        }elseif ($boardAttribute->getAttribute()->getSlug() === 'monthly-new-poultry-farm-introduce-to-nourish-feed' || $boardAttribute->getAttribute()->getSlug() === 'monthly-3-cattle-introduce-to-nourish-feed'){
+            if ($mark >= 3){
+                $boardAttribute->setMark(3);
+            }else{
+                $boardAttribute->setMark($mark);
             }
         }
-        $boardAttribute->setAchieveReport($numberOfReports);
+        $em->persist($boardAttribute);
         $em->flush();
         $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->gradeUpdate($board);
 

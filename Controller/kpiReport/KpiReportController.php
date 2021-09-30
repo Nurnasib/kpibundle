@@ -259,6 +259,48 @@ class KpiReportController extends AbstractController
         ]);
     }
 
+    /**
+     * @Route("/monthly-generated-kpi-status", name="monthly_generated_kpi_status")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function monthlyGeneratedKpiStatus(Request $request)
+    {
+        $user = $this->getUser();
+        $members = [];
+        $membersId = [];
+        $requestYear = $request->query->get('year');
+        if(!$requestYear){
+            $requestYear = date('Y');
+        }
+
+        if (in_array('ROLE_ADMIN', $user->getRoles())){
+            $employees = $this->getDoctrine()->getRepository(User::class)->getKpiLineManagers();
+        }else{
+            $employees = $this->getDoctrine()->getRepository(User::class)->findBy(['userMode' => 'KPI', 'lineManager' => $user]);
+        }
+
+        foreach ($employees as $employee) {
+            $members[$employee->getUserId()] = [
+                'id' => $employee->getId(),
+                'userId' => $employee->getUserId(),
+                'name' => $employee->getName(),
+                'username' => $employee->getUsername(),
+            ];
+        }
+        foreach ($members as $member) {
+            $membersId[] = $member['id'];
+        }
+
+
+        $kpiRecords = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getMonthlyStatus($requestYear, $membersId);
+        return $this->render('@TerminalbdKpi/employeeboard/report/monthlyStatus.html.twig',[
+            'kpiRecords' => $kpiRecords,
+            'year' => $requestYear,
+            'members' => $members,
+        ]);
+    }
+
 
 
 

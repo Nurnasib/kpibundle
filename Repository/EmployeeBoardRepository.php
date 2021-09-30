@@ -146,5 +146,23 @@ class EmployeeBoardRepository extends EntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    public function getMonthlyStatus($year, $membersId)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.employee', 'employee');
+        $qb->select('e.month');
+        $qb->addSelect('employee.userId');
+        $qb->where('e.year = :year')->setParameter('year', $year);
+        $qb->andWhere('employee.id IN (:membersId)')->setParameter('membersId', $membersId);
+
+        $results = $qb->getQuery()->getArrayResult();
+        $data = [];
+        foreach ($results as $result) {
+            $data[$result['userId']][$result['month']] = true;
+        }
+        return $data;
+
+    }
+
 
 }
