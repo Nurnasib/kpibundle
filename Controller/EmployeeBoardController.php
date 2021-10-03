@@ -540,25 +540,59 @@ class EmployeeBoardController extends AbstractController
         $board = $boardAttribute->getEmployeeBoard();
         $em = $this->getDoctrine()->getManager();
         $mark = $request->query->get('mark');
-        if ($boardAttribute->getAttribute()->getSlug() === 'monthly-broiler-sonali-fcr-report-after-sale'){
+
+        $markOneAttributeSlug = [
+            'monthly-less-costing-model-farm-develop',
+            'monthly-farmers-training-program-10-15-farmers',
+            'monthly-farmers-training-program-10-15-farmer',
+            'monthly-model-farm-develop',
+            'monthly-model-cattle-farm-develop'
+
+        ];
+        $markTwoAttributeSlug = [
+            'monthly-broiler-sonali-before-sale-report-layer-performance-report',
+            'monthly-broiler-sonali-life-cycle-report-layer-life-cycle-report',
+            'monthly-antibiotic-free-farm-develop',
+            'life-cycle-report-culture-after-sale',
+            'company-species-wise-avg-fcr-report-culture-after-sale',
+            'monthly-new-fish-farmer-introduce-to-nourish-family',
+            'monthly-fish-farm-information-survey-report',
+            'monthly-farm-visit-report',
+            'monthly-dairy-fattening-life-cycle-report',
+            'monthly-new-agent-or-sub-agent-introduce-to-nourish-family',
+            'monthly-new-fish-farmer-introduce-to-nourish-family',
+            'monthly-new-agent-or-sub-agent-creation'
+        ];
+        $markThreeAttributeSlug = [
+            'monthly-new-poultry-farm-introduce-to-nourish-feed',
+            'monthly-3-cattle-introduce-to-nourish-feed',
+            'fish-agents-sales-20-growth-only-for-permanent-agents',
+            'monthly-new-cattle-farm-introduce-to-nourish-feed',
+            'agent-up-gradation-20-sales-growth-from-previous-year-at-same-month'
+        ];
+        $markFourAttributeSlug = [
+            'monthly-broiler-sonali-fcr-report-after-sale',
+            'monthly-dairy-fattening-feed-performance-report'
+        ];
+        if (in_array($boardAttribute->getAttribute()->getSlug(), $markFourAttributeSlug)){
             if ($mark >= 4){
                 $boardAttribute->setMark(4);
             }else{
                 $boardAttribute->setMark($mark);
             }
-        }elseif ($boardAttribute->getAttribute()->getSlug() === 'monthly-broiler-sonali-before-sale-report-layer-performance-report' || $boardAttribute->getAttribute()->getSlug() === 'monthly-broiler-sonali-life-cycle-report-layer-life-cycle-report' || $boardAttribute->getAttribute()->getSlug() === 'monthly-antibiotic-free-farm-develop'){
+        }elseif (in_array($boardAttribute->getAttribute()->getSlug(), $markTwoAttributeSlug)){
             if ($mark >= 2){
                 $boardAttribute->setMark(2);
             }else{
                 $boardAttribute->setMark($mark);
             }
-        }elseif ($boardAttribute->getAttribute()->getSlug() === 'monthly-less-costing-model-farm-develop' || $boardAttribute->getAttribute()->getSlug() === 'monthly-farmers-training-program-10-15-farmers'){
+        }elseif (in_array($boardAttribute->getAttribute()->getSlug(), $markOneAttributeSlug)){
             if ($mark >= 1){
                 $boardAttribute->setMark(1);
             }else{
                 $boardAttribute->setMark($mark);
             }
-        }elseif ($boardAttribute->getAttribute()->getSlug() === 'monthly-new-poultry-farm-introduce-to-nourish-feed' || $boardAttribute->getAttribute()->getSlug() === 'monthly-3-cattle-introduce-to-nourish-feed'){
+        }elseif (in_array($boardAttribute->getAttribute()->getSlug(), $markThreeAttributeSlug)){
             if ($mark >= 3){
                 $boardAttribute->setMark(3);
             }else{
