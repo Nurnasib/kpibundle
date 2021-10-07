@@ -146,19 +146,39 @@ class EmployeeBoardRepository extends EntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function getMonthlyStatus($year, $membersId)
+    public function getMonthlyStatus($year, $selectedLineManager, User $user)
     {
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.employee', 'employee');
+        $qb->join('employee.lineManager', 'lineManager');
         $qb->select('e.month');
-        $qb->addSelect('employee.userId');
+        $qb->addSelect('employee.userId', 'employee.name');
+        $qb->addSelect('lineManager.userId AS lineManagerUserId', 'lineManager.name AS lineManagerName');
         $qb->where('e.year = :year')->setParameter('year', $year);
-        $qb->andWhere('employee.id IN (:membersId)')->setParameter('membersId', $membersId);
-
+        if (!in_array('ROLE_ADMIN', $user->getRoles())){
+            $qb->andWhere('lineManager.id = :lineManagerId')->setParameter('lineManagerId', $user->getId());
+        }
+        if ($selectedLineManager){
+            $qb->andWhere('lineManager.userId = :lmUserId')->setParameter('lmUserId', $selectedLineManager);
+        }
         $results = $qb->getQuery()->getArrayResult();
         $data = [];
-        foreach ($results as $result) {
-            $data[$result['userId']][$result['month']] = true;
+
+        if (in_array('ROLE_ADMIN', $user->getRoles())){
+            foreach ($results as $result) {
+                $data[$result['lineManagerUserId']]['lineManager'] = [
+                    'userId' => $result['lineManagerUserId'],
+                    'name' => $result['lineManagerName'],
+                ];
+                $data[$result['lineManagerUserId']]['teamMember'][$result['userId']]['name'] = $result['name'];
+                $data[$result['lineManagerUserId']]['teamMember'][$result['userId']]['status'][$result['month']] = true;
+            }
+        }else{
+            foreach ($results as $result) {
+                $data[$result['userId']]['name'] = $result['name'];
+                $data[$result['userId']]['userId'] = $result['userId'];
+                $data[$result['userId']]['status'][$result['month']] = true;
+            }
         }
         return $data;
 

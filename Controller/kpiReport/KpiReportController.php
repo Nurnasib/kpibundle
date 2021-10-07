@@ -267,36 +267,41 @@ class KpiReportController extends AbstractController
     public function monthlyGeneratedKpiStatus(Request $request)
     {
         $user = $this->getUser();
-        $members = [];
-        $membersId = [];
-        $requestYear = $request->query->get('year');
-        if(!$requestYear){
-            $requestYear = date('Y');
+
+        $employees = [];
+        $lineManagers = [];
+
+        $selectedYear = $request->query->get('year');
+        $selectedLineManager = $request->query->get('lineManager');
+
+        if(!$selectedYear){
+            $selectedYear = date('Y');
         }
 
         if (in_array('ROLE_ADMIN', $user->getRoles())){
-            $employees = $this->getDoctrine()->getRepository(User::class)->getKpiLineManagers();
-        }else{
-            $employees = $this->getDoctrine()->getRepository(User::class)->findBy(['userMode' => 'KPI', 'lineManager' => $user]);
+
+            $lineManagers = $this->getDoctrine()->getRepository(User::class)->getKpiLineManagers();
+            $lineManagersId = [];
+            if ($selectedLineManager){
+                $lineManagersId[] = $selectedLineManager;
+            }else{
+                foreach ($lineManagers as $lineManager){
+                    $lineManagersId[] = $lineManager['userId'];
+                }
+            }
+
+            $employees = $this->getDoctrine()->getRepository(User::class)->getKpiLineManagerTeamMember($lineManagersId);
+
         }
 
-        foreach ($employees as $employee) {
-            $members[$employee->getUserId()] = [
-                'id' => $employee->getId(),
-                'userId' => $employee->getUserId(),
-                'name' => $employee->getName(),
-                'username' => $employee->getUsername(),
-            ];
-        }
-        foreach ($members as $member) {
-            $membersId[] = $member['id'];
-        }
+        $kpiRecords = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getMonthlyStatus($selectedYear, $selectedLineManager, $user);
 
-        $kpiRecords = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getMonthlyStatus($requestYear, $membersId);
         return $this->render('@TerminalbdKpi/employeeboard/report/monthlyStatus.html.twig',[
             'kpiRecords' => $kpiRecords,
-            'year' => $requestYear,
-            'members' => $members,
+            'year' => $selectedYear,
+            'lineManagers' => $lineManagers,
+            'employees' => $employees,
+            'selectedLineManager' => $selectedLineManager,
         ]);
     }
 
