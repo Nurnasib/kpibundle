@@ -87,6 +87,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     public function insertMarkDistribution(EmployeeBoard $board, $entities)
     {
+//        dd($board, $entities);
         $em = $this->_em;
         foreach ($entities as $parameter):
             if (!empty($parameter->getChildren())) {
@@ -491,7 +492,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 $entity = new EmployeeBoardSubAttribute();
                 $distribution = $em->getRepository(MarkChart::class)->find($parameter['id']);
 
-                if ($board->getEmployee()->getReportMode()->getSlug() == 'poultry-service') {
+                if ($board->getEmployee()->getReportMode()->getSlug() == 'poultry-service' || $board->getEmployee()->getReportMode()->getSlug() == 'lab-service') {
                     $distributionPoultry = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode' => 'feed', 'slug' => $distribution->getSlug() . '-poultry-service'));
 
                     $exist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard' => $board, 'markDistribution' => $distributionPoultry));
