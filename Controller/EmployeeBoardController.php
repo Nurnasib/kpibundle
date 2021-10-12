@@ -562,7 +562,8 @@ class EmployeeBoardController extends AbstractController
             'monthly-new-agent-or-sub-agent-introduce-to-nourish-family',
             'monthly-new-fish-farmer-introduce-to-nourish-family',
             'monthly-new-agent-or-sub-agent-creation',
-            'monthly-disease-mapping-report'
+            'monthly-disease-mapping-report',
+            'monthly-broiler-sonali-before-sale-report-layer-performance-report-lab-service'
         ];
         $markThreeAttributeSlug = [
             'monthly-new-poultry-farm-introduce-to-nourish-feed',
@@ -573,7 +574,8 @@ class EmployeeBoardController extends AbstractController
         ];
         $markFourAttributeSlug = [
             'monthly-broiler-sonali-fcr-report-after-sale',
-            'monthly-dairy-fattening-feed-performance-report'
+            'monthly-dairy-fattening-feed-performance-report',
+            'monthly-broiler-sonali-fcr-report-after-sale-lab-service'
         ];
         if (in_array($boardAttribute->getAttribute()->getSlug(), $markFourAttributeSlug)){
             if ($mark >= 4){
