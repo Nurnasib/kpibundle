@@ -561,7 +561,8 @@ class EmployeeBoardController extends AbstractController
             'monthly-dairy-fattening-life-cycle-report',
             'monthly-new-agent-or-sub-agent-introduce-to-nourish-family',
             'monthly-new-fish-farmer-introduce-to-nourish-family',
-            'monthly-new-agent-or-sub-agent-creation'
+            'monthly-new-agent-or-sub-agent-creation',
+            'monthly-disease-mapping-report'
         ];
         $markThreeAttributeSlug = [
             'monthly-new-poultry-farm-introduce-to-nourish-feed',
