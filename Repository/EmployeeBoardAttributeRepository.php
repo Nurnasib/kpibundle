@@ -734,7 +734,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $entities = $this->individualTeamMemberMarks($employeeArrs, $parameter, $board->getYear(), $board->getMonth());
 //        $individualTeamDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug'=>'individual-team-members-achievement','status'=>1));
 
-        $individualTeamDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'team-members-mark-on-core-activities', 'status' => 1));
+        $individualTeamDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'team-members-marks-on-core-activities', 'status' => 1));
 
         $individualEntity = new EmployeeBoardSubAttribute();
 
