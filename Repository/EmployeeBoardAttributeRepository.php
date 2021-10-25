@@ -826,14 +826,14 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             if ($agentCategoryDistribution->getSlug() == 'minimum-50-d-category-agents-converts-to-c') {
                 $employeeBoardAttributeForCategoryUpgrade = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $agentCategoryDistribution]);
                 if ($employeeBoardAttributeForCategoryUpgrade) {
-                    $employeeBoardAttributeForCategoryUpgrade->setMark($categoryUpgradationMark['DtoUpperGrade']);
+                    $employeeBoardAttributeForCategoryUpgrade->setMark(isset($categoryUpgradationMark['DtoUpperGrade']) ?: 0);
                     $em->persist($employeeBoardAttributeForCategoryUpgrade);
                     $em->flush();
                 }
             } elseif ($agentCategoryDistribution->getSlug() == 'minimum-50-c-category-agents-converts-to-b') {
                 $employeeBoardAttributeForCategoryUpgrade = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $agentCategoryDistribution]);
                 if ($employeeBoardAttributeForCategoryUpgrade) {
-                    $employeeBoardAttributeForCategoryUpgrade->setMark($categoryUpgradationMark['CtoUpperGrade']);
+                    $employeeBoardAttributeForCategoryUpgrade->setMark(isset($categoryUpgradationMark['CtoUpperGrade']) ?: 0);
                     $em->persist($employeeBoardAttributeForCategoryUpgrade);
                     $em->flush();
                 }
