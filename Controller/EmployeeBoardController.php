@@ -563,14 +563,16 @@ class EmployeeBoardController extends AbstractController
             'monthly-new-fish-farmer-introduce-to-nourish-family',
             'monthly-new-agent-or-sub-agent-creation',
             'monthly-disease-mapping-report',
-            'monthly-broiler-sonali-before-sale-report-layer-performance-report-lab-service'
+            'monthly-broiler-sonali-before-sale-report-layer-performance-report-lab-service',
+            'monthly-new-agent-introduce-to-nourish-family-1-per-month',
         ];
         $markThreeAttributeSlug = [
             'monthly-new-poultry-farm-introduce-to-nourish-feed',
             'monthly-3-cattle-introduce-to-nourish-feed',
             'fish-agents-sales-20-growth-only-for-permanent-agents',
             'monthly-new-cattle-farm-introduce-to-nourish-feed',
-            'agent-up-gradation-20-sales-growth-from-previous-year-at-same-month'
+            'agent-up-gradation-20-sales-growth-from-previous-year-at-same-month',
+            '5-cattle-included-per-month-in-your-head',
         ];
         $markFourAttributeSlug = [
             'monthly-broiler-sonali-fcr-report-after-sale',
