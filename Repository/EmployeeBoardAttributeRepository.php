@@ -87,13 +87,12 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     public function insertMarkDistribution(EmployeeBoard $board, $entities)
     {
-//        dd($board, $entities);
         $em = $this->_em;
-        foreach ($entities as $parameter):
+        foreach ($entities as $parameter){
             if (!empty($parameter->getChildren())) {
-                foreach ($parameter->getChildren() as $activity):
+                foreach ($parameter->getChildren() as $activity){
                     if (!empty($activity->getChildren())) {
-                        foreach ($activity->getChildren() as $attribute):
+                        foreach ($activity->getChildren() as $attribute){
                             $exist = $this->findOneBy(array('employeeBoard' => $board, 'attribute' => $attribute));
                             if (empty($exist) and !empty($board->getEmployee()->getReportMode())) {
                                 $markChartAttribute = $em->getRepository(MarkChart::class)->findUserMarkAttribute($board->getEmployee()->getReportMode()->getId(), $attribute->getId());
@@ -109,11 +108,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                                 }
 
                             }
-                        endforeach;
+                        }
                     }
-                endforeach;
+                }
             }
-        endforeach;
+        }
         $this->updateSalesProcess($board);
         $subAttrs = $this->groupByAttributeMarks($board);
         foreach ($subAttrs as $sub):
@@ -130,22 +129,68 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $this->updateDocSales($board);
         $this->updateCategoryUpgrade($board);
 
-/*        $filterBy = [];
-        $filterBy['employeeId'] = $board->getEmployee()->getId();
-        $filterBy['monthStart'] = date("{$board->getYear()}-m-01", strtotime($board->getMonth()));
-        $filterBy['monthEnd'] = date("{$board->getYear()}-m-t", strtotime($board->getMonth()));
+        /*        $filterBy = [];
+                $filterBy['employeeId'] = $board->getEmployee()->getId();
+                $filterBy['monthStart'] = date("{$board->getYear()}-m-01", strtotime($board->getMonth()));
+                $filterBy['monthEnd'] = date("{$board->getYear()}-m-t", strtotime($board->getMonth()));
 
-        if ($board->getEmployee()->getReportMode()->getSlug() == 'poultry-service') {
-            $this->updateEvaluationCriteriaPoultry($board, $filterBy);
-        } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'aqua-service') {
-            $this->updateEvaluationCriteriaAqua($board, $filterBy);
-        } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'cattle-service') {
-            $this->updateEvaluationCriteriaCattle($board, $filterBy);
-        }*/
-        
+                if ($board->getEmployee()->getReportMode()->getSlug() == 'poultry-service') {
+                    $this->updateEvaluationCriteriaPoultry($board, $filterBy);
+                } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'aqua-service') {
+                    $this->updateEvaluationCriteriaAqua($board, $filterBy);
+                } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'cattle-service') {
+                    $this->updateEvaluationCriteriaCattle($board, $filterBy);
+                }*/
+
         $this->agentSalesGrowth($board);
         $this->gradeUpdate($board);
+    }
 
+    public function insertMarkDistributionForCustomFormat(EmployeeBoard $board, $entities)
+    {
+        $em = $this->_em;
+        foreach ($entities as $parameter){
+            if (!empty($parameter->getChildren())) {
+                foreach ($parameter->getChildren() as $activity){
+                    if (!empty($activity->getChildren())) {
+                        foreach ($activity->getChildren() as $attribute){
+                            $exist = $this->findOneBy(array('employeeBoard' => $board, 'attribute' => $attribute));
+                            if (empty($exist) and !empty($board->getEmployee()->getReportMode())) {
+                                $markChartAttribute = $em->getRepository(MarkChart::class)->findUserMarkAttribute($board->getEmployee()->getReportMode()->getId(), $attribute->getId());
+                                if ($markChartAttribute) {
+                                    $entity = new EmployeeBoardAttribute();
+                                    $entity->setEmployeeBoard($board);
+                                    $entity->setParameter($parameter);
+                                    $entity->setActivity($activity);
+                                    $entity->setAttribute($attribute);
+                                    $entity->setActualMark($attribute->getMark());
+                                    $em->persist($entity);
+                                    $em->flush();
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+//        $this->updateSalesProcess($board);
+        $subAttrs = $this->groupByAttributeMarks($board);
+        foreach ($subAttrs as $sub):
+            $exist = $this->findOneBy(array('employeeBoard' => $board, 'attribute' => $sub['parentId']));
+            if (!empty($exist)) {
+                $exist->setActualMark(5);
+                $em->persist($exist);
+                $em->flush();
+            }
+        endforeach;
+
+//        $this->updateIndividualSales($board);
+//        $this->updateOutStandingLimit($board);
+//        $this->updateDocSales($board);
+//        $this->updateCategoryUpgrade($board);
+//        $this->agentSalesGrowth($board);
+        $this->gradeUpdate($board);
     }
 
     public function gradeUpdate(EmployeeBoard $board)
@@ -776,8 +821,15 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         }
 
         $outstandingAmount = $em->getRepository(AgentOutstanding::class)->getLocationWiseTotalOutstanding($arrs, $board->getYear(), $board->getMonth());
+        if ($board->getEmployee()->getReportMode()->getSlug() == 'agm-kpi'){
+            $outstandingSlug = 'agm-outstanding-limit-vs-actual-feed';
+        }elseif ($board->getEmployee()->getReportMode()->getSlug() == 'rsm-arsm-kpi'){
+            $outstandingSlug = 'rsm-outstanding-limit-vs-actual-feed';
+        }else{
+            $outstandingSlug = 'outstanding-limit-vs-actual-feed';
+        }
 
-        $outstandingDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'outstanding-limit-vs-actual-feed'));
+        $outstandingDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => $outstandingSlug));
         $employeeBoardAttributeForOutStandingLimit = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $outstandingDistribution]);
         if ($employeeBoardAttributeForOutStandingLimit) {
 //            dd($this->outstandingLimitCalculation($board, $outstandingAmount['outstanding']));
@@ -1165,7 +1217,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     }
 
-    private function salesGrowthCalculation($productSlug, $previousValue, $currentValue)
+    public function salesGrowthCalculation($productSlug, $previousValue, $currentValue)
     {
         $returnValue = [];
         

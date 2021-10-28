@@ -75,82 +75,83 @@
                             </thead>
 
                         </table>
-                        {# New format END #}
-                        <table class="table table-bordered" id="datatable">
-                            <thead class="thead-dark">
-                            <tr>
-                                <th scope="col">Parameter</th>
-                                <th scope="col" style="width: 5%;">Activity</th>
-                                <th scope="col" style="width: 45%">Attributes</th>
-                                <th scope="col">Marks</th>
-                                <th scope="col" style="width: 27%">Mark Distribution</th>
-                                <th scope="col">Obtain Marks</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% if board.employeeBoardAttributes is not empty %}
-                                {% for parameters in arrayData %}
-                                    {% set count=1 %}
-                                    {% for activity in parameters %}
-                                        {% set countActity=1 %}
-                                        {% for entity in activity %}
-                                            <tr>
-                                                {% if entity.parameter.status == 1 %}
-                                                    {% if(count==1) %}
-                                                        <td rowspan="{{ parameters|multiArrayLength }}" class="parameter"><span>{{ entity.parameter.name }}</span></td>
-                                                    {% endif %}
-                                                    {% if entity.activity.status == 1 %}
-                                                        {% if(countActity==1) %}
-                                                            <td rowspan="{{ activity|length }}" {#class="parameter"#}><span>{{ entity.activity.name }}</span></td>
+
+                            {# New format END #}
+                            <table class="table table-bordered" id="datatable">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">Parameter</th>
+                                    <th scope="col" style="width: 5%;">Activity</th>
+                                    <th scope="col" style="width: 45%">Attributes</th>
+                                    <th scope="col">Marks</th>
+                                    <th scope="col" style="width: 27%">Mark Distribution</th>
+                                    <th scope="col">Obtain Marks</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% if board.employeeBoardAttributes is not empty %}
+                                    {% for parameters in arrayData %}
+                                        {% set count=1 %}
+                                        {% for activity in parameters %}
+                                            {% set countActity=1 %}
+                                            {% for entity in activity %}
+                                                <tr>
+                                                    {% if entity.parameter.status == 1 %}
+                                                        {% if(count==1) %}
+                                                            <td rowspan="{{ parameters|multiArrayLength }}" class="parameter"><span>{{ entity.parameter.name }}</span></td>
                                                         {% endif %}
-                                                        {% if entity.attribute.status == 1 %}
-                                                            <td>
-                                                                {{ entity.attribute.name }}
+                                                        {% if entity.activity.status == 1 %}
+                                                            {% if(countActity==1) %}
+                                                                <td rowspan="{{ activity|length }}" {#class="parameter"#}><span>{{ entity.activity.name }}</span></td>
+                                                            {% endif %}
+                                                            {% if entity.attribute.status == 1 %}
+                                                                <td>
+                                                                    {{ entity.attribute.name }}
 
-                                                                {% if entity.activity.slug == 'customer-development' and entity.attribute.slug != 'aqua-develop-existing-customer-sales-volume' and entity.attribute.slug != 'cattle-develop-existing-customer-sales-volume' and entity.attribute.slug != 'minimum-50-c-category-agents-converts-to-b' and entity.attribute.slug != 'minimum-50-d-category-agents-converts-to-c' and entity.attribute.slug != 'develop-existing-customer-sales-volume' and entity.attribute.slug != 'agent-up-gradation-20-sales-growth-from-previous-year-at-same-month' %}
-                                                                    <div style="display: flex; align-items: center">
-                                                                        <label for="customer-development-{{ entity.attribute.id }}" style="margin-bottom: 0; margin-right: 5px">Marks: </label>
-                                                                        <input type="text" value="{{ entity.mark }}" class="form-control customerDevelopment" id="customer-development-{{ entity.attribute.id }}" data-id="{{ entity.attribute.id }}" data-action="{{ path('kpi_employee_update_customer_development',{'id':entity.id}) }}" style="width: 10%">
-                                                                    </div>
-                                                                {% endif %}
-                                                            </td>
-
-                                                            <td>{{ entity.attribute.mark }}</td>
-                                                            <td>
-
-                                                                {% if entity.attribute.children is not empty %}
-                                                                    {% if entity.attribute.systemEntry == 1 %}
-                                                                        <select class="markDistribution" data-id="{{ entity.attribute.id }}" data-action="{{ path('kpi_employee_board_attribute_update',{'id':entity.id}) }}" >
-                                                                            <option value="">{{ 'Select mark particular'|trans }}</option>
-                                                                            {% for markDistribution in entity.attribute.children %}
-                                                                                {% if markDistribution.status == 1 %}
-                                                                                <option  value="{{ markDistribution.id }}" {% if  entity.markDistribution is not empty and markDistribution.id ==  entity.markDistribution.id %} selected="selected" {% endif %}>{{ markDistribution.name }}</option>
-                                                                                {% endif %}
-                                                                            {% endfor %}
-                                                                        </select>
-                                                                    {% else %}
-
-                                                                        <ul class="markDistribution">
-                                                                            {% for children in entity.attribute.children %}
-                                                                                <li>{{ children.name }}</li>
-                                                                            {% endfor %}
-                                                                        </ul>
+                                                                    {% if entity.activity.slug == 'customer-development' and entity.attribute.slug != 'aqua-develop-existing-customer-sales-volume' and entity.attribute.slug != 'cattle-develop-existing-customer-sales-volume' and entity.attribute.slug != 'minimum-50-c-category-agents-converts-to-b' and entity.attribute.slug != 'minimum-50-d-category-agents-converts-to-c' and entity.attribute.slug != 'develop-existing-customer-sales-volume' and entity.attribute.slug != 'agent-up-gradation-20-sales-growth-from-previous-year-at-same-month' %}
+                                                                        <div style="display: flex; align-items: center">
+                                                                            <label for="customer-development-{{ entity.attribute.id }}" style="margin-bottom: 0; margin-right: 5px">Marks: </label>
+                                                                            <input type="text" value="{{ entity.mark }}" class="form-control customerDevelopment" id="customer-development-{{ entity.attribute.id }}" data-id="{{ entity.attribute.id }}" data-action="{{ path('kpi_employee_update_customer_development',{'id':entity.id}) }}" style="width: 10%">
+                                                                        </div>
                                                                     {% endif %}
-                                                                {% endif %}
-                                                            </td>
-                                                            <td class="attribute-score" id="markDistribution-{{ entity.attribute.id }}">{{ entity.mark }}</td>
+                                                                </td>
+
+                                                                <td>{{ entity.attribute.mark }}</td>
+                                                                <td>
+
+                                                                    {% if entity.attribute.children is not empty %}
+                                                                        {% if entity.attribute.systemEntry == 1 %}
+                                                                            <select class="markDistribution" data-id="{{ entity.attribute.id }}" data-action="{{ path('kpi_employee_board_attribute_update',{'id':entity.id}) }}" >
+                                                                                <option value="">{{ 'Select mark particular'|trans }}</option>
+                                                                                {% for markDistribution in entity.attribute.children %}
+                                                                                    {% if markDistribution.status == 1 %}
+                                                                                        <option  value="{{ markDistribution.id }}" {% if  entity.markDistribution is not empty and markDistribution.id ==  entity.markDistribution.id %} selected="selected" {% endif %}>{{ markDistribution.name }}</option>
+                                                                                    {% endif %}
+                                                                                {% endfor %}
+                                                                            </select>
+                                                                        {% else %}
+
+                                                                            <ul class="markDistribution">
+                                                                                {% for children in entity.attribute.children %}
+                                                                                    <li>{{ children.name }}</li>
+                                                                                {% endfor %}
+                                                                            </ul>
+                                                                        {% endif %}
+                                                                    {% endif %}
+                                                                </td>
+                                                                <td class="attribute-score" id="markDistribution-{{ entity.attribute.id }}">{{ entity.mark }}</td>
+                                                            {% endif %}
                                                         {% endif %}
                                                     {% endif %}
-                                                {% endif %}
-                                            </tr>
-                                            {% set countActity=0 %}
-                                            {% set count=count+1 %}
+                                                </tr>
+                                                {% set countActity=0 %}
+                                                {% set count=count+1 %}
+                                            {% endfor %}
                                         {% endfor %}
                                     {% endfor %}
-                                {% endfor %}
-                            {% endif %}
-                            </tbody>
-                        </table>
+                                {% endif %}
+                                </tbody>
+                            </table>
                     </div>
                 </div>
             </div>

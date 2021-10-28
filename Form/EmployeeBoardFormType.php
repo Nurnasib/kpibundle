@@ -43,18 +43,24 @@ class EmployeeBoardFormType extends AbstractType
         $user=$options['user'];
         $userId = $user->getId();
         $userGroup = $user->getUserGroup()?$user->getUserGroup()->getSlug():'';
+        $format = $options['format'];
         $builder
             ->add('employee', EntityType::class, [
                 'class' => User::class,
                 'required' => true,
-                'query_builder' => function (EntityRepository $er) use ($userId, $userGroup) {
+                'query_builder' => function (EntityRepository $er) use ($userId, $userGroup, $format) {
                     if($userGroup=='administrator'){
-                        return $er->createQueryBuilder('e')
-                            ->join('e.userGroup','ug')
-                            ->where('e.enabled =1')
-                            ->andWhere("ug.slug =:slug")->setParameter('slug','employee')
-                            ->andWhere("e.userMode = 'KPI'")
-                            ->orderBy('e.name', 'ASC');
+                        $qb = $er->createQueryBuilder('e');
+                        $qb->join('e.userGroup','ug');
+                        $qb->join('e.reportMode','reportMode');
+                        $qb->where('e.enabled =1');
+                        $qb->andWhere("ug.slug =:slug")->setParameter('slug','employee');
+                        $qb->andWhere("e.userMode = 'KPI'");
+                        $qb->orderBy('e.name', 'ASC');
+                        if ($format == 'custom-format'){
+                            $qb->andWhere('reportMode.slug =:reportMode')->setParameter('reportMode', $format);
+                        }
+                        return $qb;
                     }else{
                         return $er->createQueryBuilder('e')
                             ->join('e.lineManager','lm')
@@ -92,6 +98,7 @@ class EmployeeBoardFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => EmployeeBoard::class,
             'user' => User::class,
+            'format' => null,
         ]);
     }
 }

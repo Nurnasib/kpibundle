@@ -45,6 +45,7 @@ class EmployeeBoardRepository extends EntityRepository
         $qb->addSelect('createdBy.name AS createdByName');
         $qb->addSelect('approvedBy.name AS approvedByName');
         $qb->addSelect('reportMode.name AS reportFormat');
+        $qb->addSelect('reportMode.slug AS reportFormatSlug');
 
         if ($userGroup != 'administrator'){
             $qb->where('s.createdBy = :user')->setParameter('user', $user);

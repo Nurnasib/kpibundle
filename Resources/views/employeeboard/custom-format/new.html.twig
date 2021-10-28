@@ -1,0 +1,330 @@
+{% extends 'admin/layout.html.twig' %}
+{% block body_id 'kpi_domain_new' %}
+{% block body %}
+    <div class="pcoded-inner-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                        <li class="breadcrumb-item"> <a href="{{ path('kpi_markchart') }}">  {{ 'KPI Board'|trans }}</a></li>
+                        <li class="breadcrumb-item"> <a href="javascript:">{{ 'Add New'|trans }}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="card">
+                <div class="card-header">
+                    <h5>{{ 'KPI Element'|trans }}</h5>
+                    <div class="card-header-right">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
+                            <a href="{{ path('kpi_board_new') }}" class="btn btn-sm  green-bg white-font"><i class="fas fa-plus"></i>{{ 'Add New'|trans }}</a>
+                            <a href="{{ path('kpi_employee_board') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>{{ 'KPI Board'|trans }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row position-relative">
+            <div class="card">
+                <div class="portlet box green ">
+                    <div class="portlet-title">
+                        <div class="caption">{{ 'Manage KPI Element'|trans }} </div>
+                        <div class="btn-group float-right">
+                            <a href="{{ path('kpi_approve',{'id':board.id}) }}" id="statusUpdate" name="statusUpdate" class="btn blue-bg text-white">Approved</a>
+{#                            <a href="{{ path('kpi_employee_board_preview',{'id':board.id,'mode':'print'}) }}" class="btn yellow-bg white-font"><i class="fa fa-print"></i> Print</a>#}
+                        </div>
+                    </div>
+                    <div class="portlet-body form">
+                        <style>
+                            ul.header-info {
+                                margin: 0;
+                                padding: 0;
+                                display: flex;
+                                flex-wrap: wrap;
+                            }
+                            ul.header-info li {
+                                list-style: none;
+                                width: 50%;
+                            }
+                        </style>
+                        <table class="table table-striped table-bordered">
+                            <thead class="thead-dark">
+                            <tr><th colspan="2" class="text-center">KPI - {{ board.month }},{{ board.year }}</th></tr>
+                            <tr>
+                                <th>
+                                    <ul class="header-info">
+                                        <li>Name of the Employee: {{ board.employee.name }}</li>
+                                        <li>Date of Joining: {% if board.employee is not empty %}{{ board.employee.joiningDate|date('d-m-Y') }}{% endif %}</li>
+                                        <li>Line Manager: {% if board.employee.lineManager is not empty %}{{ board.employee.lineManager.name }}{% endif %}</li>
+                                        <li>ZONE: {% if board.employee.zonal is not empty %}{{ board.employee.zonal.name }}{% endif %}</li>
+                                    </ul>
+                                </th>
+                                <th>
+                                    <ul class="header-info">
+                                        <li>Emp ID: {% if board.employee is not empty %}{{ board.employee.userId }}{% endif %}</li>
+                                        <li>Designation: {% if board.employee.designation is not empty %}{{ board.employee.designation.name }}{% endif %}</li>
+                                    </ul>
+                                </th>
+                            </tr>
+
+                            </thead>
+
+                        </table>
+                            <form action="{{ path('custom_format_kpi', {board: board.id}) }}" method="post">
+{#                                <h5 class="bg-secondary p-1 text-white h5 w-100">{{ 'Sales Feed Achivement' }}</h5>#}
+{#                                <table class="table table-bordered" id="datatable">#}
+{#                                    <thead class="thead-dark">#}
+{#                                    <tr>#}
+{#                                        Sales Feed Achivement#}
+{#                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>#}
+{#                                        <th scope="col" width="20%">{{ 'Target Quantity'|trans }}</th>#}
+{#                                        <th scope="col" width="20%">{{ 'Sales Quantity'|trans }}</th>#}
+{#                                    </tr>#}
+{#                                    </thead>#}
+{#                                    <tbody>#}
+{#                                    {% if board.employeeBoardAttributes is not empty %}#}
+{#                                        {% if board.employeeBoardAttributes is not empty %}#}
+{#                                            {% for parameters in arrayData %}#}
+{#                                                {% for activity in parameters %}#}
+{#                                                    {% for entity in activity %}#}
+{#                                                        <tr>#}
+{#                                                            {% if entity.parameter.status == 1 %}#}
+{#                                                                {% if entity.activity.status == 1 %}#}
+{#                                                                    {% if entity.activity.slug == 'sales' %}#}
+{#                                                                        {% if entity.attribute.status == 1 %}#}
+{#                                                                            <td>{{ entity.attribute.name }}</td>#}
+
+{#                                                                            <td><input type="number" name="sales[{{ entity.attribute.id }}][target]" class="form-control"></td>#}
+{#                                                                            <td><input type="number" name="sales[{{ entity.attribute.id }}][sales]" class="form-control"></td>#}
+{#                                                                        {% endif %}#}
+{#                                                                    {% endif %}#}
+{#                                                                {% endif %}#}
+{#                                                            {% endif %}#}
+{#                                                        </tr>#}
+{#                                                    {% endfor %}#}
+{#                                                {% endfor %}#}
+{#                                            {% endfor %}#}
+{#                                        {% endif %}#}
+{#                                    {% endif %}#}
+{#                                    </tbody>#}
+{#                                </table>#}
+
+                                <table class="table table-bordered">
+                                    <tbody>
+                                    {% if board.employeeBoardAttributes is not empty %}
+                                        {% for parameters in arrayData %}
+                                            {% for activity in parameters %}
+                                                {% for entity in activity %}
+                                                    {% if loop.first %}
+                                                        {% if entity.activity.slug == 'sales' %}
+                                                            <tr>
+                                                                <td colspan="3" class="bg-secondary"><h5 class="m-0 p-1 text-white">{{ 'Sales Feed Achivement'|trans }}</h5></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                                                <th scope="col" width="20%">{{ 'Target Quantity'|trans }}</th>
+                                                                <th scope="col" width="20%">{{ 'Sales Quantity'|trans }}</th>
+                                                            </tr>
+                                                        {% elseif entity.activity.slug == 'sales-growth-always-consider-among-same-period' %}
+                                                            <tr>
+                                                                <td colspan="3" class="bg-secondary"><h5 class="m-0 p-1 text-white">{{ 'Product Sales Growth'|trans }}</h5></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                                                <th scope="col" width="20%">{{ 'Previous Year'|trans }}</th>
+                                                                <th scope="col" width="20%">{{ 'Sales Quantity'|trans }}</th>
+                                                            </tr>
+                                                        {% elseif entity.activity.slug == 'outstanding' %}
+                                                            <tr>
+                                                                <td colspan="3" class="bg-secondary"><h5 class="m-0 p-1 text-white">{{ 'Outstanding'|trans }}</h5></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                                                <th scope="col" width="20%">{{ 'Actual Amount'|trans }}</th>
+                                                                <th scope="col" width="20%">{{ 'Limit Amount'|trans }}</th>
+                                                            </tr>
+                                                        {% elseif entity.activity.slug == 'customer-development' %}
+                                                            <tr>
+                                                                <td colspan="3" class="bg-secondary"><h5 class="m-0 p-1 text-white">{{ 'Customer Development'|trans }}</h5></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                                                <th scope="col" width="20%">{{ 'Total Agents'|trans }}</th>
+                                                                <th scope="col" width="20%">{{ 'Upgrade Agents'|trans }}</th>
+                                                            </tr>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                    <tr>
+                                                        {% if entity.parameter.status == 1 %}
+                                                            {% if entity.activity.status == 1 %}
+                                                                {% if entity.attribute.status == 1 %}
+                                                                    {% if entity.activity.slug == 'sales' %}
+                                                                        <td>{{ entity.attribute.name }}</td>
+
+                                                                        <td><input type="number" name="sales[{{ entity.attribute.id }}][target]" class="form-control"></td>
+                                                                        <td><input type="number" name="sales[{{ entity.attribute.id }}][sales]" class="form-control"></td>
+                                                                    {% elseif entity.activity.slug == 'sales-growth-always-consider-among-same-period' %}
+                                                                        <td>{{ entity.attribute.name }}</td>
+
+                                                                        <td><input type="number" name="growth[{{ entity.attribute.id }}][previous]" class="form-control"></td>
+                                                                        <td><input type="number" name="growth[{{ entity.attribute.id }}][current]" class="form-control"></td>
+                                                                    {% elseif entity.activity.slug == 'outstanding' %}
+                                                                        <td>{{ entity.attribute.name }}</td>
+                                                                        <td><input type="number" name="outstanding[{{ entity.attribute.id }}][actualAmount]" class="form-control"></td>
+                                                                        <td><input type="number" name="outstanding[{{ entity.attribute.id }}][limitAmount]" class="form-control"></td>
+                                                                    {% elseif entity.activity.slug == 'customer-development' %}
+                                                                        <td>{{ entity.attribute.name }}</td>
+                                                                        <td><input type="number" name="customerDevelopment[{{ entity.attribute.id }}][totalAgents]" class="form-control"></td>
+                                                                        <td><input type="number" name="customerDevelopment[{{ entity.attribute.id }}][upgradeAgent]" class="form-control"></td>
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    </tr>
+                                                {% endfor %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    </tbody>
+                                </table>
+                                <div class="form-actions">
+                                    <div class="col-md-6 ">
+                                    </div>
+                                    <div class="col-md-6 text-right">
+                                        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                                            <a href="#" class="btn yellow-bg white-font"><i class="fa fa-refresh"></i>Restore</a>
+                                            <button type="submit"  name="" class="btn btn-info form-submit btn">SaveAndCreate</button>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
+<style>
+
+input.customerDevelopment {
+    background: #daae82;
+    color: #000000;
+    font-weight: bold;
+}
+select.markDistribution {
+    background: #daae82;
+    color: #000000;
+    font-weight: bold;
+}
+.parameter{
+    position: relative;
+    /*    border-left: 34px solid #369;
+        padding-left: 10px;
+        width: 50px;*/
+}
+
+.parameter span {
+    position: absolute;
+    top: 50%;
+    /*left: 30px;*/
+    background: none;
+    transform-origin: 0 0;
+    transform: rotate(-90deg) translateX(-50%);
+    /*width: 200px;*/
+}
+
+
+.attribute-markDistribution{
+    width: 220px;
+}
+
+.markDistribution{
+    padding-left: 15px;
+    width: 220px;
+}
+.markDistribution li{
+    margin-left: 0;
+    padding-left: 0;
+}
+
+.activity-name{
+    width: 120px;
+}
+
+.activity-attribute{
+    width: 220px;
+}
+.attribute-name{
+    width: 480px;
+}
+.attribute-mark{
+    width: 70px;
+}
+.attribute-score{
+    width: 70px;
+}
+</style>
+{% endblock %}
+ {% block cssBlock %}
+     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+ {% endblock  %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+{% endblock  %}
+{% block javascriptBlock %}
+{#    <script>#}
+    {{ parent() }}
+{#    $(document).on('click',".statusUpdate", function (event) {
+    var url = $(this).attr('data-action');
+    $.get(url, function(data){
+        var redirectUrl = Routing.generate('kpi_employee_board');
+        if(data=='success'){
+            window.location.href = redirectUrl;
+        }
+    });
+    });#}
+
+    (function($) {
+        $.fn.inputFilter = function(inputFilter) {
+            return this.on("input keydown keyup mousedown mouseup select contextmenu drop", function() {
+                if (inputFilter(this.value)) {
+                    this.oldValue = this.value;
+                    this.oldSelectionStart = this.selectionStart;
+                    this.oldSelectionEnd = this.selectionEnd;
+                } else if (this.hasOwnProperty("oldValue")) {
+                    this.value = this.oldValue;
+                    this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+                } else {
+                    this.value = "";
+                }
+            });
+        };
+    }(jQuery));
+
+    $("input.customerDevelopment").inputFilter(function(value) {
+        return /^-?\d*[.,]?\d*$/.test(value);
+    });
+
+    $(document).on('click',"#statusUpdate", function (event) {
+        event.preventDefault();
+        var id = $(this).attr('data-id');
+        var url = $(this).attr('data-action');
+        $.MessageBox({
+            buttonFail  : "No",
+            buttonDone  : "Yes",
+            message     : "Are you sure want to approve?"
+        }).done(function(){
+            window.location.href = $('#statusUpdate').attr('href');
+        });
+    });
+
+
+
+{% endblock  %}

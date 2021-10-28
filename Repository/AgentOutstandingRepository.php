@@ -104,10 +104,16 @@ class AgentOutstandingRepository extends EntityRepository
                 'outstanding' => (double)$result['outstanding'],
             ];
         }
-
-        $outstandingDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'outstanding-limit-vs-actual-feed'));
+        if ($board->getEmployee()->getReportMode()->getSlug() == 'agm-kpi'){
+            $outstandingSlug = 'agm-outstanding-limit-vs-actual-feed';
+        }elseif ($board->getEmployee()->getReportMode()->getSlug() == 'rsm-arsm-kpi'){
+            $outstandingSlug = 'rsm-outstanding-limit-vs-actual-feed';
+        }else{
+            $outstandingSlug = 'outstanding-limit-vs-actual-feed';
+        }
+        $outstandingDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => $outstandingSlug));
         $employeeBoardAttributeForOutStandingLimit = $em->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $outstandingDistribution]);
-        $data['mark'] = (int)$employeeBoardAttributeForOutStandingLimit->getMark();
+        $data['mark'] = $employeeBoardAttributeForOutStandingLimit ? (int)$employeeBoardAttributeForOutStandingLimit->getMark() : 0;
         return $data;
     }
 
