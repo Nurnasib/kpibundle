@@ -194,11 +194,15 @@
                                                     <label for="{{ form.district.vars.id }}" class="control-label col-md-2">
                                                         Select District
                                                     </label>
+
                                                     <div class="col-md-10">
+                                                        <span class="not-blank"> *</span>
+
                                                         <div class="input-icon right">
                                                             <div class="controls">
                                                                 {{ form_errors(form.district) }}
                                                                 {{ form_widget(form.district, {'attr': {'class': 'form-control span6 m-wrap'}}) }}
+
                                                             </div>
                                                         </div>
                                                     </div>
