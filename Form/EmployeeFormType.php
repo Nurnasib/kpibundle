@@ -87,7 +87,6 @@ class EmployeeFormType extends AbstractType
 
             ->add('userId', TextType::class, [
                 'attr' => ['autofocus' => true,'class'=>'col-md-12', 'placeholder' => 'Enter user ID'],
-                'required' => false,
 
             ])
 
@@ -244,7 +243,6 @@ class EmployeeFormType extends AbstractType
 
 
             ->add('designation', EntityType::class, array(
-                'required'    => true,
                 'class' => Setting::class,
                 'placeholder' => 'Choose a Designation',
                 'choice_label' => 'name',
