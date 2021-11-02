@@ -65,7 +65,7 @@ class EditEmployeeFormType extends AbstractType
             ->add('lineManager', EntityType::class, array(
                 'required'    => true,
                 'class' => User::class,
-                'placeholder' => 'Choose a  line manager',
+                'placeholder' => 'Choose a line manager',
                 'choice_label' => 'name',
                 'attr'=>array('class'=>'span12 m-wrap select2'),
                 'query_builder' => function(EntityRepository $er){
@@ -110,15 +110,6 @@ class EditEmployeeFormType extends AbstractType
 
             ])
 
-            ->add('area', ChoiceType::class, [
-                'choices'  => [
-                    'Zonal' => 'Zonal',
-                    'Regional' => 'Regional',
-                    'District' => 'District',
-                    'Upozila' => 'Upozila',
-                ],
-            ])
-
             ->add('vehicleNo', TextType::class, [
                 'attr' => ['autofocus' => true,'class'=>'col-md-6', 'placeholder' => 'Enter vehicle no'],
                 'required' => false,
@@ -139,7 +130,7 @@ class EditEmployeeFormType extends AbstractType
             ->add('serviceMode', EntityType::class, array(
                 'required'    => true,
                 'class' => Setting::class,
-                'placeholder' => 'Choose a  Service Mode',
+                'placeholder' => 'Choose a Service Mode',
                 'choice_label' => 'name',
                 'attr'=>array('class'=>'span12 m-wrap'),
                 'query_builder' => function(EntityRepository $er){
@@ -152,7 +143,7 @@ class EditEmployeeFormType extends AbstractType
             ->add('responsibleOf', EntityType::class, array(
                 'required'    => true,
                 'class' => Setting::class,
-                'placeholder' => 'Choose a  Responsible',
+                'placeholder' => 'Choose a Responsible',
                 'choice_label' => 'name',
                 'attr'=>array('class'=>'span12 m-wrap'),
                 'query_builder' => function(EntityRepository $er){
@@ -165,7 +156,7 @@ class EditEmployeeFormType extends AbstractType
             ->add('designation', EntityType::class, array(
                 'required'    => true,
                 'class' => Setting::class,
-                'placeholder' => 'Choose a  Designation',
+                'placeholder' => 'Choose a Designation',
                 'choice_label' => 'name',
                 'attr'=>array('class'=>'span12 m-wrap'),
                 'query_builder' => function(EntityRepository $er){
@@ -193,7 +184,7 @@ class EditEmployeeFormType extends AbstractType
             ->add('userGroup', EntityType::class, array(
                 'required'    => true,
                 'class' => Setting::class,
-                'placeholder' => 'Choose an  user group',
+                'placeholder' => 'Choose an user group',
                 'choice_label' => 'name',
                 'attr'=>array('class'=>'span12 m-wrap'),
                 'query_builder' => function(EntityRepository $er){
@@ -203,7 +194,7 @@ class EditEmployeeFormType extends AbstractType
                         ->orderBy('e.name', 'ASC');
                 },
             ))
-
+/*
             ->add('zonal', EntityType::class, array(
                 'required'    => false,
                 'class' => Location::class,
@@ -232,6 +223,15 @@ class EditEmployeeFormType extends AbstractType
                         ->orderBy('e.name', 'ASC');
                 },
             ))
+            ->add('area', ChoiceType::class, [
+                'choices'  => [
+                    'Zonal' => 'Zonal',
+                    'Regional' => 'Regional',
+                    'District' => 'District',
+                    'Upozila' => 'Upozila',
+                ],
+            ])
+            */
             ->add('district', EntityType::class, [
                 'class' => Location::class,
                 'multiple' => true,

@@ -76,119 +76,192 @@
 
                         </table>
                             <form action="{{ path('custom_format_kpi', {board: board.id}) }}" method="post">
-{#                                <h5 class="bg-secondary p-1 text-white h5 w-100">{{ 'Sales Feed Achivement' }}</h5>#}
-{#                                <table class="table table-bordered" id="datatable">#}
-{#                                    <thead class="thead-dark">#}
-{#                                    <tr>#}
-{#                                        Sales Feed Achivement#}
-{#                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>#}
-{#                                        <th scope="col" width="20%">{{ 'Target Quantity'|trans }}</th>#}
-{#                                        <th scope="col" width="20%">{{ 'Sales Quantity'|trans }}</th>#}
-{#                                    </tr>#}
-{#                                    </thead>#}
-{#                                    <tbody>#}
-{#                                    {% if board.employeeBoardAttributes is not empty %}#}
-{#                                        {% if board.employeeBoardAttributes is not empty %}#}
-{#                                            {% for parameters in arrayData %}#}
-{#                                                {% for activity in parameters %}#}
-{#                                                    {% for entity in activity %}#}
-{#                                                        <tr>#}
-{#                                                            {% if entity.parameter.status == 1 %}#}
-{#                                                                {% if entity.activity.status == 1 %}#}
-{#                                                                    {% if entity.activity.slug == 'sales' %}#}
-{#                                                                        {% if entity.attribute.status == 1 %}#}
-{#                                                                            <td>{{ entity.attribute.name }}</td>#}
-
-{#                                                                            <td><input type="number" name="sales[{{ entity.attribute.id }}][target]" class="form-control"></td>#}
-{#                                                                            <td><input type="number" name="sales[{{ entity.attribute.id }}][sales]" class="form-control"></td>#}
-{#                                                                        {% endif %}#}
-{#                                                                    {% endif %}#}
-{#                                                                {% endif %}#}
-{#                                                            {% endif %}#}
-{#                                                        </tr>#}
-{#                                                    {% endfor %}#}
-{#                                                {% endfor %}#}
-{#                                            {% endfor %}#}
-{#                                        {% endif %}#}
-{#                                    {% endif %}#}
-{#                                    </tbody>#}
-{#                                </table>#}
-
-                                <table class="table table-bordered">
+                                <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Sales Feed Achivement' }}</h5>
+                                <table class="table table-bordered" id="datatable">
+                                    <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                        <th scope="col" width="20%">{{ 'Target Quantity'|trans }}</th>
+                                        <th scope="col" width="20%">{{ 'Sales Quantity'|trans }}</th>
+                                    </tr>
+                                    </thead>
                                     <tbody>
                                     {% if board.employeeBoardAttributes is not empty %}
-                                        {% for parameters in arrayData %}
-                                            {% for activity in parameters %}
-                                                {% for entity in activity %}
-                                                    {% if loop.first %}
-                                                        {% if entity.activity.slug == 'sales' %}
-                                                            <tr>
-                                                                <td colspan="3" class="bg-secondary"><h5 class="m-0 p-1 text-white">{{ 'Sales Feed Achivement'|trans }}</h5></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th scope="col">{{ 'Mark Parameter'|trans }}</th>
-                                                                <th scope="col" width="20%">{{ 'Target Quantity'|trans }}</th>
-                                                                <th scope="col" width="20%">{{ 'Sales Quantity'|trans }}</th>
-                                                            </tr>
-                                                        {% elseif entity.activity.slug == 'sales-growth-always-consider-among-same-period' %}
-                                                            <tr>
-                                                                <td colspan="3" class="bg-secondary"><h5 class="m-0 p-1 text-white">{{ 'Product Sales Growth'|trans }}</h5></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th scope="col">{{ 'Mark Parameter'|trans }}</th>
-                                                                <th scope="col" width="20%">{{ 'Previous Year'|trans }}</th>
-                                                                <th scope="col" width="20%">{{ 'Sales Quantity'|trans }}</th>
-                                                            </tr>
-                                                        {% elseif entity.activity.slug == 'outstanding' %}
-                                                            <tr>
-                                                                <td colspan="3" class="bg-secondary"><h5 class="m-0 p-1 text-white">{{ 'Outstanding'|trans }}</h5></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th scope="col">{{ 'Mark Parameter'|trans }}</th>
-                                                                <th scope="col" width="20%">{{ 'Actual Amount'|trans }}</th>
-                                                                <th scope="col" width="20%">{{ 'Limit Amount'|trans }}</th>
-                                                            </tr>
-                                                        {% elseif entity.activity.slug == 'customer-development' %}
-                                                            <tr>
-                                                                <td colspan="3" class="bg-secondary"><h5 class="m-0 p-1 text-white">{{ 'Customer Development'|trans }}</h5></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th scope="col">{{ 'Mark Parameter'|trans }}</th>
-                                                                <th scope="col" width="20%">{{ 'Total Agents'|trans }}</th>
-                                                                <th scope="col" width="20%">{{ 'Upgrade Agents'|trans }}</th>
-                                                            </tr>
-                                                        {% endif %}
-                                                    {% endif %}
-                                                    <tr>
-                                                        {% if entity.parameter.status == 1 %}
-                                                            {% if entity.activity.status == 1 %}
-                                                                {% if entity.attribute.status == 1 %}
+                                        {% if board.employeeBoardAttributes is not empty %}
+                                            {% for parameters in arrayData %}
+                                                {% for activity in parameters %}
+                                                    {% for entity in activity %}
+                                                        <tr>
+                                                            {% if entity.parameter.status == 1 %}
+                                                                {% if entity.activity.status == 1 %}
                                                                     {% if entity.activity.slug == 'sales' %}
-                                                                        <td>{{ entity.attribute.name }}</td>
+                                                                        {% if entity.attribute.status == 1 %}
+                                                                            <td>{{ entity.attribute.name }}</td>
 
-                                                                        <td><input type="number" name="sales[{{ entity.attribute.id }}][target]" class="form-control"></td>
-                                                                        <td><input type="number" name="sales[{{ entity.attribute.id }}][sales]" class="form-control"></td>
-                                                                    {% elseif entity.activity.slug == 'sales-growth-always-consider-among-same-period' %}
-                                                                        <td>{{ entity.attribute.name }}</td>
-
-                                                                        <td><input type="number" name="growth[{{ entity.attribute.id }}][previous]" class="form-control"></td>
-                                                                        <td><input type="number" name="growth[{{ entity.attribute.id }}][current]" class="form-control"></td>
-                                                                    {% elseif entity.activity.slug == 'outstanding' %}
-                                                                        <td>{{ entity.attribute.name }}</td>
-                                                                        <td><input type="number" name="outstanding[{{ entity.attribute.id }}][actualAmount]" class="form-control"></td>
-                                                                        <td><input type="number" name="outstanding[{{ entity.attribute.id }}][limitAmount]" class="form-control"></td>
-                                                                    {% elseif entity.activity.slug == 'customer-development' %}
-                                                                        <td>{{ entity.attribute.name }}</td>
-                                                                        <td><input type="number" name="customerDevelopment[{{ entity.attribute.id }}][totalAgents]" class="form-control"></td>
-                                                                        <td><input type="number" name="customerDevelopment[{{ entity.attribute.id }}][upgradeAgent]" class="form-control"></td>
+                                                                            <td><input type="number" name="sales[{{ entity.attribute.id }}][target]" class="form-control"></td>
+                                                                            <td><input type="number" name="sales[{{ entity.attribute.id }}][sales]" class="form-control"></td>
+                                                                        {% endif %}
                                                                     {% endif %}
                                                                 {% endif %}
                                                             {% endif %}
-                                                        {% endif %}
-                                                    </tr>
+                                                        </tr>
+                                                    {% endfor %}
                                                 {% endfor %}
                                             {% endfor %}
-                                        {% endfor %}
+                                        {% endif %}
+                                    {% endif %}
+                                    </tbody>
+                                </table>
+
+                                <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Product Sales Growth' }}</h5>
+                                <table class="table table-bordered" id="datatable">
+                                    <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                        <th scope="col" width="20%">{{ 'Previous Year'|trans }}</th>
+                                        <th scope="col" width="20%">{{ 'Sales Quantity'|trans }}</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% if board.employeeBoardAttributes is not empty %}
+                                        {% if board.employeeBoardAttributes is not empty %}
+                                            {% for parameters in arrayData %}
+                                                {% for activity in parameters %}
+                                                    {% for entity in activity %}
+                                                        <tr>
+                                                            {% if entity.parameter.status == 1 %}
+                                                                {% if entity.activity.status == 1 %}
+                                                                    {% if entity.activity.slug == 'sales-growth-always-consider-among-same-period' %}
+                                                                        {% if entity.attribute.status == 1 %}
+                                                                            <td>{{ entity.attribute.name }}</td>
+
+                                                                            <td><input type="number" name="growth[{{ entity.attribute.id }}][previous]" class="form-control"></td>
+                                                                            <td><input type="number" name="growth[{{ entity.attribute.id }}][current]" class="form-control"></td>
+                                                                        {% endif %}
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        </tr>
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endif %}
+                                    </tbody>
+                                </table>
+
+
+                                <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Outstanding' }}</h5>
+                                <table class="table table-bordered">
+                                    <thead class="thead-dark">
+{#                                    <tr>#}
+{#                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>#}
+{#                                        <th scope="col" width="20%">{{ 'Actual Amount'|trans }}</th>#}
+{#                                        <th scope="col" width="20%">{{ 'Limit Amount'|trans }}</th>#}
+{#                                    </tr>#}
+                                    </thead>
+                                    <tbody>
+                                    {% if board.employeeBoardAttributes is not empty %}
+                                        {% if board.employeeBoardAttributes is not empty %}
+                                            {% for parameters in arrayData %}
+                                                {% for activity in parameters %}
+                                                    {% for entity in activity %}
+                                                        {% if entity.attribute.slug == 'outstanding-limit-vs-actual-feed'  %}
+                                                            <tr>
+                                                                <td colspan="3" style="padding: 0 !important;" align="center">
+                                                                <p class="yellow-bg p-1 m-0">{{ 'Outstanding limit vs actual feed' }}</p>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="col">{{ 'Agents'|trans }}</th>
+                                                                <th scope="col" width="20%">{{ 'Actual Amount'|trans }}</th>
+                                                                <th scope="col" width="20%">{{ 'Limit Amount'|trans }}</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>
+{#                                                                    <select data-action="{{ path('core_agent_search_select2') }}" name="agent" class="agentSearch" id="">#}
+{#                                                                        <option value="">Select Agent</option>#}
+{#                                                                    </select>#}
+                                                                    <input type="text" class="agentSearch form-control" name="agent" value="">
+                                                                </td>
+                                                                <td><input type="number" name="actual-amount" class="form-control" value=""></td>
+                                                                {#                                                                            <td><input type="number" name="outstanding[{{ entity.attribute.id }}][limitAmount]" class="form-control"></td>#}
+                                                                <td>
+                                                                    <div style="display: flex;">
+                                                                        <input type="number" name="limit-amount" class="form-control" value="">
+                                                                        <a data-action="{{ path('agent_outstanding_for_custom_format', {board: board.id}) }}" data-board-id="{{ board.id }}" class="btn btn-sm green-bg white-font add_button"><i class="fa fa-plus"></i> Add New</a>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                            {% elseif entity.attribute.slug == 'doc-sales-collection' %}
+                                                                <tr>
+                                                                    <td colspan="3" style="padding: 0 !important;" align="center">
+                                                                        <p class="yellow-bg p-1 m-0">{{ 'Doc Sales Collection' }}</p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="col">{{ 'Agents'|trans }}</th>
+                                                                    <th scope="col" width="20%">{{ 'Actual Amount'|trans }}</th>
+                                                                    <th scope="col" width="20%">{{ 'Limit Amount'|trans }}</th>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>
+                                                                        <select data-action="{{ path('core_agent_search_select2') }}" name="agent" class="agentSearch" id="">
+                                                                            <option value="">Select Agent</option>
+                                                                        </select>
+                                                                    </td>
+                                                                    <td><input type="number" name="actual-amount" class="form-control" value=""></td>
+                                                                    {#                                                                            <td><input type="number" name="outstanding[{{ entity.attribute.id }}][limitAmount]" class="form-control"></td>#}
+                                                                    <td>
+                                                                        <div style="display: flex;">
+                                                                            <input type="number" name="limit-amount" class="form-control" value="">
+                                                                            <a data-action="{{ path('agent_outstanding_for_custom_format', {board: board.id}) }}" data-board-id="{{ board.id }}" class="btn btn-sm green-bg white-font add_button"><i class="fa fa-plus"></i> Add New</a>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endif %}
+
+                                    </tbody>
+                                </table>
+
+                                <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Customer Development' }}</h5>
+                                <table class="table table-bordered" id="datatable">
+                                    <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                        <th scope="col" width="20%">{{ 'Total Agents'|trans }}</th>
+                                        <th scope="col" width="20%">{{ 'Upgrade Agents'|trans }}</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% if board.employeeBoardAttributes is not empty %}
+                                        {% if board.employeeBoardAttributes is not empty %}
+                                            {% for parameters in arrayData %}
+                                                {% for activity in parameters %}
+                                                    {% for entity in activity %}
+                                                        <tr>
+                                                            {% if entity.parameter.status == 1 %}
+                                                                {% if entity.activity.status == 1 %}
+                                                                    {% if entity.activity.slug == 'customer-development' %}
+                                                                        {% if entity.attribute.status == 1 %}
+                                                                            <td>{{ entity.attribute.name }}</td>
+
+                                                                            <td><input type="number" name="customerDevelopment[{{ entity.attribute.id }}][totalAgents]" class="form-control"></td>
+                                                                            <td><input type="number" name="customerDevelopment[{{ entity.attribute.id }}][upgradeAgent]" class="form-control"></td>
+                                                                        {% endif %}
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        </tr>
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            {% endfor %}
+                                        {% endif %}
                                     {% endif %}
                                     </tbody>
                                 </table>
@@ -277,6 +350,42 @@ select.markDistribution {
 {% block javascripts %}
     {{ parent() }}
     <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+    <script>
+        $(".add_button").bind('click', function() {
+            let agentId    = $(this).closest('tr').find('.agentSearch').val();
+            let actualAmount    = $(this).closest('tr').find('input[name="actual-amount"]').val();
+            let limitAmount    = $(this).closest('tr').find('input[name="limit-amount"]').val();
+            $.ajax({
+                url: $(this).attr('data-action'),
+                type: 'POST',
+                dataType: 'json',
+                data: {agentId: agentId, actualAmount: actualAmount, limitAmount: limitAmount},
+                success: function (response) {
+                    if (response.status === 200){
+                        // console.log('Checked');
+                        let route = Routing.generate('delete_agent_outstanding_for_custom_format', {id:response.data.id});
+                        $(
+                            '<tr>' +
+                            '<td>' + response.data.agent +'</td>' +
+                            '<td>' + actualAmount +'</td>' +
+                            '<td>' + limitAmount +'</td>' +
+                            '<td><a data-action="' + route + '" class="btn btn-sm btn-transparent remove"><i class="fa fa-remove"></i></a></td>' +
+                            '</tr>'
+                        ).insertAfter($(this).closest('tr'));
+                        //
+                        // $(this).closest('tr').after(
+                        //     '<tr>' +
+                        //         '<td>' + response.data.agent +'</td>' +
+                        //         '<td>' + actualAmount +'</td>' +
+                        //         '<td>' + limitAmount +'</td>' +
+                        //         '<td><a data-action="' + route + '" class="btn btn-sm btn-transparent remove"><i class="fa fa-remove"></i></a></td>' +
+                        //     '</tr>'
+                        // )
+                    }
+                }
+            })
+        });
+    </script>
 {% endblock  %}
 {% block javascriptBlock %}
 {#    <script>#}
@@ -290,6 +399,7 @@ select.markDistribution {
         }
     });
     });#}
+
 
     (function($) {
         $.fn.inputFilter = function(inputFilter) {
@@ -324,6 +434,41 @@ select.markDistribution {
             window.location.href = $('#statusUpdate').attr('href');
         });
     });
+
+{#    <script>#}
+        // Agent Search
+        // $('.agentSearch').select2({
+        //     placeholder: "Select Agent",
+        //     ajax: {
+        //         url: $(this).attr('data-action'),
+        //         dataType: 'json',
+        //         delay: 250,
+        //         type: 'GET',
+        //         data: function (params) {
+        //
+        //             return {
+        //                 q: params.term, // search term
+        //                 type: 'public'
+        //             };
+        //         },
+        //         processResults: function (data) {
+        //             var arr = []
+        //             $.each(data, function (index, value) {
+        //                 arr.push({
+        //                     id: index,
+        //                     text: value
+        //                 })
+        //             })
+        //             return {
+        //                 results: arr
+        //             };
+        //         },
+        //         cache: true
+        //     },
+        //     escapeMarkup: function (markup) { return markup; },
+        //     minimumInputLength: 1
+        // });
+
 
 
 

@@ -126,29 +126,32 @@
                                                <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        {{ form_label(form.area, 'Working Area'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
+{#                                                        {{ form_label(form.area, 'Working Area'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
                                                         <div class="col-md-8">
                                                             {{ form_widget(form.area) }}
                                                             {{ form_errors(form.area) }}
-                                                        </div>
+                                                        </div>#}
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        {{ form_label(form.zonal, 'Zonal Area', {'label_attr': {'class': 'col-md-4'}}) }}
+{#                                                        {{ form_label(form.zonal, 'Zonal Area', {'label_attr': {'class': 'col-md-4'}}) }}
                                                         <div class="col-md-8">
                                                             {{ form_widget(form.zonal) }}
                                                             {{ form_errors(form.zonal) }}
-                                                        </div>
+                                                        </div>#}
                                                     </div>
 
                                                 </div>
                                             </div>
+
+
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         {{ form_label(form.reportMode, 'Report Mode'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
                                                         <div class="col-md-8">
+                                                            <span class="not-blank"> *</span>
                                                             {{ form_widget(form.reportMode) }}
                                                             {{ form_errors(form.reportMode) }}
                                                         </div>
@@ -156,11 +159,11 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        {{ form_label(form.regional, 'Regional Area'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
+{#                                                        {{ form_label(form.regional, 'Regional Area'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
                                                         <div class="col-md-8">
                                                             {{ form_widget(form.regional) }}
                                                             {{ form_errors(form.regional) }}
-                                                        </div>
+                                                        </div>#}
                                                     </div>
                                                 </div>
                                             </div>
@@ -190,7 +193,7 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        {{ form_label(form.userId, 'UserID'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
+                                                        {{ form_label(form.userId, 'Employee ID'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
                                                         <div class="col-md-8">
                                                             <span class="not-blank"> *</span>
                                                             {{ form_widget(form.userId) }}
@@ -213,6 +216,7 @@
                                                     <div class="form-group">
                                                         {{ form_label(form.lineManager, 'Line Manager'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
                                                         <div class="col-md-8">
+                                                            <span class="not-blank"> *</span>
                                                             {{ form_widget(form.lineManager) }}
                                                             {{ form_errors(form.lineManager) }}
                                                         </div>

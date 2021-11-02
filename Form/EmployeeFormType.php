@@ -28,6 +28,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use function Matrix\add;
 
 class EmployeeFormType extends AbstractType
 {
@@ -110,14 +111,6 @@ class EmployeeFormType extends AbstractType
                 ],
             ])
 
-            ->add('area', ChoiceType::class, [
-                'choices'  => [
-                    'Zonal' => 'Zonal',
-                    'Regional' => 'Regional',
-                    'District' => 'District',
-                    'Upozila' => 'Upozila',
-                ],
-            ])
 
            /* ->add('educationalQualification', TextType::class, [
                 'attr' => ['autofocus' => true,'class'=>'col-md-12', 'placeholder' => 'Enter educational qualification'],
@@ -211,7 +204,7 @@ class EmployeeFormType extends AbstractType
             ->add('lineManager', EntityType::class, array(
                 'required'    => true,
                 'class' => User::class,
-                'placeholder' => 'Choose a  line manager',
+                'placeholder' => 'Choose a line manager',
                 'choice_label' => 'name',
                 'attr'=>array('class'=>'span12 m-wrap select2'),
                 'query_builder' => function(EntityRepository $er){
@@ -224,7 +217,7 @@ class EmployeeFormType extends AbstractType
             ->add('department', EntityType::class, array(
                 'required'    => false,
                 'class' => Setting::class,
-                'placeholder' => 'Choose a  Designation',
+                'placeholder' => 'Choose a Designation',
                 'choice_label' => 'name',
                 'attr'=>array('class'=>'span12 m-wrap'),
                 'query_builder' => function(EntityRepository $er){
@@ -253,7 +246,7 @@ class EmployeeFormType extends AbstractType
             ->add('designation', EntityType::class, array(
                 'required'    => true,
                 'class' => Setting::class,
-                'placeholder' => 'Choose a  Designation',
+                'placeholder' => 'Choose a Designation',
                 'choice_label' => 'name',
                 'attr'=>array('class'=>'span12 m-wrap'),
                 'query_builder' => function(EntityRepository $er){
@@ -278,7 +271,7 @@ class EmployeeFormType extends AbstractType
                 },
             ))
 
-
+/*
             ->add('zonal', EntityType::class, array(
                 'required'    => false,
                 'class' => Location::class,
@@ -305,6 +298,15 @@ class EmployeeFormType extends AbstractType
                         ->orderBy('e.name', 'ASC');
                 },
             ))
+            ->add('area', ChoiceType::class, [
+                'choices'  => [
+                    'Zonal' => 'Zonal',
+                    'Regional' => 'Regional',
+                    'District' => 'District',
+                    'Upozila' => 'Upozila',
+                ],
+            ])
+            */
 /*
             ->add('district', EntityType::class, array(
                 'required'    => false,
@@ -328,7 +330,7 @@ class EmployeeFormType extends AbstractType
                 'group_by'  => 'parent.name',
                 'choice_label'  => 'name',
                 'attr'=>['class'=>'span12'],
-                'placeholder' => 'Choose a upozila',
+                'placeholder' => 'Choose a District',
                 'choice_translation_domain' => true,
                 'query_builder' => function(EntityRepository $er){
                     return $er->createQueryBuilder('e')

@@ -11,6 +11,7 @@
 
 namespace Terminalbd\KpiBundle\Controller;
 
+use App\Entity\Core\Agent;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Dompdf\Dompdf;
@@ -30,6 +31,7 @@ use Terminalbd\KpiBundle\Entity\AgentCategory;
 use Terminalbd\KpiBundle\Entity\AgentDocSaleCollection;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
 use Terminalbd\KpiBundle\Entity\AgentOutstanding;
+use Terminalbd\KpiBundle\Entity\AgentOutstandingForCustomFormat;
 use Terminalbd\KpiBundle\Entity\DistrictOrder;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
 use Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute;
@@ -138,7 +140,7 @@ class EmployeeBoardController extends AbstractController
 
                 if ($format == 'custom-format'){
                     $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistributionForCustomFormat($entity,$entities);
-                    return $this->redirectToRoute('kpi_employee_board_edit_custom_format',array('id' => $entity->getId(), 'format' => $format));
+                    return $this->redirectToRoute('kpi_employee_board_edit_custom_format',array('id' => $entity->getId()));
                 }else{
                     $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($entity,$entities);
                     return $this->redirectToRoute('kpi_employee_board_edit',array('id' => $entity->getId()));
@@ -726,6 +728,19 @@ class EmployeeBoardController extends AbstractController
             }
         }
         // Outstanding
+        $outstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->getTotalOutstanding($board);
+        $outstandingMark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->outstandingLimitCalculation($board, $outstanding['total']);
+
+        $outstandingAttribute = $em->getRepository(MarkChart::class)->findOneBy(['slug' => 'outstanding-limit-vs-actual-feed']);
+        $findAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $outstandingAttribute]);
+        if ($findAttribute) {
+            $findAttribute->setMark($outstandingMark);
+            $em->persist($findAttribute);
+            $em->flush();
+        }
+
+        dd($outstandingMark);
+
 /*        if (isset($data['outstanding']) && null != $data['outstanding']){
             dd('outstanding');
         }*/
@@ -734,5 +749,63 @@ class EmployeeBoardController extends AbstractController
         $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->updateOutStandingLimit($board);
 
         return $this->redirectToRoute('kpi_details_report', ['id' => $board->getId()]);
+    }
+
+    /**
+     * @Route("/{board}/agent-outstandig-for-custom-format", name="agent_outstanding_for_custom_format", options={"expose" = true})
+     * @param Request $request
+     * @param EmployeeBoard $board
+     * @return JsonResponse
+     */
+    public function customFormatOutstandingInsert(Request $request, EmployeeBoard $board)
+    {
+        $data = $request->request->all();
+        $findAgent = $this->getDoctrine()->getRepository(Agent::class)->find($data['agentId']);
+        if ($findAgent){
+            $newOutstanding = new AgentOutstandingForCustomFormat();
+            $findOutstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->findOneBy(['employeeBoard' => $board, 'agent' => $findAgent, 'month' => $board->getMonth(), 'year' => $board->getYear()]);
+
+            if ($findOutstanding){
+                $newOutstanding = $findOutstanding;
+            }
+            $newOutstanding->setAgent($findAgent);
+            $newOutstanding->setEmployeeBoard($board);
+            $newOutstanding->setActualAmount($data['actualAmount'] ?: 0);
+            $newOutstanding->setLimitAmount($data['limitAmount'] ?: 0);
+            $newOutstanding->setOutstanding($data['limitAmount'] - $data['actualAmount']);
+            $newOutstanding->setMonth($board->getMonth());
+            $newOutstanding->setYear($board->getYear());
+            $this->getDoctrine()->getManager()->persist($newOutstanding);
+            $this->getDoctrine()->getManager()->flush();
+
+            return new JsonResponse([
+                'status' => 200,
+                'data' => [
+                    'agent' => $findAgent->getName(),
+                    'id' => $newOutstanding->getId(),
+                ]
+            ]);
+        }
+
+        return new JsonResponse([
+            'status' => 500,
+            'message' => 'failed'
+        ]);
+    }
+
+    /**
+     * @Route("/{id}/delete-agent-outstanding-for-custom-format", name="delete_agent_outstanding_for_custom_format", options={"expose" = true})
+     * @param AgentOutstandingForCustomFormat $id
+     * @return JsonResponse
+     */
+    public function customFormatOutstandingDelete(AgentOutstandingForCustomFormat $id)
+    {
+        $this->getDoctrine()->getManager()->remove($id);
+        $this->getDoctrine()->getManager()->flush();
+
+        return new JsonResponse([
+            'status' => 200,
+            'message' => 'success'
+        ]);
     }
 }
