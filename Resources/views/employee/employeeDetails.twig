@@ -2,9 +2,15 @@
 /*    table.employee-info tr td:first-child{
         width: 15%;
     }*/
-    table.employee-info tr td{
+table.employee-info tr td{
         border: 0 !important;
     }
+table.district-history thead {
+     position: sticky;
+     top: -1px;
+     background-color: #dbdee3 !important;
+     border-bottom-color: #4C9EE7!important;
+ }
 </style>
 <div class="row">
     <div class="col-md-12">
@@ -61,6 +67,33 @@
                 <td>Joining Date: </td>
                 <td>{{ employee.joiningDate|date('d-m-Y') }}</td>
             </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <h4 class="text-center bg-secondary w-100 p-1">{{ 'District History'|trans }}</h4>
+    <div class="col-md-12" style="max-height: 250px; overflow-y: auto">
+        <table class="table table-bordered table-striped table-hover district-history">
+            <thead class="thead-dark">
+            <tr>
+                <th>{{ 'Month/Year'|trans }}</th>
+                <th class="text-center">{{ 'Districts'|trans }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if districtHistory is defined and districtHistory is not empty %}
+                {% for data in districtHistory %}
+                    <tr>
+                        <td>{{ data.month ~ ', ' ~ data.year }}</td>
+                        <td>{{ data.district }}</td>
+                    </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="2" align="center">{{ 'No records Found!'|trans }}</td>
+                </tr>
+            {% endif %}
             </tbody>
         </table>
     </div>

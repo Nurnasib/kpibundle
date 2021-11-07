@@ -147,26 +147,33 @@ class EmployeeController extends AbstractController
         $form->remove('phone');
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
+
             $em = $this->getDoctrine()->getManager();
             $lastAssignDistrict = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $post], ['id' => 'DESC']);
             $lastAssignReportFormat = $this->getDoctrine()->getRepository(EmployeeReportFormatHistory::class)->findOneBy(['employee' => $post], ['id' => 'DESC']);
             $districts = $form->getData()->getDistrict();
             $reportFormat = $form->getData()->getReportMode();
 
+            $transferJoiningMonth = null;
+            $transferJoiningYear = null;
+            if ($form['transferJoiningDate']->getData() != null){
+                $transferJoiningMonth = (new \DateTime($form['transferJoiningDate']->getData()))->format('F');
+                $transferJoiningYear = (new \DateTime($form['transferJoiningDate']->getData()))->format('Y');
+
+            }
             $districtNameArray = [];
             foreach ($districts as $district){
                 $districtNameArray[]= $district->getName();
             }
             $districtsName = implode(', ',$districtNameArray);
 
-            if ($lastAssignDistrict == null || $lastAssignDistrict->getDistrict() != $districtsName){
+            if (($lastAssignDistrict == null || $lastAssignDistrict->getDistrict() != $districtsName) && $transferJoiningMonth){
                 $districtHistory = new EmployeeDistrictHistory();
-                $date = new \DateTime('now');
 
                 $districtHistory->setEmployee($post);
                 $districtHistory->setDistrict($districtsName);
-                $districtHistory->setMonth($date->format('F'));
-                $districtHistory->setYear($date->format('Y'));
+                $districtHistory->setMonth($transferJoiningMonth);
+                $districtHistory->setYear($transferJoiningYear);
                 $districtHistory->setUpdatedBy($this->getUser());
                 $em->persist($districtHistory);
             }
@@ -461,8 +468,11 @@ class EmployeeController extends AbstractController
      */
     public function employeeDetails(User $employee)
     {
+        $year = (new \DateTime('now'))->format('Y');
+        $districtHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->getDistricts($employee);
         $html = $this->renderView('@TerminalbdKpi/employee/employeeDetails.twig',[
             'employee' => $employee,
+            'districtHistory' => $districtHistory,
         ]);
         return new JsonResponse(array('html'=>$html));
     }

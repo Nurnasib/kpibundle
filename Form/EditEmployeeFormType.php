@@ -247,6 +247,11 @@ class EditEmployeeFormType extends AbstractType
                         ->orderBy('e.parent', 'ASC');
                 },
             ])
+            ->add('transferJoiningDate', TextType::class,[
+                'mapped' => false,
+                'required' => false,
+                'attr' => ['class'=>'datePicker col-md-6', 'placeholder' => 'Transfer Date', 'autocomplete' => 'off'],
+            ])
 
             ->add('roles', ChoiceType::class, [
                 'multiple' => true,

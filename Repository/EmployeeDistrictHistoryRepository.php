@@ -81,4 +81,16 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
 
         return ['allEmployee' => $allEmployeesArray, 'history' => $history];
     }
+
+    public function getDistricts(User $employee)
+    {
+        $em = $this->_em;
+
+        $query = "SELECT * FROM kpi_employee_district_history WHERE id IN (SELECT MAX(id) FROM kpi_employee_district_history WHERE employee_id = :employeeId GROUP BY month,year)";
+
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->bindValue('employeeId', $employee->getId());
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }
