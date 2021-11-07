@@ -1,0 +1,282 @@
+{% extends 'admin/layout.html.twig' %}
+{% block body_id 'kpi_domain_new' %}
+{% block body %}
+    {#    {{ dump(board.employee.reportMode.slug) }}#}
+    <div class="pcoded-inner-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                        <li class="breadcrumb-item"><a
+                                    href="{{ path('kpi_employee_board') }}">  {{ 'KPI Employee Board'|trans }}</a></li>
+                        <li class="breadcrumb-item"><a href="javascript:">{{ 'Employee KPI Summary'|trans }}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="card">
+                <div class="card-header">
+                    <h5>{{ 'KPI Summary for '|trans }}: {{ board.employee.name }}</h5>
+                    <div class="card-header-right">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
+                            <a href="{{ path('kpi_employee_board') }}" class="btn btn-sm gray-bg white-font"><i
+                                        class="fa fa-th-list"></i>{{ 'Employee Board'|trans }}</a>
+                            <a href="{{ path('kpi_details_report',{'id':board.id}) }}"
+                               class="btn btn-sm green-bg white-font"><i
+                                        class="fa fa-th-list"></i>{{ 'KPI Details'|trans }}</a>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card">
+                <div class="portlet box green ">
+                    <div class="portlet-title">
+                        <div class="caption">{{ 'KPI Summary for '|trans }}: {{ board.employee.name }} </div>
+                        <div class="btn-group float-right">
+                            <a href="{{ path('kpi_report_sales_achievement_custom_format', {id: board.id, mode: 'pdf'}) }}"
+                               target="_blank" class="btn purple-bg white-font"><i class="fa fa-file-pdf"></i> PDF</a>
+                            <a href="{{ path('kpi_report_sales_achievement_custom_format', {id: board.id, mode: 'excel'}) }}"
+                               target="_blank" class="btn blue-bg white-font"><i class="fa fa-file-excel"></i> Excel</a>
+                        </div>
+                    </div>
+                    <div class="portlet-body form text-dark">
+                        <div class="row form-body">
+                            <div class="form-inner-no-space">
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label"><strong>{{ 'Employee Name:'|trans }}</strong></label>
+                                    <label class="col-md-10 control-label">{{ board.employee.name }}</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label"><strong>{{ 'Employee Id:'|trans }}</strong></label>
+                                    <label class="col-md-10 control-label">{{ board.employee.userId }}</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label"><strong>{{ 'Month & Year:'|trans }}</strong></label>
+                                    <label class="col-md-10 control-label">{{ board.month }},{{ board.year }}</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label"><strong>{{ 'Designation:'|trans }}</strong></label>
+                                    <label class="col-md-10 control-label">{{ board.employee.designation.name }}</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label"><strong>{{ 'Format:'|trans }}</strong></label>
+                                    <label class="col-md-10 control-label">{{ board.employee.reportMode.name|default('') }}</label>
+                                </div>
+                                {% if board.employee.department is not empty %}
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label"><strong>{{ 'Department:'|trans }}</strong></label>
+                                        <label class="col-md-10 control-label">{{ board.employee.department.name }}</label>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if feedAndGrowth is defined and feedAndGrowth is not empty %}
+                                {% for key, item in feedAndGrowth|ksort %}
+                                    <h5 class="bg-secondary p-1 text-white h5 w-100">{{ key == 'feed' ? 'Sales Feed Achivement' : 'Product Sales Growth' }}</h5>
+                                    <table class="table table-striped table-bordered table-hover" id="datatable">
+                                        <thead class="thead-dark">
+                                        <tr>
+                                            <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                            <th scope="col"
+                                                width="20%">{{ key == 'feed' ? 'Target Quantity' : 'Previous Year' }}</th>
+                                            <th scope="col" width="20%">{{ 'Sales Quantity'|trans }}</th>
+                                            <th scope="col" width="20%">{{ 'Percentage'|trans }}</th>
+                                            <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% if item is not empty %}
+                                            {% for attribute in item %}
+                                                <tr>
+                                                    <td>{{ attribute.markParameter|default('') }}</td>
+                                                    <td>{{ attribute.targetQuantity|default('') }}</td>
+                                                    <td>{{ attribute.salesQuantity|default('') }}</td>
+                                                    <td>{{ attribute.percentage|number_format(2) }} %</td>
+                                                    <td>{{ attribute.mark|default('') }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="10" align="center">{{ 'No record found!'|trans }}</td>
+                                            </tr>
+                                        {% endif %}
+                                        </tbody>
+                                    </table>
+                                {% endfor %}
+                            {% endif %}
+                            <h5 class="h5 bg-secondary p-1 text-white w-100">Outstanding</h5>
+                            <table class="table table-striped table-bordered table-hover" id="datatable">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">{{ 'Agents'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Total Actual Amount'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Total Limit Amount'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Outstanding'|trans }}</th>
+                                    <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% if outstanding is defined and outstanding is not empty %}
+                                    {% set totalActual = 0 %}
+                                    {% set totalLimit = 0 %}
+                                    {% set totalOutstanding = 0 %}
+                                    {% for record in outstanding %}
+                                        {% set totalActual = totalActual + record.actualAmount %}
+                                        {% set totalLimit = totalLimit + record.limitAmount %}
+                                        {% set totalOutstanding = totalOutstanding + record.outstanding %}
+                                        <tr>
+                                            <td>{{ record.agent.name|default('') }}</td>
+                                            <td>{{ record.actualAmount|number_format(2,'.',',')|default() }}</td>
+                                            <td>{{ record.limitAmount|number_format(2,'.',',')|default() }}</td>
+                                            <td>{{ record.outstanding|number_format(2,'.')|default() }}</td>
+                                            <td>x</td>
+                                        </tr>
+                                    {% endfor %}
+                                    <tr>
+                                        <th>{{ 'Total'|trans }}</th>
+                                        <th>{{ totalActual|number_format(2,'.', ',')|default() }}</th>
+                                        <th>{{ totalLimit|number_format(2,'.', ',')|default() }}</th>
+                                        <th>{{ totalOutstanding|number_format(2,'.', ',')|default() }}</th>
+                                        <td>{{ outstandingMark|default() }}</td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="10" align="center">{{ 'No record found!'|trans }}</td>
+                                    </tr>
+                                {% endif %}
+                                </tbody>
+                            </table>
+
+                            <h5 class="h5 bg-secondary p-1 text-white w-100">DOC sales collection</h5>
+                            <table class="table table-striped table-bordered table-hover" id="datatable">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">{{ 'Agents'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Total Sales Amount'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Total Collection Amount'|trans }}</th>
+                                    <th scope="col" width="10%">{{ 'Percentage'|trans }}</th>
+                                    <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% if docSale is defined and docSale is not empty %}
+                                    {% set totalCollection = 0 %}
+                                    {% set totalSales = 0 %}
+                                    {% for record in docSale %}
+                                        {% set totalCollection = totalCollection + record.sales %}
+                                        {% set totalSales = totalSales + record.collection %}
+                                        <tr>
+                                            <td>{{ record.agent.name|default() }}</td>
+                                            <td>{{ record.sales|number_format(2,'.', ',')|default() }}</td>
+                                            <td>{{ record.collection|number_format(2,'.',',')|default() }}</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                        </tr>
+                                    {% endfor %}
+                                    <tr>
+                                        <th>{{ 'Total'|trans }}</th>
+                                        <th>{{ totalCollection|number_format(2,'.', ',')|default(0) }}</th>
+                                        <th>{{ totalSales|number_format(2,'.', ',')|default(0) }}</th>
+                                        <th>
+                                            {% if totalCollection != 0 %}
+                                                {{ ((totalSales * 100) / totalCollection)|number_format(2,'.', ',')|default(0) }} %
+                                            {% else %}
+                                                0.00%
+                                            {% endif %}
+                                        </th>
+                                        <td>{{ docSaleMark|default(0) }}</td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="10" align="center">{{ 'No record found!'|trans }}</td>
+                                    </tr>
+                                {% endif %}
+                                </tbody>
+                            </table>
+                            <h5 class="h5 bg-secondary p-1 text-white w-100">Minimum 50% "D" category agents converts to
+                                "C"</h5>
+                            <table class="table table-striped table-bordered table-hover"
+                                   style="margin-top: 0px !important;" id="datatable">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">{{ 'Previous "D" Category Agents: '|trans }}</th>
+                                    <th scope="col">{{ '50% "D" Category Agents: '|trans }}</th>
+                                    <th scope="col">{{ 'Category Upgrade Agents: '|trans }}</th>
+                                    <th scope="col">{{ 'Category Upgrade Percentage: '|trans }}</th>
+                                </tr>
+                                </thead>
+                            </table>
+                            <table class="table table-striped table-bordered table-hover"
+                                   style="margin-top: 0px !important;" id="datatable">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">{{ 'Category'|trans }}</th>
+                                    <th scope="col">{{ 'Agent Id'|trans }}</th>
+                                    <th scope="col">{{ 'Agent Name'|trans }}</th>
+                                    <th scope="col">{{ 'Region'|trans }}</th>
+                                    <th scope="col">{{ 'Zone'|trans }}</th>
+                                    <th scope="col">{{ 'Average'|trans }}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td colspan="10" align="center"> {{ 'No record found!'|trans }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <h5 class="h5 bg-secondary p-1 text-white w-100">Minimum 50 % "C" category agents converts
+                                to "B"</h5>
+                            <table class="table table-striped table-bordered table-hover"
+                                   style="margin-top: 0px !important;" id="datatable">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">{{ 'Previous "C" Category Agents: '|trans }}</th>
+                                    <th scope="col">{{ '50% "C" Category Agents: '|trans }}</th>
+                                    <th scope="col">{{ 'Category Upgrade Agents: '|trans }}</th>
+                                    <th scope="col">{{ 'Category Upgrade Percentage: '|trans }}</th>
+                                </tr>
+                                </thead>
+                            </table>
+                            <table class="table table-striped table-bordered table-hover"
+                                   style="margin-top: 0px !important;" id="datatable">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">{{ 'Category'|trans }}</th>
+                                    <th scope="col">{{ 'Agent Id'|trans }}</th>
+                                    <th scope="col">{{ 'Agent Name'|trans }}</th>
+                                    <th scope="col">{{ 'Region'|trans }}</th>
+                                    <th scope="col">{{ 'Zone'|trans }}</th>
+                                    <th scope="col">{{ 'Average'|trans }}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td colspan="10" align="center"> {{ 'No record found!'|trans }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
+
+{% endblock %}
+ {% block cssBlock %}
+     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+ {% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+{% endblock %}

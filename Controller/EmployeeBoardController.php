@@ -29,6 +29,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Terminalbd\KpiBundle\Entity\AgentCategory;
 use Terminalbd\KpiBundle\Entity\AgentDocSaleCollection;
+use Terminalbd\KpiBundle\Entity\AgentDocSaleCollectionForCustomFormat;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
 use Terminalbd\KpiBundle\Entity\AgentOutstanding;
 use Terminalbd\KpiBundle\Entity\AgentOutstandingForCustomFormat;
@@ -225,29 +226,37 @@ class EmployeeBoardController extends AbstractController
      *
      * @Route("/{id}/edit/custom-format", methods={"GET", "POST"}, name="kpi_employee_board_edit_custom_format")
      * @param Request $request
-     * @param EmployeeBoard $entity
+     * @param EmployeeBoard $board
      * @return Response
      */
 
-    public function editCustomFormat(Request $request, EmployeeBoard $entity): Response
+    public function editCustomFormat(Request $request, EmployeeBoard $board): Response
     {
-        if ($entity->getApprovedBy()){
+        if ($board->getApprovedBy() && !in_array('ROLE_ADMIN', $this->getUser()->getRoles())){
             return $this->redirectToRoute('kpi_employee_board');
         }
-//        $em = $this->getDoctrine()->getManager();
-//        $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
+        $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->findBy(['employeeBoard' => $board]);
+        $feedAndGrowthArray = [];
+        foreach ($feedAndGrowth as $item) {
+            $feedAndGrowthArray[$item->getMarkDistribution()->getId()]['targetQuantity'] = $item->getTargetQuantity();
+            $feedAndGrowthArray[$item->getMarkDistribution()->getId()]['salesQuantity'] = $item->getSalesQuantity();
+        }
+        $outstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->findBy(['employeeBoard' => $board]);
+        $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->findBy(['employeeBoard' => $board]);
+//        $skills = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findBy(['employeeBoard' => $board]);
 
-//        $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistributionForCustomFormat($entity,$entities);
-
-        $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($entity);
+        $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($board);
         $arrayData = [];
         /* @var EmployeeBoardAttribute $boardAttribute*/
         foreach ($boardAttributes as $boardAttribute){
             $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][]=$boardAttribute;
         }
         return $this->render('@TerminalbdKpi/employeeboard/custom-format/new.html.twig', [
-            'board' => $entity,
+            'board' => $board,
             'arrayData' => $arrayData,
+            'feedAndGrowth' => $feedAndGrowthArray,
+            'outstanding' => $outstanding,
+            'docSale' => $docSale,
         ]);
     }
 
@@ -435,13 +444,13 @@ class EmployeeBoardController extends AbstractController
 
     /**
      *
-     * @Route("/{id}/report-sales-achivement/{mode}", defaults={"mode" = null}, methods={"GET"}, name="kpi_report_sales_achivement")
+     * @Route("/{id}/report-sales-achievement/{mode}", defaults={"mode" = null}, methods={"GET"}, name="kpi_report_sales_achievement")
      * @param EmployeeBoard $entity
      * @param $mode
      * @param Request $request
      * @return Response
      */
-    public function salesAchivementSummary(EmployeeBoard $entity, $mode, Request $request): Response
+    public function salesAchievementSummary(EmployeeBoard $entity, $mode, Request $request): Response
     {
         $locations = $entity->getEmployee()->getDistrict();
         $locationsId = array();
@@ -464,7 +473,9 @@ class EmployeeBoardController extends AbstractController
         $parameter = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(array('slug'=>'core-responsibilities','status'=>1));
 
         $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getKpiSummaryForFeedAndGrowth($entity);
+
         $outstanding = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getLocationWiseOutstanding($locationsId, $entity);
+
         $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getLocationWiseDocSales($locationsId, $entity);
         $individualTeamMemberMarks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getIndividualTeamMemberMarks($employeeArrs, $parameter, $entity);
 
@@ -545,6 +556,101 @@ class EmployeeBoardController extends AbstractController
 
             ]);
         }
+
+    }
+
+    /**
+     *
+     * @Route("/{id}/report-sales-achievement-custom-format/{mode}", defaults={"mode" = null}, methods={"GET"}, name="kpi_report_sales_achievement_custom_format")
+     * @param EmployeeBoard $board
+     * @param $mode
+     * @param Request $request
+     * @return Response
+     */
+    public function salesAchievementSummaryForCustomFormat(EmployeeBoard $board, $mode, Request $request): Response
+    {
+        $parameter = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(array('slug'=>'core-responsibilities','status'=>1));
+
+        $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getKpiSummaryForFeedAndGrowth($board);
+
+        $outstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->findBy(['employeeBoard' => $board]);
+        $findOutstandingAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['slug' => 'outstanding-limit-vs-actual-feed']);
+        if ($findOutstandingAttribute){
+            $outstandingBoardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findOutstandingAttribute]);
+            if ($outstandingBoardAttribute){
+                $outstandingMark = $outstandingBoardAttribute->getMark();
+            }
+        }
+
+        $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->findBy(['employeeBoard' => $board]);
+        $findDocSaleAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['slug' => 'doc-sales-collection']);
+        if ($findDocSaleAttribute){
+            $docSaleBoardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findDocSaleAttribute]);
+            if ($docSaleBoardAttribute){
+                $docSaleMark = $docSaleBoardAttribute->getMark();
+            }
+        }
+        if ($mode == 'pdf'){
+
+            // Configure Dompdf according to your needs
+            $pdfOptions = new Options();
+            $pdfOptions->set('defaultFont', 'Arial');
+
+            // Instantiate Dompdf with our options
+            $dompdf = new Dompdf($pdfOptions);
+
+            // Retrieve the HTML generated in our twig file
+            $html = $this->renderView('@TerminalbdKpi/employeeboard/report/salesDetailsCustomFormatPdf.html.twig', [
+                'board' => $board,
+                'feedAndGrowth' => $feedAndGrowth,
+                'outstanding' => $outstanding,
+                'outstandingMark' => $outstandingMark,
+                'docSale' => $docSale,
+                'docSaleMark' => $docSaleMark,
+            ]);
+
+            // Load HTML to Dompdf
+            $dompdf->loadHtml($html);
+
+            // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
+            $dompdf->setPaper('legal', 'portrait');
+
+            // Render the HTML as PDF
+            $dompdf->render();
+            $fileName = $request->get('_route') . '_' . $board->getEmployee()->getName() . '_' . $board->getMonth() . '_' . $board->getYear() . '_' . time();
+            // Output the generated PDF to Browser (force download)
+            $dompdf->stream($fileName . ".pdf", [
+                "Attachment" => false
+            ]);
+
+        }elseif ($mode == 'excel'){
+            $html = $this->renderView('@TerminalbdKpi/employeeboard/report/salesDetailsCustomFormatExcel.html.twig', [
+                'board' => $board,
+                'feedAndGrowth' => $feedAndGrowth,
+                'outstandingMark' => $outstandingMark,
+                'outstanding' => $outstanding,
+                'docSale' => $docSale,
+                'docSaleMark' => $docSaleMark,
+            ]);
+
+            $fileName = $request->get('_route') . '_' . $board->getEmployee()->getName() . '_' . $board->getMonth() . '_' . $board->getYear() . '_' . time() . '.xls';
+
+
+            header("Content-Type: application/vnd.ms-excel; charset=utf-8");
+            header("Content-Disposition: attachment; filename=$fileName");
+
+            echo $html;
+            die();
+
+        }
+        return $this->render('@TerminalbdKpi/employeeboard/report/salesDetailsCustomFormat.html.twig', [
+            'board' => $board,
+            'feedAndGrowth' => $feedAndGrowth,
+            'outstanding' => $outstanding,
+            'outstandingMark' => $outstandingMark,
+            'docSale' => $docSale,
+            'docSaleMark' => $docSaleMark,
+        ]);
 
     }
 
@@ -739,7 +845,53 @@ class EmployeeBoardController extends AbstractController
             $em->flush();
         }
 
-        dd($outstandingMark);
+        // Doc Sale
+        $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->getTotalDocSale($board);
+        $docSaleMark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->docSalesCollectionCalculation($docSale['totalCollection'], $docSale['totalSales']);
+
+        $docSaleAttribute = $em->getRepository(MarkChart::class)->findOneBy(['slug' => 'doc-sales-collection']);
+        $findAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $docSaleAttribute]);
+        if ($findAttribute) {
+            $findAttribute->setMark($docSaleMark);
+            $em->persist($findAttribute);
+            $em->flush();
+        }
+
+        //Skills
+        if (isset($data['skills']) && null != $data['skills']){
+            foreach ($data['skills'] as $attributeId => $mark) {
+                $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
+                if ($findAttribute){
+                    $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
+
+                    if ($boardAttribute){
+                        $boardAttribute->setMark($mark);
+
+                        $em->persist($boardAttribute);
+                        $em->flush();
+                    }
+                }
+            }
+        }
+        //Values
+        if (isset($data['values']) && null != $data['values']){
+            foreach ($data['values'] as $attributeId => $mark) {
+                $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
+                if ($findAttribute){
+                    $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
+                    if ($boardAttribute){
+                        $boardAttribute->setMark($mark);
+
+                        $em->persist($boardAttribute);
+                        $em->flush();
+                    }
+                }
+            }
+        }
+
+
+
+//        dd($docSaleMark);
 
 /*        if (isset($data['outstanding']) && null != $data['outstanding']){
             dd('outstanding');
@@ -794,11 +946,69 @@ class EmployeeBoardController extends AbstractController
     }
 
     /**
+     * @Route("/{board}/agent-doc-sale-for-custom-format", name="agent_doc_sale_for_custom_format", options={"expose" = true})
+     * @param Request $request
+     * @param EmployeeBoard $board
+     * @return JsonResponse
+     */
+    public function customFormatDocSaleInsert(Request $request, EmployeeBoard $board)
+    {
+
+        $data = $request->request->all();
+        $findAgent = $this->getDoctrine()->getRepository(Agent::class)->find($data['agentId']);
+        if ($findAgent){
+            $newDocSale = new AgentDocSaleCollectionForCustomFormat();
+            $findDocSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->findOneBy(['employeeBoard' => $board, 'agent' => $findAgent, 'month' => $board->getMonth(), 'year' => $board->getYear()]);
+
+            if ($findDocSale){
+                $newDocSale = $findDocSale;
+            }
+            $newDocSale->setAgent($findAgent);
+            $newDocSale->setEmployeeBoard($board);
+            $newDocSale->setSales($data['actualAmount'] ?: 0);
+            $newDocSale->setCollection($data['limitAmount'] ?: 0);
+            $newDocSale->setMonth($board->getMonth());
+            $newDocSale->setYear($board->getYear());
+            $this->getDoctrine()->getManager()->persist($newDocSale);
+            $this->getDoctrine()->getManager()->flush();
+
+            return new JsonResponse([
+                'status' => 200,
+                'data' => [
+                    'agent' => $findAgent->getName(),
+                    'id' => $newDocSale->getId(),
+                ]
+            ]);
+        }
+
+        return new JsonResponse([
+            'status' => 500,
+            'message' => 'failed'
+        ]);
+    }
+
+    /**
      * @Route("/{id}/delete-agent-outstanding-for-custom-format", name="delete_agent_outstanding_for_custom_format", options={"expose" = true})
      * @param AgentOutstandingForCustomFormat $id
      * @return JsonResponse
      */
     public function customFormatOutstandingDelete(AgentOutstandingForCustomFormat $id)
+    {
+        $this->getDoctrine()->getManager()->remove($id);
+        $this->getDoctrine()->getManager()->flush();
+
+        return new JsonResponse([
+            'status' => 200,
+            'message' => 'success'
+        ]);
+    }
+
+    /**
+     * @Route("/{id}/delete-agent-doc-sale-for-custom-format", name="delete_agent_doc_sale_for_custom_format", options={"expose" = true})
+     * @param AgentDocSaleCollectionForCustomFormat $id
+     * @return JsonResponse
+     */
+    public function customFormatDocSaleDelete(AgentDocSaleCollectionForCustomFormat $id)
     {
         $this->getDoctrine()->getManager()->remove($id);
         $this->getDoctrine()->getManager()->flush();

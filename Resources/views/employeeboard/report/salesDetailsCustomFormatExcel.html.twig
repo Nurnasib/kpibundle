@@ -1,0 +1,245 @@
+<table>
+    <thead>
+    <tr>
+        <th align="left" width="25%">{{ 'Employee Name: '|trans }}</th>
+        <td align="left">{{ board.employee.name }}</td>
+    </tr>
+    <tr>
+        <th align="left" width="25%">{{ 'Employee Id: '|trans }}</th>
+        <td align="left">{{ board.employee.userId }}</td>
+    </tr>
+    <tr>
+        <th align="left" width="25%">{{ 'Month & Year: '|trans }}</th>
+        <td align="left">{{ board.month }}, {{ board.year }}</td>
+    </tr>
+    <tr>
+        <th align="left" width="25%">{{ 'Designation: '|trans }}</th>
+        <td align="left">{{ board.employee.designation.name }}</td>
+    </tr>
+    <tr>
+        <th align="left" width="25%">{{ 'Format: '|trans }}</th>
+        <td align="left">{{ board.employee.reportMode.name|default('') }}</td>
+    </tr>
+    {% if board.employee.department is not empty %}
+        <tr>
+            <th align="left" width="25%">{{ 'Department: '|trans }}</th>
+            <td align="left">{{ board.employee.department.name }}</td>
+        </tr>
+    {% endif %}
+    </thead>
+</table>
+
+{% if feedAndGrowth is defined and feedAndGrowth is not empty %}
+    {% for key, item in feedAndGrowth|ksort %}
+        <table>
+            <thead>
+            <tr>
+                <th></th>
+            </tr>
+            <tr>
+                <th colspan="5"><h5
+                            style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ key == 'feed' ? 'Sales Feed Achivement' : 'Product Sales Growth' }}</h5>
+                </th>
+            </tr>
+            <tr>
+                <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                <th scope="col" width="20%">{{ key == 'feed' ? 'Target Quantity' : 'Previous Year' }}</th>
+                <th scope="col" width="20%">{{ 'Sales Quantity'|trans }}</th>
+                <th scope="col" width="20%">{{ 'Percentage'|trans }}</th>
+                <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if item is not empty %}
+                {% for attribute in item %}
+                    <tr>
+                        <td>{{ attribute.markParameter|default('') }}</td>
+                        <td align="right">{{ attribute.targetQuantity|default('') }}</td>
+                        <td align="right">{{ attribute.salesQuantity|default('') }}</td>
+                        <td align="right">{{ attribute.percentage|number_format(2) }} %</td>
+                        <td align="center">{{ attribute.mark|default('') }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5" align="center">{{ 'No record found!'|trans }}</td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+    {% endfor %}
+{% endif %}
+<table>
+    <thead>
+    <tr>
+        <th></th>
+    </tr>
+    <tr>
+        <th colspan="5"><h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">Outstanding</h5>
+        </th>
+    </tr>
+    <tr>
+        <th scope="col">{{ 'Agents'|trans }}</th>
+        <th scope="col" width="20%">{{ 'Total Actual Amount'|trans }}</th>
+        <th scope="col" width="20%">{{ 'Total Limit Amount'|trans }}</th>
+        <th scope="col" width="20%">{{ 'Outstanding'|trans }}</th>
+        <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% if outstanding is defined and outstanding is not empty %}
+        {% set totalActual = 0 %}
+        {% set totalLimit = 0 %}
+        {% set totalOutstanding = 0 %}
+        {% for record in outstanding %}
+            {% set totalActual = totalActual + record.actualAmount %}
+            {% set totalLimit = totalLimit + record.limitAmount %}
+            {% set totalOutstanding = totalOutstanding + record.outstanding %}
+            <tr>
+                <td>{{ record.agent.name|default() }}</td>
+                <td>{{ record.actualAmount|number_format(2,'.',',')|default() }}</td>
+                <td>{{ record.limitAmount|number_format(2,'.',',')|default() }}</td>
+                <td>{{ record.outstanding|number_format(2,'.')|default() }}</td>
+                <td>x</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <th>{{ 'Total'|trans }}</th>
+            <th>{{ totalActual|number_format(2,'.', ',')|default() }}</th>
+            <th>{{ totalLimit|number_format(2,'.', ',')|default() }}</th>
+            <th>{{ totalOutstanding|number_format(2,'.', ',')|default() }}</th>
+            <td>
+                {% if outstandingMark is defined %}
+                    {{ outstandingMark|default(0) }}
+                {% endif %}
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="10" align="center">{{ 'No record found!'|trans }}</td>
+        </tr>
+    {% endif %}
+    </tbody>
+</table>
+
+
+<table>
+    <thead>
+    <tr>
+        <th></th>
+    </tr>
+    <tr>
+        <th colspan="5"><h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">DOC sales
+                collection</h5></th>
+    </tr>
+    <tr>
+        <th scope="col">{{ 'Agents'|trans }}</th>
+        <th scope="col" width="20%">{{ 'Total Sales Amount'|trans }}</th>
+        <th scope="col" width="20%">{{ 'Total Collection Amount'|trans }}</th>
+        <th scope="col" width="20%">{{ 'Percentage'|trans }}</th>
+        <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% if docSale is defined and docSale is not empty %}
+        {% set totalCollection = 0 %}
+        {% set totalSales = 0 %}
+        {% for record in docSale %}
+            {% set totalCollection = totalCollection + record.sales %}
+            {% set totalSales = totalSales + record.collection %}
+            <tr>
+                <td>{{ record.agent.name|default() }}</td>
+                <td>{{ record.sales|number_format(2,'.', ',')|default() }}</td>
+                <td>{{ record.collection|number_format(2,'.',',')|default() }}</td>
+                <td>x</td>
+                <td>x</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <th>{{ 'Total'|trans }}</th>
+            <th>{{ totalCollection|number_format(2,'.', ',')|default(0) }}</th>
+            <th>{{ totalSales|number_format(2,'.', ',')|default(0) }}</th>
+            <td>
+                {% if totalCollection > 0 %}
+                    {{ ((totalSales * 100) / totalCollection)|number_format(2,'.', ',')|default(0) }} %
+                {% else %}
+                    00.00%
+                {% endif %}
+            </td>
+            <th>{{ docSaleMark|default(0) }}</th>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="10" align="center">{{ 'No record found!'|trans }}</td>
+        </tr>
+    {% endif %}
+    </tbody>
+</table>
+<table>
+    <thead>
+    <tr>
+        <th></th>
+    </tr>
+    <tr>
+        <th colspan="4"><h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">Minimum 50% "D"
+                category agents converts to "C"</h5></th>
+    </tr>
+    <tr>
+        <td scope="col">{{ 'Previous "D" Category Agents: '|trans }}</td>
+        <td scope="col">{{ '50% "D" Category Agents: '|trans }}</td>
+        <td scope="col">{{ 'Category Upgrade Agents: '|trans }}</td>
+        <td scope="col">{{ 'Category Upgrade Percentage: '|trans }}</td>
+    </tr>
+    </thead>
+</table>
+<table>
+    <thead>
+    <tr>
+        <th scope="col">{{ 'Category'|trans }}</th>
+        <th scope="col">{{ 'Agent Id'|trans }}</th>
+        <th scope="col">{{ 'Agent Name'|trans }}</th>
+        <th scope="col">{{ 'Region'|trans }}</th>
+        <th scope="col">{{ 'Zone'|trans }}</th>
+        <th scope="col">{{ 'Average'|trans }}</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td colspan="10" align="center"> {{ 'No record found!'|trans }}</td>
+    </tr>
+    </tbody>
+</table>
+<table>
+    <thead>
+    <tr>
+        <th></th>
+    </tr>
+    <tr>
+        <th colspan="4"><h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">Minimum 50 % "C"
+                category agents converts to "B"</h5></th>
+    </tr>
+    <tr>
+        <td scope="col">{{ 'Previous "C" Category Agents: '|trans }}</td>
+        <td scope="col">{{ '50% "C" Category Agents: '|trans }}</td>
+        <td scope="col">{{ 'Category Upgrade Agents: '|trans }}</td>
+        <td scope="col">{{ 'Category Upgrade Percentage: '|trans }}</td>
+    </tr>
+    </thead>
+</table>
+<table>
+    <thead>
+    <tr>
+        <th scope="col">{{ 'Category'|trans }}</th>
+        <th scope="col">{{ 'Agent Id'|trans }}</th>
+        <th scope="col">{{ 'Agent Name'|trans }}</th>
+        <th scope="col">{{ 'Region'|trans }}</th>
+        <th scope="col">{{ 'Zone'|trans }}</th>
+        <th scope="col">{{ 'Average'|trans }}</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td colspan="10" align="center"> {{ 'No record found!'|trans }}</td>
+    </tr>
+    </tbody>
+</table>
