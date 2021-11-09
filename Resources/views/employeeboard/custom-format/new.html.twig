@@ -8,7 +8,7 @@
                 <div class="row align-items-center">
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
-                        <li class="breadcrumb-item"> <a href="{{ path('kpi_markchart') }}">  {{ 'KPI Board'|trans }}</a></li>
+                        <li class="breadcrumb-item"> <a href="{{ path('kpi_markchart') }}">  {{ 'Employee KPI Boards'|trans }}</a></li>
                         <li class="breadcrumb-item"> <a href="javascript:">{{ 'Add New'|trans }}</a></li>
                     </ul>
                 </div>
@@ -22,7 +22,7 @@
                     <h5>{{ 'KPI Element'|trans }}</h5>
                     <div class="card-header-right">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
-                            <a href="{{ path('kpi_board_new') }}" class="btn btn-sm  green-bg white-font"><i class="fas fa-plus"></i>{{ 'Add New'|trans }}</a>
+                            <a href="{{ path('kpi_board_new', {format: 'custom-format'}) }}" class="btn btn-sm bg-success white-font"><i class="fas fa-plus"></i>{{ 'Custom'|trans }}</a>
                             <a href="{{ path('kpi_employee_board') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>{{ 'KPI Board'|trans }}</a>
                         </div>
                     </div>
