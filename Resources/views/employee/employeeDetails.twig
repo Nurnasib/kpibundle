@@ -83,12 +83,18 @@ table.district-history thead {
             </thead>
             <tbody>
             {% if districtHistory is defined and districtHistory is not empty %}
-                {% for data in districtHistory %}
-                    <tr>
-                        <td>{{ data.month ~ ', ' ~ data.year }}</td>
-                        <td>{{ data.district }}</td>
-                    </tr>
-                {% endfor %}
+                    {% for year in 2020..'now'|date('Y') %}
+                        {% for month in 1..12 %}
+                            {% set date = month ~ "/1/2020" %}
+                            {% set yearMonthKey = year~'-'~date|date('F') %}
+                            {% if districtHistory[yearMonthKey] is defined %}
+                                <tr>
+                                    <td>{{ districtHistory[yearMonthKey].month ~ ', ' ~ districtHistory[yearMonthKey].year }}</td>
+                                    <td>{{ districtHistory[yearMonthKey].district }}</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
                 {% else %}
                 <tr>
                     <td colspan="2" align="center">{{ 'No records Found!'|trans }}</td>

@@ -156,7 +156,8 @@ class EmployeeBoardController extends AbstractController
         }
         return $this->render('@TerminalbdKpi/employeeboard/create.html.twig', [
             'setupEntity' => $entity,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'format' => $format
         ]);
     }
 
@@ -767,7 +768,6 @@ class EmployeeBoardController extends AbstractController
     public function customFormatSubmit(Request $request, EmployeeBoard $board)
     {
         $data = $request->request->all();
-//        dd($data);
         $em = $this->getDoctrine()->getManager();
         // Sales
         if (isset($data['sales']) && null != $data['sales']){
@@ -781,8 +781,8 @@ class EmployeeBoardController extends AbstractController
                     }
                     $subAttribute->setEmployeeBoard($board);
                     $subAttribute->setMarkDistribution($findAttribute);
-                    $subAttribute->setTargetQuantity($sale['target']);
-                    $subAttribute->setSalesQuantity($sale['sales']);
+                    $subAttribute->setTargetQuantity($sale['target'] ?: 0);
+                    $subAttribute->setSalesQuantity($sale['sales'] ?: 0);
 
                     $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesTargetCalculation($sale['target'], $sale['sales']);
                     $subAttribute->setMark($mark);
@@ -812,11 +812,11 @@ class EmployeeBoardController extends AbstractController
                     }
                     $subAttribute->setEmployeeBoard($board);
                     $subAttribute->setMarkDistribution($findAttribute);
-                    $subAttribute->setTargetQuantity($growth['previous']);
-                    $subAttribute->setSalesQuantity($growth['current']);
+                    $subAttribute->setTargetQuantity($growth['previous'] ?: 0);
+                    $subAttribute->setSalesQuantity($growth['current'] ?: 0);
 
                     $slug = explode('-', $findAttribute->getSlug());
-                    $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesGrowthCalculation($slug[1], $growth['previous'], $growth['current'])[$findAttribute->getSlug()];
+                    $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesGrowthCalculation($slug[1], $growth['previous'] ?: 0, $growth['current'] ?: 0)[$findAttribute->getSlug()];
 
                     $subAttribute->setMark($mark);
 
@@ -865,7 +865,7 @@ class EmployeeBoardController extends AbstractController
                     $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
 
                     if ($boardAttribute){
-                        $boardAttribute->setMark($mark);
+                        $boardAttribute->setMark($mark ?: 0);
 
                         $em->persist($boardAttribute);
                         $em->flush();
@@ -880,7 +880,7 @@ class EmployeeBoardController extends AbstractController
                 if ($findAttribute){
                     $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
                     if ($boardAttribute){
-                        $boardAttribute->setMark($mark);
+                        $boardAttribute->setMark($mark ?: 0);
 
                         $em->persist($boardAttribute);
                         $em->flush();

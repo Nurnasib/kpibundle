@@ -8,8 +8,9 @@
                 <div class="row align-items-center">
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
-                        <li class="breadcrumb-item"> <a href="{{ path('kpi_markchart') }}">  {{ 'Employee KPI Boards'|trans }}</a></li>
-                        <li class="breadcrumb-item"> <a href="javascript:">{{ 'Add New'|trans }}</a></li>
+                        <li class="breadcrumb-item"><a
+                                    href="{{ path('kpi_markchart') }}">  {{ 'Employee KPI Boards'|trans }}</a></li>
+                        <li class="breadcrumb-item"><a href="javascript:">{{ 'Add New'|trans }}</a></li>
                     </ul>
                 </div>
             </div>
@@ -22,8 +23,11 @@
                     <h5>{{ 'KPI Element'|trans }}</h5>
                     <div class="card-header-right">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
-                            <a href="{{ path('kpi_board_new', {format: 'custom-format'}) }}" class="btn btn-sm bg-success white-font"><i class="fas fa-plus"></i>{{ 'Custom'|trans }}</a>
-                            <a href="{{ path('kpi_employee_board') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>{{ 'KPI Board'|trans }}</a>
+                            <a href="{{ path('kpi_board_new', {format: 'custom-format'}) }}"
+                               class="btn btn-sm bg-success white-font"><i class="fas fa-plus"></i>{{ 'Custom'|trans }}
+                            </a>
+                            <a href="{{ path('kpi_employee_board') }}" class="btn btn-sm gray-bg white-font"><i
+                                        class="fa fa-th-list"></i>{{ 'KPI Board'|trans }}</a>
                         </div>
                     </div>
                 </div>
@@ -35,8 +39,9 @@
                     <div class="portlet-title">
                         <div class="caption">{{ 'Manage KPI Element'|trans }} </div>
                         <div class="btn-group float-right">
-                            <a href="{{ path('kpi_approve',{'id':board.id}) }}" id="statusUpdate" name="statusUpdate" class="btn blue-bg text-white">Approved</a>
-{#                            <a href="{{ path('kpi_employee_board_preview',{'id':board.id,'mode':'print'}) }}" class="btn yellow-bg white-font"><i class="fa fa-print"></i> Print</a>#}
+                            <a href="{{ path('kpi_approve',{'id':board.id}) }}" id="statusUpdate" name="statusUpdate"
+                               class="btn blue-bg text-white">Approved</a>
+                            {#                            <a href="{{ path('kpi_employee_board_preview',{'id':board.id,'mode':'print'}) }}" class="btn yellow-bg white-font"><i class="fa fa-print"></i> Print</a>#}
                         </div>
                     </div>
                     <div class="portlet-body form">
@@ -47,6 +52,7 @@
                                 display: flex;
                                 flex-wrap: wrap;
                             }
+
                             ul.header-info li {
                                 list-style: none;
                                 width: 50%;
@@ -54,20 +60,27 @@
                         </style>
                         <table class="table table-striped table-bordered">
                             <thead class="thead-dark">
-                            <tr><th colspan="2" class="text-center">KPI - {{ board.month }},{{ board.year }}</th></tr>
+                            <tr>
+                                <th colspan="2" class="text-center">KPI - {{ board.month }},{{ board.year }}</th>
+                            </tr>
                             <tr>
                                 <th>
                                     <ul class="header-info">
                                         <li>Name of the Employee: {{ board.employee.name }}</li>
-                                        <li>Date of Joining: {% if board.employee is not empty %}{{ board.employee.joiningDate|date('d-m-Y') }}{% endif %}</li>
-                                        <li>Line Manager: {% if board.employee.lineManager is not empty %}{{ board.employee.lineManager.name }}{% endif %}</li>
-                                        <li>ZONE: {% if board.employee.zonal is not empty %}{{ board.employee.zonal.name }}{% endif %}</li>
+                                        <li>Date of
+                                            Joining: {% if board.employee is not empty %}{{ board.employee.joiningDate|date('d-m-Y') }}{% endif %}</li>
+                                        <li>Line
+                                            Manager: {% if board.employee.lineManager is not empty %}{{ board.employee.lineManager.name }}{% endif %}</li>
+                                        <li>
+                                            ZONE: {% if board.employee.zonal is not empty %}{{ board.employee.zonal.name }}{% endif %}</li>
                                     </ul>
                                 </th>
                                 <th>
                                     <ul class="header-info">
-                                        <li>Emp ID: {% if board.employee is not empty %}{{ board.employee.userId }}{% endif %}</li>
-                                        <li>Designation: {% if board.employee.designation is not empty %}{{ board.employee.designation.name }}{% endif %}</li>
+                                        <li>Emp
+                                            ID: {% if board.employee is not empty %}{{ board.employee.userId }}{% endif %}</li>
+                                        <li>
+                                            Designation: {% if board.employee.designation is not empty %}{{ board.employee.designation.name }}{% endif %}</li>
                                     </ul>
                                 </th>
                             </tr>
@@ -75,529 +88,590 @@
                             </thead>
 
                         </table>
-                            <form action="{{ path('custom_format_kpi', {board: board.id}) }}" method="post">
-                                <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Sales Feed Achivement' }}</h5>
-                                <table class="table table-bordered" id="datatable">
-                                    <thead class="thead-dark">
-                                    <tr>
-                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Target Quantity'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Sales Quantity'|trans }}</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
+                        <form action="{{ path('custom_format_kpi', {board: board.id}) }}" method="post">
+                            <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Sales Feed Achivement' }}</h5>
+                            <table class="table table-bordered" id="datatable">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Target Quantity'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Sales Quantity'|trans }}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% if board.employeeBoardAttributes is not empty %}
                                     {% if board.employeeBoardAttributes is not empty %}
-                                        {% if board.employeeBoardAttributes is not empty %}
-                                            {% for parameters in arrayData %}
-                                                {% for activity in parameters %}
-                                                    {% for entity in activity %}
-                                                        <tr>
-                                                            {% if entity.parameter.status == 1 %}
-                                                                {% if entity.activity.status == 1 %}
-                                                                    {% if entity.activity.slug == 'sales' %}
-                                                                        {% if entity.attribute.status == 1 %}
-                                                                            <td>{{ entity.attribute.name }}</td>
+                                        {% for parameters in arrayData %}
+                                            {% for activity in parameters %}
+                                                {% for entity in activity %}
+                                                    <tr>
+                                                        {% if entity.parameter.status == 1 %}
+                                                            {% if entity.activity.status == 1 %}
+                                                                {% if entity.activity.slug == 'sales' %}
+                                                                    {% if entity.attribute.status == 1 %}
+                                                                        <td>{{ entity.attribute.name }}</td>
 
-                                                                            <td><input type="number" name="sales[{{ entity.attribute.id }}][target]" class="form-control" value="{% if feedAndGrowth[entity.attribute.id] is defined %}{{ feedAndGrowth[entity.attribute.id]['targetQuantity'] }}{% endif %}"></td>
-                                                                            <td><input type="number" name="sales[{{ entity.attribute.id }}][sales]" class="form-control" value="{% if feedAndGrowth[entity.attribute.id] is defined %}{{feedAndGrowth[entity.attribute.id]['salesQuantity']}}{% endif %}"></td>
-                                                                        {% endif %}
+                                                                        <td><input min="0" type="number"
+                                                                                   name="sales[{{ entity.attribute.id }}][target]"
+                                                                                   class="form-control"
+                                                                                   value="{% if feedAndGrowth[entity.attribute.id] is defined %}{{ feedAndGrowth[entity.attribute.id]['targetQuantity'] }}{% endif %}">
+                                                                        </td>
+                                                                        <td><input min="0" type="number"
+                                                                                   name="sales[{{ entity.attribute.id }}][sales]"
+                                                                                   class="form-control"
+                                                                                   value="{% if feedAndGrowth[entity.attribute.id] is defined %}{{ feedAndGrowth[entity.attribute.id]['salesQuantity'] }}{% endif %}">
+                                                                        </td>
                                                                     {% endif %}
                                                                 {% endif %}
                                                             {% endif %}
-                                                        </tr>
-                                                    {% endfor %}
-                                                {% endfor %}
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endif %}
-                                    </tbody>
-                                </table>
-
-                                <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Product Sales Growth' }}</h5>
-                                <table class="table table-bordered" id="datatable">
-                                    <thead class="thead-dark">
-                                    <tr>
-                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Previous Year'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Sales Quantity'|trans }}</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% if board.employeeBoardAttributes is not empty %}
-                                        {% if board.employeeBoardAttributes is not empty %}
-                                            {% for parameters in arrayData %}
-                                                {% for activity in parameters %}
-                                                    {% for entity in activity %}
-                                                        <tr>
-                                                            {% if entity.parameter.status == 1 %}
-                                                                {% if entity.activity.status == 1 %}
-                                                                    {% if entity.activity.slug == 'sales-growth-always-consider-among-same-period' %}
-                                                                        {% if entity.attribute.status == 1 %}
-                                                                            <td>{{ entity.attribute.name }}</td>
-
-                                                                            <td><input type="number" name="growth[{{ entity.attribute.id }}][previous]" class="form-control" value="{% if feedAndGrowth[entity.attribute.id] is defined %}{{ feedAndGrowth[entity.attribute.id]['targetQuantity'] }}{% endif %}"></td>
-                                                                            <td><input type="number" name="growth[{{ entity.attribute.id }}][current]" class="form-control" value="{% if feedAndGrowth[entity.attribute.id] is defined %}{{ feedAndGrowth[entity.attribute.id]['targetQuantity'] }}{% endif %}"></td>
-                                                                        {% endif %}
-                                                                    {% endif %}
-                                                                {% endif %}
-                                                            {% endif %}
-                                                        </tr>
-                                                    {% endfor %}
-                                                {% endfor %}
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endif %}
-                                    </tbody>
-                                </table>
-
-
-                                <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Outstanding' }}</h5>
-                                <table class="table table-bordered">
-                                    <thead class="thead-dark">
-{#                                    <tr>#}
-{#                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>#}
-{#                                        <th scope="col" width="20%">{{ 'Actual Amount'|trans }}</th>#}
-{#                                        <th scope="col" width="20%">{{ 'Limit Amount'|trans }}</th>#}
-{#                                    </tr>#}
-                                    </thead>
-                                    <tbody>
-                                    {% if board.employeeBoardAttributes is not empty %}
-                                        {% if board.employeeBoardAttributes is not empty %}
-                                            {% for parameters in arrayData %}
-                                                {% for activity in parameters %}
-                                                    {% for entity in activity %}
-                                                        {% if entity.attribute.slug == 'outstanding-limit-vs-actual-feed'  %}
-                                                            <tr>
-                                                                <td colspan="4" style="padding: 0 !important;" align="center">
-                                                                <p class="yellow-bg p-1 m-0">{{ 'Outstanding limit vs actual feed' }}</p>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th scope="col">{{ 'Agents'|trans }}</th>
-                                                                <th scope="col" width="20%">{{ 'Actual Amount'|trans }}</th>
-                                                                <th scope="col" width="20%">{{ 'Limit Amount'|trans }}</th>
-                                                                <th scope="col" width="50" class="text-center"><i class="feather icon-settings"></i></th>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>
-                                                                    <select data-action="{{ path('core_agent_search_select2') }}" name="agent" class="agentSearch" id="">
-                                                                        <option value="">Select Agent</option>
-                                                                    </select>
-                                                                </td>
-                                                                <td><input type="number" name="actual-amount" class="form-control" value=""></td>
-                                                                <td>
-                                                                        <input type="number" name="limit-amount" class="form-control" value="">
-                                                                </td>
-                                                                <td>
-                                                                    <a data-action="{{ path('agent_outstanding_for_custom_format', {board: board.id}) }}" data-board-id="{{ board.id }}" class="btn btn-sm green-bg white-font add_button"><i class="fa fa-plus"></i> Add New</a>
-                                                                </td>
-                                                            </tr>
-                                                            {% if outstanding is defined and outstanding is not empty %}
-                                                                {% for item in outstanding %}
-                                                                    <tr>
-                                                                        <td>{{ item.agent.name }}</td>
-                                                                        <td>{{ item.actualAmount }}</td>
-                                                                        <td>{{ item.limitAmount }}</td>
-                                                                        <td align="center"><a data-action="{{ path('delete_agent_outstanding_for_custom_format', {id: item.id}) }}" class="btn btn-sm btn-transparent remove"><i class="fa fa-remove"></i></a></td>
-                                                                    </tr>
-                                                                {% endfor %}
-                                                            {% endif %}
-                                                            {% elseif entity.attribute.slug == 'doc-sales-collection' %}
-                                                                <tr>
-                                                                    <td colspan="4" style="padding: 0 !important;" align="center">
-                                                                        <p class="yellow-bg p-1 m-0">{{ 'Doc Sales Collection' }}</p>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th scope="col">{{ 'Agents'|trans }}</th>
-                                                                    <th scope="col" width="20%">{{ 'Sales Amount'|trans }}</th>
-                                                                    <th scope="col" width="20%">{{ 'Collection Amount'|trans }}</th>
-                                                                    <th scope="col" width="50" class="text-center"><i class="feather icon-settings"></i></th>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>
-                                                                        <select data-action="{{ path('core_agent_search_select2') }}" name="agent" class="agentSearch" id="">
-                                                                            <option value="">Select Agent</option>
-                                                                        </select>
-                                                                    </td>
-                                                                    <td><input type="number" name="actual-amount" class="form-control" value=""></td>
-                                                                    <td>
-                                                                        <input type="number" name="limit-amount" class="form-control" value="">
-                                                                    </td>
-                                                                    <td>
-                                                                        <a data-action="{{ path('agent_doc_sale_for_custom_format', {board: board.id}) }}" data-board-id="{{ board.id }}" class="btn btn-sm green-bg white-font add_button"><i class="fa fa-plus"></i> Add New</a>
-
-                                                                    </td>
-                                                                </tr>
-                                                                {% if docSale is defined and docSale is not empty %}
-                                                                    {% for item in docSale %}
-                                                                        <tr>
-                                                                            <td>{{ item.agent.name }}</td>
-                                                                            <td>{{ item.sales }}</td>
-                                                                            <td>{{ item.collection }}</td>
-                                                                            <td align="center"><a data-action="{{ path('delete_agent_doc_sale_for_custom_format', {id: item.id}) }}" class="btn btn-sm btn-transparent remove"><i class="fa fa-remove"></i></a></td>
-                                                                        </tr>
-                                                                    {% endfor %}
-                                                                {% endif %}
                                                         {% endif %}
-                                                    {% endfor %}
+                                                    </tr>
                                                 {% endfor %}
                                             {% endfor %}
-                                        {% endif %}
+                                        {% endfor %}
                                     {% endif %}
+                                {% endif %}
+                                </tbody>
+                            </table>
 
-                                    </tbody>
-                                </table>
-
-                                <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Customer Development' }}</h5>
-                                <table class="table table-bordered" id="datatable">
-                                    <thead class="thead-dark">
-                                    <tr>
-                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Total Agents'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Upgrade Agents'|trans }}</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
+                            <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Product Sales Growth' }}</h5>
+                            <table class="table table-bordered" id="datatable">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Previous Year'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Sales Quantity'|trans }}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% if board.employeeBoardAttributes is not empty %}
                                     {% if board.employeeBoardAttributes is not empty %}
-                                        {% if board.employeeBoardAttributes is not empty %}
-                                            {% for parameters in arrayData %}
-                                                {% for activity in parameters %}
-                                                    {% for entity in activity %}
-                                                        <tr>
-                                                            {% if entity.parameter.status == 1 %}
-                                                                {% if entity.activity.status == 1 %}
-                                                                    {% if entity.activity.slug == 'customer-development' %}
-                                                                        {% if entity.attribute.status == 1 %}
-                                                                            <td>{{ entity.attribute.name }}</td>
+                                        {% for parameters in arrayData %}
+                                            {% for activity in parameters %}
+                                                {% for entity in activity %}
+                                                    <tr>
+                                                        {% if entity.parameter.status == 1 %}
+                                                            {% if entity.activity.status == 1 %}
+                                                                {% if entity.activity.slug == 'sales-growth-always-consider-among-same-period' %}
+                                                                    {% if entity.attribute.status == 1 %}
+                                                                        <td>{{ entity.attribute.name }}</td>
 
-                                                                            <td><input type="number" name="customerDevelopment[{{ entity.attribute.id }}][totalAgents]" class="form-control"></td>
-                                                                            <td><input type="number" name="customerDevelopment[{{ entity.attribute.id }}][upgradeAgent]" class="form-control"></td>
-                                                                        {% endif %}
+                                                                        <td><input min="0" type="number"
+                                                                                   name="growth[{{ entity.attribute.id }}][previous]"
+                                                                                   class="form-control"
+                                                                                   value="{% if feedAndGrowth[entity.attribute.id] is defined %}{{ feedAndGrowth[entity.attribute.id]['targetQuantity'] }}{% endif %}">
+                                                                        </td>
+                                                                        <td><input min="0" type="number"
+                                                                                   name="growth[{{ entity.attribute.id }}][current]"
+                                                                                   class="form-control"
+                                                                                   value="{% if feedAndGrowth[entity.attribute.id] is defined %}{{ feedAndGrowth[entity.attribute.id]['targetQuantity'] }}{% endif %}">
+                                                                        </td>
                                                                     {% endif %}
                                                                 {% endif %}
                                                             {% endif %}
-                                                        </tr>
-                                                    {% endfor %}
+                                                        {% endif %}
+                                                    </tr>
                                                 {% endfor %}
                                             {% endfor %}
-                                        {% endif %}
+                                        {% endfor %}
                                     {% endif %}
-                                    </tbody>
-                                </table>
+                                {% endif %}
+                                </tbody>
+                            </table>
 
-                                <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Time Management' }}</h5>
-                                <table class="table table-bordered">
-                                    <thead class="thead-dark">
-                                    <tr>
-                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Marks'|trans }}</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
+
+                            <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Outstanding' }}</h5>
+                            <table class="table table-bordered">
+                                <thead class="thead-dark">
+                                {#                                    <tr>#}
+                                {#                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>#}
+                                {#                                        <th scope="col" width="20%">{{ 'Actual Amount'|trans }}</th>#}
+                                {#                                        <th scope="col" width="20%">{{ 'Limit Amount'|trans }}</th>#}
+                                {#                                    </tr>#}
+                                </thead>
+                                <tbody>
+                                {% if board.employeeBoardAttributes is not empty %}
                                     {% if board.employeeBoardAttributes is not empty %}
-                                        {% if board.employeeBoardAttributes is not empty %}
-                                            {% for parameters in arrayData %}
-                                                {% for activity in parameters %}
-                                                    {% for entity in activity %}
+                                        {% for parameters in arrayData %}
+                                            {% for activity in parameters %}
+                                                {% for entity in activity %}
+                                                    {% if entity.attribute.slug == 'outstanding-limit-vs-actual-feed' %}
                                                         <tr>
-                                                            {% if entity.parameter.status == 1 %}
-                                                                {% if entity.activity.status == 1 %}
-                                                                    {% if entity.activity.slug == 'time-management' %}
-                                                                        {% if entity.attribute.status == 1 %}
-                                                                            <td>{{ entity.attribute.name }}</td>
-                                                                            <td>
-                                                                                {% if entity.attribute.systemEntry == 1 %}
-                                                                                    <select name="skills[{{ entity.attribute.id }}]" id="" class="select2">
-                                                                                        <option value="">{{ 'Select mark'|trans }}</option>
-                                                                                        {% for markDis in entity.attribute.children %}
-                                                                                            {% if markDis.status == 1 %}
+                                                            <td colspan="4" style="padding: 0 !important;"
+                                                                align="center">
+                                                                <p class="yellow-bg p-1 m-0">{{ 'Outstanding limit vs actual feed' }}</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th scope="col">{{ 'Agents'|trans }}</th>
+                                                            <th scope="col" width="20%">{{ 'Actual Amount'|trans }}</th>
+                                                            <th scope="col" width="20%">{{ 'Limit Amount'|trans }}</th>
+                                                            <th scope="col" width="50" class="text-center"><i
+                                                                        class="feather icon-settings"></i></th>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <select data-action="{{ path('core_agent_search_select2') }}"
+                                                                        name="agent" class="agentSearch" id="">
+                                                                    <option value="">Select Agent</option>
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <input min="0" v type="number" name="actual-amount"
+                                                                       class="form-control" value="">
+                                                            </td>
+                                                            <td>
+                                                                <input min="0" type="number" name="limit-amount"
+                                                                       class="form-control" value="">
+                                                            </td>
+                                                            <td>
+                                                                <a data-action="{{ path('agent_outstanding_for_custom_format', {board: board.id}) }}"
+                                                                   data-board-id="{{ board.id }}"
+                                                                   class="btn btn-sm green-bg white-font add_button"><i
+                                                                            class="fa fa-plus"></i> Add New</a>
+                                                            </td>
+                                                        </tr>
+                                                        {% if outstanding is defined and outstanding is not empty %}
+                                                            {% for item in outstanding %}
+                                                                <tr>
+                                                                    <td>{{ item.agent.name }}</td>
+                                                                    <td>{{ item.actualAmount }}</td>
+                                                                    <td>{{ item.limitAmount }}</td>
+                                                                    <td align="center"><a
+                                                                                data-action="{{ path('delete_agent_outstanding_for_custom_format', {id: item.id}) }}"
+                                                                                class="btn btn-sm btn-transparent remove"><i
+                                                                                    class="fa fa-remove"></i></a></td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    {% elseif entity.attribute.slug == 'doc-sales-collection' %}
+                                                        <tr>
+                                                            <td colspan="4" style="padding: 0 !important;"
+                                                                align="center">
+                                                                <p class="yellow-bg p-1 m-0">{{ 'Doc Sales Collection' }}</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th scope="col">{{ 'Agents'|trans }}</th>
+                                                            <th scope="col" width="20%">{{ 'Sales Amount'|trans }}</th>
+                                                            <th scope="col"
+                                                                width="20%">{{ 'Collection Amount'|trans }}</th>
+                                                            <th scope="col" width="50" class="text-center"><i
+                                                                        class="feather icon-settings"></i></th>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <select data-action="{{ path('core_agent_search_select2') }}"
+                                                                        name="agent" class="agentSearch" id="">
+                                                                    <option value="">Select Agent</option>
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <input min="0" type="number" name="actual-amount"
+                                                                       class="form-control" value="">
+                                                            </td>
+                                                            <td>
+                                                                <input min="0" type="number" name="limit-amount"
+                                                                       class="form-control" value="">
+                                                            </td>
+                                                            <td>
+                                                                <a data-action="{{ path('agent_doc_sale_for_custom_format', {board: board.id}) }}"
+                                                                   data-board-id="{{ board.id }}"
+                                                                   class="btn btn-sm green-bg white-font add_button"><i
+                                                                            class="fa fa-plus"></i> Add New</a>
 
-                                                                                                <option value="{{ markDis.mark }}">{{ markDis.name }}</option>
-                                                                                            {% endif %}
-                                                                                        {% endfor %}
-                                                                                    </select>
-                                                                                {% endif %}
-{#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
-                                                                            </td>
-                                                                        {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        {% if docSale is defined and docSale is not empty %}
+                                                            {% for item in docSale %}
+                                                                <tr>
+                                                                    <td>{{ item.agent.name }}</td>
+                                                                    <td>{{ item.sales }}</td>
+                                                                    <td>{{ item.collection }}</td>
+                                                                    <td align="center"><a
+                                                                                data-action="{{ path('delete_agent_doc_sale_for_custom_format', {id: item.id}) }}"
+                                                                                class="btn btn-sm btn-transparent remove"><i
+                                                                                    class="fa fa-remove"></i></a></td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endif %}
+
+                                </tbody>
+                            </table>
+
+                            <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Customer Development' }}</h5>
+                            <table class="table table-bordered" id="datatable">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Total Agents'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Upgrade Agents'|trans }}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% if board.employeeBoardAttributes is not empty %}
+                                    {% if board.employeeBoardAttributes is not empty %}
+                                        {% for parameters in arrayData %}
+                                            {% for activity in parameters %}
+                                                {% for entity in activity %}
+                                                    <tr>
+                                                        {% if entity.parameter.status == 1 %}
+                                                            {% if entity.activity.status == 1 %}
+                                                                {% if entity.activity.slug == 'customer-development' %}
+                                                                    {% if entity.attribute.status == 1 %}
+                                                                        <td>{{ entity.attribute.name }}</td>
+
+                                                                        <td><input min="0" type="number"
+                                                                                   name="customerDevelopment[{{ entity.attribute.id }}][totalAgents]"
+                                                                                   class="form-control"></td>
+                                                                        <td><input min="0" type="number"
+                                                                                   name="customerDevelopment[{{ entity.attribute.id }}][upgradeAgent]"
+                                                                                   class="form-control"></td>
                                                                     {% endif %}
                                                                 {% endif %}
                                                             {% endif %}
-                                                        </tr>
-                                                    {% endfor %}
+                                                        {% endif %}
+                                                    </tr>
                                                 {% endfor %}
                                             {% endfor %}
-                                        {% endif %}
+                                        {% endfor %}
                                     {% endif %}
-                                    </tbody>
-                                </table>
+                                {% endif %}
+                                </tbody>
+                            </table>
 
-                                <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Communication' }}</h5>
-                                <table class="table table-bordered">
-                                    <thead class="thead-dark">
-                                    <tr>
-                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Marks'|trans }}</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
+                            <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Time Management' }}</h5>
+                            <table class="table table-bordered">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Marks'|trans }}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% if board.employeeBoardAttributes is not empty %}
                                     {% if board.employeeBoardAttributes is not empty %}
-                                        {% if board.employeeBoardAttributes is not empty %}
-                                            {% for parameters in arrayData %}
-                                                {% for activity in parameters %}
-                                                    {% for entity in activity %}
-                                                        <tr>
-                                                            {% if entity.parameter.status == 1 %}
-                                                                {% if entity.activity.status == 1 %}
-                                                                    {% if entity.activity.slug == 'communication' %}
-                                                                        {% if entity.attribute.status == 1 %}
-                                                                            <td>{{ entity.attribute.name }}</td>
-                                                                            <td>
-                                                                                {% if entity.attribute.systemEntry == 1 %}
-                                                                                    <select name="skills[{{ entity.attribute.id }}]" id="" class="select2">
-                                                                                        <option value="">{{ 'Select mark'|trans }}</option>
-                                                                                        {% for markDis in entity.attribute.children %}
-                                                                                            {% if markDis.status == 1 %}
-                                                                                                <option value="{{ markDis.mark }}">{{ markDis.name }}</option>
-                                                                                            {% endif %}
-                                                                                        {% endfor %}
-                                                                                    </select>
-                                                                                {% endif %}
-{#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
-                                                                            </td>
-                                                                        {% endif %}
+                                        {% for parameters in arrayData %}
+                                            {% for activity in parameters %}
+                                                {% for entity in activity %}
+                                                    <tr>
+                                                        {% if entity.parameter.status == 1 %}
+                                                            {% if entity.activity.status == 1 %}
+                                                                {% if entity.activity.slug == 'time-management' %}
+                                                                    {% if entity.attribute.status == 1 %}
+                                                                        <td>{{ entity.attribute.name }}</td>
+                                                                        <td>
+                                                                            {% if entity.attribute.systemEntry == 1 %}
+                                                                                <select name="skills[{{ entity.attribute.id }}]"
+                                                                                        id="" class="select2">
+                                                                                    <option value="">{{ 'Select mark'|trans }}</option>
+                                                                                    {% for markDis in entity.attribute.children %}
+                                                                                        {% if markDis.status == 1 %}
+
+                                                                                            <option value="{{ markDis.mark }}">{{ markDis.name }}</option>
+                                                                                        {% endif %}
+                                                                                    {% endfor %}
+                                                                                </select>
+                                                                            {% endif %}
+                                                                            {#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
+                                                                        </td>
                                                                     {% endif %}
                                                                 {% endif %}
                                                             {% endif %}
-                                                        </tr>
-                                                    {% endfor %}
+                                                        {% endif %}
+                                                    </tr>
                                                 {% endfor %}
                                             {% endfor %}
-                                        {% endif %}
+                                        {% endfor %}
                                     {% endif %}
-                                    </tbody>
-                                </table>
+                                {% endif %}
+                                </tbody>
+                            </table>
 
-                                <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Job Knowledge' }}</h5>
-                                <table class="table table-bordered">
-                                    <thead class="thead-dark">
-                                    <tr>
-                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Marks'|trans }}</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
+                            <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Communication' }}</h5>
+                            <table class="table table-bordered">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Marks'|trans }}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% if board.employeeBoardAttributes is not empty %}
                                     {% if board.employeeBoardAttributes is not empty %}
-                                        {% if board.employeeBoardAttributes is not empty %}
-                                            {% for parameters in arrayData %}
-                                                {% for activity in parameters %}
-                                                    {% for entity in activity %}
-                                                        <tr>
-                                                            {% if entity.parameter.status == 1 %}
-                                                                {% if entity.activity.status == 1 %}
-                                                                    {% if entity.activity.slug == 'job-knowledge' %}
-                                                                        {% if entity.attribute.status == 1 %}
-                                                                            <td>{{ entity.attribute.name }}</td>
-                                                                            <td>
-                                                                                {% if entity.attribute.systemEntry == 1 %}
-                                                                                    <select name="skills[{{ entity.attribute.id }}]" id="" class="select2">
-                                                                                        <option value="">{{ 'Select mark'|trans }}</option>
-                                                                                        {% for markDis in entity.attribute.children %}
-                                                                                            {% if markDis.status == 1 %}
-                                                                                                <option value="{{ markDis.mark }}">{{ markDis.name }}</option>
-                                                                                            {% endif %}
-                                                                                        {% endfor %}
-                                                                                    </select>
-                                                                                {% endif %}
-{#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
-                                                                            </td>
-                                                                        {% endif %}
+                                        {% for parameters in arrayData %}
+                                            {% for activity in parameters %}
+                                                {% for entity in activity %}
+                                                    <tr>
+                                                        {% if entity.parameter.status == 1 %}
+                                                            {% if entity.activity.status == 1 %}
+                                                                {% if entity.activity.slug == 'communication' %}
+                                                                    {% if entity.attribute.status == 1 %}
+                                                                        <td>{{ entity.attribute.name }}</td>
+                                                                        <td>
+                                                                            {% if entity.attribute.systemEntry == 1 %}
+                                                                                <select name="skills[{{ entity.attribute.id }}]"
+                                                                                        id="" class="select2">
+                                                                                    <option value="">{{ 'Select mark'|trans }}</option>
+                                                                                    {% for markDis in entity.attribute.children %}
+                                                                                        {% if markDis.status == 1 %}
+                                                                                            <option value="{{ markDis.mark }}">{{ markDis.name }}</option>
+                                                                                        {% endif %}
+                                                                                    {% endfor %}
+                                                                                </select>
+                                                                            {% endif %}
+                                                                            {#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
+                                                                        </td>
                                                                     {% endif %}
                                                                 {% endif %}
                                                             {% endif %}
-                                                        </tr>
-                                                    {% endfor %}
+                                                        {% endif %}
+                                                    </tr>
                                                 {% endfor %}
                                             {% endfor %}
-                                        {% endif %}
+                                        {% endfor %}
                                     {% endif %}
-                                    </tbody>
-                                </table>
+                                {% endif %}
+                                </tbody>
+                            </table>
 
-                                <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Creativity & Willingness' }}</h5>
-                                <table class="table table-bordered">
-                                    <thead class="thead-dark">
-                                    <tr>
-                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Marks'|trans }}</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
+                            <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Job Knowledge' }}</h5>
+                            <table class="table table-bordered">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Marks'|trans }}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% if board.employeeBoardAttributes is not empty %}
                                     {% if board.employeeBoardAttributes is not empty %}
-                                        {% if board.employeeBoardAttributes is not empty %}
-                                            {% for parameters in arrayData %}
-                                                {% for activity in parameters %}
-                                                    {% for entity in activity %}
-                                                        <tr>
-                                                            {% if entity.parameter.status == 1 %}
-                                                                {% if entity.activity.status == 1 %}
-                                                                    {% if entity.activity.slug == 'creativity-willingness' %}
-                                                                        {% if entity.attribute.status == 1 %}
-                                                                            <td>{{ entity.attribute.name }}</td>
-                                                                            <td>
-                                                                                {% if entity.attribute.systemEntry == 1 %}
-                                                                                    <select name="skills[{{ entity.attribute.id }}]" id="" class="select2">
-                                                                                        <option value="">{{ 'Select mark'|trans }}</option>
-                                                                                        {% for markDis in entity.attribute.children %}
-                                                                                            {% if markDis.status == 1 %}
-                                                                                                <option value="{{ markDis.mark }}">{{ markDis.name }}</option>
-                                                                                            {% endif %}
-                                                                                        {% endfor %}
-                                                                                    </select>
-                                                                                {% endif %}
-{#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
-                                                                            </td>
-                                                                        {% endif %}
+                                        {% for parameters in arrayData %}
+                                            {% for activity in parameters %}
+                                                {% for entity in activity %}
+                                                    <tr>
+                                                        {% if entity.parameter.status == 1 %}
+                                                            {% if entity.activity.status == 1 %}
+                                                                {% if entity.activity.slug == 'job-knowledge' %}
+                                                                    {% if entity.attribute.status == 1 %}
+                                                                        <td>{{ entity.attribute.name }}</td>
+                                                                        <td>
+                                                                            {% if entity.attribute.systemEntry == 1 %}
+                                                                                <select name="skills[{{ entity.attribute.id }}]"
+                                                                                        id="" class="select2">
+                                                                                    <option value="">{{ 'Select mark'|trans }}</option>
+                                                                                    {% for markDis in entity.attribute.children %}
+                                                                                        {% if markDis.status == 1 %}
+                                                                                            <option value="{{ markDis.mark }}">{{ markDis.name }}</option>
+                                                                                        {% endif %}
+                                                                                    {% endfor %}
+                                                                                </select>
+                                                                            {% endif %}
+                                                                            {#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
+                                                                        </td>
                                                                     {% endif %}
                                                                 {% endif %}
                                                             {% endif %}
-                                                        </tr>
-                                                    {% endfor %}
+                                                        {% endif %}
+                                                    </tr>
                                                 {% endfor %}
                                             {% endfor %}
-                                        {% endif %}
+                                        {% endfor %}
                                     {% endif %}
-                                    </tbody>
-                                </table>
+                                {% endif %}
+                                </tbody>
+                            </table>
 
-                                <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Values' }}</h5>
-                                <table class="table table-bordered">
-                                    <thead class="thead-dark">
-                                    <tr>
-                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Marks'|trans }}</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
+                            <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Creativity & Willingness' }}</h5>
+                            <table class="table table-bordered">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Marks'|trans }}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% if board.employeeBoardAttributes is not empty %}
                                     {% if board.employeeBoardAttributes is not empty %}
-                                        {% if board.employeeBoardAttributes is not empty %}
-                                            {% for parameters in arrayData %}
-                                                {% for activity in parameters %}
-                                                    {% for entity in activity %}
-                                                        <tr>
-                                                            {% if entity.parameter.status == 1 %}
-                                                                {% if entity.activity.status == 1 %}
-                                                                    {% if entity.activity.slug == 'values-2' %}
-                                                                        {% if entity.attribute.status == 1 %}
-                                                                            <td>{{ entity.attribute.name }}</td>
-                                                                            <td>
-                                                                                {% if entity.attribute.systemEntry == 1 %}
-                                                                                    <select name="values[{{ entity.attribute.id }}]" id="" class="select2">
-                                                                                        <option value="">{{ 'Select mark'|trans }}</option>
-                                                                                        {% for markDis in entity.attribute.children %}
-                                                                                            {% if markDis.status == 1 %}
-                                                                                                <option value="{{ markDis.mark }}">{{ markDis.name }}</option>
-                                                                                            {% endif %}
-                                                                                        {% endfor %}
-                                                                                    </select>
-                                                                                {% endif %}
-{#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
-                                                                            </td>
-                                                                        {% endif %}
+                                        {% for parameters in arrayData %}
+                                            {% for activity in parameters %}
+                                                {% for entity in activity %}
+                                                    <tr>
+                                                        {% if entity.parameter.status == 1 %}
+                                                            {% if entity.activity.status == 1 %}
+                                                                {% if entity.activity.slug == 'creativity-willingness' %}
+                                                                    {% if entity.attribute.status == 1 %}
+                                                                        <td>{{ entity.attribute.name }}</td>
+                                                                        <td>
+                                                                            {% if entity.attribute.systemEntry == 1 %}
+                                                                                <select name="skills[{{ entity.attribute.id }}]"
+                                                                                        id="" class="select2">
+                                                                                    <option value="">{{ 'Select mark'|trans }}</option>
+                                                                                    {% for markDis in entity.attribute.children %}
+                                                                                        {% if markDis.status == 1 %}
+                                                                                            <option value="{{ markDis.mark }}">{{ markDis.name }}</option>
+                                                                                        {% endif %}
+                                                                                    {% endfor %}
+                                                                                </select>
+                                                                            {% endif %}
+                                                                            {#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
+                                                                        </td>
                                                                     {% endif %}
                                                                 {% endif %}
                                                             {% endif %}
-                                                        </tr>
-                                                    {% endfor %}
+                                                        {% endif %}
+                                                    </tr>
                                                 {% endfor %}
                                             {% endfor %}
-                                        {% endif %}
+                                        {% endfor %}
                                     {% endif %}
-                                    </tbody>
-                                </table>
-                                <div class="form-actions">
-                                    <div class="col-md-6 ">
-                                    </div>
-                                    <div class="col-md-6 text-right">
-                                        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-                                            <a href="#" class="btn yellow-bg white-font"><i class="fa fa-refresh"></i>Restore</a>
-                                            <button type="submit"  name="" class="btn btn-info form-submit btn">SaveAndCreate</button>
-                                        </div>
-                                    </div>
-                                    <div class="clearfix"></div>
+                                {% endif %}
+                                </tbody>
+                            </table>
+
+                            <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Values' }}</h5>
+                            <table class="table table-bordered">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Marks'|trans }}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% if board.employeeBoardAttributes is not empty %}
+                                    {% if board.employeeBoardAttributes is not empty %}
+                                        {% for parameters in arrayData %}
+                                            {% for activity in parameters %}
+                                                {% for entity in activity %}
+                                                    <tr>
+                                                        {% if entity.parameter.status == 1 %}
+                                                            {% if entity.activity.status == 1 %}
+                                                                {% if entity.activity.slug == 'values-2' %}
+                                                                    {% if entity.attribute.status == 1 %}
+                                                                        <td>{{ entity.attribute.name }}</td>
+                                                                        <td>
+                                                                            {% if entity.attribute.systemEntry == 1 %}
+                                                                                <select name="values[{{ entity.attribute.id }}]"
+                                                                                        id="" class="select2">
+                                                                                    <option value="">{{ 'Select mark'|trans }}</option>
+                                                                                    {% for markDis in entity.attribute.children %}
+                                                                                        {% if markDis.status == 1 %}
+                                                                                            <option value="{{ markDis.mark }}">{{ markDis.name }}</option>
+                                                                                        {% endif %}
+                                                                                    {% endfor %}
+                                                                                </select>
+                                                                            {% endif %}
+                                                                            {#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
+                                                                        </td>
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    </tr>
+                                                {% endfor %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endif %}
+                                </tbody>
+                            </table>
+                            <div class="form-actions">
+                                <div class="col-md-6 ">
                                 </div>
-                            </form>
+                                <div class="col-md-6 text-right">
+                                    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                                        <a href="{{ path('kpi_employee_board_edit_custom_format', {id:board.id}) }}"
+                                           class="btn yellow-bg white-font"><i class="fa fa-refresh"></i>Restore</a>
+                                        <button type="submit" name="" class="btn btn-info form-submit btn">
+                                            SaveAndCreate
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
         <!-- [ Main Content ] end -->
     </div>
-<style>
+    <style>
 
-input.customerDevelopment {
-    background: #daae82;
-    color: #000000;
-    font-weight: bold;
-}
-select.markDistribution {
-    background: #daae82;
-    color: #000000;
-    font-weight: bold;
-}
-.parameter{
-    position: relative;
-    /*    border-left: 34px solid #369;
-        padding-left: 10px;
-        width: 50px;*/
-}
+        input.customerDevelopment {
+            background: #daae82;
+            color: #000000;
+            font-weight: bold;
+        }
 
-.parameter span {
-    position: absolute;
-    top: 50%;
-    /*left: 30px;*/
-    background: none;
-    transform-origin: 0 0;
-    transform: rotate(-90deg) translateX(-50%);
-    /*width: 200px;*/
-}
+        select.markDistribution {
+            background: #daae82;
+            color: #000000;
+            font-weight: bold;
+        }
+
+        .parameter {
+            position: relative;
+            /*    border-left: 34px solid #369;
+                padding-left: 10px;
+                width: 50px;*/
+        }
+
+        .parameter span {
+            position: absolute;
+            top: 50%;
+            /*left: 30px;*/
+            background: none;
+            transform-origin: 0 0;
+            transform: rotate(-90deg) translateX(-50%);
+            /*width: 200px;*/
+        }
 
 
-.attribute-markDistribution{
-    width: 220px;
-}
+        .attribute-markDistribution {
+            width: 220px;
+        }
 
-.markDistribution{
-    padding-left: 15px;
-    width: 220px;
-}
-.markDistribution li{
-    margin-left: 0;
-    padding-left: 0;
-}
+        .markDistribution {
+            padding-left: 15px;
+            width: 220px;
+        }
 
-.activity-name{
-    width: 120px;
-}
+        .markDistribution li {
+            margin-left: 0;
+            padding-left: 0;
+        }
 
-.activity-attribute{
-    width: 220px;
-}
-.attribute-name{
-    width: 480px;
-}
-.attribute-mark{
-    width: 70px;
-}
-.attribute-score{
-    width: 70px;
-}
-</style>
+        .activity-name {
+            width: 120px;
+        }
+
+        .activity-attribute {
+            width: 220px;
+        }
+
+        .attribute-name {
+            width: 480px;
+        }
+
+        .attribute-mark {
+            width: 70px;
+        }
+
+        .attribute-score {
+            width: 70px;
+        }
+    </style>
 {% endblock %}
  {% block cssBlock %}
      <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
- {% endblock  %}
+ {% endblock %}
 {% block javascripts %}
     {{ parent() }}
     <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
@@ -631,30 +705,32 @@ select.markDistribution {
                     },
                     cache: true
                 },
-                escapeMarkup: function (markup) { return markup; },
+                escapeMarkup: function (markup) {
+                    return markup;
+                },
                 minimumInputLength: 1
             });
         });
         //Add agent Outstanding
-        $(".add_button").bind('click', function() {
+        $(".add_button").bind('click', function () {
             let element = $(this);
-            let agentId    = $(this).closest('tr').find('.agentSearch').val();
-            let actualAmount    = $(this).closest('tr').find('input[name="actual-amount"]').val();
-            let limitAmount    = $(this).closest('tr').find('input[name="limit-amount"]').val();
+            let agentId = $(this).closest('tr').find('.agentSearch').val();
+            let actualAmount = $(this).closest('tr').find('input[name="actual-amount"]').val();
+            let limitAmount = $(this).closest('tr').find('input[name="limit-amount"]').val();
             $.ajax({
                 url: $(this).attr('data-action'),
                 type: 'POST',
                 dataType: 'json',
                 data: {agentId: agentId, actualAmount: actualAmount, limitAmount: limitAmount},
                 success: function (response) {
-                    if (response.status === 200){
+                    if (response.status === 200) {
                         // console.log('Checked');
-                        let route = Routing.generate('delete_agent_outstanding_for_custom_format', {id:response.data.id});
+                        let route = Routing.generate('delete_agent_outstanding_for_custom_format', {id: response.data.id});
                         $(
                             '<tr>' +
-                            '<td>' + response.data.agent +'</td>' +
-                            '<td>' + actualAmount +'</td>' +
-                            '<td>' + limitAmount +'</td>' +
+                            '<td>' + response.data.agent + '</td>' +
+                            '<td>' + actualAmount + '</td>' +
+                            '<td>' + limitAmount + '</td>' +
                             '<td align="center"><a data-action="' + route + '" class="btn btn-sm btn-transparent remove"><i class="fa fa-remove"></i></a></td>' +
                             '</tr>'
                         ).insertAfter($(element).closest('tr'));
@@ -663,60 +739,60 @@ select.markDistribution {
             })
         });
     </script>
-{% endblock  %}
+{% endblock %}
 {% block javascriptBlock %}
-{#    <script>#}
+    {#    <script>#}
     {{ parent() }}
-{#    $(document).on('click',".statusUpdate", function (event) {
-    var url = $(this).attr('data-action');
-    $.get(url, function(data){
-        var redirectUrl = Routing.generate('kpi_employee_board');
-        if(data=='success'){
-            window.location.href = redirectUrl;
-        }
-    });
-    });#}
+    {#    $(document).on('click',".statusUpdate", function (event) {
+        var url = $(this).attr('data-action');
+        $.get(url, function(data){
+            var redirectUrl = Routing.generate('kpi_employee_board');
+            if(data=='success'){
+                window.location.href = redirectUrl;
+            }
+        });
+        });#}
 
 
     (function($) {
-        $.fn.inputFilter = function(inputFilter) {
-            return this.on("input keydown keyup mousedown mouseup select contextmenu drop", function() {
-                if (inputFilter(this.value)) {
-                    this.oldValue = this.value;
-                    this.oldSelectionStart = this.selectionStart;
-                    this.oldSelectionEnd = this.selectionEnd;
-                } else if (this.hasOwnProperty("oldValue")) {
-                    this.value = this.oldValue;
-                    this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
-                } else {
-                    this.value = "";
-                }
-            });
-        };
+    $.fn.inputFilter = function(inputFilter) {
+    return this.on("input keydown keyup mousedown mouseup select contextmenu drop", function() {
+    if (inputFilter(this.value)) {
+    this.oldValue = this.value;
+    this.oldSelectionStart = this.selectionStart;
+    this.oldSelectionEnd = this.selectionEnd;
+    } else if (this.hasOwnProperty("oldValue")) {
+    this.value = this.oldValue;
+    this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+    } else {
+    this.value = "";
+    }
+    });
+    };
     }(jQuery));
 
     $("input.customerDevelopment").inputFilter(function(value) {
-        return /^-?\d*[.,]?\d*$/.test(value);
+    return /^-?\d*[.,]?\d*$/.test(value);
     });
 
     $(document).on('click',"#statusUpdate", function (event) {
-        event.preventDefault();
-        var id = $(this).attr('data-id');
-        var url = $(this).attr('data-action');
-        $.MessageBox({
-            buttonFail  : "No",
-            buttonDone  : "Yes",
-            message     : "Are you sure want to approve?"
-        }).done(function(){
-            window.location.href = $('#statusUpdate').attr('href');
-        });
+    event.preventDefault();
+    var id = $(this).attr('data-id');
+    var url = $(this).attr('data-action');
+    $.MessageBox({
+    buttonFail  : "No",
+    buttonDone  : "Yes",
+    message     : "Are you sure want to approve?"
+    }).done(function(){
+    window.location.href = $('#statusUpdate').attr('href');
+    });
     });
 
-{#    <script>#}
-{#        // Agent Search#}
+    {#    <script>#}
+    {#        // Agent Search#}
 
 
 
 
 
-{% endblock  %}
+{% endblock %}

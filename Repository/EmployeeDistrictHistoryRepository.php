@@ -91,6 +91,12 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
         $stmt = $em->getConnection()->prepare($query);
         $stmt->bindValue('employeeId', $employee->getId());
         $stmt->execute();
-        return $stmt->fetchAll();
+        $records =  $stmt->fetchAll();
+        $data = [];
+        foreach ($records as $record) {
+
+            $data[$record['year'].'-'.$record['month']] = $record;
+        }
+        return $data;
     }
 }
