@@ -197,104 +197,97 @@
                                                 {% for entity in activity %}
                                                     {% if entity.attribute.slug == 'outstanding-limit-vs-actual-feed' %}
                                                         <tr>
-                                                            <td colspan="4" style="padding: 0 !important;"
+                                                            <td colspan="2" style="padding: 0 !important;"
                                                                 align="center">
                                                                 <p class="yellow-bg p-1 m-0">{{ 'Outstanding limit vs actual feed' }}</p>
                                                             </td>
                                                         </tr>
                                                         <tr>
-                                                            <th scope="col">{{ 'Agents'|trans }}</th>
-                                                            <th scope="col" width="20%">{{ 'Actual Amount'|trans }}</th>
-                                                            <th scope="col" width="20%">{{ 'Limit Amount'|trans }}</th>
-                                                            <th scope="col" width="50" class="text-center"><i
-                                                                        class="feather icon-settings"></i></th>
+{#                                                            <th scope="col">{{ 'Agents'|trans }}</th>#}
+                                                            <th scope="col">{{ 'Actual Amount'|trans }}</th>
+                                                            <th scope="col">{{ 'Limit Amount'|trans }}</th>
+{#                                                            <th scope="col" width="50" class="text-center"><i class="feather icon-settings"></i></th>#}
                                                         </tr>
                                                         <tr>
+{#                                                            <td>#}
+{#                                                                <select data-action="{{ path('core_agent_search_select2') }}"#}
+{#                                                                        name="agent" class="agentSearch" id="">#}
+{#                                                                    <option value="">Select Agent</option>#}
+{#                                                                </select>#}
+{#                                                            </td>#}
                                                             <td>
-                                                                <select data-action="{{ path('core_agent_search_select2') }}"
-                                                                        name="agent" class="agentSearch" id="">
-                                                                    <option value="">Select Agent</option>
-                                                                </select>
+                                                                <input min="0" type="number" name="outstanding[actual-amount]" class="form-control" value="{% if outstanding is defined %}{{ outstanding.actualAmount|default('') }}{% endif %}">
                                                             </td>
                                                             <td>
-                                                                <input min="0" v type="number" name="actual-amount"
-                                                                       class="form-control" value="">
+                                                                <input min="0" type="number" name="outstanding[limit-amount]" class="form-control" value="{% if outstanding is defined %}{{ outstanding.limitAmount|default('') }}{% endif %}">
                                                             </td>
-                                                            <td>
-                                                                <input min="0" type="number" name="limit-amount"
-                                                                       class="form-control" value="">
-                                                            </td>
-                                                            <td>
-                                                                <a data-action="{{ path('agent_outstanding_for_custom_format', {board: board.id}) }}"
-                                                                   data-board-id="{{ board.id }}"
-                                                                   class="btn btn-sm green-bg white-font add_button"><i
-                                                                            class="fa fa-plus"></i> Add New</a>
-                                                            </td>
+{#                                                            <td>#}
+{#                                                                <a data-action="{{ path('agent_outstanding_for_custom_format', {board: board.id}) }}"#}
+{#                                                                   data-board-id="{{ board.id }}"#}
+{#                                                                   class="btn btn-sm green-bg white-font add_button"><i#}
+{#                                                                            class="fa fa-plus"></i> Add New</a>#}
+{#                                                            </td>#}
                                                         </tr>
-                                                        {% if outstanding is defined and outstanding is not empty %}
-                                                            {% for item in outstanding %}
-                                                                <tr>
-                                                                    <td>{{ item.agent.name }}</td>
-                                                                    <td>{{ item.actualAmount }}</td>
-                                                                    <td>{{ item.limitAmount }}</td>
-                                                                    <td align="center"><a
-                                                                                data-action="{{ path('delete_agent_outstanding_for_custom_format', {id: item.id}) }}"
-                                                                                class="btn btn-sm btn-transparent remove"><i
-                                                                                    class="fa fa-remove"></i></a></td>
-                                                                </tr>
-                                                            {% endfor %}
-                                                        {% endif %}
+{#                                                        {% if outstanding is defined and outstanding is not empty %}#}
+{#                                                            {% for item in outstanding %}#}
+{#                                                                <tr>#}
+{#                                                                    <td>{{ item.agent.name }}</td>#}
+{#                                                                    <td>{{ item.actualAmount }}</td>#}
+{#                                                                    <td>{{ item.limitAmount }}</td>#}
+{#                                                                    <td align="center"><a#}
+{#                                                                                data-action="{{ path('delete_agent_outstanding_for_custom_format', {id: item.id}) }}"#}
+{#                                                                                class="btn btn-sm btn-transparent remove"><i#}
+{#                                                                                    class="fa fa-remove"></i></a></td>#}
+{#                                                                </tr>#}
+{#                                                            {% endfor %}#}
+{#                                                        {% endif %}#}
                                                     {% elseif entity.attribute.slug == 'doc-sales-collection' %}
                                                         <tr>
-                                                            <td colspan="4" style="padding: 0 !important;"
+                                                            <td colspan="2" style="padding: 0 !important;"
                                                                 align="center">
                                                                 <p class="yellow-bg p-1 m-0">{{ 'Doc Sales Collection' }}</p>
                                                             </td>
                                                         </tr>
                                                         <tr>
-                                                            <th scope="col">{{ 'Agents'|trans }}</th>
-                                                            <th scope="col" width="20%">{{ 'Sales Amount'|trans }}</th>
-                                                            <th scope="col"
-                                                                width="20%">{{ 'Collection Amount'|trans }}</th>
-                                                            <th scope="col" width="50" class="text-center"><i
-                                                                        class="feather icon-settings"></i></th>
+{#                                                            <th scope="col">{{ 'Agents'|trans }}</th>#}
+                                                            <th scope="col">{{ 'Sales Amount'|trans }}</th>
+                                                            <th scope="col">{{ 'Collection Amount'|trans }}</th>
+{#                                                            <th scope="col" width="50" class="text-center"><i class="feather icon-settings"></i></th>#}
                                                         </tr>
                                                         <tr>
+{#                                                            <td>#}
+{#                                                                <select data-action="{{ path('core_agent_search_select2') }}"#}
+{#                                                                        name="agent" class="agentSearch" id="">#}
+{#                                                                    <option value="">Select Agent</option>#}
+{#                                                                </select>#}
+{#                                                            </td>#}
                                                             <td>
-                                                                <select data-action="{{ path('core_agent_search_select2') }}"
-                                                                        name="agent" class="agentSearch" id="">
-                                                                    <option value="">Select Agent</option>
-                                                                </select>
+                                                                <input min="0" type="number" name="docSale[sale]" class="form-control" value="{% if docSale is defined %}{{ docSale.sales|default('') }}{% endif %}">
                                                             </td>
                                                             <td>
-                                                                <input min="0" type="number" name="actual-amount"
-                                                                       class="form-control" value="">
+                                                                <input min="0" type="number" name="docSale[collection]" class="form-control" value="{% if docSale is defined %}{{ docSale.collection|default('') }}{% endif %}">
                                                             </td>
-                                                            <td>
-                                                                <input min="0" type="number" name="limit-amount"
-                                                                       class="form-control" value="">
-                                                            </td>
-                                                            <td>
-                                                                <a data-action="{{ path('agent_doc_sale_for_custom_format', {board: board.id}) }}"
-                                                                   data-board-id="{{ board.id }}"
-                                                                   class="btn btn-sm green-bg white-font add_button"><i
-                                                                            class="fa fa-plus"></i> Add New</a>
+{#                                                            <td>#}
+{#                                                                <a data-action="{{ path('agent_doc_sale_for_custom_format', {board: board.id}) }}"#}
+{#                                                                   data-board-id="{{ board.id }}"#}
+{#                                                                   class="btn btn-sm green-bg white-font add_button"><i#}
+{#                                                                            class="fa fa-plus"></i> Add New</a>#}
 
-                                                            </td>
+{#                                                            </td>#}
                                                         </tr>
-                                                        {% if docSale is defined and docSale is not empty %}
-                                                            {% for item in docSale %}
-                                                                <tr>
-                                                                    <td>{{ item.agent.name }}</td>
-                                                                    <td>{{ item.sales }}</td>
-                                                                    <td>{{ item.collection }}</td>
-                                                                    <td align="center"><a
-                                                                                data-action="{{ path('delete_agent_doc_sale_for_custom_format', {id: item.id}) }}"
-                                                                                class="btn btn-sm btn-transparent remove"><i
-                                                                                    class="fa fa-remove"></i></a></td>
-                                                                </tr>
-                                                            {% endfor %}
-                                                        {% endif %}
+{#                                                        {% if docSale is defined and docSale is not empty %}#}
+{#                                                            {% for item in docSale %}#}
+{#                                                                <tr>#}
+{#                                                                    <td>{{ item.agent.name }}</td>#}
+{#                                                                    <td>{{ item.sales }}</td>#}
+{#                                                                    <td>{{ item.collection }}</td>#}
+{#                                                                    <td align="center"><a#}
+{#                                                                                data-action="{{ path('delete_agent_doc_sale_for_custom_format', {id: item.id}) }}"#}
+{#                                                                                class="btn btn-sm btn-transparent remove"><i#}
+{#                                                                                    class="fa fa-remove"></i></a></td>#}
+{#                                                                </tr>#}
+{#                                                            {% endfor %}#}
+{#                                                        {% endif %}#}
                                                     {% endif %}
                                                 {% endfor %}
                                             {% endfor %}
@@ -373,8 +366,7 @@
                                                                                     <option value="">{{ 'Select mark'|trans }}</option>
                                                                                     {% for markDis in entity.attribute.children %}
                                                                                         {% if markDis.status == 1 %}
-
-                                                                                            <option value="{{ markDis.mark }}">{{ markDis.name }}</option>
+                                                                                            <option value="{{ markDis.id }}" {% if  entity.markDistribution is not empty and entity.markDistribution.id == markDis.id %} selected="selected" {% endif %}>{{ markDis.name }}</option>
                                                                                         {% endif %}
                                                                                     {% endfor %}
                                                                                 </select>
@@ -421,7 +413,7 @@
                                                                                     <option value="">{{ 'Select mark'|trans }}</option>
                                                                                     {% for markDis in entity.attribute.children %}
                                                                                         {% if markDis.status == 1 %}
-                                                                                            <option value="{{ markDis.mark }}">{{ markDis.name }}</option>
+                                                                                            <option value="{{ markDis.id }}" {% if  entity.markDistribution is not empty and entity.markDistribution.id == markDis.id %} selected="selected" {% endif %}>{{ markDis.name }}</option>
                                                                                         {% endif %}
                                                                                     {% endfor %}
                                                                                 </select>
@@ -468,7 +460,7 @@
                                                                                     <option value="">{{ 'Select mark'|trans }}</option>
                                                                                     {% for markDis in entity.attribute.children %}
                                                                                         {% if markDis.status == 1 %}
-                                                                                            <option value="{{ markDis.mark }}">{{ markDis.name }}</option>
+                                                                                            <option value="{{ markDis.id }}" {% if  entity.markDistribution is not empty and entity.markDistribution.id == markDis.id %} selected="selected" {% endif %}>{{ markDis.name }}</option>
                                                                                         {% endif %}
                                                                                     {% endfor %}
                                                                                 </select>
@@ -515,7 +507,7 @@
                                                                                     <option value="">{{ 'Select mark'|trans }}</option>
                                                                                     {% for markDis in entity.attribute.children %}
                                                                                         {% if markDis.status == 1 %}
-                                                                                            <option value="{{ markDis.mark }}">{{ markDis.name }}</option>
+                                                                                            <option value="{{ markDis.id }}" {% if  entity.markDistribution is not empty and entity.markDistribution.id == markDis.id %} selected="selected" {% endif %}>{{ markDis.name }}</option>
                                                                                         {% endif %}
                                                                                     {% endfor %}
                                                                                 </select>
@@ -562,7 +554,7 @@
                                                                                     <option value="">{{ 'Select mark'|trans }}</option>
                                                                                     {% for markDis in entity.attribute.children %}
                                                                                         {% if markDis.status == 1 %}
-                                                                                            <option value="{{ markDis.mark }}">{{ markDis.name }}</option>
+                                                                                            <option value="{{ markDis.id }}" {% if  entity.markDistribution is not empty and entity.markDistribution.id == markDis.id %} selected="selected" {% endif %}>{{ markDis.name }}</option>
                                                                                         {% endif %}
                                                                                     {% endfor %}
                                                                                 </select>
@@ -677,67 +669,70 @@
     <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
     <script>
         //Agent Search
-        $(document).ready(function () {
-            $('.agentSearch').select2({
-                ajax: {
-                    url: Routing.generate('core_agent_search_select2'),
-                    dataType: 'json',
-                    delay: 250,
-                    type: 'GET',
-                    data: function (params) {
 
-                        return {
-                            q: params.term, // search term
-                            type: 'public'
-                        };
-                    },
-                    processResults: function (data) {
-                        var arr = [];
-                        $.each(data, function (index, value) {
-                            arr.push({
-                                id: index,
-                                text: value
-                            })
-                        })
-                        return {
-                            results: arr
-                        };
-                    },
-                    cache: true
-                },
-                escapeMarkup: function (markup) {
-                    return markup;
-                },
-                minimumInputLength: 1
-            });
-        });
+        // $(document).ready(function () {
+        //     $('.agentSearch').select2({
+        //         ajax: {
+        //             url: Routing.generate('core_agent_search_select2'),
+        //             dataType: 'json',
+        //             delay: 250,
+        //             type: 'GET',
+        //             data: function (params) {
+        //
+        //                 return {
+        //                     q: params.term, // search term
+        //                     type: 'public'
+        //                 };
+        //             },
+        //             processResults: function (data) {
+        //                 var arr = [];
+        //                 $.each(data, function (index, value) {
+        //                     arr.push({
+        //                         id: index,
+        //                         text: value
+        //                     })
+        //                 })
+        //                 return {
+        //                     results: arr
+        //                 };
+        //             },
+        //             cache: true
+        //         },
+        //         escapeMarkup: function (markup) {
+        //             return markup;
+        //         },
+        //         minimumInputLength: 1
+        //     });
+        // });
+
         //Add agent Outstanding
-        $(".add_button").bind('click', function () {
-            let element = $(this);
-            let agentId = $(this).closest('tr').find('.agentSearch').val();
-            let actualAmount = $(this).closest('tr').find('input[name="actual-amount"]').val();
-            let limitAmount = $(this).closest('tr').find('input[name="limit-amount"]').val();
-            $.ajax({
-                url: $(this).attr('data-action'),
-                type: 'POST',
-                dataType: 'json',
-                data: {agentId: agentId, actualAmount: actualAmount, limitAmount: limitAmount},
-                success: function (response) {
-                    if (response.status === 200) {
-                        // console.log('Checked');
-                        let route = Routing.generate('delete_agent_outstanding_for_custom_format', {id: response.data.id});
-                        $(
-                            '<tr>' +
-                            '<td>' + response.data.agent + '</td>' +
-                            '<td>' + actualAmount + '</td>' +
-                            '<td>' + limitAmount + '</td>' +
-                            '<td align="center"><a data-action="' + route + '" class="btn btn-sm btn-transparent remove"><i class="fa fa-remove"></i></a></td>' +
-                            '</tr>'
-                        ).insertAfter($(element).closest('tr'));
-                    }
-                }
-            })
-        });
+
+        // $(".add_button").bind('click', function () {
+        //     let element = $(this);
+        //     let agentId = $(this).closest('tr').find('.agentSearch').val();
+        //     let actualAmount = $(this).closest('tr').find('input[name="actual-amount"]').val();
+        //     let limitAmount = $(this).closest('tr').find('input[name="limit-amount"]').val();
+        //     $.ajax({
+        //         url: $(this).attr('data-action'),
+        //         type: 'POST',
+        //         dataType: 'json',
+        //         data: {agentId: agentId, actualAmount: actualAmount, limitAmount: limitAmount},
+        //         success: function (response) {
+        //             if (response.status === 200) {
+        //                 // console.log('Checked');
+        //                 let route = Routing.generate('delete_agent_outstanding_for_custom_format', {id: response.data.id});
+        //                 $(
+        //                     '<tr>' +
+        //                     '<td>' + response.data.agent + '</td>' +
+        //                     '<td>' + actualAmount + '</td>' +
+        //                     '<td>' + limitAmount + '</td>' +
+        //                     '<td align="center"><a data-action="' + route + '" class="btn btn-sm btn-transparent remove"><i class="fa fa-remove"></i></a></td>' +
+        //                     '</tr>'
+        //                 ).insertAfter($(element).closest('tr'));
+        //             }
+        //         }
+        //     })
+        // });
     </script>
 {% endblock %}
 {% block javascriptBlock %}
@@ -787,12 +782,5 @@
     window.location.href = $('#statusUpdate').attr('href');
     });
     });
-
-    {#    <script>#}
-    {#        // Agent Search#}
-
-
-
-
 
 {% endblock %}

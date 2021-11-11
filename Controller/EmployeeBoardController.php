@@ -128,12 +128,21 @@ class EmployeeBoardController extends AbstractController
             );
 
             if (empty($exist)) {
+                $districtName = null;
+                foreach ($emp->getDistrict() as $key => $district) {
+                    $districtName .= $district->getName();
+                    if ($key == array_key_last((array)$emp->getDistrict())){
+                        $districtName .= ', ';
+                    }
+                }
+
                 $em = $this->getDoctrine()->getManager();
                 $entity->setYear($year);
                 $entity->setMonth($month);
                 $entity->setProcess('created');
-                $entity->setCreated(new \DateTime());
                 $entity->setCreatedBy($this->getUser());
+                $entity->setDistrict($districtName);
+                $entity->setCreated(new \DateTime());
                 $entity->setUpdated(new \DateTime());
 
                 $em->persist($entity);
@@ -242,8 +251,8 @@ class EmployeeBoardController extends AbstractController
             $feedAndGrowthArray[$item->getMarkDistribution()->getId()]['targetQuantity'] = $item->getTargetQuantity();
             $feedAndGrowthArray[$item->getMarkDistribution()->getId()]['salesQuantity'] = $item->getSalesQuantity();
         }
-        $outstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->findBy(['employeeBoard' => $board]);
-        $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->findBy(['employeeBoard' => $board]);
+        $outstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->findOneBy(['employeeBoard' => $board]);
+        $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->findOneBy(['employeeBoard' => $board]);
 //        $skills = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findBy(['employeeBoard' => $board]);
 
         $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($board);
@@ -768,6 +777,7 @@ class EmployeeBoardController extends AbstractController
     public function customFormatSubmit(Request $request, EmployeeBoard $board)
     {
         $data = $request->request->all();
+//        dd($data);
         $em = $this->getDoctrine()->getManager();
         // Sales
         if (isset($data['sales']) && null != $data['sales']){
@@ -834,6 +844,18 @@ class EmployeeBoardController extends AbstractController
             }
         }
         // Outstanding
+        if (isset($data['outstanding']) && null != $data['outstanding']){
+            $findOutstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->findOneBy(['employeeBoard' => $board]);
+            $newOutstanding = $findOutstanding ?: new AgentOutstandingForCustomFormat();
+
+            $newOutstanding->setEmployeeBoard($board);
+            $newOutstanding->setActualAmount($data['outstanding']['actual-amount'] ?: 0);
+            $newOutstanding->setLimitAmount($data['outstanding']['limit-amount'] ?: 0);
+            $newOutstanding->setOutstanding(($data['outstanding']['limit-amount'] ?: 0) - ($data['outstanding']['actual-amount'] ?: 0));
+            $this->getDoctrine()->getManager()->persist($newOutstanding);
+            $this->getDoctrine()->getManager()->flush();
+
+        }
         $outstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->getTotalOutstanding($board);
         $outstandingMark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->outstandingLimitCalculation($board, $outstanding['total']);
 
@@ -846,6 +868,18 @@ class EmployeeBoardController extends AbstractController
         }
 
         // Doc Sale
+        if (isset($data['docSale']) && null != $data['docSale']){
+            $findDocSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->findOneBy(['employeeBoard' => $board]);
+
+            $newDocSale = $findDocSale ?: new AgentDocSaleCollectionForCustomFormat();
+
+            $newDocSale->setEmployeeBoard($board);
+            $newDocSale->setSales($data['docSale']['sale'] ?: 0);
+            $newDocSale->setCollection($data['docSale']['collection'] ?: 0);
+            $this->getDoctrine()->getManager()->persist($newDocSale);
+            $this->getDoctrine()->getManager()->flush();
+
+        }
         $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->getTotalDocSale($board);
         $docSaleMark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->docSalesCollectionCalculation($docSale['totalCollection'], $docSale['totalSales']);
 
@@ -859,43 +893,46 @@ class EmployeeBoardController extends AbstractController
 
         //Skills
         if (isset($data['skills']) && null != $data['skills']){
-            foreach ($data['skills'] as $attributeId => $mark) {
+            foreach ($data['skills'] as $attributeId => $markDistributionId) {
                 $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
                 if ($findAttribute){
                     $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
 
                     if ($boardAttribute){
-                        $boardAttribute->setMark($mark ?: 0);
+                        $findMarkDistribution = $this->getDoctrine()->getRepository(MarkChart::class)->find($markDistributionId);
+                        if ($findMarkDistribution){
+                            $boardAttribute->setMarkDistribution($findMarkDistribution);
+                            $boardAttribute->setMark($findMarkDistribution->getMark());
 
-                        $em->persist($boardAttribute);
-                        $em->flush();
+                            $em->persist($boardAttribute);
+                            $em->flush();
+                        }
+
                     }
                 }
             }
         }
         //Values
         if (isset($data['values']) && null != $data['values']){
-            foreach ($data['values'] as $attributeId => $mark) {
+            foreach ($data['values'] as $attributeId => $markDistributionId) {
                 $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
                 if ($findAttribute){
                     $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
                     if ($boardAttribute){
-                        $boardAttribute->setMark($mark ?: 0);
+                        $findMarkDistribution = $this->getDoctrine()->getRepository(MarkChart::class)->find($markDistributionId);
+                        if ($findMarkDistribution){
 
-                        $em->persist($boardAttribute);
-                        $em->flush();
+                            $boardAttribute->setMarkDistribution($findMarkDistribution);
+                            $boardAttribute->setMark($findMarkDistribution->getMark());
+
+                            $em->persist($boardAttribute);
+                            $em->flush();
+                        }
                     }
                 }
             }
         }
 
-
-
-//        dd($docSaleMark);
-
-/*        if (isset($data['outstanding']) && null != $data['outstanding']){
-            dd('outstanding');
-        }*/
         // Customer development
         $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->gradeUpdate($board);
         $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->updateOutStandingLimit($board);
@@ -909,7 +946,7 @@ class EmployeeBoardController extends AbstractController
      * @param EmployeeBoard $board
      * @return JsonResponse
      */
-    public function customFormatOutstandingInsert(Request $request, EmployeeBoard $board)
+   /* public function customFormatOutstandingInsert(Request $request, EmployeeBoard $board)
     {
         $data = $request->request->all();
         $findAgent = $this->getDoctrine()->getRepository(Agent::class)->find($data['agentId']);
@@ -943,7 +980,7 @@ class EmployeeBoardController extends AbstractController
             'status' => 500,
             'message' => 'failed'
         ]);
-    }
+    }*/
 
     /**
      * @Route("/{board}/agent-doc-sale-for-custom-format", name="agent_doc_sale_for_custom_format", options={"expose" = true})
@@ -951,7 +988,7 @@ class EmployeeBoardController extends AbstractController
      * @param EmployeeBoard $board
      * @return JsonResponse
      */
-    public function customFormatDocSaleInsert(Request $request, EmployeeBoard $board)
+ /*   public function customFormatDocSaleInsert(Request $request, EmployeeBoard $board)
     {
 
         $data = $request->request->all();
@@ -985,14 +1022,14 @@ class EmployeeBoardController extends AbstractController
             'status' => 500,
             'message' => 'failed'
         ]);
-    }
+    }*/
 
     /**
      * @Route("/{id}/delete-agent-outstanding-for-custom-format", name="delete_agent_outstanding_for_custom_format", options={"expose" = true})
      * @param AgentOutstandingForCustomFormat $id
      * @return JsonResponse
      */
-    public function customFormatOutstandingDelete(AgentOutstandingForCustomFormat $id)
+/*    public function customFormatOutstandingDelete(AgentOutstandingForCustomFormat $id)
     {
         $this->getDoctrine()->getManager()->remove($id);
         $this->getDoctrine()->getManager()->flush();
@@ -1001,14 +1038,14 @@ class EmployeeBoardController extends AbstractController
             'status' => 200,
             'message' => 'success'
         ]);
-    }
+    }*/
 
     /**
      * @Route("/{id}/delete-agent-doc-sale-for-custom-format", name="delete_agent_doc_sale_for_custom_format", options={"expose" = true})
      * @param AgentDocSaleCollectionForCustomFormat $id
      * @return JsonResponse
      */
-    public function customFormatDocSaleDelete(AgentDocSaleCollectionForCustomFormat $id)
+/*    public function customFormatDocSaleDelete(AgentDocSaleCollectionForCustomFormat $id)
     {
         $this->getDoctrine()->getManager()->remove($id);
         $this->getDoctrine()->getManager()->flush();
@@ -1017,5 +1054,5 @@ class EmployeeBoardController extends AbstractController
             'status' => 200,
             'message' => 'success'
         ]);
-    }
+    }*/
 }

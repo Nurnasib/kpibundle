@@ -99,6 +99,7 @@
                             <th scope="col">{{ 'Designation'|trans }}</th>
                             <th scope="col">{{ 'Format'|trans }}</th>
                             <th scope="col">{{ 'Line Manager'|trans }}</th>
+                            <th scope="col">{{ 'Districts'|trans }}</th>
                             <th scope="col">{{ 'Month'|trans }}</th>
                             <th scope="col">{{ 'Year'|trans }}</th>
                             <th scope="col">{{ 'Created By'|trans }}</th>
@@ -117,6 +118,7 @@
                                     <td>{{ entity.designation|default('') }}</td>
                                     <td>{{ entity.reportFormat|default('') }}</td>
                                     <td>{{ entity.lineManager|default('') }}</td>
+                                    <td>{{ entity.district|default('') }}</td>
                                     <td>{{ entity.month|default('') }}</td>
                                     <td>{{ entity.year|default('') }}</td>
                                     <td>{{ entity.createdByName|default('') }}</td>

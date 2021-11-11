@@ -110,6 +110,12 @@ class EmployeeBoard
      */
     private $grade;
 
+    /**
+     * @var string
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $district;
+
     public function setId($id)
     {
         $this->id = $id;
@@ -328,6 +334,22 @@ class EmployeeBoard
     public function setGrade($grade)
     {
         $this->grade = $grade;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDistrict(): string
+    {
+        return $this->district;
+    }
+
+    /**
+     * @param string $district
+     */
+    public function setDistrict(string $district): void
+    {
+        $this->district = $district;
     }
     
 

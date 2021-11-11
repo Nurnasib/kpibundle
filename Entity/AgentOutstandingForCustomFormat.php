@@ -26,13 +26,6 @@ class AgentOutstandingForCustomFormat
     private $id;
 
     /**
-     * @var Agent
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Agent" , inversedBy="outstanding")
-     */
-    private $agent;
-
-
-    /**
      * @var float
      * @ORM\Column( type="float", nullable=true)
      */
@@ -40,33 +33,21 @@ class AgentOutstandingForCustomFormat
     
     /**
      * @var float
-     * @ORM\Column(name="actual_amount", type="float", nullable=true)
+     * @ORM\Column(type="float", nullable=true)
      */
     private $actualAmount;
     /**
      * @var float
-     * @ORM\Column(name="outstanding", type="float", nullable=true)
+     * @ORM\Column(type="float", nullable=true)
      */
     private $outstanding;
 
     /**
      * @var $employeeBoard
-     * @ORM\ManyToOne(targetEntity="Terminalbd\KpiBundle\Entity\EmployeeBoard", inversedBy="outstandingCustomFormat")
+     * @ORM\OneToOne(targetEntity="Terminalbd\KpiBundle\Entity\EmployeeBoard")
      * @ORM\JoinColumn(referencedColumnName="id", onDelete="CASCADE")
      */
     private $employeeBoard;
-
-    /**
-     * @var string
-     * @ORM\Column(name="month", type="string", nullable=true)
-     */
-    private $month;
-
-    /**
-     * @var string
-     * @ORM\Column(name="year", type="string", nullable=true)
-     */
-    private $year;
 
     /**
      * @var \DateTime
@@ -103,22 +84,6 @@ class AgentOutstandingForCustomFormat
     public function setId(int $id): void
     {
         $this->id = $id;
-    }
-
-    /**
-     * @return Agent
-     */
-    public function getAgent(): Agent
-    {
-        return $this->agent;
-    }
-
-    /**
-     * @param Agent $agent
-     */
-    public function setAgent(Agent $agent): void
-    {
-        $this->agent = $agent;
     }
 
     /**
@@ -186,38 +151,6 @@ class AgentOutstandingForCustomFormat
     }
 
     /**
-     * @return string
-     */
-    public function getMonth(): string
-    {
-        return $this->month;
-    }
-
-    /**
-     * @param string $month
-     */
-    public function setMonth(string $month): void
-    {
-        $this->month = $month;
-    }
-
-    /**
-     * @return string
-     */
-    public function getYear(): string
-    {
-        return $this->year;
-    }
-
-    /**
-     * @param string $year
-     */
-    public function setYear(string $year): void
-    {
-        $this->year = $year;
-    }
-
-    /**
      * @return \DateTime
      */
     public function getCreatedAt(): \DateTime
@@ -264,6 +197,5 @@ class AgentOutstandingForCustomFormat
     {
         $this->status = $status;
     }
-
 
 }
