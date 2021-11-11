@@ -779,163 +779,161 @@ class EmployeeBoardController extends AbstractController
         $data = $request->request->all();
 //        dd($data);
         $em = $this->getDoctrine()->getManager();
-        // Sales
-        if (isset($data['sales']) && null != $data['sales']){
-            foreach ($data['sales'] as $attributeId => $sale) {
-                $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
-                if ($findAttribute){
-                    $subAttribute = new EmployeeBoardSubAttribute();
-                    $exist = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(['employeeBoard' => $board, 'markDistribution' => $attributeId]);
-                    if ($exist){
-                        $subAttribute = $exist;
-                    }
-                    $subAttribute->setEmployeeBoard($board);
-                    $subAttribute->setMarkDistribution($findAttribute);
-                    $subAttribute->setTargetQuantity($sale['target'] ?: 0);
-                    $subAttribute->setSalesQuantity($sale['sales'] ?: 0);
-
-                    $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesTargetCalculation($sale['target'], $sale['sales']);
-                    $subAttribute->setMark($mark);
-
-                    $em->persist($subAttribute);
-                    $em->flush();
-
-                    $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
-                    if ($boardAttribute) {
-                        $boardAttribute->setMark($mark);
-                        $em->persist($boardAttribute);
-                        $em->flush();
-                    }
-                }
-
-            }
-        }
-        // Growth
-        if (isset($data['growth']) && null != $data['growth']){
-            foreach ($data['growth'] as $attributeId => $growth) {
-                $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
-                if ($findAttribute){
-                    $subAttribute = new EmployeeBoardSubAttribute();
-                    $exist = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(['employeeBoard' => $board, 'markDistribution' => $attributeId]);
-                    if ($exist){
-                        $subAttribute = $exist;
-                    }
-                    $subAttribute->setEmployeeBoard($board);
-                    $subAttribute->setMarkDistribution($findAttribute);
-                    $subAttribute->setTargetQuantity($growth['previous'] ?: 0);
-                    $subAttribute->setSalesQuantity($growth['current'] ?: 0);
-
-                    $slug = explode('-', $findAttribute->getSlug());
-                    $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesGrowthCalculation($slug[1], $growth['previous'] ?: 0, $growth['current'] ?: 0)[$findAttribute->getSlug()];
-
-                    $subAttribute->setMark($mark);
-
-                    $em->persist($subAttribute);
-                    $em->flush();
-
-                    $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
-                    if ($boardAttribute) {
-                        $boardAttribute->setMark($mark);
-                        $em->persist($boardAttribute);
-                        $em->flush();
-                    }
-                }
-
-            }
-        }
-        // Outstanding
-        if (isset($data['outstanding']) && null != $data['outstanding']){
-            $findOutstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->findOneBy(['employeeBoard' => $board]);
-            $newOutstanding = $findOutstanding ?: new AgentOutstandingForCustomFormat();
-
-            $newOutstanding->setEmployeeBoard($board);
-            $newOutstanding->setActualAmount($data['outstanding']['actual-amount'] ?: 0);
-            $newOutstanding->setLimitAmount($data['outstanding']['limit-amount'] ?: 0);
-            $newOutstanding->setOutstanding(($data['outstanding']['limit-amount'] ?: 0) - ($data['outstanding']['actual-amount'] ?: 0));
-            $this->getDoctrine()->getManager()->persist($newOutstanding);
-            $this->getDoctrine()->getManager()->flush();
-
-        }
-        $outstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->getTotalOutstanding($board);
-        $outstandingMark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->outstandingLimitCalculation($board, $outstanding['total']);
-
-        $outstandingAttribute = $em->getRepository(MarkChart::class)->findOneBy(['slug' => 'outstanding-limit-vs-actual-feed']);
-        $findAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $outstandingAttribute]);
-        if ($findAttribute) {
-            $findAttribute->setMark($outstandingMark);
-            $em->persist($findAttribute);
-            $em->flush();
-        }
-
-        // Doc Sale
-        if (isset($data['docSale']) && null != $data['docSale']){
-            $findDocSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->findOneBy(['employeeBoard' => $board]);
-
-            $newDocSale = $findDocSale ?: new AgentDocSaleCollectionForCustomFormat();
-
-            $newDocSale->setEmployeeBoard($board);
-            $newDocSale->setSales($data['docSale']['sale'] ?: 0);
-            $newDocSale->setCollection($data['docSale']['collection'] ?: 0);
-            $this->getDoctrine()->getManager()->persist($newDocSale);
-            $this->getDoctrine()->getManager()->flush();
-
-        }
-        $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->getTotalDocSale($board);
-        $docSaleMark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->docSalesCollectionCalculation($docSale['totalCollection'], $docSale['totalSales']);
-
-        $docSaleAttribute = $em->getRepository(MarkChart::class)->findOneBy(['slug' => 'doc-sales-collection']);
-        $findAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $docSaleAttribute]);
-        if ($findAttribute) {
-            $findAttribute->setMark($docSaleMark);
-            $em->persist($findAttribute);
-            $em->flush();
-        }
-
-        //Skills
-        if (isset($data['skills']) && null != $data['skills']){
-            foreach ($data['skills'] as $attributeId => $markDistributionId) {
-                $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
-                if ($findAttribute){
-                    $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
-
-                    if ($boardAttribute){
-                        $findMarkDistribution = $this->getDoctrine()->getRepository(MarkChart::class)->find($markDistributionId);
-                        if ($findMarkDistribution){
-                            $boardAttribute->setMarkDistribution($findMarkDistribution);
-                            $boardAttribute->setMark($findMarkDistribution->getMark());
-
-                            $em->persist($boardAttribute);
-                            $em->flush();
+        foreach ($data as $key => $item) {
+            if ($key === 'sales'){
+                foreach ($item as $attributeId => $sale) {
+                    $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
+                    if ($findAttribute){
+                        $subAttribute = new EmployeeBoardSubAttribute();
+                        $exist = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(['employeeBoard' => $board, 'markDistribution' => $attributeId]);
+                        if ($exist){
+                            $subAttribute = $exist;
                         }
+                        $subAttribute->setEmployeeBoard($board);
+                        $subAttribute->setMarkDistribution($findAttribute);
+                        $subAttribute->setTargetQuantity($sale['target'] ?: 0);
+                        $subAttribute->setSalesQuantity($sale['sales'] ?: 0);
 
-                    }
-                }
-            }
-        }
-        //Values
-        if (isset($data['values']) && null != $data['values']){
-            foreach ($data['values'] as $attributeId => $markDistributionId) {
-                $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
-                if ($findAttribute){
-                    $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
-                    if ($boardAttribute){
-                        $findMarkDistribution = $this->getDoctrine()->getRepository(MarkChart::class)->find($markDistributionId);
-                        if ($findMarkDistribution){
+                        $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesTargetCalculation($sale['target'], $sale['sales']);
+                        $subAttribute->setMark($mark);
 
-                            $boardAttribute->setMarkDistribution($findMarkDistribution);
-                            $boardAttribute->setMark($findMarkDistribution->getMark());
+                        $em->persist($subAttribute);
+                        $em->flush();
 
+                        $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
+                        if ($boardAttribute) {
+                            $boardAttribute->setMark($mark);
                             $em->persist($boardAttribute);
                             $em->flush();
                         }
                     }
+
+                }
+            }elseif ($key === 'growth'){
+                foreach ($item as $attributeId => $growth) {
+                    $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
+                    if ($findAttribute){
+                        $subAttribute = new EmployeeBoardSubAttribute();
+                        $exist = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(['employeeBoard' => $board, 'markDistribution' => $attributeId]);
+                        if ($exist){
+                            $subAttribute = $exist;
+                        }
+                        $subAttribute->setEmployeeBoard($board);
+                        $subAttribute->setMarkDistribution($findAttribute);
+                        $subAttribute->setTargetQuantity($growth['previous'] ?: 0);
+                        $subAttribute->setSalesQuantity($growth['current'] ?: 0);
+
+                        $slug = explode('-', $findAttribute->getSlug());
+                        $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesGrowthCalculation($slug[1], $growth['previous'] ?: 0, $growth['current'] ?: 0)[$findAttribute->getSlug()];
+
+                        $subAttribute->setMark($mark);
+
+                        $em->persist($subAttribute);
+                        $em->flush();
+
+                        $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
+                        if ($boardAttribute) {
+                            $boardAttribute->setMark($mark);
+                            $em->persist($boardAttribute);
+                            $em->flush();
+                        }
+                    }
+
+                }
+
+            }elseif ($key === 'outstanding'){
+                $findOutstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->findOneBy(['employeeBoard' => $board]);
+                $newOutstanding = $findOutstanding ?: new AgentOutstandingForCustomFormat();
+
+                $newOutstanding->setEmployeeBoard($board);
+                $newOutstanding->setActualAmount($item['actual-amount'] ?: 0);
+                $newOutstanding->setLimitAmount($item['limit-amount'] ?: 0);
+                $newOutstanding->setOutstanding(($item['limit-amount'] ?: 0) - ($item['actual-amount'] ?: 0));
+                $this->getDoctrine()->getManager()->persist($newOutstanding);
+                $this->getDoctrine()->getManager()->flush();
+
+                $outstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->findOneBy(['employeeBoard' => $board]);
+                $outstandingMark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->outstandingLimitCalculation($board, $outstanding->getOutstanding());
+
+                $outstandingAttribute = $em->getRepository(MarkChart::class)->findOneBy(['slug' => 'outstanding-limit-vs-actual-feed']);
+                $findOutstandingAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $outstandingAttribute]);
+
+                if ($findOutstandingAttribute) {
+                    $findOutstandingAttribute->setMark($outstandingMark);
+                    $em->persist($findOutstandingAttribute);
+                    $em->flush();
+//                    dd($findOutstandingAttribute->getMark());
+                }
+
+            }elseif ($key === 'docSale'){
+                $findDocSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->findOneBy(['employeeBoard' => $board]);
+
+                $newDocSale = $findDocSale ?: new AgentDocSaleCollectionForCustomFormat();
+
+                $newDocSale->setEmployeeBoard($board);
+                $newDocSale->setSales($item['sale'] ?: 0);
+                $newDocSale->setCollection($item['collection'] ?: 0);
+                $this->getDoctrine()->getManager()->persist($newDocSale);
+                $this->getDoctrine()->getManager()->flush();
+
+                $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->getTotalDocSale($board);
+                $docSaleMark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->docSalesCollectionCalculation($docSale['totalCollection'], $docSale['totalSales']);
+
+                $docSaleAttribute = $em->getRepository(MarkChart::class)->findOneBy(['slug' => 'doc-sales-collection']);
+                $findDocSaleAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $docSaleAttribute]);
+                if ($findDocSaleAttribute) {
+                    $findDocSaleAttribute->setMark($docSaleMark);
+                    $em->persist($findDocSaleAttribute);
+                    $em->flush();
+                }
+
+            }elseif ($key === 'skills'){
+                foreach ($item as $attributeId => $markDistributionId) {
+                    $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
+                    if ($findAttribute){
+                        $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
+
+                        if ($boardAttribute){
+                            $findMarkDistribution = $this->getDoctrine()->getRepository(MarkChart::class)->find($markDistributionId);
+                            if ($findMarkDistribution){
+                                $boardAttribute->setMarkDistribution($findMarkDistribution);
+                                $boardAttribute->setMark($findMarkDistribution->getMark());
+
+                                $em->persist($boardAttribute);
+                                $em->flush();
+                            }
+
+                        }
+                    }
+                }
+            }elseif ($key === 'values'){
+                foreach ($item as $attributeId => $markDistributionId) {
+                    $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
+                    if ($findAttribute){
+                        $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
+                        if ($boardAttribute){
+                            $findMarkDistribution = $this->getDoctrine()->getRepository(MarkChart::class)->find($markDistributionId);
+                            if ($findMarkDistribution){
+
+                                $boardAttribute->setMarkDistribution($findMarkDistribution);
+                                $boardAttribute->setMark($findMarkDistribution->getMark());
+
+                                $em->persist($boardAttribute);
+                                $em->flush();
+                            }
+                        }
+                    }
                 }
             }
+//            elseif ($key === 'customerDevelopment'){
+//
+//
+//            }
         }
 
         // Customer development
         $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->gradeUpdate($board);
-        $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->updateOutStandingLimit($board);
+//        $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->updateOutStandingLimit($board);
 
         return $this->redirectToRoute('kpi_details_report', ['id' => $board->getId()]);
     }

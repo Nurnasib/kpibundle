@@ -23,12 +23,12 @@ use Doctrine\ORM\EntityRepository;
  */
 class AgentOutstandingForCustomFormatRepository extends EntityRepository
 {
-    public function getTotalOutstanding($board)
+/*    public function getTotalOutstanding($board)
     {
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.employeeBoard', 'employeeBoard');
         $qb->select('SUM(e.outstanding) AS total');
         $qb->where('employeeBoard.id =:boardId')->setParameter('boardId', $board->getId());
         return $qb->getQuery()->getOneOrNullResult();
-    }
+    }*/
 }
