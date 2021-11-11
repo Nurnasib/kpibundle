@@ -242,7 +242,7 @@ class EmployeeBoardController extends AbstractController
 
     public function editCustomFormat(Request $request, EmployeeBoard $board): Response
     {
-        if ($board->getApprovedBy() && !in_array('ROLE_ADMIN', $this->getUser()->getRoles())){
+        if ($board->getApprovedBy()){
             return $this->redirectToRoute('kpi_employee_board');
         }
         $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->findBy(['employeeBoard' => $board]);
