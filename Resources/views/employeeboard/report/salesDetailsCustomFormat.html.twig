@@ -21,11 +21,11 @@
         <div class="row">
             <div class="card">
                 <div class="card-header">
-                    <h5>{{ 'KPI Summary for '|trans }}: {{ board.employee.name }}</h5>
+                    <h5>{{ 'KPI Achievement for '|trans }}: {{ board.employee.name }}</h5>
                     <div class="card-header-right">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
                             <a href="{{ path('kpi_employee_board') }}" class="btn btn-sm gray-bg white-font"><i
-                                        class="fa fa-th-list"></i>{{ 'Employee Board'|trans }}</a>
+                                        class="fa fa-th-list"></i>{{ 'KPI Board'|trans }}</a>
                             <a href="{{ path('kpi_details_report',{'id':board.id}) }}"
                                class="btn btn-sm green-bg white-font"><i
                                         class="fa fa-th-list"></i>{{ 'KPI Details'|trans }}</a>
@@ -39,7 +39,7 @@
             <div class="card">
                 <div class="portlet box green ">
                     <div class="portlet-title">
-                        <div class="caption">{{ 'KPI Summary for '|trans }}: {{ board.employee.name }} </div>
+                        <div class="caption">{{ 'KPI Achievement for '|trans }}: {{ board.employee.name }} </div>
                         <div class="btn-group float-right">
                             <a href="{{ path('kpi_report_sales_achievement_custom_format', {id: board.id, mode: 'pdf'}) }}"
                                target="_blank" class="btn purple-bg white-font"><i class="fa fa-file-pdf"></i> PDF</a>

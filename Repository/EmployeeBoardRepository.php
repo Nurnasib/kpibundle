@@ -66,12 +66,12 @@ class EmployeeBoardRepository extends EntityRepository
         $qb->leftJoin('s.createdBy', 'createdBy');
         $qb->leftJoin('s.approvedBy', 'approvedBy');
         $qb->leftJoin('u.reportMode', 'reportMode');
-        $qb->select('s.id as id','s.month as month','s.year as year','s.status','s.created');
+        $qb->select('s.id as id','s.month as month','s.year as year','s.status','s.created','s.district');
         $qb->addSelect('u.name as name','d.name as designation');
         $qb->addSelect('lm.name as lineManager');
         $qb->addSelect('createdBy.name AS createdByName');
         $qb->addSelect('approvedBy.name AS approvedByName');
-        $qb->addSelect('reportMode.name AS reportFormat');
+        $qb->addSelect('reportMode.name AS reportFormat','reportMode.slug AS reportFormatSlug');
 
         if ($filterBy['employee']){
             $qb->andWhere('u.id = :employeeId')->setParameter('employeeId', $filterBy['employee']->getId());
