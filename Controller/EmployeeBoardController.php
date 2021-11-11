@@ -157,9 +157,9 @@ class EmployeeBoardController extends AbstractController
                 }
             }else{
                 if ($format == 'custom-format'){
-                    return $this->redirectToRoute('kpi_employee_board_edit_custom_format',array('id' => $entity->getId()));
+                    return $this->redirectToRoute('kpi_employee_board_edit_custom_format',array('id' => $exist->getId()));
                 }else{
-                    return $this->redirectToRoute('kpi_employee_board_edit',array('id'=>$exist->getId()));
+                    return $this->redirectToRoute('kpi_employee_board_edit',array('id' => $exist->getId()));
                 }
             }
         }
