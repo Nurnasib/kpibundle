@@ -116,6 +116,11 @@ class EmployeeBoard
      */
     private $district;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Setting")
+     */
+    protected $reportMode;
+
     public function setId($id)
     {
         $this->id = $id;
@@ -351,7 +356,22 @@ class EmployeeBoard
     {
         $this->district = $district;
     }
-    
+
+    /**
+     * @return mixed
+     */
+    public function getReportMode()
+    {
+        return $this->reportMode;
+    }
+
+    /**
+     * @param mixed $reportMode
+     */
+    public function setReportMode($reportMode): void
+    {
+        $this->reportMode = $reportMode;
+    }
 
 
 }

@@ -38,7 +38,8 @@ class EmployeeBoardRepository extends EntityRepository
         $qb->leftJoin('u.designation','d');
         $qb->leftJoin('s.createdBy', 'createdBy');
         $qb->leftJoin('s.approvedBy', 'approvedBy');
-        $qb->leftJoin('u.reportMode', 'reportMode');
+//        $qb->leftJoin('u.reportMode', 'reportMode');
+        $qb->leftJoin('s.reportMode', 'reportMode');
         $qb->select('s.id as id','s.month as month','s.year as year','s.status','s.created', 's.district');
         $qb->addSelect('u.name as name','d.name as designation');
         $qb->addSelect('lm.name as lineManager');
@@ -51,8 +52,14 @@ class EmployeeBoardRepository extends EntityRepository
             $qb->where('s.createdBy = :user')->setParameter('user', $user);
         }
         $qb->orderBy('s.created','DESC');
-        $result = $qb->getQuery()->getArrayResult();
-        return $result;
+        $results = $qb->getQuery()->getArrayResult();
+        $data = [];
+        foreach ($results as $key=>$result) {
+            $arr = json_decode($result['district'], true);
+            $data[$key] = $result;
+            $data[$key]['district'] = $arr ? implode(', ', $arr) : '';
+        }
+        return $data;
 
     }
 

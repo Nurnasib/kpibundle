@@ -72,6 +72,8 @@ class EmployeeBoardController extends AbstractController
         $lineManagers = $userRepository->getLineManager();
         $user = $this->getUser();
         $entities = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getEmployeeBoardList($user);
+//        $entities = $this->getDoctrine()->getRepository(EmployeeBoard::class)->find(197);
+//        dd($entities->getDistrict());
         $form = $this->createForm(KpiBoardSearchFilterFormType::class,null, ['user' => $user, 'lineManagers' => $lineManagers]);
         $form->handleRequest($request);
         if ($form->isSubmitted()){
@@ -124,24 +126,26 @@ class EmployeeBoardController extends AbstractController
             }
 
             $exist = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findOneBy(
-                array('employee' => $employee,'month'=>$month, 'year'=>$year)
+                array('employee' => $employee,'month'=>$month, 'year'=>$year, 'reportMode'=>$emp->getReportMode())
             );
 
             if (empty($exist)) {
-                $districtName = null;
+                $districts = null;
                 foreach ($emp->getDistrict() as $key => $district) {
-                    $districtName .= $district->getName();
-                    if ($key == array_key_last((array)$emp->getDistrict())){
-                        $districtName .= ', ';
-                    }
+//                    $districtName .= $district->getName();
+                    $districts[$district->getId()] = $district->getName();
+//                    if ($key != array_key_last((array)$emp->getDistrict())){
+//                        $districtName .= ', ';
+//                    }
                 }
 
                 $em = $this->getDoctrine()->getManager();
                 $entity->setYear($year);
                 $entity->setMonth($month);
                 $entity->setProcess('created');
+                $entity->setReportMode($emp->getReportMode());
                 $entity->setCreatedBy($this->getUser());
-                $entity->setDistrict($districtName);
+                $entity->setDistrict(json_encode($districts));
                 $entity->setCreated(new \DateTime());
                 $entity->setUpdated(new \DateTime());
 
@@ -225,6 +229,14 @@ class EmployeeBoardController extends AbstractController
         foreach ($boardAttributes as $boardAttribute){
             $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][]=$boardAttribute;
         }
+
+        $districts = null;
+        foreach ($entity->getEmployee()->getDistrict() as $key => $district) {
+            $districts[$district->getId()] = $district->getName();
+        }
+        $entity->setDistrict(json_encode($districts));
+        $em->persist($entity);
+        $em->flush();
         return $this->render('@TerminalbdKpi/employeeboard/new.html.twig', [
             'board' => $entity,
             'arrayData' => $arrayData,
@@ -261,6 +273,15 @@ class EmployeeBoardController extends AbstractController
         foreach ($boardAttributes as $boardAttribute){
             $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][]=$boardAttribute;
         }
+
+        $districts = null;
+        foreach ($board->getEmployee()->getDistrict() as $key => $district) {
+            $districts[$district->getId()] = $district->getName();
+        }
+        $board->setDistrict(json_encode($districts));
+        $this->getDoctrine()->getManager()->persist($board);
+        $this->getDoctrine()->getManager()->flush();
+
         return $this->render('@TerminalbdKpi/employeeboard/custom-format/new.html.twig', [
             'board' => $board,
             'arrayData' => $arrayData,

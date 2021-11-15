@@ -144,6 +144,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
         $this->agentSalesGrowth($board);
         $this->gradeUpdate($board);
+
     }
 
     public function insertMarkDistributionForCustomFormat(EmployeeBoard $board, $entities)
@@ -191,6 +192,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 //        $this->updateCategoryUpgrade($board);
 //        $this->agentSalesGrowth($board);
         $this->gradeUpdate($board);
+
     }
 
     public function gradeUpdate(EmployeeBoard $board)
