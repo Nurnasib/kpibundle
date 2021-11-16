@@ -72,8 +72,6 @@ class EmployeeBoardController extends AbstractController
         $lineManagers = $userRepository->getLineManager();
         $user = $this->getUser();
         $entities = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getEmployeeBoardList($user);
-//        $entities = $this->getDoctrine()->getRepository(EmployeeBoard::class)->find(197);
-//        dd($entities->getDistrict());
         $form = $this->createForm(KpiBoardSearchFilterFormType::class,null, ['user' => $user, 'lineManagers' => $lineManagers]);
         $form->handleRequest($request);
         if ($form->isSubmitted()){

@@ -86,7 +86,7 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
     {
         $em = $this->_em;
 
-        $query = "SELECT * FROM kpi_employee_district_history WHERE id IN (SELECT MAX(id) FROM kpi_employee_district_history WHERE employee_id = :employeeId GROUP BY month,year)";
+        $query = "SELECT * FROM kpi_employee_district_history WHERE employee_id = :employeeId";
 
         $stmt = $em->getConnection()->prepare($query);
         $stmt->bindValue('employeeId', $employee->getId());
@@ -94,8 +94,9 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
         $records =  $stmt->fetchAll();
         $data = [];
         foreach ($records as $record) {
-
+            $arr = json_decode($record['district'], true);
             $data[$record['year'].'-'.$record['month']] = $record;
+            $data[$record['year'].'-'.$record['month']]['district'] = $arr ? implode(', ', $arr) : '';
         }
         return $data;
     }

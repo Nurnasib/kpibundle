@@ -29,6 +29,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Terminalbd\CrmBundle\Entity\Employee;
 use Terminalbd\KpiBundle\Entity\EmployeeDistrictHistory;
 use Terminalbd\KpiBundle\Entity\EmployeeReportFormatHistory;
 use Terminalbd\KpiBundle\Form\EditEmployeeFormType;
@@ -149,9 +150,7 @@ class EmployeeController extends AbstractController
         if ($form->isSubmitted()) {
 
             $em = $this->getDoctrine()->getManager();
-            $lastAssignDistrict = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $post], ['id' => 'DESC']);
             $lastAssignReportFormat = $this->getDoctrine()->getRepository(EmployeeReportFormatHistory::class)->findOneBy(['employee' => $post], ['id' => 'DESC']);
-            $districts = $form->getData()->getDistrict();
             $reportFormat = $form->getData()->getReportMode();
 
             $transferJoiningMonth = null;
@@ -161,20 +160,24 @@ class EmployeeController extends AbstractController
                 $transferJoiningYear = (new \DateTime($form['transferJoiningDate']->getData()))->format('Y');
 
             }
-            $districtNameArray = [];
-            foreach ($districts as $district){
-                $districtNameArray[]= $district->getName();
-            }
-            $districtsName = implode(', ',$districtNameArray);
+            $districts = null;
 
-            if (($lastAssignDistrict == null || $lastAssignDistrict->getDistrict() != $districtsName) && $transferJoiningMonth){
-                $districtHistory = new EmployeeDistrictHistory();
+            foreach ($form->getData()->getDistrict() as $district){
+                $districts[$district->getId()]= $district->getName();
+            }
+
+            if ($transferJoiningMonth){
+
+                $findHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $post, 'month' => $transferJoiningMonth, 'year' => $transferJoiningYear]);
+
+                $districtHistory = $findHistory ?: new EmployeeDistrictHistory();
 
                 $districtHistory->setEmployee($post);
-                $districtHistory->setDistrict($districtsName);
+                $districtHistory->setDistrict(json_encode($districts));
                 $districtHistory->setMonth($transferJoiningMonth);
                 $districtHistory->setYear($transferJoiningYear);
                 $districtHistory->setUpdatedBy($this->getUser());
+                $districtHistory->setUpdatedAt(new \DateTime('now'));
                 $em->persist($districtHistory);
             }
 
@@ -475,6 +478,39 @@ class EmployeeController extends AbstractController
             'districtHistory' => $districtHistory,
         ]);
         return new JsonResponse(array('html'=>$html));
+    }
+
+    /**
+     * @Route("/district/history/process", name="district_process")
+     * @Security("is_granted('ROLE_DEVELOPER')")
+     */
+    public function districtProcess()
+    {
+        $users = $this->getDoctrine()->getRepository(User::class)->findBy(['userGroup' => 9, 'enabled' => 1, 'userMode' => ['KPI']]);
+        $data = null;
+        foreach ($users as $user) {
+            $districts = null;
+
+           foreach ($user->getDistrict() as $district) {
+                $districts[$district->getId()] = $district->getName();
+            }
+                for ($i = 1; $i <= 12; $i++){
+                    $date = "01-$i-2021";
+                    $month = (new \DateTime($date))->format('F');
+
+                    $sql = "INSERT INTO `kpi_employee_district_history`(`employee_id`, `district`, `month`, `year`, `created_at`, `updated_at`) VALUES (:employee_id, :district, :month, :year, :created_at, :updated_at)";
+                    $stmt = $this->getDoctrine()->getConnection()->prepare($sql);
+                    $stmt->bindValue('employee_id', $user->getId());
+                    $stmt->bindValue('district', json_encode($districts));
+                    $stmt->bindValue('month', $month);
+                    $stmt->bindValue('year', 2021);
+                    $stmt->bindValue('created_at', (new \DateTime('now'))->format('Y-m-d H:i:s'));
+                    $stmt->bindValue('updated_at', (new \DateTime('now'))->format('Y-m-d H:i:s'));
+                    $stmt->execute();
+                }
+        }
+
+        return new JsonResponse(['success']);
     }
 
 

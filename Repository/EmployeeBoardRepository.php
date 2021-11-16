@@ -53,6 +53,7 @@ class EmployeeBoardRepository extends EntityRepository
         }
         $qb->orderBy('s.created','DESC');
         $results = $qb->getQuery()->getArrayResult();
+
         $data = [];
         foreach ($results as $key=>$result) {
             $arr = json_decode($result['district'], true);
@@ -105,6 +106,7 @@ class EmployeeBoardRepository extends EntityRepository
             $qb->andWhere('s.createdBy = :user')->setParameter('user', $user);
         }
         $qb->orderBy('s.created','DESC');
+        dd($qb->getQuery()->getArrayResult());
         return $qb->getQuery()->getArrayResult();
 
     }

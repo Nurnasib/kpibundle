@@ -47,13 +47,13 @@ class EmployeeFilterFormType extends AbstractType
                 if (!in_array('ROLE_ADMIN', $loginUser->getRoles())){
                     return $er->createQueryBuilder('e')
                         ->join('e.lineManager','lineManager')
-                        ->where('e.enabled =1')
+//                        ->where('e.enabled =1')
                         ->andWhere("e.userMode = 'KPI'")
                         ->andWhere('lineManager.id = :lineManagerId')->setParameter('lineManagerId', $loginUser->getId())
                         ->orderBy('e.name', 'ASC');
                 }else{
                     return $er->createQueryBuilder('e')
-                        ->where('e.enabled =1')
+//                        ->where('e.enabled =1')
                         ->andWhere("e.userMode = 'KPI'")
                         ->orderBy('e.name', 'ASC');
                 }
