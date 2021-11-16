@@ -497,13 +497,14 @@ class EmployeeController extends AbstractController
                 for ($i = 1; $i <= 12; $i++){
                     $date = "01-$i-2021";
                     $month = (new \DateTime($date))->format('F');
+                    $year = (new \DateTime('now'))->format('Y');
 
                     $sql = "INSERT INTO `kpi_employee_district_history`(`employee_id`, `district`, `month`, `year`, `created_at`, `updated_at`) VALUES (:employee_id, :district, :month, :year, :created_at, :updated_at)";
                     $stmt = $this->getDoctrine()->getConnection()->prepare($sql);
                     $stmt->bindValue('employee_id', $user->getId());
                     $stmt->bindValue('district', json_encode($districts));
                     $stmt->bindValue('month', $month);
-                    $stmt->bindValue('year', 2021);
+                    $stmt->bindValue('year', $year);
                     $stmt->bindValue('created_at', (new \DateTime('now'))->format('Y-m-d H:i:s'));
                     $stmt->bindValue('updated_at', (new \DateTime('now'))->format('Y-m-d H:i:s'));
                     $stmt->execute();
