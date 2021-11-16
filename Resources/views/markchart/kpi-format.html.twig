@@ -71,7 +71,9 @@
                                     <th scope="col">Marks</th>
                                     <th scope="col" style="width: 27%">Mark Distribution</th>
                                     <th scope="col">Obtain Marks</th>
-                                    <th scope="col">Ordering</th>
+                                    {% if is_granted('ROLE_DEVELOPER') %}
+                                        <th scope="col">Ordering</th>
+                                    {% endif %}
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -103,9 +105,11 @@
                                                     </ul>
                                                 </td>
                                                 <td class="attribute-score" id="markDistribution">0</td>
-                                                <td>
-                                                    <input data-product-id="" type="number" data-action="{{ path('kpi_markchart_format_ordering',{'id':entity.id}) }}" data-index="" class="form-control sortingValue" data-id="{{ entity.id }}" name="" value="{{ entity.ordering?entity.ordering:'' }}" >
-                                                </td>
+                                                {% if is_granted('ROLE_DEVELOPER') %}
+                                                    <td>
+                                                        <input data-product-id="" type="number" data-action="{{ path('kpi_markchart_format_ordering',{'id':entity.id}) }}" data-index="" class="form-control sortingValue" data-id="{{ entity.id }}" name="" value="{{ entity.ordering?entity.ordering:'' }}" >
+                                                    </td>
+                                                {% endif %}
                                             </tr>
                                             {% set countActity=0 %}
                                             {% set count=count+1 %}
