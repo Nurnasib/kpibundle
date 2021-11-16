@@ -57,4 +57,7 @@
             </ul>
         </li>
     {% endif %}
+    {% if is_granted('ROLE_DEVELOPER') %}
+        <li><a class="dropdown-item" href="{{ path('district_history_process') }}">Process District History</a></li>
+    {% endif %}
 </ul>

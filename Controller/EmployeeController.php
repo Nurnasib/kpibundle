@@ -481,7 +481,7 @@ class EmployeeController extends AbstractController
     }
 
     /**
-     * @Route("/district/history/process", name="district_process")
+     * @Route("/district/history/process", name="district_history_process")
      * @Security("is_granted('ROLE_DEVELOPER')")
      */
     public function districtProcess()
@@ -509,8 +509,8 @@ class EmployeeController extends AbstractController
                     $stmt->execute();
                 }
         }
-
-        return new JsonResponse(['success']);
+        $this->addFlash('success', 'District history updated!');
+        return $this->redirectToRoute('kpi_employee');
     }
 
 
