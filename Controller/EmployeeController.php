@@ -486,7 +486,7 @@ class EmployeeController extends AbstractController
      */
     public function districtProcess()
     {
-        $users = $this->getDoctrine()->getRepository(User::class)->findBy(['userGroup' => [8,9], 'enabled' => 1, 'userMode' => ['KPI']]);
+        $users = $this->getDoctrine()->getRepository(User::class)->findBy(['userGroup' => [8,9], 'userMode' => ['KPI']]);
         $data = null;
         foreach ($users as $user) {
             $districts = null;
