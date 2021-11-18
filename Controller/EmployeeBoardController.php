@@ -1072,4 +1072,21 @@ class EmployeeBoardController extends AbstractController
             'message' => 'success'
         ]);
     }*/
+
+
+    /**
+     * @Route("/update/report-format", name="update_report_format")
+     * @Security("is_granted('ROLE_DEVELOPER')")
+     */
+    public function processReportFormat()
+    {
+        $records = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findAll();
+        foreach ($records as $record) {
+            $record->setReportMode($record->getEmployee()->getReportMode());
+            $this->getDoctrine()->getManager()->persist($record);
+            $this->getDoctrine()->getManager()->flush();
+
+        }
+        return $this->redirectToRoute('kpi_employee_board');
+    }
 }
