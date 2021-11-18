@@ -65,7 +65,7 @@ table.district-history thead {
             </tr>
             <tr>
                 <td>Joining Date: </td>
-                <td>{{ employee.joiningDate|date('d-m-Y') }}</td>
+                <td>{{ employee.joiningDate ? employee.joiningDate|date('d-m-Y') : '' }}</td>
             </tr>
             </tbody>
         </table>
