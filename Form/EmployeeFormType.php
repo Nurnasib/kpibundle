@@ -269,7 +269,7 @@ class EmployeeFormType extends AbstractType
                 },
             ))
 
-/*
+
             ->add('zonal', EntityType::class, array(
                 'required'    => false,
                 'class' => Location::class,
@@ -296,6 +296,7 @@ class EmployeeFormType extends AbstractType
                         ->orderBy('e.name', 'ASC');
                 },
             ))
+            /*
             ->add('area', ChoiceType::class, [
                 'choices'  => [
                     'Zonal' => 'Zonal',
