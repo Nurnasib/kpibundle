@@ -67,20 +67,15 @@
                                 <th>
                                     <ul class="header-info">
                                         <li>Name of the Employee: {{ board.employee.name }}</li>
-                                        <li>Date of
-                                            Joining: {% if board.employee is not empty %}{{ board.employee.joiningDate|date('d-m-Y') }}{% endif %}</li>
-                                        <li>Line
-                                            Manager: {% if board.employee.lineManager is not empty %}{{ board.employee.lineManager.name }}{% endif %}</li>
-                                        <li>
-                                            ZONE: {% if board.employee.zonal is not empty %}{{ board.employee.zonal.name }}{% endif %}</li>
+                                        <li>Date of Joining: {% if board.employee is not empty %}{{ board.employee.joiningDate|date('d-m-Y') }}{% endif %}</li>
+                                        <li>Line Manager: {% if board.employee.lineManager is not empty %}{{ board.employee.lineManager.name }}{% endif %}</li>
+                                        <li>Format: {{ board.reportMode.name|default('') }}</li>
                                     </ul>
                                 </th>
                                 <th>
                                     <ul class="header-info">
-                                        <li>Emp
-                                            ID: {% if board.employee is not empty %}{{ board.employee.userId }}{% endif %}</li>
-                                        <li>
-                                            Designation: {% if board.employee.designation is not empty %}{{ board.employee.designation.name }}{% endif %}</li>
+                                        <li>Emp ID: {% if board.employee is not empty %}{{ board.employee.userId }}{% endif %}</li>
+                                        <li>Designation: {% if board.employee.designation is not empty %}{{ board.employee.designation.name }}{% endif %}</li>
                                     </ul>
                                 </th>
                             </tr>

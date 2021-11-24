@@ -70,7 +70,7 @@
                                                     <li>Name of the Employee: {{ board.employee.name }}</li>
                                                     <li>Date of Joining: {% if board.employee is not empty %}{{ board.employee.joiningDate|date('d-m-Y') }}{% endif %}</li>
                                                     <li>Line Manager: {% if board.employee.lineManager is not empty %}{{ board.employee.lineManager.name }}{% endif %}</li>
-                                                    <li>ZONE: {% if board.employee.zonal is not empty %}{{ board.employee.zonal.name }}{% endif %}</li>
+                                                    <li>Format: {{ board.reportMode.name|default('') }}</li>
                                                 </ul>
                                             </th>
                                             <th>

@@ -194,45 +194,45 @@ class EditEmployeeFormType extends AbstractType
                         ->orderBy('e.name', 'ASC');
                 },
             ))
+            /*
+                        ->add('zonal', EntityType::class, array(
+                            'required'    => false,
+                            'class' => Location::class,
+                            'placeholder' => 'Choose a zonal area',
+                            'choice_label' => 'name',
+                            'attr'=>array('class'=>'span12 m-wrap select2'),
+                            'query_builder' => function(EntityRepository $er){
+                                return $er->createQueryBuilder('e')
+                                    ->where("e.level = 2")
+                                    ->orderBy('e.name', 'ASC');
+                            },
+                        ))
 
-            ->add('zonal', EntityType::class, array(
-                'required'    => false,
-                'class' => Location::class,
-                'placeholder' => 'Choose a zonal area',
-                'choice_label' => 'name',
-                'attr'=>array('class'=>'span12 m-wrap select2'),
-                'query_builder' => function(EntityRepository $er){
-                    return $er->createQueryBuilder('e')
-                        ->where("e.level = 2")
-                        ->orderBy('e.name', 'ASC');
-                },
-            ))
 
+                        ->add('regional', EntityType::class, array(
+                            'required'    => false,
+                            'class' => Location::class,
+                            'placeholder' => 'Choose a regional area',
+                            'choice_label' => 'name',
+                            'group_by'  => 'parent.name',
+                            'choice_translation_domain' => true,
+                            'attr'=>array('class'=>'span12 m-wrap select2'),
+                            'query_builder' => function(EntityRepository $er){
+                                return $er->createQueryBuilder('e')
+                                    ->where("e.level = 3")
+                                    ->orderBy('e.name', 'ASC');
+                            },
+                        ))
 
-            ->add('regional', EntityType::class, array(
-                'required'    => false,
-                'class' => Location::class,
-                'placeholder' => 'Choose a regional area',
-                'choice_label' => 'name',
-                'group_by'  => 'parent.name',
-                'choice_translation_domain' => true,
-                'attr'=>array('class'=>'span12 m-wrap select2'),
-                'query_builder' => function(EntityRepository $er){
-                    return $er->createQueryBuilder('e')
-                        ->where("e.level = 3")
-                        ->orderBy('e.name', 'ASC');
-                },
-            ))
-/*
-            ->add('area', ChoiceType::class, [
-                'choices'  => [
-                    'Zonal' => 'Zonal',
-                    'Regional' => 'Regional',
-                    'District' => 'District',
-                    'Upozila' => 'Upozila',
-                ],
-            ])
-            */
+                        ->add('area', ChoiceType::class, [
+                            'choices'  => [
+                                'Zonal' => 'Zonal',
+                                'Regional' => 'Regional',
+                                'District' => 'District',
+                                'Upozila' => 'Upozila',
+                            ],
+                        ])
+                        */
             ->add('district', EntityType::class, [
                 'class' => Location::class,
                 'multiple' => true,
