@@ -41,7 +41,7 @@ class ApiController extends AbstractController
 
 
     /**
-     * @Route("kpi/api/agent", name="crm_api_agent")
+     * @Route("kpi/api/agent", name="kpi_api_agent")
      */
     public function apiAgent()
     {
@@ -54,28 +54,6 @@ class ApiController extends AbstractController
         $response = json_decode($get_data, true);
         $this->getDoctrine()->getRepository(Agent::class)->apiInsert($response);
         return $this->render('@TerminalbdCrm/default/index.html.twig');
-    }
-
-
-    /**
-     * @Route("kpi/api/agent", name="crm_api_order")
-     */
-
-    public function apiOrder()
-    {
-        set_time_limit(0);
-        ignore_user_abort(true);
-        $api = new Api();
-        $method = 'get';
-        $url = "http://www.cashbook.local/api-nourish.php?action=agent";
-        $get_data = $api->callAPI($method, $url, false);
-        $response = json_decode($get_data, true);
-        //  $errors = $response['response']['errors'];
-        $data = $response;
-        echo "<pre>";
-        var_dump($data);
-        exit;
-        //  return $this->render('@TerminalbdCrm/default/bank-satement.html.twig');
     }
 
     /**
