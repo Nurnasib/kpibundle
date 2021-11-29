@@ -30,7 +30,7 @@ class ApiController extends AbstractController
         ignore_user_abort(true);
         $api = new Api();
         $method = 'get';
-        $url = "http://www.cashbook.local/api-nourish.php?action=location";
+        $url = "http://139.180.156.187:88/api-nourish.php?action=location";
         $get_data = $api->callAPI($method, $url, false);
         $response = json_decode($get_data, true);
         //  $errors = $response['response']['errors'];
@@ -49,7 +49,7 @@ class ApiController extends AbstractController
         ignore_user_abort(true);
         $api = new Api();
         $method = 'get';
-        $url = "http://www.cashbook.local/api-nourish.php?action=agent";
+        $url = "http://139.180.156.187:88/api-nourish.php?action=agent";
         $get_data = $api->callAPI($method, $url, false);
         $response = json_decode($get_data, true);
         $this->getDoctrine()->getRepository(Agent::class)->apiInsert($response);
@@ -66,7 +66,7 @@ class ApiController extends AbstractController
         ignore_user_abort(true);
         $api = new Api();
         $method = 'get';
-        $url = "http://www.cashbook.local/api-nourish.php?action=order-item";
+        $url = "http://139.180.156.187:88/api-nourish.php?action=order-item";
         $get_data = $api->callAPI($method, $url, false);
         $response = json_decode($get_data, true);
         $this->getDoctrine()->getRepository(LocationSalesTarget::class)->apiInsert($response);
