@@ -14,9 +14,7 @@
     {% if is_granted('ROLE_ADMIN') %}
         <li><a class="dropdown-item" href="{{ path('kpi_markchart_matrix') }}">{{ 'KPI Format'|trans }}</a>
             <ul>
-                {% if is_granted('ROLE_ADMIN') %}
-                    <li><a class="dropdown-item" href="{{ path('kpi_markchart') }}">{{ 'Mark Chart'|trans }}</a></li>
-                {% endif %}
+                <li><a class="dropdown-item" href="{{ path('kpi_markchart') }}">{{ 'Mark Chart'|trans }}</a></li>
                 {% if modes is not empty %}
                     {% for mode in modes %}
                         <li><a href="{{ path('kpi_markchart_matrix',{'slug':mode.slug}) }}">{{ mode.name }}</a></li>

@@ -66,6 +66,7 @@ class EmployeeBoardController extends AbstractController
      * @param Request $request
      * @param UserRepository $userRepository
      * @return Response
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI_LINE_MANAGER') or is_granted('ROLE_DOMAIN')")
      */
     public function index(Request $request, UserRepository $userRepository): Response
     {
@@ -90,11 +91,11 @@ class EmployeeBoardController extends AbstractController
     }
 
     /**
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN')")
      * @Route("/new/{format}", methods={"GET", "POST"}, name="kpi_board_new", defaults={"format" = null})
      * @param Request $request
      * @param $format
      * @return Response
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI_LINE_MANAGER') or is_granted('ROLE_DOMAIN')")
      */
     public function new(Request $request, $format): Response
     {
@@ -347,7 +348,6 @@ class EmployeeBoardController extends AbstractController
      * Deletes a Setting entity.
      *
      * @Route("/{id}/delete", methods={"GET"}, name="kpi_employee_board_delete")
-     * @Security("is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_ADMIN')")
      * @param EmployeeBoard $board
      * @return Response
      */
@@ -688,6 +688,7 @@ class EmployeeBoardController extends AbstractController
      * @Route("/{id}/approve", methods={"GET"}, name="kpi_approve")
      * @param EmployeeBoard $employeeBoard
      * @return Response
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI_LINE_MANAGER') or is_granted('ROLE_DOMAIN')")
      */
     public function approve(EmployeeBoard $employeeBoard): Response
     {

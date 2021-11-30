@@ -106,7 +106,6 @@ class EmployeeBoardRepository extends EntityRepository
             $qb->andWhere('s.createdBy = :user')->setParameter('user', $user);
         }
         $qb->orderBy('s.created','DESC');
-        dd($qb->getQuery()->getArrayResult());
         return $qb->getQuery()->getArrayResult();
 
     }
