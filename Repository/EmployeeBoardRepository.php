@@ -106,7 +106,14 @@ class EmployeeBoardRepository extends EntityRepository
             $qb->andWhere('s.createdBy = :user')->setParameter('user', $user);
         }
         $qb->orderBy('s.created','DESC');
-        return $qb->getQuery()->getArrayResult();
+        $results =  $qb->getQuery()->getArrayResult();
+        $data = null;
+        foreach ($results as $key=>$result) {
+            $arr = json_decode($result['district'], true);
+            $data[$key] = $result;
+            $data[$key]['district'] = $arr ? implode(', ', $arr) : '';
+        }
+        return $data;
 
     }
 
