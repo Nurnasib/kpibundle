@@ -107,7 +107,7 @@ class EmployeeBoardRepository extends EntityRepository
         }
         $qb->orderBy('s.created','DESC');
         $results =  $qb->getQuery()->getArrayResult();
-        $data = null;
+        $data = [];
         foreach ($results as $key=>$result) {
             $arr = json_decode($result['district'], true);
             $data[$key] = $result;

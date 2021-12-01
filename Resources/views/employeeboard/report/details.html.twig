@@ -86,7 +86,7 @@
                                     <th scope="col" style="width: 45%">Attributes</th>
                                     <th scope="col">Marks</th>
                                     <th scope="col" style="width: 27%">Mark Distribution</th>
-                                    <th scope="col">Obtain Marks</th>
+                                    <th scope="col" width="150">Obtain Marks</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -120,7 +120,16 @@
                                                                         </ul>
                                                                     {% endif %}
                                                                 </td>
-                                                                <td class="attribute-score" id="markDistribution-{{ entity.attribute.id }}">{{ entity.mark }}</td>
+                                                                <td class="attribute-score" id="markDistribution-{{ entity.attribute.id }}">
+                                                                    {% if entity.attribute.systemEntry == 1 %}
+                                                                        <ul class="pl-3">
+                                                                            <li>Line Manger Mark: {{ entity.mark }}</li>
+                                                                            <li>Self Mark: {{ entity.selfMark|default('') }}</li>
+                                                                        </ul>
+                                                                    {% else %}
+                                                                        {{ entity.mark }}
+                                                                    {% endif %}
+                                                                </td>
                                                             {% endif %}
                                                         {% endif %}
                                                     {% endif %}

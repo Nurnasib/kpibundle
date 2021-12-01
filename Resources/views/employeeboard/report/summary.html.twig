@@ -91,12 +91,13 @@
                                             <thead class="thead-dark">
 
                                             <tr>
-                                                <th scope="col" style="width: 22%; text-align: center">Parameter</th>
-                                                <th scope="col">Activity</th>
-                                                <th scope="col"style="text-align: center">Marks</th>
-                                                <th scope="col"style="text-align: center">Obtain Marks</th>
+                                                <th scope="col" style="width: 22%; text-align: center">{{ 'Parameter'|trans }}</th>
+                                                <th scope="col">{{ 'Activity'|trans }}</th>
+                                                <th scope="col"style="text-align: center">{{ 'Marks'|trans }}</th>
+                                                <th scope="col"style="text-align: center">{{ 'Obtain Marks'|trans }}</th>
                                                 <th scope="col"style="text-align: center">%</th>
-                                                <th scope="col"style="text-align: center">Grade</th>
+                                                <th scope="col"style="text-align: center">{{ 'Grade'|trans }}</th>
+                                                <th scope="col"style="text-align: center">{{ 'Self Grade'|trans }}</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -114,6 +115,10 @@
 
                                                             {% if (loop.parent.loop.first) and loop.first %}
                                                                 <td style="text-align: center; font-size: 35px; font-weight: 900" rowspan="{{ (entities|multiArrayLength) + 1 }}">{{ board.grade }}</td>
+                                                            {% endif %}
+
+                                                            {% if (loop.parent.loop.first) and loop.first %}
+                                                                <td style="text-align: center; font-size: 35px; font-weight: 900" rowspan="{{ (entities|multiArrayLength) + 1 }}">{{ board.selfGrade }}</td>
                                                             {% endif %}
                                                         </tr>
                                                     {% endfor %}
@@ -135,7 +140,7 @@
                                             </tbody>
                                             <tfoot>
                                             <tr>
-                                                <th colspan="6" class="text-center" style="padding: 10px; font-weight: 700;">Grade (A=>80%, B+=75-79%,  B=70%-74%,  C=65%-70%,  D<65%)</th>
+                                                <th colspan="7" class="text-center" style="padding: 10px; font-weight: 700;">Grade (A=>80%, B+=75-79%,  B=70%-74%,  C=65%-70%,  D<65%)</th>
                                             </tr>
                                             </tfoot>
                                         </table>

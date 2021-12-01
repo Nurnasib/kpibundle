@@ -105,10 +105,22 @@ class EmployeeBoard
     private $obtainMark;
 
     /**
+     * @var float
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $selfMark;
+
+    /**
      * @var string
      * @ORM\Column(type="string", nullable=true)
      */
     private $grade;
+
+    /**
+     * @var string
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $selfGrade;
 
     /**
      * @var string
@@ -339,6 +351,38 @@ class EmployeeBoard
     public function setGrade($grade)
     {
         $this->grade = $grade;
+    }
+
+    /**
+     * @return float
+     */
+    public function getSelfMark()
+    {
+        return $this->selfMark;
+    }
+
+    /**
+     * @param float $selfMark
+     */
+    public function setSelfMark(float $selfMark): void
+    {
+        $this->selfMark = $selfMark;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSelfGrade()
+    {
+        return $this->selfGrade;
+    }
+
+    /**
+     * @param string $selfGrade
+     */
+    public function setSelfGrade(string $selfGrade): void
+    {
+        $this->selfGrade = $selfGrade;
     }
 
     /**

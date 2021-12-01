@@ -31,6 +31,7 @@ use Terminalbd\KpiBundle\Entity\DistrictOrder;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
 use Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute;
 use Terminalbd\KpiBundle\Entity\EmployeeBoardSubAttribute;
+use Terminalbd\KpiBundle\Entity\EmployeeDistrictHistory;
 use Terminalbd\KpiBundle\Entity\EmployeeSetup;
 use Terminalbd\KpiBundle\Entity\LocationSalesTarget;
 use Terminalbd\KpiBundle\Entity\MarkChart;
@@ -72,7 +73,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $qb->join("e.activity", 'activity');
 
         $qb->select('parameter.name AS parameterName');
-        $qb->addSelect('SUM(e.actualMark) as actualMark', 'SUM(e.mark) as mark');
+        $qb->addSelect('SUM(e.actualMark) AS actualMark', 'SUM(e.mark) AS mark', 'SUM(e.selfMark) AS selfMark');
         $qb->addSelect('activity.name AS activityName');
 
         $qb->where("e.employeeBoard = {$board->getId()}");
@@ -199,33 +200,49 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     {
         $em = $this->_em;
         $totalObtainMark = 0;
+        $totalSelfMark = 0;
         $totalActualMark = 0;
-        $grade = '';
+
         $marks = $this->employeeBoardSummaryReport($board);
-        foreach ($marks as $mark) {
+        foreach ($marks as $activity => $mark) {
             foreach ($mark as $item) {
+                if ($activity === 'Core Responsibilities'){
+                    $totalSelfMark += $item['mark'];
+                }
                 $totalObtainMark += $item['mark'];
                 $totalActualMark += $item['actualMark'];
+
+                $totalSelfMark += $item['selfMark'];
             }
         }
         $totalMarkPercentage = ($totalObtainMark * 100) / $totalActualMark;
+        $totalSelfMarkPercentage = ($totalSelfMark * 100) / $totalActualMark;
 
-        if ($totalMarkPercentage >= 80){
-            $grade='A';
-        } elseif ($totalMarkPercentage >= 75 and $totalMarkPercentage < 80){
-            $grade='B+';
-        } elseif ($totalMarkPercentage >= 70 and $totalMarkPercentage < 75){
-            $grade='B';
-        } elseif ($totalMarkPercentage >= 65 and $totalMarkPercentage < 70){
-            $grade='C';
-        } else{
-            $grade='D';
-        }
+        $grade = $this->gradeCalculation($totalMarkPercentage);
+        $selfGrade = $this->gradeCalculation($totalSelfMarkPercentage);
+
         $board->setObtainMark($totalObtainMark ?: 0);
         $board->setActualMark($totalActualMark ?: 0);
+        $board->setSelfMark($totalSelfMark ?: 0);
+        $board->setSelfGrade($selfGrade);
         $board->setGrade($grade);
 //        $em->persist($board);
         $em->flush();
+    }
+
+    private function gradeCalculation($percentage)
+    {
+        if ($percentage >= 80){
+            return 'A';
+        } elseif ($percentage >= 75 and $percentage < 80){
+            return 'B+';
+        } elseif ($percentage >= 70 and $percentage < 75){
+            return 'B';
+        } elseif ($percentage >= 65 and $percentage < 70){
+            return 'C';
+        } else{
+            return 'D';
+        }
     }
 
     public function agentSalesGrowth(EmployeeBoard $board)
@@ -234,14 +251,19 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $prevYear = $board->getYear() - 1;
         $twentyPercentGrowthAgents = [];
 
-        $locations = $board->getEmployee()->getDistrict();
+        $employeeDistrictHistory = $em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
+
+        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
+        $districtsId = array_keys(json_decode($districts, true));
+
+/*        $locations = $board->getEmployee()->getDistrict();
         $locationsId = [];
         if (!empty($locations)) {
             foreach ($locations as $location) {
                 $locationsId[] = $location->getId();
             }
-        }
-        $agentsWithSalesQuantity = $em->getRepository(AgentOrder::class)->getAgentWithSalesQuantity($board, $locationsId);
+        }*/
+        $agentsWithSalesQuantity = $em->getRepository(AgentOrder::class)->getAgentWithSalesQuantity($board, $districtsId);
 //        dd($agentsWithSalesQuantity);
         $commonAgentBetweenYears = array_intersect_key($agentsWithSalesQuantity[$board->getYear()], $agentsWithSalesQuantity[$prevYear]);  //Common agents and SalesQuantity(Current Year)
 
@@ -515,17 +537,24 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     public function updateSalesProcess(EmployeeBoard $board)
     {
+
         $em = $this->_em;
+        $employeeDistrictHistory = $em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
+
+        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
+        $districtsId = array_keys(json_decode($districts, true));
+
         $entities = "";
-        $locations = $board->getEmployee()->getDistrict();
+/*        $locations = $board->getEmployee()->getDistrict();
         $arrs = array();
         if (!empty($locations)) {
             foreach ($locations as $location) {
                 $arrs[] = $location->getId();
             }
-        }
+        }*/
 
-        $entities = $em->getRepository(DistrictOrder::class)->getLocationWiseTotalProductSalesTarget($arrs, $board->getYear(), $board->getMonth());
+
+        $entities = $em->getRepository(DistrictOrder::class)->getLocationWiseTotalProductSalesTarget($districtsId, $board->getYear(), $board->getMonth());
         if (!empty($entities)) {
             $totalAchivementMark = 0;
             $totalQuantity = 0;
@@ -814,15 +843,21 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     {
         $em = $this->_em;
 
-        $locations = $board->getEmployee()->getDistrict();
+        $employeeDistrictHistory = $em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
+
+        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
+        $districtsId = array_keys(json_decode($districts, true));
+
+
+/*        $locations = $board->getEmployee()->getDistrict();
         $arrs = array();
         if (!empty($locations)) {
             foreach ($locations as $location) {
                 $arrs[] = $location->getId();
             }
-        }
+        }*/
 
-        $outstandingAmount = $em->getRepository(AgentOutstanding::class)->getLocationWiseTotalOutstanding($arrs, $board->getYear(), $board->getMonth());
+        $outstandingAmount = $em->getRepository(AgentOutstanding::class)->getLocationWiseTotalOutstanding($districtsId, $board->getYear(), $board->getMonth());
         if ($board->getEmployee()->getReportMode()->getSlug() == 'agm-kpi'){
             $outstandingSlug = 'agm-outstanding-limit-vs-actual-feed';
         }elseif ($board->getEmployee()->getReportMode()->getSlug() == 'rsm-arsm-kpi'){
@@ -846,15 +881,20 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     {
         $em = $this->_em;
 
-        $locations = $board->getEmployee()->getDistrict();
+        $employeeDistrictHistory = $em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
+
+        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
+        $districtsId = array_keys(json_decode($districts, true));
+
+/*        $locations = $board->getEmployee()->getDistrict();
         $arrs = array();
         if (!empty($locations)) {
             foreach ($locations as $location) {
                 $arrs[] = $location->getId();
             }
-        }
+        }*/
 
-        $docSalesObj = $em->getRepository(AgentDocSaleCollection::class)->getLocationWiseTotalDocSales($arrs, $board->getYear(), $board->getMonth());
+        $docSalesObj = $em->getRepository(AgentDocSaleCollection::class)->getLocationWiseTotalDocSales($districtsId, $board->getYear(), $board->getMonth());
 
         $docSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'doc-sales-vs-collection'));
 

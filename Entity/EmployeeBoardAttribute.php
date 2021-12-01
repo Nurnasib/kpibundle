@@ -114,196 +114,38 @@ class EmployeeBoardAttribute
     private $mark;
 
     /**
+     * @var float
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $selfMark;
+
+    /**
      * @var boolean
      *
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $status = true;
 
-    public function setId($id)
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
     /**
-     * Get id
-     *
-     * @return integer
+     * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
-
     /**
-     * @return bool
+     * @param int $id
      */
-    public function isStatus()
+    public function setId(int $id): void
     {
-        return $this->status;
-    }
-
-    /**
-     * @param bool $status
-     */
-    public function setStatus($status)
-    {
-        $this->status = $status;
-    }
-
-    /**
-     * @return float
-     */
-    public function getAmount()
-    {
-        return $this->amount;
-    }
-
-    /**
-     * @param float $amount
-     */
-    public function setAmount(float $amount)
-    {
-        $this->amount = $amount;
-    }
-
-    /**
-     * @return EmployeeSetup
-     */
-    public function getEmployeeSetup()
-    {
-        return $this->employeeSetup;
-    }
-
-    /**
-     * @param EmployeeSetup $employeeSetup
-     */
-    public function setEmployeeSetup(EmployeeSetup $employeeSetup)
-    {
-        $this->employeeSetup = $employeeSetup;
-    }
-
-    /**
-     * @return MarkChart
-     */
-    public function getAttribute()
-    {
-        return $this->attribute;
-    }
-
-    /**
-     * @param MarkChart $attribute
-     */
-    public function setAttribute(MarkChart $attribute)
-    {
-        $this->attribute = $attribute;
-    }
-
-    /**
-     * @return float
-     */
-    public function getMark()
-    {
-        return $this->mark;
-    }
-
-    /**
-     * @param float $mark
-     */
-    public function setMark($mark)
-    {
-        $this->mark = $mark;
-    }
-
-
-
-    /**
-     * @return float
-     */
-    public function getTargetAmount()
-    {
-        return $this->targetAmount;
-    }
-
-    /**
-     * @return int
-     */
-    public function getTargetReport()
-    {
-        return $this->targetReport;
-    }
-
-    /**
-     * @param int $targetReport
-     */
-    public function setTargetReport($targetReport)
-    {
-        $this->targetReport = $targetReport;
-    }
-
-    /**
-     * @return int
-     */
-    public function getTargetMark()
-    {
-        return $this->targetMark;
-    }
-
-    /**
-     * @param int $targetMark
-     */
-    public function setTargetMark($targetMark)
-    {
-        $this->targetMark = $targetMark;
-    }
-
-    /**
-     * @return int
-     */
-    public function getAchieveReport()
-    {
-        return $this->achieveReport;
-    }
-
-    /**
-     * @param int $achieveReport
-     */
-    public function setAchieveReport($achieveReport)
-    {
-        $this->achieveReport = $achieveReport;
-    }
-
-    /**
-     * @param float $targetAmount
-     */
-    public function setTargetAmount(float $targetAmount)
-    {
-        $this->targetAmount = $targetAmount;
-    }
-
-    /**
-     * @return float
-     */
-    public function getTargetAchievement()
-    {
-        return $this->targetAchievement;
-    }
-
-    /**
-     * @param float $targetAchievement
-     */
-    public function setTargetAchievement(float $targetAchievement)
-    {
-        $this->targetAchievement = $targetAchievement;
+        $this->id = $id;
     }
 
     /**
      * @return EmployeeBoard
      */
-    public function getEmployeeBoard()
+    public function getEmployeeBoard(): EmployeeBoard
     {
         return $this->employeeBoard;
     }
@@ -311,7 +153,7 @@ class EmployeeBoardAttribute
     /**
      * @param EmployeeBoard $employeeBoard
      */
-    public function setEmployeeBoard(EmployeeBoard $employeeBoard)
+    public function setEmployeeBoard(EmployeeBoard $employeeBoard): void
     {
         $this->employeeBoard = $employeeBoard;
     }
@@ -319,7 +161,7 @@ class EmployeeBoardAttribute
     /**
      * @return MarkChart
      */
-    public function getParameter()
+    public function getParameter(): MarkChart
     {
         return $this->parameter;
     }
@@ -327,7 +169,7 @@ class EmployeeBoardAttribute
     /**
      * @param MarkChart $parameter
      */
-    public function setParameter(MarkChart $parameter)
+    public function setParameter(MarkChart $parameter): void
     {
         $this->parameter = $parameter;
     }
@@ -335,7 +177,7 @@ class EmployeeBoardAttribute
     /**
      * @return MarkChart
      */
-    public function getActivity()
+    public function getActivity(): MarkChart
     {
         return $this->activity;
     }
@@ -343,25 +185,25 @@ class EmployeeBoardAttribute
     /**
      * @param MarkChart $activity
      */
-    public function setActivity(MarkChart $activity)
+    public function setActivity(MarkChart $activity): void
     {
         $this->activity = $activity;
     }
 
     /**
-     * @return float
+     * @return MarkChart
      */
-    public function getActualMark()
+    public function getAttribute(): MarkChart
     {
-        return $this->actualMark;
+        return $this->attribute;
     }
 
     /**
-     * @param $actualMark
+     * @param MarkChart $attribute
      */
-    public function setActualMark($actualMark)
+    public function setAttribute(MarkChart $attribute): void
     {
-        $this->actualMark = $actualMark;
+        $this->attribute = $attribute;
     }
 
     /**
@@ -375,10 +217,153 @@ class EmployeeBoardAttribute
     /**
      * @param MarkChart $markDistribution
      */
-    public function setMarkDistribution($markDistribution)
+    public function setMarkDistribution(MarkChart $markDistribution): void
     {
         $this->markDistribution = $markDistribution;
     }
 
+    /**
+     * @return float
+     */
+    public function getTargetAmount()
+    {
+        return $this->targetAmount;
+    }
+
+    /**
+     * @param float $targetAmount
+     */
+    public function setTargetAmount(float $targetAmount): void
+    {
+        $this->targetAmount = $targetAmount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTargetReport()
+    {
+        return $this->targetReport;
+    }
+
+    /**
+     * @param int $targetReport
+     */
+    public function setTargetReport(int $targetReport): void
+    {
+        $this->targetReport = $targetReport;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAchieveReport()
+    {
+        return $this->achieveReport;
+    }
+
+    /**
+     * @param int $achieveReport
+     */
+    public function setAchieveReport(int $achieveReport): void
+    {
+        $this->achieveReport = $achieveReport;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTargetMark()
+    {
+        return $this->targetMark;
+    }
+
+    /**
+     * @param int $targetMark
+     */
+    public function setTargetMark(int $targetMark): void
+    {
+        $this->targetMark = $targetMark;
+    }
+
+    /**
+     * @return float
+     */
+    public function getTargetAchievement()
+    {
+        return $this->targetAchievement;
+    }
+
+    /**
+     * @param float $targetAchievement
+     */
+    public function setTargetAchievement(float $targetAchievement): void
+    {
+        $this->targetAchievement = $targetAchievement;
+    }
+
+    /**
+     * @return float
+     */
+    public function getActualMark()
+    {
+        return $this->actualMark;
+    }
+
+    /**
+     * @param float $actualMark
+     */
+    public function setActualMark(float $actualMark): void
+    {
+        $this->actualMark = $actualMark;
+    }
+
+    /**
+     * @return float
+     */
+    public function getMark()
+    {
+        return $this->mark;
+    }
+
+    /**
+     * @param float $mark
+     */
+    public function setMark(float $mark): void
+    {
+        $this->mark = $mark;
+    }
+
+    /**
+     * @return float
+     */
+    public function getSelfMark()
+    {
+        return $this->selfMark;
+    }
+
+    /**
+     * @param float $selfMark
+     */
+    public function setSelfMark(float $selfMark): void
+    {
+        $this->selfMark = $selfMark;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isStatus(): bool
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param bool $status
+     */
+    public function setStatus(bool $status): void
+    {
+        $this->status = $status;
+    }
 
 }

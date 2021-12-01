@@ -35,7 +35,9 @@
                     <div class="portlet-title">
                         <div class="caption">{{ 'Manage KPI Element'|trans }} </div>
                         <div class="btn-group float-right">
-                            <a href="{{ path('kpi_approve',{'id':board.id}) }}" id="statusUpdate" name="statusUpdate" class="btn blue-bg text-white">Approved</a>
+                            {% if app.user.id is not same as board.employee.id or is_granted('ROLE_ADMIN') %}
+                                <a href="{{ path('kpi_approve',{'id':board.id}) }}" id="statusUpdate" name="statusUpdate" class="btn blue-bg text-white">Approved</a>
+                            {% endif %}
                             <a href="{{ path('kpi_employee_board_preview',{'id':board.id,'mode':'print'}) }}" class="btn yellow-bg white-font"><i class="fa fa-print"></i> Print</a>
                         </div>
                     </div>
@@ -84,8 +86,8 @@
                                     <th scope="col" style="width: 5%;">Activity</th>
                                     <th scope="col" style="width: 45%">Attributes</th>
                                     <th scope="col">Marks</th>
-                                    <th scope="col" style="width: 27%">Mark Distribution</th>
-                                    <th scope="col">Obtain Marks</th>
+                                    <th scope="col" width="250">Mark Distribution</th>
+                                    <th scope="col" width="150">Obtain Marks</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -121,7 +123,7 @@
 
                                                                     {% if entity.attribute.children is not empty %}
                                                                         {% if entity.attribute.systemEntry == 1 %}
-                                                                            <select class="markDistribution" data-id="{{ entity.attribute.id }}" data-action="{{ path('kpi_employee_board_attribute_update',{'id':entity.id}) }}" >
+                                                                            <select class="markDistribution" data-id="{{ entity.attribute.id }}" data-action="{{ path('kpi_employee_board_attribute_update',{'id':entity.id}) }}" data-employee-id="{{ board.employee.id }}" data-login-user-id="{{ app.user.id }}" >
                                                                                 <option value="">{{ 'Select mark particular'|trans }}</option>
                                                                                 {% for markDistribution in entity.attribute.children %}
                                                                                     {% if markDistribution.status == 1 %}
@@ -139,7 +141,17 @@
                                                                         {% endif %}
                                                                     {% endif %}
                                                                 </td>
-                                                                <td class="attribute-score" id="markDistribution-{{ entity.attribute.id }}">{{ entity.mark }}</td>
+                                                                <td class="attribute-score" id="markDistribution-{{ entity.attribute.id }}">
+                                                                    {% if entity.attribute.systemEntry == 1 %}
+                                                                        <ul class="pl-3">
+                                                                            <li class="line-manager-mark">Line Manger Mark: {{ entity.mark }}</li>
+                                                                            <li class="self-mark">Self Mark: {{ entity.selfMark|default('') }}</li>
+                                                                        </ul>
+                                                                    {% else %}
+                                                                        {{ entity.mark }}
+                                                                    {% endif %}
+
+                                                                </td>
                                                             {% endif %}
                                                         {% endif %}
                                                     {% endif %}

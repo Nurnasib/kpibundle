@@ -43,18 +43,23 @@
                         <div class="row form-body">
                             <div class="form-inner-no-space">
                                 <div class="row">
-                                    <div class="col-md-6 offset-1">
+                                    <div class="col-md-8 offset-1">
                                         <div class="form-group">
                                             {{ form_label(form.employee, 'Employee Name'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
-                                            <div class="col-md-8">
+                                            <div class="col-md-5">
                                                 <span class="not-blank"> *</span>
                                                 {{ form_widget(form.employee) }}
                                                 {{ form_errors(form.employee) }}
                                             </div>
+                                            <div class="col-md-3 p-0" style="display: flex">
+                                                <input type="checkbox" id="self_kpi" name="self_kpi" class="form-control" style="width: 33px">
+                                                {#                                                <input type="checkbox" id="self_kpi" name="self_kpi" class="checkboxToggle" data-toggle="toggle" data-style="slow" data-offstyle="warning" data-onstyle="info" data-on="Enable" data-off="Disable" data-size="small" checked >#}
+                                                <label for="self_kpi" class="control-label p-1">{{ 'Self KPI'|trans }}</label>
+                                            </div>
                                         </div>
                                         <div class="form-group">
                                             {{ form_label(form.monthYear, 'Month'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
-                                            <div class="col-md-8">
+                                            <div class="col-md-5">
                                                 <span class="not-blank"> *</span>
                                                 {{ form_widget(form.monthYear) }}
                                                 {{ form_errors(form.monthYear) }}
@@ -105,32 +110,44 @@
 {% endblock  %}
 {% block documentready %}
     {{ parent() }}
-    $('#datatable').DataTable( {
-    "bPaginate": false,
-    'columnDefs': [ {
-    'targets': [0,4],
-    'orderable': false
-    }]
-    });
-    $('.inputMonth').datepicker({
-    changeMonth: true,
-    changeYear: true,
-    dateFormat: 'MM,yy',
 
-    onClose: function() {
-    var iMonth = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
-    var iYear = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
-    $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
-    },
+        $('#datatable').DataTable( {
+            "bPaginate": false,
+            'columnDefs': [ {
+                'targets': [0,4],
+                'orderable': false
+            }]
+        });
+        $('.inputMonth').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: 'MM,yy',
 
-    beforeShow: function() {
-    if ((selDate = $(this).val()).length > 0)
-    {
-    iYear = selDate.substring(selDate.length - 4, selDate.length);
-    iMonth = jQuery.inArray(selDate.substring(0, selDate.length - 5), $(this).datepicker('option', 'monthNames'));
-    $(this).datepicker('option', 'defaultDate', new Date(iYear, iMonth, 1));
-    $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
-    }
-    }
-    });
+            onClose: function() {
+                var iMonth = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+                var iYear = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+                $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
+            },
+
+            beforeShow: function() {
+                if ((selDate = $(this).val()).length > 0)
+                {
+                    iYear = selDate.substring(selDate.length - 4, selDate.length);
+                    iMonth = jQuery.inArray(selDate.substring(0, selDate.length - 5), $(this).datepicker('option', 'monthNames'));
+                    $(this).datepicker('option', 'defaultDate', new Date(iYear, iMonth, 1));
+                    $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
+                }
+            }
+        });
+{#    <script>#}
+        $(document).on('click','#self_kpi',function () {
+
+            if (this.checked){
+                $('#employee_board_form_employee').prop('disabled',true);
+            }else {
+                $('#employee_board_form_employee').prop('disabled',false);
+            }
+        });
+
+
 {% endblock %}
