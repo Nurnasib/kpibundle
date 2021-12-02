@@ -64,11 +64,17 @@ class EmployeeBoardFormType extends AbstractType
                         }
                         return $qb;
                     }else{
-                        return $er->createQueryBuilder('e')
+                        $qb = $er->createQueryBuilder('e')
                             ->join('e.lineManager','lm')
+                            ->leftJoin('e.reportMode','reportMode')
+
                             ->where('e.enabled =1')
                             ->andWhere("lm.id =:lmId")->setParameter('lmId',$userId)
                             ->orderBy('e.name', 'ASC');
+                        if ($format == 'custom-format'){
+                            $qb->andWhere('reportMode.slug =:reportMode')->setParameter('reportMode', $format);
+                        }
+                        return $qb;
                     }
                 },
                 'attr'=>['class'=>'select2'],

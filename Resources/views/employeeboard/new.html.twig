@@ -87,7 +87,8 @@
                                     <th scope="col" style="width: 45%">Attributes</th>
                                     <th scope="col">Marks</th>
                                     <th scope="col" width="250">Mark Distribution</th>
-                                    <th scope="col" width="150">Obtain Marks</th>
+                                    <th scope="col">Obtain Marks</th>
+                                    <th scope="col">Self Marks</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -127,7 +128,8 @@
                                                                                 <option value="">{{ 'Select mark particular'|trans }}</option>
                                                                                 {% for markDistribution in entity.attribute.children %}
                                                                                     {% if markDistribution.status == 1 %}
-                                                                                        <option  value="{{ markDistribution.id }}" {% if  entity.markDistribution is not empty and markDistribution.id ==  entity.markDistribution.id %} selected="selected" {% endif %}>{{ markDistribution.name }}</option>
+{#                                                                                        <option  value="{{ markDistribution.id }}" {% if  entity.markDistribution is not empty and markDistribution.id ==  entity.markDistribution.id %} selected="selected" {% endif %}>{{ markDistribution.name }}</option>#}
+                                                                                        <option  value="{{ markDistribution.id }}">{{ markDistribution.name }}</option>
                                                                                     {% endif %}
                                                                                 {% endfor %}
                                                                             </select>
@@ -142,15 +144,10 @@
                                                                     {% endif %}
                                                                 </td>
                                                                 <td class="attribute-score" id="markDistribution-{{ entity.attribute.id }}">
-                                                                    {% if entity.attribute.systemEntry == 1 %}
-                                                                        <ul class="pl-3">
-                                                                            <li class="line-manager-mark">Line Manger Mark: {{ entity.mark }}</li>
-                                                                            <li class="self-mark">Self Mark: {{ entity.selfMark|default('') }}</li>
-                                                                        </ul>
-                                                                    {% else %}
-                                                                        {{ entity.mark }}
-                                                                    {% endif %}
-
+                                                                    {{ entity.mark }}
+                                                                </td>
+                                                                <td class="attribute-score" id="markDistribution-{{ entity.attribute.id }}-self-mark">
+                                                                    {{ entity.selfMark|default('') }}
                                                                 </td>
                                                             {% endif %}
                                                         {% endif %}

@@ -204,9 +204,9 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $totalActualMark = 0;
 
         $marks = $this->employeeBoardSummaryReport($board);
-        foreach ($marks as $activity => $mark) {
+        foreach ($marks as $parameter => $mark) {
             foreach ($mark as $item) {
-                if ($activity === 'Core Responsibilities'){
+                if ($parameter === 'Core Responsibilities'){
                     $totalSelfMark += $item['mark'];
                 }
                 $totalObtainMark += $item['mark'];
@@ -542,7 +542,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $employeeDistrictHistory = $em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
 
         $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
-        $districtsId = array_keys(json_decode($districts, true));
+        $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
 
         $entities = "";
 /*        $locations = $board->getEmployee()->getDistrict();
@@ -845,7 +845,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
         $employeeDistrictHistory = $em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
 
-        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
+        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : [];
         $districtsId = array_keys(json_decode($districts, true));
 
 

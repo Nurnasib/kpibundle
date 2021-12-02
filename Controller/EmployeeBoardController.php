@@ -136,13 +136,11 @@ class EmployeeBoardController extends AbstractController
             );
 
             if (empty($exist)) {
-                $districts = null;
-                foreach ($emp->getDistrict() as $key => $district) {
-//                    $districtName .= $district->getName();
-                    $districts[$district->getId()] = $district->getName();
-//                    if ($key != array_key_last((array)$emp->getDistrict())){
-//                        $districtName .= ', ';
-//                    }
+                $employeeDistrictHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $emp, 'year' => $year, 'month' => $month]);
+                $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
+                if (!$districts){
+                    $this->addFlash('error', 'Districts not found!');
+                    return $this->redirectToRoute('kpi_board_new', [$format]);
                 }
 
                 $em = $this->getDoctrine()->getManager();
@@ -152,7 +150,7 @@ class EmployeeBoardController extends AbstractController
                 $entity->setReportMode($emp->getReportMode());
                 $entity->setEmployee($emp);
                 $entity->setCreatedBy($this->getUser());
-                $entity->setDistrict(json_encode($districts));
+                $entity->setDistrict($districts);
                 $entity->setCreated(new \DateTime());
                 $entity->setUpdated(new \DateTime());
 
@@ -238,9 +236,7 @@ class EmployeeBoardController extends AbstractController
         }
 
         $districtsHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $entity->getEmployee(), 'month' => $entity->getMonth(), 'year' => $entity->getYear()]);
-//        foreach ($entity->getEmployee()->getDistrict() as $key => $district) {
-//            $districts[$district->getId()] = $district->getName();
-//        }
+
         $entity->setDistrict($districtsHistory->getDistrict());
         $em->persist($entity);
         $em->flush();
@@ -447,11 +443,16 @@ class EmployeeBoardController extends AbstractController
     {
         $totalObtainMark = 0;
         $totalActualMark = 0;
+        $totalSelfMark = 0;
         $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->employeeBoardSummaryReport($board);
-        foreach ($marks as $mark) {
+        foreach ($marks as $parameter => $mark) {
             foreach ($mark as $item) {
+                if ($parameter === 'Core Responsibilities'){
+                    $totalSelfMark += $item['mark'];
+                }
                 $totalObtainMark += $item['mark'];
                 $totalActualMark += $item['actualMark'];
+                $totalSelfMark += $item['selfMark'];
             }
         }
         return $this->render('@TerminalbdKpi/employeeboard/report/summary.html.twig', [
@@ -459,6 +460,7 @@ class EmployeeBoardController extends AbstractController
             'entities' => $marks,
             'totalObtainMark' => $totalObtainMark,
             'totalActualMark' => $totalActualMark,
+            'totalSelfMark' => $totalSelfMark,
         ]);
 
     }

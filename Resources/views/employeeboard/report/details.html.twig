@@ -34,6 +34,9 @@
                     <div class="portlet-title">
                         <div class="caption">{{ 'Manage KPI Details for '|trans }} : {{ board.employee.name }}</div>
                         <div class="btn-group float-right">
+                            {% if app.user.id is not same as board.employee.id or is_granted('ROLE_ADMIN') %}
+                                <a href="{{ path('kpi_approve',{'id':board.id}) }}" id="statusUpdate" name="statusUpdate" class="btn blue-bg text-white">Approved</a>
+                            {% endif %}
                             <a href="{{ path('kpi_employee_board_preview',{'id':board.id,'mode':'print'}) }}" target="_blank" class="btn yellow-bg white-font"><i class="fa fa-print"></i> Print</a>
                         </div>
                     </div>
@@ -86,7 +89,8 @@
                                     <th scope="col" style="width: 45%">Attributes</th>
                                     <th scope="col">Marks</th>
                                     <th scope="col" style="width: 27%">Mark Distribution</th>
-                                    <th scope="col" width="150">Obtain Marks</th>
+                                    <th scope="col">Obtain Marks</th>
+                                    <th scope="col">Self Marks</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -121,14 +125,10 @@
                                                                     {% endif %}
                                                                 </td>
                                                                 <td class="attribute-score" id="markDistribution-{{ entity.attribute.id }}">
-                                                                    {% if entity.attribute.systemEntry == 1 %}
-                                                                        <ul class="pl-3">
-                                                                            <li>Line Manger Mark: {{ entity.mark }}</li>
-                                                                            <li>Self Mark: {{ entity.selfMark|default('') }}</li>
-                                                                        </ul>
-                                                                    {% else %}
-                                                                        {{ entity.mark }}
-                                                                    {% endif %}
+                                                                    {{ entity.mark }}
+                                                                </td>
+                                                                <td class="attribute-score" id="markDistribution-{{ entity.attribute.id }}-self-mark">
+                                                                    {{ entity.selfMark|default('') }}
                                                                 </td>
                                                             {% endif %}
                                                         {% endif %}

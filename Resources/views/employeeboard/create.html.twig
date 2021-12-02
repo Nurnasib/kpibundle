@@ -140,7 +140,19 @@
             }
         });
 {#    <script>#}
-        $(document).on('click','#self_kpi',function () {
+        $('#employee_board_form_employee').change(function () {
+            if ($('#employee_board_form_employee').val()){
+                $('#self_kpi').prop('disabled',true);
+            }else {
+                $('#self_kpi').prop('disabled',false);
+
+            }
+            console.log($('#employee_board_form_employee').val());
+
+
+        });
+
+        $('#self_kpi').click(function () {
 
             if (this.checked){
                 $('#employee_board_form_employee').prop('disabled',true);

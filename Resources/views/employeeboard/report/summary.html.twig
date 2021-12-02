@@ -97,6 +97,7 @@
                                                 <th scope="col"style="text-align: center">{{ 'Obtain Marks'|trans }}</th>
                                                 <th scope="col"style="text-align: center">%</th>
                                                 <th scope="col"style="text-align: center">{{ 'Grade'|trans }}</th>
+                                                <th scope="col"style="text-align: center">{{ 'Self Mark'|trans }}</th>
                                                 <th scope="col"style="text-align: center">{{ 'Self Grade'|trans }}</th>
                                             </tr>
                                             </thead>
@@ -116,7 +117,13 @@
                                                             {% if (loop.parent.loop.first) and loop.first %}
                                                                 <td style="text-align: center; font-size: 35px; font-weight: 900" rowspan="{{ (entities|multiArrayLength) + 1 }}">{{ board.grade }}</td>
                                                             {% endif %}
-
+                                                            <td>
+                                                                {% if key is same as 'Core Responsibilities' %}
+                                                                    {{ activity.mark }}
+                                                                {% else %}
+                                                                    {{ activity.selfMark }}
+                                                                {% endif %}
+                                                            </td>
                                                             {% if (loop.parent.loop.first) and loop.first %}
                                                                 <td style="text-align: center; font-size: 35px; font-weight: 900" rowspan="{{ (entities|multiArrayLength) + 1 }}">{{ board.selfGrade }}</td>
                                                             {% endif %}
@@ -136,6 +143,7 @@
                                                             {% endif %}
                                                         </b>
                                                     </td>
+                                                    <td><b>{{ totalSelfMark|number_format(2) }}</b></td>
                                                 </tr>
                                             </tbody>
                                             <tfoot>
