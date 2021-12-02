@@ -67,9 +67,9 @@ class EmployeeBoardController extends AbstractController
      * @param Request $request
      * @param UserRepository $userRepository
      * @return Response
-     *
+     * @Security("is_granted('ROLE_USER')")
      */
-//@Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI_LINE_MANAGER') or is_granted('ROLE_DOMAIN')")
+
     public function index(Request $request, UserRepository $userRepository): Response
     {
         $lineManagers = $userRepository->getLineManager();
@@ -97,9 +97,9 @@ class EmployeeBoardController extends AbstractController
      * @param Request $request
      * @param $format
      * @return Response
-     *
+     * @Security("is_granted('ROLE_USER')")
      */
-//@Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI_LINE_MANAGER') or is_granted('ROLE_DOMAIN')")
+
     public function new(Request $request, $format): Response
     {
         $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
@@ -216,6 +216,7 @@ class EmployeeBoardController extends AbstractController
      * @param Request $request
      * @param EmployeeBoard $entity
      * @return Response
+     * @Security("is_granted('ROLE_USER')")
      */
 
     public function edit(Request $request, EmployeeBoard $entity): Response
@@ -253,6 +254,7 @@ class EmployeeBoardController extends AbstractController
      * @param Request $request
      * @param EmployeeBoard $board
      * @return Response
+     * @Security("is_granted('ROLE_USER')")
      */
 
     public function editCustomFormat(Request $request, EmployeeBoard $board): Response
@@ -299,6 +301,7 @@ class EmployeeBoardController extends AbstractController
      * @param Request $request
      * @param EmployeeBoard $entity
      * @return Response
+     * @Security("is_granted('ROLE_USER')")
      */
     public function detailsPreview(Request $request, EmployeeBoard $entity): Response
     {
@@ -354,6 +357,7 @@ class EmployeeBoardController extends AbstractController
      * @Route("/{id}/delete", methods={"GET"}, name="kpi_employee_board_delete", options={"expose" = true})
      * @param EmployeeBoard $board
      * @return Response
+     * @Security("is_granted('ROLE_USER')")
      */
     public function delete(EmployeeBoard $board): Response
     {
@@ -374,6 +378,7 @@ class EmployeeBoardController extends AbstractController
      * @Route("/{id}/attribute-update", methods={"GET"}, name="kpi_employee_board_attribute_update")
      * @param EmployeeBoardAttribute $boardAttribute
      * @return Response
+     * @Security("is_granted('ROLE_USER')")
      */
     public function attributeUpdate(EmployeeBoardAttribute $boardAttribute): Response
     {
@@ -400,10 +405,10 @@ class EmployeeBoardController extends AbstractController
     }
 
     /**
-     *
      * @Route("/{id}/report-details", methods={"GET"}, name="kpi_details_report")
      * @param $id
      * @return Response
+     * @Security("is_granted('ROLE_USER')")
      */
     public function reportDetails($id): Response
     {
@@ -434,10 +439,10 @@ class EmployeeBoardController extends AbstractController
     }
 
     /**
-     *
      * @Route("/{id}/report-summary", methods={"GET"}, name="kpi_summary_report")
      * @param EmployeeBoard $board
      * @return Response
+     * @Security("is_granted('ROLE_USER')")
      */
     public function reportSummary(EmployeeBoard $board): Response
     {
@@ -466,7 +471,7 @@ class EmployeeBoardController extends AbstractController
     }
 
     /**
-     *
+     * @Security("is_granted('ROLE_USER')")
      * @Route("/{id}/report-summary-print", methods={"GET"}, name="kpi_summary_report_print")
      * @param EmployeeBoard $board
      * @return Response
@@ -492,7 +497,7 @@ class EmployeeBoardController extends AbstractController
     }
 
     /**
-     *
+     * @Security("is_granted('ROLE_USER')")
      * @Route("/{id}/report-sales-achievement/{mode}", defaults={"mode" = null}, methods={"GET"}, name="kpi_report_sales_achievement")
      * @param EmployeeBoard $entity
      * @param $mode
@@ -502,12 +507,15 @@ class EmployeeBoardController extends AbstractController
     public function salesAchievementSummary(EmployeeBoard $entity, $mode, Request $request): Response
     {
         $locations = $entity->getEmployee()->getDistrict();
-        $locationsId = array();
+        $districtHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $entity->getEmployee(), 'month' => $entity->getMonth(), 'year' => $entity->getYear()]);
+        $districts = $districtHistory ? $districtHistory->getDistrict() : '';
+        $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
+/*        $locationsId = array();
         if(!empty($locations)){
             foreach ($locations as $location){
                 $locationsId[] = $location->getId();
             }
-        }
+        }*/
 
         $employee = $entity->getEmployee();
 
@@ -523,14 +531,14 @@ class EmployeeBoardController extends AbstractController
 
         $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getKpiSummaryForFeedAndGrowth($entity);
 
-        $outstanding = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getLocationWiseOutstanding($locationsId, $entity);
+        $outstanding = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getLocationWiseOutstanding($districtsId, $entity);
 
-        $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getLocationWiseDocSales($locationsId, $entity);
+        $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getLocationWiseDocSales($districtsId, $entity);
         $individualTeamMemberMarks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getIndividualTeamMemberMarks($employeeArrs, $parameter, $entity);
 
         $dCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithDInDecember($entity);
         $cCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithCInDecember($entity);
-        $twentyPercentGrowthAgentSalesDetails = $this->getDoctrine()->getRepository(AgentOrder::class)->getTwentyPercentGrowthAgentSalesDetails($entity, $locationsId);
+        $twentyPercentGrowthAgentSalesDetails = $this->getDoctrine()->getRepository(AgentOrder::class)->getTwentyPercentGrowthAgentSalesDetails($entity, $districtsId);
 
         if ($mode == 'pdf'){
 
@@ -615,6 +623,7 @@ class EmployeeBoardController extends AbstractController
      * @param $mode
      * @param Request $request
      * @return Response
+     * @Security("is_granted('ROLE_USER')")
      */
     public function salesAchievementSummaryForCustomFormat(EmployeeBoard $board, $mode, Request $request): Response
     {
@@ -731,6 +740,7 @@ class EmployeeBoardController extends AbstractController
      * @param Request $request
      * @return JsonResponse
      * @Route("/{id}/update-customer-development", name="kpi_employee_update_customer_development")
+     * @Security("is_granted('ROLE_USER')")
      */
     public function updateCustomerDevelopment(EmployeeBoardAttribute $boardAttribute, Request $request)
     {
@@ -813,6 +823,7 @@ class EmployeeBoardController extends AbstractController
      * @param EmployeeBoard $board
      * @Route("/{board}/custom-format/new", name="custom_format_kpi")
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @Security("is_granted('ROLE_USER')")
      */
     public function customFormatSubmit(Request $request, EmployeeBoard $board)
     {
@@ -901,7 +912,6 @@ class EmployeeBoardController extends AbstractController
                     $findOutstandingAttribute->setMark($outstandingMark);
                     $em->persist($findOutstandingAttribute);
                     $em->flush();
-//                    dd($findOutstandingAttribute->getMark());
                 }
 
             }elseif ($key === 'docSale'){
@@ -979,7 +989,6 @@ class EmployeeBoardController extends AbstractController
 
         // Customer development
         $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->gradeUpdate($board);
-//        $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->updateOutStandingLimit($board);
 
         return $this->redirectToRoute('kpi_details_report', ['id' => $board->getId()]);
     }
