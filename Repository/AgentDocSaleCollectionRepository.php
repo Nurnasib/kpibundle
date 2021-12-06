@@ -101,7 +101,7 @@ class AgentDocSaleCollectionRepository extends EntityRepository
                 'collectionAmount'=> (double)$result['totalCollectionAmount'],
             );
         }
-        $docSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'doc-sales-vs-collection'));
+        $docSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'doc-sales-collection'));
 
         $employeeBoardAttributeForDocSales = $em->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $docSalesDistribution]);
         $data['mark'] = $employeeBoardAttributeForDocSales ? (int)$employeeBoardAttributeForDocSales->getMark() : 0;

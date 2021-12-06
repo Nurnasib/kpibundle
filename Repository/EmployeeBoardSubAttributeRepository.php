@@ -51,7 +51,7 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
         $qb->andWhere('markDistribution.salesMode IN (:salesMode)')->setParameter('salesMode', ['feed','growth']);
         $qb->orderBy('markDistribution.ordering', 'ASC');
         $qb->addOrderBy('markDistributionParent.ordering', 'ASC');
-//        $qb->andWhere("markDistribution.slug = 'doc-sales-vs-collection'");
+//        $qb->andWhere("markDistribution.slug = 'doc-sales-collection'");
 
         $results = $qb->getQuery()->getArrayResult();
         $data = [];

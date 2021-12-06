@@ -886,17 +886,18 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
         $districtsId = array_keys(json_decode($districts, true));
 
-/*        $locations = $board->getEmployee()->getDistrict();
-        $arrs = array();
-        if (!empty($locations)) {
-            foreach ($locations as $location) {
-                $arrs[] = $location->getId();
-            }
-        }*/
+
+        /*        $locations = $board->getEmployee()->getDistrict();
+                $arrs = array();
+                if (!empty($locations)) {
+                    foreach ($locations as $location) {
+                        $arrs[] = $location->getId();
+                    }
+                }*/
 
         $docSalesObj = $em->getRepository(AgentDocSaleCollection::class)->getLocationWiseTotalDocSales($districtsId, $board->getYear(), $board->getMonth());
 
-        $docSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'doc-sales-vs-collection'));
+        $docSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'doc-sales-collection'));
 
         $employeeBoardAttributeForDocSales = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $docSalesDistribution]);
 
