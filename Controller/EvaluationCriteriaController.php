@@ -43,6 +43,8 @@ class EvaluationCriteriaController extends AbstractController
     }
 
     /**
+     * @param Request $request
+     * @param TranslatorInterface $translator
      * @return \Symfony\Component\HttpFoundation\Response
      * @Route("/create", name="evaluation_criteria_create")
      */
@@ -70,6 +72,8 @@ class EvaluationCriteriaController extends AbstractController
     }
 
     /**
+     * @param Request $request
+     * @param TranslatorInterface $translator
      * @return \Symfony\Component\HttpFoundation\Response
      * @Route("/edit", name="evaluation_criteria_edit")
      */
@@ -96,6 +100,8 @@ class EvaluationCriteriaController extends AbstractController
     }
 
     /**
+     * @param Request $request
+     * @param TranslatorInterface $translator
      * @return \Symfony\Component\HttpFoundation\Response
      * @Route("/delete", name="evaluation_criteria_delete")
      */

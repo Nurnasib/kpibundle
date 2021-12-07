@@ -50,7 +50,7 @@
                                         {{ form_label(form.kpiFormat, "Format") }}
                                         {{ form_widget(form.kpiFormat) }}
                                     </th>
-                                    {% if is_granted('ROLE_ADMIN') %}
+                                    {% if is_granted('ROLE_KPI_ADMIN') %}
                                         <th colspan="2">
                                             {{ form_label(form.lineManager) }}
                                             {{ form_widget(form.lineManager) }}
@@ -64,7 +64,7 @@
                                         {{ form_label(form.year) }}
                                         {{ form_widget(form.year) }}
                                     </th>
-                                    {% if is_granted('ROLE_ADMIN') %}
+                                    {% if is_granted('ROLE_KPI_ADMIN') %}
                                         <th colspan="2">
                                             {{ form_label(form.createdBy) }}
                                             {{ form_widget(form.createdBy) }}
@@ -126,7 +126,7 @@
                                     <td>{{ entity.approvedByName|default('') }}</td>
                                     <td align="right">
                                         <div class="btn-group">
-                                            {% if not is_granted("ROLE_ADMIN") %}
+                                            {% if not is_granted("ROLE_KPI_ADMIN") %}
                                                 {% if entity.approvedByName is null %}
                                                     <a class="btn btn-mini yellow-bg white-font" href="{% if entity.reportFormatSlug == 'custom-format' %} {{ path('kpi_employee_board_edit_custom_format',{'id':entity.id}) }} {% else %} {{ path('kpi_employee_board_edit',{'id':entity.id}) }} {% endif %}"><i class="feather icon-edit"></i> Edit</a>
                                                     <a class="btn btn-transparent btn-mini red-font remove" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i></a>

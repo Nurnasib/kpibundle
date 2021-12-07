@@ -23,7 +23,7 @@ use Terminalbd\KpiBundle\Form\TeamMemberSummaryFilterFormType;
  * Class KpiReportController
  * @package Terminalbd\KpiBundle\Controller\kpiReport
  * @Route("/kpi/report")
- * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_KPI_LINE_MANAGER')")
+ * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_KPI_LINE_MANAGER')")
  */
 class KpiReportController extends AbstractController
 {
@@ -278,7 +278,7 @@ class KpiReportController extends AbstractController
             $selectedYear = date('Y');
         }
 
-        if (in_array('ROLE_ADMIN', $user->getRoles())){
+        if (in_array('ROLE_KPI_ADMIN', $user->getRoles())){
 
             $lineManagers = $this->getDoctrine()->getRepository(User::class)->getKpiLineManagers();
             $lineManagersId = [];

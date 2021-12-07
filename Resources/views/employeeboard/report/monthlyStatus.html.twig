@@ -20,7 +20,7 @@
         <div class="row">
             <div class="card">
                 <div class="card-header">
-                    {% if is_granted("ROLE_ADMIN") %}
+                    {% if is_granted("ROLE_KPI_ADMIN") %}
                         <h5>{{ 'Monthly KPI Status (All Employee)' }}</h5>
                     {% else %}
                         <h5>{{ 'Monthly KPI Status (Team Members)' }}</h5>
@@ -36,7 +36,7 @@
                             <table class="table table-striped table-bordered table-hover dataTable">
                                 <thead class="thead-dark">
                                 <tr role="row" class="filter">
-                                    {% if is_granted('ROLE_ADMIN') %}
+                                    {% if is_granted('ROLE_KPI_ADMIN') %}
                                         <th colspan="2">
                                             <select class="form-control select2" name="lineManager">
                                                 <option value="">Select Line Manager</option>
@@ -87,7 +87,7 @@
                             <thead class="thead-dark">
                             <tr>
                                 <th>S/L</th>
-                                {% if is_granted('ROLE_ADMIN') %}
+                                {% if is_granted('ROLE_KPI_ADMIN') %}
                                     <th>Line Manager</th>
                                 {% endif %}
                                 <th>Employee ID</th>
@@ -99,7 +99,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                                {% if is_granted('ROLE_ADMIN') %}
+                                {% if is_granted('ROLE_KPI_ADMIN') %}
                                     {% if employees is defined and employees is not empty %}
                                         {% for lineManagerId,employee in employees %}
                                             {% if employee['teamMember'] is defined %}

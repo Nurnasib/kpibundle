@@ -50,7 +50,7 @@ class EmployeeBoardRepository extends EntityRepository
 
         if (in_array('ROLE_KPI_LINE_MANAGER', $user->getRoles())){
             $qb->andWhere('u.lineManager = :user')->setParameter('user', $user);
-        }elseif (!in_array('ROLE_KPI_LINE_MANAGER', $user->getRoles()) && !in_array('ROLE_ADMIN', $user->getRoles())){
+        }elseif (!in_array('ROLE_KPI_LINE_MANAGER', $user->getRoles()) && !in_array('ROLE_KPI_ADMIN', $user->getRoles())){
             $qb->andWhere('s.employee = :user')->setParameter('user', $user);
         }
         $qb->orderBy('s.created','DESC');
@@ -107,7 +107,7 @@ class EmployeeBoardRepository extends EntityRepository
 
         if (in_array('ROLE_KPI_LINE_MANAGER', $user->getRoles())){
             $qb->andWhere('u.lineManager = :user')->setParameter('user', $user);
-        }elseif (!in_array('ROLE_KPI_LINE_MANAGER', $user->getRoles()) && !in_array('ROLE_ADMIN', $user->getRoles())){
+        }elseif (!in_array('ROLE_KPI_LINE_MANAGER', $user->getRoles()) && !in_array('ROLE_KPI_ADMIN', $user->getRoles())){
             $qb->andWhere('s.employee = :user')->setParameter('user', $user);
         }
 
@@ -178,7 +178,7 @@ class EmployeeBoardRepository extends EntityRepository
         $qb->addSelect('employee.userId', 'employee.name');
         $qb->addSelect('lineManager.userId AS lineManagerUserId', 'lineManager.name AS lineManagerName');
         $qb->where('e.year = :year')->setParameter('year', $year);
-        if (!in_array('ROLE_ADMIN', $user->getRoles())){
+        if (!in_array('ROLE_KPI_ADMIN', $user->getRoles())){
             $qb->andWhere('lineManager.id = :lineManagerId')->setParameter('lineManagerId', $user->getId());
         }
         if ($selectedLineManager){
@@ -187,7 +187,7 @@ class EmployeeBoardRepository extends EntityRepository
         $results = $qb->getQuery()->getArrayResult();
         $data = [];
 
-        if (in_array('ROLE_ADMIN', $user->getRoles())){
+        if (in_array('ROLE_KPI_ADMIN', $user->getRoles())){
             foreach ($results as $result) {
                 $data[$result['lineManagerUserId']]['lineManager'] = [
                     'userId' => $result['lineManagerUserId'],

@@ -17,7 +17,7 @@
     <div class="card">
         <div class="card-header pt-0 pb-0">
             <h4 align="center">All Team Member Summary</h4>
-            {% if not is_granted('ROLE_ADMIN') %}
+            {% if not is_granted('ROLE_KPI_ADMIN') %}
                 <h3 align="center">{{ app.user.name }}</h3>
             {% endif %}
             <h5 align="center">{{ '(' ~ filterBy.startMonth ~ ' - ' ~ filterBy.endMonth ~ ')' ~ ' - ' ~ filterBy.year }}</h5>

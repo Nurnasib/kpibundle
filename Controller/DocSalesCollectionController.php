@@ -30,6 +30,8 @@ class DocSalesCollectionController extends AbstractController
 
     /**
      * @Route("/", methods={"GET"}, name="kpi_doc_sales_collection")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function docSalesCollection(Request $request)
     {

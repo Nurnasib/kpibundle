@@ -29,7 +29,7 @@ use Terminalbd\KpiBundle\Form\MarkChartFormType;
 /**
  * @Route("/kpi/mark-chart")
  * @author Md Shafiqul Islam <shafiqabs@gmail.com>
- * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+ * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
  */
 class MarkChartController extends AbstractController
 {

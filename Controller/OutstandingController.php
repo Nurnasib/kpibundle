@@ -29,8 +29,11 @@ class OutstandingController extends AbstractController
         );
         return $pagination;
     }
+
     /**
      * @Route("/", methods={"GET"}, name="kpi_outstanding")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function agentOutstanding(Request $request)
     {

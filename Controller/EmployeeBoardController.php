@@ -717,7 +717,7 @@ class EmployeeBoardController extends AbstractController
      * @Route("/{id}/approve", methods={"GET"}, name="kpi_approve")
      * @param EmployeeBoard $employeeBoard
      * @return Response
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI_LINE_MANAGER') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_KPI_LINE_MANAGER') or is_granted('ROLE_DOMAIN')")
      */
     public function approve(EmployeeBoard $employeeBoard): Response
     {

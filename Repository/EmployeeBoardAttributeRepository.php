@@ -1761,7 +1761,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         } elseif(isset($filterBy['lineManager'])){
             $qb->andWhere('lineManager.id = :lineManagerId')->setParameter('lineManagerId', $filterBy['lineManager']);
         }
-        if (! in_array('ROLE_ADMIN', $user->getRoles())){
+        if (! in_array('ROLE_KPI_ADMIN', $user->getRoles())){
             $qb->andWhere('lineManager.id = :lineManagerId')->setParameter('lineManagerId', $user->getId());
 
         }

@@ -61,7 +61,7 @@ class KpiController extends AbstractController
      * updateLocationSales a LocationSalesTarget entity.
      *
      * @Route("/{id}/update-location-sales-target", methods={"GET"}, name="kpi_markchart_location_sales_target")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
      */
     public function updateLocationSales($id) : Response
     {

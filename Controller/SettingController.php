@@ -27,7 +27,7 @@ use Terminalbd\KpiBundle\Form\SettingSearchFilterFormType;
 /**
  * @Route("/kpi/setting")
  * @author Md Shafiqul Islam <shafiqabs@gmail.com>
- * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+ * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
  */
 class SettingController extends AbstractController
 {

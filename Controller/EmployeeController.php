@@ -55,7 +55,7 @@ class EmployeeController extends AbstractController
 
     /**
      * @Route("/list/{mode}", defaults={"mode" = null}, methods={"GET"}, name="kpi_employee")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_KPI_LINE_MANAGER')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_KPI_LINE_MANAGER')")
      * @param Request $request
      * @param UserRepository $userRepository
      * @param $mode
@@ -98,7 +98,7 @@ class EmployeeController extends AbstractController
 
 
     /**
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
      * @Route("/register", methods={"GET", "POST"}, name="kpi_employee_register")
      * @param Request $request
      * @return Response
@@ -132,7 +132,7 @@ class EmployeeController extends AbstractController
     }
 
     /**
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="kpi_employee_edit")
      * @param Request $request
      * @param User $post
@@ -204,7 +204,7 @@ class EmployeeController extends AbstractController
     }
 
     /**
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
      * @Route("/{id}/reset-password", methods={"GET", "POST"}, name="kpi_employee_password", options={"expose"=true})
      * @param Request $request
      * @param UserRepository $userRepository
@@ -238,7 +238,7 @@ class EmployeeController extends AbstractController
 
 
     /**
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
      * @Route("/{id}/reset-inline-password", methods={"GET", "POST"}, name="kpi_employee_inline_password", options={"expose"=true})
      * @param Request $request
      * @param UserRepository $userRepository
@@ -290,7 +290,7 @@ class EmployeeController extends AbstractController
 
     /**
      * @Route("/designation-select", name="kpi_designation_select", options={"expose"=true})
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
      * @param SettingRepository $settingRepository
      * @return JsonResponse
      */
@@ -306,7 +306,7 @@ class EmployeeController extends AbstractController
      * @param User $user
      * @return JsonResponse
      * @Route("/designation-inline-update/{id}", name="kpi_designation_inline_update", options={"expose"=true})
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
      */
     public function inlineUpdateDesignation(Request $request, User $user)
     {
@@ -327,7 +327,7 @@ class EmployeeController extends AbstractController
 
     /**
      * @Route("/line-manager-select", name="kpi_line_manager_select", options={"expose"=true})
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
      * @param UserRepository $repository
      * @return JsonResponse
      */
@@ -343,7 +343,7 @@ class EmployeeController extends AbstractController
      * @param User $user
      * @return JsonResponse
      * @Route("/line-manager-inline-update/{id}", name="kpi_line_manager_inline_update", options={"expose"=true})
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
      */
     public function inlineUpdateLineManager(Request $request, User $user)
     {
@@ -364,7 +364,7 @@ class EmployeeController extends AbstractController
 
     /**
      * @Route("/report-mode-select", name="kpi_report_mode_select", options={"expose"=true})
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
      * @param SettingRepository $repository
      * @return JsonResponse
      */
@@ -380,7 +380,7 @@ class EmployeeController extends AbstractController
      * @param User $user
      * @return JsonResponse
      * @Route("/report-mode-inline-update/{id}", name="kpi_report_mode_inline_update", options={"expose"=true})
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
      */
     public function inlineUpdateReportMode(Request $request, User $user)
     {
@@ -418,7 +418,7 @@ class EmployeeController extends AbstractController
 
     /**
      * @Route("/hierarchy/{mode}",defaults={"mode" = null}, name="kpi_employee_hierarchy")
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
      * @param UserRepository $repository
      * @param $mode
      * @param Request $request
@@ -465,7 +465,7 @@ class EmployeeController extends AbstractController
 
     /**
      * @Route("/{id}/details", name="kpi_employee_details", options={"expose"=true})
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_KPI_LINE_MANAGER')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_KPI_LINE_MANAGER')")
      * @param User $employee
      * @return JsonResponse
      */

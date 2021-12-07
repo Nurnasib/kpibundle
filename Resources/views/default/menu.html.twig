@@ -1,7 +1,7 @@
 <ul class="" aria-labelledby="navbarDropdownMenuLink">
     <li><a class="dropdown-item" href="{{ path('kpi_employee_board') }}">{{ 'KPI Board'|trans }}</a></li>
 
-    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI_LINE_MANAGER') %}
+    {% if is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_KPI_LINE_MANAGER') or is_granted("ROLE_DEVELOPER") %}
         <li><a class="dropdown-item" href="javascript:">{{ 'Report'|trans }}</a>
             <ul>
                 <li><a class="dropdown-item" href="{{ path('all_team_member_summary') }}">{{ 'All Employee KPI'|trans }}</a></li>
@@ -12,7 +12,7 @@
         </li>
     {% endif %}
 
-    {% if is_granted('ROLE_ADMIN') %}
+    {% if is_granted('ROLE_KPI_ADMIN') or is_granted("ROLE_DEVELOPER") %}
         <li><a class="dropdown-item" href="{{ path('kpi_markchart_matrix') }}">{{ 'KPI Format'|trans }}</a>
             <ul>
                 <li><a class="dropdown-item" href="{{ path('kpi_markchart') }}">{{ 'Mark Chart'|trans }}</a></li>
@@ -37,19 +37,19 @@
         </li>
     {% endif %}
 
-    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI_LINE_MANAGER') or is_granted('ROLE_KPI_EXECUTIVE') %}
+    {% if is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_KPI_LINE_MANAGER') or is_granted('ROLE_KPI_EXECUTIVE') or is_granted("ROLE_DEVELOPER") %}
         <li><a class="dropdown-item" href="javascript:">{{ 'Master Data'|trans }}</a>
             <ul>
-                {% if not is_granted('ROLE_KPI_EXECUTIVE') %}
+                {% if not is_granted('ROLE_KPI_EXECUTIVE') or is_granted("ROLE_DEVELOPER") %}
                     <li><a class="dropdown-item" href="{{ path('kpi_employee') }}">{{ 'KPI Employee'|trans }}</a></li>
                 {% endif %}
-                {% if is_granted('ROLE_ADMIN') %}
+                {% if is_granted('ROLE_KPI_ADMIN') or is_granted("ROLE_DEVELOPER") %}
                     <li><a class="dropdown-item" href="{{ path('kpi_employee_hierarchy') }}">{{ 'KPI Employee Hierarchy'|trans }}</a></li>
                 {% endif %}
-                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_KPI_EXECUTIVE') %}
+                {% if is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_KPI_EXECUTIVE') or is_granted("ROLE_DEVELOPER") %}
                     <li><a class="dropdown-item" href="{{ path('kpi_file_upload_index') }}">{{ 'Data Import'|trans }}</a></li>
                 {% endif %}
-                {% if is_granted('ROLE_ADMIN') %}
+                {% if is_granted('ROLE_KPI_ADMIN') or is_granted("ROLE_DEVELOPER") %}
                     <li><a class="dropdown-item" href="{{ path('kpi_setting') }}">{{ 'Setting'|trans}}</a></li>
                     <li><a class="dropdown-item" href="{{ path('kpi_setting_new') }}">{{ 'New Setting'|trans }}</a></li>
                 {% endif %}

@@ -46,9 +46,9 @@
                                                 <a class="btn btn-mini bg-secondary white-font" href="{{ path('kpi_insert_agent_category',{'id':entity.id}) }}"><i class="feather icon-upload"></i>Grade Change</a>
                                         {% endif %}
                                         
-                                        {% if entity.status == 0 and not is_granted('ROLE_ADMIN') %}
+                                        {% if entity.status == 0 and not is_granted('ROLE_KPI_ADMIN') %}
                                             <a data-action="{{ path('kpi_file_upload_file_delete',{'id':entity.id}) }}" class="btn  btn-transparent btn-mini red-font remove" href="javascript:"><i class="fa fa-remove"></i></a>
-                                            {% elseif is_granted('ROLE_ADMIN') %}
+                                            {% elseif is_granted('ROLE_KPI_ADMIN') %}
                                                 <a data-action="{{ path('kpi_file_upload_file_delete',{'id':entity.id}) }}" class="btn  btn-transparent btn-mini red-font remove" href="javascript:"><i class="fa fa-remove"></i></a>
                                         {% endif %}
                                     </div>

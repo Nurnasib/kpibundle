@@ -34,7 +34,7 @@ class KpiBoardSearchFilterFormType extends AbstractType
         $user = $options['user'];
         $lineManagers = $options['lineManagers'];
 
-        if (in_array('ROLE_ADMIN', $user->getRoles())){
+        if (in_array('ROLE_KPI_ADMIN', $user->getRoles())){
             $builder
                 ->add('createdBy', ChoiceType::class,[
                     'choices' => $lineManagers,
@@ -61,7 +61,7 @@ class KpiBoardSearchFilterFormType extends AbstractType
                     return'( ' . $user->getUserId() . ' ) ' . $user->getName();
                 },
                 'query_builder' => function (EntityRepository $er) use ($user) {
-                    if(in_array('ROLE_ADMIN', $user->getRoles())){
+                    if(in_array('ROLE_KPI_ADMIN', $user->getRoles())){
                         return $er->createQueryBuilder('e')
                             ->join('e.userGroup','ug')
                             ->where('e.enabled =1')

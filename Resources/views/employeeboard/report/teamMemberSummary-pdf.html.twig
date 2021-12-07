@@ -14,7 +14,7 @@
 </head>
 <body>
 {#{% if teamMemberSummary is not empty %}#}
-    {% if not is_granted('ROLE_ADMIN') %}
+    {% if not is_granted('ROLE_KPI_ADMIN') %}
         <h3 align="center">Summary for {{ filterBy['employee'].name|default('') }} ({{ filterBy['year'] }})</h3>
 
         <table cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 15px">

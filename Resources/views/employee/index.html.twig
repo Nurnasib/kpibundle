@@ -22,7 +22,7 @@
                     <h5>{{ 'KPI Employee'|trans }}</h5>
                     <div class="card-header-right">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
-                            {% if is_granted('ROLE_ADMIN') %}
+                            {% if is_granted('ROLE_KPI_ADMIN') %}
                                 <a
                                         href="{{ path('kpi_employee_register') }}"
                                         class="btn btn-sm green-bg white-font">
@@ -31,7 +31,7 @@
                             {% endif %}
                             <a href="{{ path('kpi_employee') }}" class="btn btn-sm gray-bg white-font"><i
                                         class="fa fa-th-large"></i>{{ 'Employee'|trans }}</a>
-                            {% if is_granted('ROLE_ADMIN') %}
+                            {% if is_granted('ROLE_KPI_ADMIN') %}
                                 <a
                                         href="{{ path('kpi_employee', {mode: 'excel'}) }}"
                                         class="btn btn-sm blue-bg white-font">
@@ -67,7 +67,7 @@
                                     {{ form_label(form.kpiFormat, "Format") }}
                                     {{ form_widget(form.kpiFormat) }}
                                 </th>
-                                {% if is_granted('ROLE_ADMIN') %}
+                                {% if is_granted('ROLE_KPI_ADMIN') %}
                                     <th colspan="2">
                                         {{ form_label(form.lineManager) }}
                                         {{ form_widget(form.lineManager) }}
@@ -109,7 +109,7 @@
                                 <th scope="col">Designation</th>
                                 <th scope="col">Line Manager</th>
                                 <th scope="col">Report Mode</th>
-                                {% if is_granted('ROLE_ADMIN') %}
+                                {% if is_granted('ROLE_KPI_ADMIN') %}
                                     <th scope="col">Password</th>
                                 {% endif %}
                                 <th scope="col">Mobile</th>
@@ -128,13 +128,13 @@
                                         <td>{{ loop.index + offset }}</td>
                                         <td>{{ entity.userId|default('') }}</td>
                                         <td>{{ entity.name|default('') }}</td>
-                                        {% if not is_granted('ROLE_ADMIN') %}
+                                        {% if not is_granted('ROLE_KPI_ADMIN') %}
                                             <td>{{ entity.designation.name|default('') }}</td>
                                             <td>{{ entity.lineManager.name|default('') }}</td>
                                             <td>{{ entity.reportMode.name|default('') }}</td>
                                         {% endif %}
 
-                                        {% if is_granted('ROLE_ADMIN') %}
+                                        {% if is_granted('ROLE_KPI_ADMIN') %}
                                             <td>
                                                 <a
                                                         data-type="select"
@@ -211,7 +211,7 @@
                                         <td>{{ entity.enabled == 1 ? "Enabled":"Disabled" }}</td>
                                         <td>
                                             <div class="btn-group">
-                                                {% if is_granted('ROLE_ADMIN') %}
+                                                {% if is_granted('ROLE_KPI_ADMIN') %}
                                                     <a
                                                             class="btn btn-mini yellow-bg white-font"
                                                             href="{{ path('kpi_employee_edit',{'id':entity.id}) }}">
@@ -227,7 +227,7 @@
                                                         href="">
                                                     <i class="feather icon-eye"></i> View
                                                 </a>
-                                                {% if is_granted('ROLE_ADMIN') %}
+                                                {% if is_granted('ROLE_KPI_ADMIN') %}
                                                     <a
                                                             class="btn btn-mini purple-bg white-font"
                                                             href="{{ path('kpi_employee_password',{'id':entity.id}) }}">

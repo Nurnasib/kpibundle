@@ -28,7 +28,7 @@ class TeamMemberSummaryFilterFormType extends AbstractType
         $user = $options['user'];
         $lineManagers = $options['lineManagers'];
 
-        if (in_array('ROLE_ADMIN', $user->getRoles())){
+        if (in_array('ROLE_KPI_ADMIN', $user->getRoles())){
             $builder->add('lineManager', ChoiceType::class,[
                 'choices' => $lineManagers,
                 'attr' => [

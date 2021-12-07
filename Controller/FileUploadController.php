@@ -25,7 +25,7 @@ use Terminalbd\KpiBundle\Form\FileUploadFormType;
  * Class FileUploadController
  * @package Terminalbd\KpiBundle\Controller\FileUpload
  * @Route("/kpi/file-upload", name="")
- * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_KPI_EXECUTIVE')")
+ * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_KPI_EXECUTIVE')")
  */
 class FileUploadController extends AbstractController
 {

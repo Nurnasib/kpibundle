@@ -50,6 +50,9 @@ class AgentSalesController extends AbstractController
     /**
      * Lists all Post entities.
      * @Route("/", name="kpi_agent")
+     * @param Request $request
+     * @param AgentRepository $repository
+     * @return Response
      */
     public function index(Request $request, AgentRepository $repository): Response
     {
@@ -125,6 +128,8 @@ class AgentSalesController extends AbstractController
     /**
      * Lists all Post entities.
      * @Route("/sales", methods={"GET"}, name="kpi_agent_sales")
+     * @param Request $request
+     * @return Response
      */
     public function sales(Request $request): Response
     {
@@ -176,6 +181,8 @@ class AgentSalesController extends AbstractController
     /**
      * Lists all Post entities.
      * @Route("/{id}/outstanding", methods={"GET"}, name="kpi_agent_outstanding")
+     * @param Agent $agent
+     * @return Response
      */
     public function agentOutstanding(Agent $agent)
     {

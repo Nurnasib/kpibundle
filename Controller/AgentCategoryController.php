@@ -89,6 +89,8 @@ class AgentCategoryController extends AbstractController
 
     /**
      * @Route("/month-wise-agent-grade", name="kpi_month_wise_agent_grade")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function monthWiseAgentGrade(Request $request)
     {

@@ -3,7 +3,7 @@
     <tr>
         <th colspan="6" align="center">All Team Member Summary</th>
     </tr>
-    {% if not is_granted('ROLE_ADMIN') %}
+    {% if not is_granted('ROLE_KPI_ADMIN') %}
         <tr>
             <th colspan="6" align="center">{{ app.user.name }}</th>
         </tr>
