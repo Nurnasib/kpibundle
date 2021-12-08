@@ -238,7 +238,7 @@ class EmployeeBoardController extends AbstractController
 
         $districtsHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $entity->getEmployee(), 'month' => $entity->getMonth(), 'year' => $entity->getYear()]);
 
-        $entity->setDistrict($districtsHistory->getDistrict());
+        $entity->setDistrict($districtsHistory ? $districtsHistory->getDistrict() : null);
         $em->persist($entity);
         $em->flush();
         return $this->render('@TerminalbdKpi/employeeboard/new.html.twig', [

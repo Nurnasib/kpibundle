@@ -254,7 +254,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $employeeDistrictHistory = $em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
 
         $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
-        $districtsId = array_keys(json_decode($districts, true));
+        $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
 
 /*        $locations = $board->getEmployee()->getDistrict();
         $locationsId = [];
@@ -845,8 +845,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
         $employeeDistrictHistory = $em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
 
-        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : [];
-        $districtsId = array_keys(json_decode($districts, true));
+        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
+        $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
 
 
 /*        $locations = $board->getEmployee()->getDistrict();
@@ -884,7 +884,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $employeeDistrictHistory = $em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
 
         $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
-        $districtsId = array_keys(json_decode($districts, true));
+        $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
 
 
         /*        $locations = $board->getEmployee()->getDistrict();

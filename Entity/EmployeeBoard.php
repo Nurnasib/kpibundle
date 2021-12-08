@@ -396,7 +396,7 @@ class EmployeeBoard
     /**
      * @param string $district
      */
-    public function setDistrict(string $district): void
+    public function setDistrict($district): void
     {
         $this->district = $district;
     }
