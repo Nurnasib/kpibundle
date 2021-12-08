@@ -102,10 +102,10 @@ class EmployeeBoardController extends AbstractController
 
     public function new(Request $request, $format): Response
     {
-        $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
-        $entity = new EmployeeBoard();
+        $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
+        $board = new EmployeeBoard();
 
-        $form = $this->createForm(EmployeeBoardFormType::class , $entity,['user'=>$this->getUser(), 'format' => $format])
+        $form = $this->createForm(EmployeeBoardFormType::class , $board,['user'=>$this->getUser(), 'format' => $format])
             ->add('monthYear', TextType::class,['attr'=>['class'=>'inputMonth','autocomplete'=>'off'],'mapped'=>false])
             ->add('SaveAndCreate', SubmitType::class);
         $form->handleRequest($request);
@@ -138,31 +138,32 @@ class EmployeeBoardController extends AbstractController
             if (empty($exist)) {
                 $employeeDistrictHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $emp, 'year' => $year, 'month' => $month]);
                 $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
+
                 if (!$districts){
                     $this->addFlash('error', 'Districts not found!');
                     return $this->redirectToRoute('kpi_board_new', [$format]);
                 }
 
                 $em = $this->getDoctrine()->getManager();
-                $entity->setYear($year);
-                $entity->setMonth($month);
-                $entity->setProcess('created');
-                $entity->setReportMode($emp->getReportMode());
-                $entity->setEmployee($emp);
-                $entity->setCreatedBy($this->getUser());
-                $entity->setDistrict($districts);
-                $entity->setCreated(new \DateTime());
-                $entity->setUpdated(new \DateTime());
+                $board->setYear($year);
+                $board->setMonth($month);
+                $board->setProcess('created');
+                $board->setReportMode($emp->getReportMode());
+                $board->setEmployee($emp);
+                $board->setCreatedBy($this->getUser());
+                $board->setDistrict($districts);
+                $board->setCreated(new \DateTime());
+                $board->setUpdated(new \DateTime());
 
-                $em->persist($entity);
+                $em->persist($board);
                 $em->flush();
 
                 if ($format == 'custom-format'){
-                    $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistributionForCustomFormat($entity,$entities);
-                    return $this->redirectToRoute('kpi_employee_board_edit_custom_format',array('id' => $entity->getId()));
+                    $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistributionForCustomFormat($board,$parameters);
+                    return $this->redirectToRoute('kpi_employee_board_edit_custom_format',array('id' => $board->getId()));
                 }else{
-                    $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($entity,$entities);
-                    return $this->redirectToRoute('kpi_employee_board_edit',array('id' => $entity->getId()));
+                    $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($board, $parameters);
+                    return $this->redirectToRoute('kpi_employee_board_edit',array('id' => $board->getId()));
                 }
             }else{
                 if ($format == 'custom-format'){
@@ -173,7 +174,7 @@ class EmployeeBoardController extends AbstractController
             }
         }
         return $this->render('@TerminalbdKpi/employeeboard/create.html.twig', [
-            'setupEntity' => $entity,
+            'setupEntity' => $board,
             'form' => $form->createView(),
             'format' => $format
         ]);
@@ -225,9 +226,9 @@ class EmployeeBoardController extends AbstractController
             return $this->redirectToRoute('kpi_employee_board');
         }
         $em = $this->getDoctrine()->getManager();
-        $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
+        $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
 
-        $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($entity,$entities);
+        $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($entity,$parameters);
 
         $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($entity);
         $arrayData=[];
@@ -732,11 +733,11 @@ class EmployeeBoardController extends AbstractController
     public function approve(EmployeeBoard $employeeBoard): Response
     {
 
-        $entities = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
+        $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
 
         $em = $this->getDoctrine()->getManager();
 
-        $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($employeeBoard,$entities); //update Actual mark & obtain mark
+        $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($employeeBoard,$parameters); //update Actual mark & obtain mark
 
         $employeeBoard->setApprovedBy($this->getUser());
         $em->persist($employeeBoard);

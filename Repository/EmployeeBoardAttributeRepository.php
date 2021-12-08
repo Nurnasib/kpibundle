@@ -86,10 +86,15 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         return $data;
     }
 
-    public function insertMarkDistribution(EmployeeBoard $board, $entities)
+    public function insertMarkDistribution(EmployeeBoard $board, $parameters)
     {
         $em = $this->_em;
-        foreach ($entities as $parameter){
+
+        $employeeDistrictHistory = $this->_em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
+        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
+        $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
+
+        foreach ($parameters as $parameter){
             if (!empty($parameter->getChildren())) {
                 foreach ($parameter->getChildren() as $activity){
                     if (!empty($activity->getChildren())) {
@@ -114,7 +119,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 }
             }
         }
-        $this->updateSalesProcess($board);
+        $this->updateSalesProcess($board, $districtsId);
         $subAttrs = $this->groupByAttributeMarks($board);
         foreach ($subAttrs as $sub):
             $exist = $this->findOneBy(array('employeeBoard' => $board, 'attribute' => $sub['parentId']));
@@ -126,9 +131,9 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         endforeach;
 
         $this->updateIndividualSales($board);
-        $this->updateOutStandingLimit($board);
-        $this->updateDocSales($board);
-        $this->updateCategoryUpgrade($board);
+        $this->updateOutStandingLimit($board, $districtsId);
+        $this->updateDocSales($board, $districtsId);
+        $this->updateCategoryUpgrade($board, $districtsId);
 
         /*        $filterBy = [];
                 $filterBy['employeeId'] = $board->getEmployee()->getId();
@@ -143,15 +148,15 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $this->updateEvaluationCriteriaCattle($board, $filterBy);
                 }*/
 
-        $this->agentSalesGrowth($board);
+        $this->agentSalesGrowth($board, $districtsId);
         $this->gradeUpdate($board);
 
     }
 
-    public function insertMarkDistributionForCustomFormat(EmployeeBoard $board, $entities)
+    public function insertMarkDistributionForCustomFormat(EmployeeBoard $board, $parameters)
     {
         $em = $this->_em;
-        foreach ($entities as $parameter){
+        foreach ($parameters as $parameter){
             if (!empty($parameter->getChildren())) {
                 foreach ($parameter->getChildren() as $activity){
                     if (!empty($activity->getChildren())) {
@@ -245,17 +250,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         }
     }
 
-    public function agentSalesGrowth(EmployeeBoard $board)
+    public function agentSalesGrowth(EmployeeBoard $board, $districtsId)
     {
         $em = $this->_em;
         $prevYear = $board->getYear() - 1;
         $twentyPercentGrowthAgents = [];
-
-        $employeeDistrictHistory = $em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
-
-        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
-        $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
-
 /*        $locations = $board->getEmployee()->getDistrict();
         $locationsId = [];
         if (!empty($locations)) {
@@ -535,15 +534,9 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     }
 
 
-    public function updateSalesProcess(EmployeeBoard $board)
+    public function updateSalesProcess(EmployeeBoard $board, $districtsId)
     {
-
         $em = $this->_em;
-        $employeeDistrictHistory = $em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
-
-        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
-        $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
-
         $entities = "";
 /*        $locations = $board->getEmployee()->getDistrict();
         $arrs = array();
@@ -839,15 +832,9 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     }
 
-    public function updateOutStandingLimit(EmployeeBoard $board)
+    public function updateOutStandingLimit(EmployeeBoard $board, $districtsId)
     {
         $em = $this->_em;
-
-        $employeeDistrictHistory = $em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
-
-        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
-        $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
-
 
 /*        $locations = $board->getEmployee()->getDistrict();
         $arrs = array();
@@ -877,16 +864,9 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     }
 
-    public function updateDocSales(EmployeeBoard $board)
+    public function updateDocSales(EmployeeBoard $board, $districtsId)
     {
         $em = $this->_em;
-
-        $employeeDistrictHistory = $em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
-
-        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
-        $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
-
-
         /*        $locations = $board->getEmployee()->getDistrict();
                 $arrs = array();
                 if (!empty($locations)) {
@@ -909,12 +889,12 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     }
 
-    public function updateCategoryUpgrade(EmployeeBoard $board)
+    public function updateCategoryUpgrade(EmployeeBoard $board, $districtsId)
     {
         $em = $this->_em;
 
         $gradeLetters = ['C', 'D'];
-        $categoryUpgradationMark = $em->getRepository(AgentCategory::class)->getCategoryUpgradationMarks($board, $gradeLetters);
+        $categoryUpgradationMark = $em->getRepository(AgentCategory::class)->getCategoryUpgradationMarks($board, $gradeLetters, $districtsId);
         $agentCategoryDistributions = $em->getRepository(MarkChart::class)->findBy(['slug' => ['minimum-50-d-category-agents-converts-to-c', 'minimum-50-c-category-agents-converts-to-b']]);
 
         foreach ($agentCategoryDistributions as $agentCategoryDistribution) {

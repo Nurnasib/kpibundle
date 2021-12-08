@@ -159,13 +159,9 @@ class AgentCategoryRepository extends EntityRepository
         return $results;
     }
 
-    public function getCategoryUpgradationMarks(EmployeeBoard $employeeBoard, $gradeLetters)
+    public function getCategoryUpgradationMarks(EmployeeBoard $employeeBoard, $gradeLetters, $districtsId)
     {
         $prevYear = date('Y',strtotime('-1 year'));
-        $employeeDistrictHistory = $this->_em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $employeeBoard->getEmployee(), 'year' => $employeeBoard->getYear(), 'month' => $employeeBoard->getMonth()]);
-
-        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
-        $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
 /*        $locations = $employeeBoard->getEmployee()->getDistrict();
         $locationsId = [];
         if(!empty($locations)){
