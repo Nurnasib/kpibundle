@@ -279,13 +279,19 @@ class EmployeeBoardController extends AbstractController
             $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][]=$boardAttribute;
         }
 
-        $districts = null;
+/*        $districts = null;
         foreach ($board->getEmployee()->getDistrict() as $key => $district) {
             $districts[$district->getId()] = $district->getName();
-        }
-        $board->setDistrict(json_encode($districts));
+        }*/
+
+/*        $employeeDistrictHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
+
+        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
+
+
+        $board->setDistrict($districts);
         $this->getDoctrine()->getManager()->persist($board);
-        $this->getDoctrine()->getManager()->flush();
+        $this->getDoctrine()->getManager()->flush();*/
 
         return $this->render('@TerminalbdKpi/employeeboard/custom-format/new.html.twig', [
             'board' => $board,
@@ -413,13 +419,17 @@ class EmployeeBoardController extends AbstractController
     public function reportDetails($id): Response
     {
         $entity = $this->getDoctrine()->getRepository(EmployeeBoard::class)->find($id);
-        $employeeDistricts = $entity->getEmployee()->getDistrict();
+/*        $employeeDistricts = $entity->getEmployee()->getDistrict();
 
         $districtsId = [];
 
         foreach ($employeeDistricts as $employeeDistrict){
             $districtsId[]=$employeeDistrict->getId();
-        }
+        }*/
+
+        $districtHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $entity->getEmployee(), 'month' => $entity->getMonth(), 'year' => $entity->getYear()]);
+        $districts = $districtHistory ? $districtHistory->getDistrict() : '';
+        $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
 
         $category = $this->getDoctrine()->getRepository(AgentCategory::class)->getPreviousYearCategory($districtsId);
 
@@ -506,7 +516,7 @@ class EmployeeBoardController extends AbstractController
      */
     public function salesAchievementSummary(EmployeeBoard $entity, $mode, Request $request): Response
     {
-        $locations = $entity->getEmployee()->getDistrict();
+//        $locations = $entity->getEmployee()->getDistrict();
         $districtHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $entity->getEmployee(), 'month' => $entity->getMonth(), 'year' => $entity->getYear()]);
         $districts = $districtHistory ? $districtHistory->getDistrict() : '';
         $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
@@ -536,8 +546,8 @@ class EmployeeBoardController extends AbstractController
         $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getLocationWiseDocSales($districtsId, $entity);
         $individualTeamMemberMarks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getIndividualTeamMemberMarks($employeeArrs, $parameter, $entity);
 
-        $dCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithDInDecember($entity);
-        $cCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithCInDecember($entity);
+        $dCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithDInDecember($entity,$districtsId);
+        $cCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithCInDecember($entity,$districtsId);
         $twentyPercentGrowthAgentSalesDetails = $this->getDoctrine()->getRepository(AgentOrder::class)->getTwentyPercentGrowthAgentSalesDetails($entity, $districtsId);
 
         if ($mode == 'pdf'){

@@ -13,6 +13,7 @@ namespace Terminalbd\KpiBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
+use Terminalbd\KpiBundle\Entity\EmployeeDistrictHistory;
 
 /**
  * This custom Doctrine repository contains some methods which are useful when
@@ -161,13 +162,17 @@ class AgentCategoryRepository extends EntityRepository
     public function getCategoryUpgradationMarks(EmployeeBoard $employeeBoard, $gradeLetters)
     {
         $prevYear = date('Y',strtotime('-1 year'));
-        $locations = $employeeBoard->getEmployee()->getDistrict();
+        $employeeDistrictHistory = $this->_em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $employeeBoard->getEmployee(), 'year' => $employeeBoard->getYear(), 'month' => $employeeBoard->getMonth()]);
+
+        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
+        $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
+/*        $locations = $employeeBoard->getEmployee()->getDistrict();
         $locationsId = [];
         if(!empty($locations)){
             foreach ($locations as $location){
                 $locationsId[] = $location->getId();
             }
-        }
+        }*/
 //        $gradeLetters = ['C','D'];
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent','agent');
@@ -178,7 +183,7 @@ class AgentCategoryRepository extends EntityRepository
         $qb->addSelect('agent.id AS agentId');
 
         $qb->where('e.year = :prevYear')->setParameter('prevYear', $prevYear);
-        $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $locationsId);
+        $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $districtsId);
         $qb->andWhere("e.month = 'December'");
         $qb->andWhere('gradeStandard.grade IN (:gradeLetters)')->setParameter('gradeLetters', $gradeLetters);
 
@@ -244,21 +249,23 @@ class AgentCategoryRepository extends EntityRepository
                 $marks[$grade] = 1;
             }
         }
+
         return $marks;
     }
 
 
 
-    public function getAgentWithDInDecember(EmployeeBoard $employeeBoard)
+    public function getAgentWithDInDecember(EmployeeBoard $employeeBoard, $districtsId)
     {
         $prevYear = $employeeBoard->getYear()-1;
-        $locations = $employeeBoard->getEmployee()->getDistrict();
+/*        $locations = $employeeBoard->getEmployee()->getDistrict();
         $locationsId = [];
         if(!empty($locations)){
             foreach ($locations as $location){
                 $locationsId[] = $location->getId();
             }
-        }
+        }*/
+
 //        $gradeLetters = ['C','D'];
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent','agent');
@@ -270,7 +277,7 @@ class AgentCategoryRepository extends EntityRepository
         $qb->addSelect('e.average');
 
         $qb->where('e.year = :prevYear')->setParameter('prevYear', $prevYear);
-        $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $locationsId);
+        $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $districtsId);
         $qb->andWhere("e.month = 'December'");
         $qb->andWhere("gradeStandard.grade = 'D'");
 
@@ -332,16 +339,17 @@ class AgentCategoryRepository extends EntityRepository
 
 
 
-    public function getAgentWithCInDecember(EmployeeBoard $employeeBoard)
+    public function getAgentWithCInDecember(EmployeeBoard $employeeBoard, $districtsId)
     {
         $prevYear = $employeeBoard->getYear()-1;
-        $locations = $employeeBoard->getEmployee()->getDistrict();
+/*        $locations = $employeeBoard->getEmployee()->getDistrict();
         $locationsId = [];
         if(!empty($locations)){
             foreach ($locations as $location){
                 $locationsId[] = $location->getId();
             }
-        }
+        }*/
+
 //        $gradeLetters = ['C','D'];
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent','agent');
@@ -353,7 +361,7 @@ class AgentCategoryRepository extends EntityRepository
         $qb->addSelect('e.average');
 
         $qb->where('e.year = :prevYear')->setParameter('prevYear', $prevYear);
-        $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $locationsId);
+        $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $districtsId);
         $qb->andWhere("e.month = 'December'");
         $qb->andWhere("gradeStandard.grade = 'C'");
 
