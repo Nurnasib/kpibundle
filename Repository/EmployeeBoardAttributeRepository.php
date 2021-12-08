@@ -254,7 +254,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     {
         $em = $this->_em;
         $prevYear = $board->getYear() - 1;
-        $twentyPercentGrowthAgents = [];
+//        $twentyPercentGrowthAgents = [];
+        $growthAgents = [];
 /*        $locations = $board->getEmployee()->getDistrict();
         $locationsId = [];
         if (!empty($locations)) {
@@ -263,67 +264,48 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             }
         }*/
         $agentsWithSalesQuantity = $em->getRepository(AgentOrder::class)->getAgentWithSalesQuantity($board, $districtsId);
-//        dd($agentsWithSalesQuantity);
         $commonAgentBetweenYears = array_intersect_key($agentsWithSalesQuantity[$board->getYear()], $agentsWithSalesQuantity[$prevYear]);  //Common agents and SalesQuantity(Current Year)
+
 
         foreach ($commonAgentBetweenYears as $agentId => $currentYearAgentSalesQty) {
             if ($agentsWithSalesQuantity[$prevYear][$agentId]) {
                 if ($currentYearAgentSalesQty > $agentsWithSalesQuantity[$prevYear][$agentId]) {
-                    $growthPercentage = (($currentYearAgentSalesQty - $agentsWithSalesQuantity[$prevYear][$agentId]) * 100) / $agentsWithSalesQuantity[$prevYear][$agentId];
+                    $growthAgents[] = $agentId;
+
+/*                    $growthPercentage = (($currentYearAgentSalesQty - $agentsWithSalesQuantity[$prevYear][$agentId]) * 100) / $agentsWithSalesQuantity[$prevYear][$agentId];
                     if ($growthPercentage >= 20) {
                         $twentyPercentGrowthAgents[] = $agentId;
-                    }
+                    }*/
                 }
             }
         }
-        $this->agentSalesGrowthCalculation($board, $commonAgentBetweenYears, $twentyPercentGrowthAgents);
-    }
-
-    private function agentSalesGrowthCalculation(EmployeeBoard $board, $commonAgentBetweenYears, $twentyPercentGrowthAgents)
-    {
-        $em = $this->_em;
-
         if ($board->getEmployee()->getReportMode()->getSlug() == 'aqua-service'){
-            $agentSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'aqua-develop-existing-customer-sales-volume'));
-            $employeeBoardAttributeForAgentSalesGrowth = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $agentSalesDistribution]);
+            $slug = 'aqua-develop-existing-customer-sales-volume';
+        }elseif ($board->getEmployee()->getReportMode()->getSlug() == 'cattle-service'){
+            $slug = 'cattle-develop-existing-customer-sales-volume';
+        }else{
+            $slug = 'develop-existing-customer-sales-volume';
+        }
+        $agentSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => $slug));
+        $employeeBoardAttributeForAgentSalesGrowth = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $agentSalesDistribution]);
 
-            if ($employeeBoardAttributeForAgentSalesGrowth) {
-                $mark = $this->twentyPercentGrowthAgentNumberPercentageCalculationAqua($commonAgentBetweenYears, $twentyPercentGrowthAgents);
-                $employeeBoardAttributeForAgentSalesGrowth->setMark($mark);
-                $em->persist($employeeBoardAttributeForAgentSalesGrowth);
-                $em->flush();
-            }
-        } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'cattle-service'){
-            $agentSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'cattle-develop-existing-customer-sales-volume'));
-            $employeeBoardAttributeForAgentSalesGrowth = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $agentSalesDistribution]);
-
-            if ($employeeBoardAttributeForAgentSalesGrowth) {
-                $mark = $this->twentyPercentGrowthAgentNumberPercentageCalculationCattle($commonAgentBetweenYears, $twentyPercentGrowthAgents);
-                $employeeBoardAttributeForAgentSalesGrowth->setMark($mark);
-                $em->persist($employeeBoardAttributeForAgentSalesGrowth);
-                $em->flush();
-            }
-        } else{
-            $agentSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'develop-existing-customer-sales-volume'));
-            $employeeBoardAttributeForAgentSalesGrowth = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $agentSalesDistribution]);
-
-            if ($employeeBoardAttributeForAgentSalesGrowth) {
-                $mark = $this->twentyPercentGrowthAgentNumberPercentageCalculation($commonAgentBetweenYears, $twentyPercentGrowthAgents);
-                $employeeBoardAttributeForAgentSalesGrowth->setMark($mark);
-                $em->persist($employeeBoardAttributeForAgentSalesGrowth);
-                $em->flush();
-            }
+        if ($employeeBoardAttributeForAgentSalesGrowth) {
+            $mark = $this->growthAgentMarkCalculation($commonAgentBetweenYears, $growthAgents);
+            $employeeBoardAttributeForAgentSalesGrowth->setMark($mark);
+            $em->persist($employeeBoardAttributeForAgentSalesGrowth);
+            $em->flush();
         }
     }
 
-    private function twentyPercentGrowthAgentNumberPercentageCalculation($commonAgentBetweenYears, $twentyPercentGrowthAgents)
-    {
-        if (count($commonAgentBetweenYears) > 0 && count($twentyPercentGrowthAgents) > 0){
-            $agentNumberWithPercentage = (count($twentyPercentGrowthAgents) * 100) / count($commonAgentBetweenYears);
 
-            if ($agentNumberWithPercentage >= 30) {
+    private function growthAgentMarkCalculation($commonAgentBetweenYears, $growthAgents)
+    {
+        if (count($commonAgentBetweenYears) > 0 && count($growthAgents) > 0){
+            $agentNumberWithPercentage = (count($growthAgents) * 100) / count($commonAgentBetweenYears);
+
+            if ($agentNumberWithPercentage >= 20) {
                 return 3;
-            } elseif ($agentNumberWithPercentage >= 10 && $agentNumberWithPercentage < 30) {
+            } elseif ($agentNumberWithPercentage >= 10 && $agentNumberWithPercentage < 20) {
                 return 2;
             } elseif ($agentNumberWithPercentage >= 1 && $agentNumberWithPercentage < 10) {
                 return 1;
@@ -331,46 +313,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 return 0;
             }
         } else {
-          return 0;  
-        }
-    }
-
-    private function twentyPercentGrowthAgentNumberPercentageCalculationAqua($commonAgentBetweenYears, $twentyPercentGrowthAgents)
-    {
-        if (count($commonAgentBetweenYears) > 0 && count($twentyPercentGrowthAgents) > 0){
-            $agentNumberWithPercentage = (count($twentyPercentGrowthAgents) * 100) / count($commonAgentBetweenYears);
-
-            if ($agentNumberWithPercentage >= 20) {
-                return 2;
-            } elseif ($agentNumberWithPercentage > 0 && $agentNumberWithPercentage < 20) {
-                return 1;
-            } else {
-                return 0;
-            }
-        } else {
-            return 0;
-        }
-    }
-
-    private function twentyPercentGrowthAgentNumberPercentageCalculationCattle($commonAgentBetweenYears, $twentyPercentGrowthAgents)
-    {
-        if (count($commonAgentBetweenYears) > 0 && count($twentyPercentGrowthAgents) > 0){
-            $agentNumberWithPercentage = (count($twentyPercentGrowthAgents) * 100) / count($commonAgentBetweenYears);
-
-            if ($agentNumberWithPercentage >= 50) {
-                return 5;
-            } elseif ($agentNumberWithPercentage >= 40 && $agentNumberWithPercentage < 50) {
-                return 4;
-            } elseif ($agentNumberWithPercentage >= 30 && $agentNumberWithPercentage < 40) {
-                return 3;
-            } elseif ($agentNumberWithPercentage >= 20 && $agentNumberWithPercentage < 30) {
-                return 2;
-            } elseif ($agentNumberWithPercentage > 0 && $agentNumberWithPercentage < 20) {
-                return 1;
-            } else {
-                return 0;
-            }
-        }else {
             return 0;
         }
     }

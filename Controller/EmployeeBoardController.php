@@ -159,10 +159,10 @@ class EmployeeBoardController extends AbstractController
                 $em->flush();
 
                 if ($format == 'custom-format'){
-                    $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistributionForCustomFormat($board,$parameters);
+                    $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->insertMarkDistributionForCustomFormat($board,$parameters);
                     return $this->redirectToRoute('kpi_employee_board_edit_custom_format',array('id' => $board->getId()));
                 }else{
-                    $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($board, $parameters);
+                    $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($board, $parameters);
                     return $this->redirectToRoute('kpi_employee_board_edit',array('id' => $board->getId()));
                 }
             }else{
@@ -228,7 +228,7 @@ class EmployeeBoardController extends AbstractController
         $em = $this->getDoctrine()->getManager();
         $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
 
-        $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($entity,$parameters);
+        $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($entity,$parameters);
 
         $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($entity);
         $arrayData=[];
@@ -549,7 +549,7 @@ class EmployeeBoardController extends AbstractController
 
         $dCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithDInDecember($entity,$districtsId);
         $cCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithCInDecember($entity,$districtsId);
-        $twentyPercentGrowthAgentSalesDetails = $this->getDoctrine()->getRepository(AgentOrder::class)->getTwentyPercentGrowthAgentSalesDetails($entity, $districtsId);
+        $growthAgentSalesDetails = $this->getDoctrine()->getRepository(AgentOrder::class)->getGrowthAgentSalesDetails($entity, $districtsId);
 
         if ($mode == 'pdf'){
 
@@ -567,7 +567,7 @@ class EmployeeBoardController extends AbstractController
                 'outstanding' => $outstanding,
                 'dCategoryUpgrade' => $dCategoryUpgrade,
                 'cCategoryUpgrade' => $cCategoryUpgrade,
-                'twentyPercentGrowthAgentSalesDetails' => $twentyPercentGrowthAgentSalesDetails,
+                'growthAgentSalesDetails' => $growthAgentSalesDetails,
                 'docSale' => $docSale,
                 'individualTeamMemberMarks' => $individualTeamMemberMarks,
 
@@ -595,7 +595,7 @@ class EmployeeBoardController extends AbstractController
                 'outstanding' => $outstanding,
                 'dCategoryUpgrade' => $dCategoryUpgrade,
                 'cCategoryUpgrade' => $cCategoryUpgrade,
-                'twentyPercentGrowthAgentSalesDetails' => $twentyPercentGrowthAgentSalesDetails,
+                'growthAgentSalesDetails' => $growthAgentSalesDetails,
                 'docSale' => $docSale,
                 'individualTeamMemberMarks' => $individualTeamMemberMarks,
 
@@ -605,7 +605,7 @@ class EmployeeBoardController extends AbstractController
 
 
             header("Content-Type: application/vnd.ms-excel; charset=utf-8");
-            header("Content-Disposition: attachement; filename=$fileName");
+            header("Content-Disposition: attachment; filename=$fileName");
 
             echo $html;
             die();
@@ -618,7 +618,7 @@ class EmployeeBoardController extends AbstractController
                 'outstanding' => $outstanding,
                 'dCategoryUpgrade' => $dCategoryUpgrade,
                 'cCategoryUpgrade' => $cCategoryUpgrade,
-                'twentyPercentGrowthAgentSalesDetails' => $twentyPercentGrowthAgentSalesDetails,
+                'growthAgentSalesDetails' => $growthAgentSalesDetails,
                 'docSale' => $docSale,
                 'individualTeamMemberMarks' => $individualTeamMemberMarks,
 

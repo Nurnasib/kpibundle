@@ -288,9 +288,9 @@ class AgentOrderRepository extends EntityRepository
         return $data;
     }
 
-    public function getTwentyPercentGrowthAgentSalesDetails(EmployeeBoard $board, $locationsId)
+    public function getGrowthAgentSalesDetails(EmployeeBoard $board, $districtsId)
     {
-        $twentyPercentGrowthAgents = [];
+        $growthAgents = [];
         $prevYear = $board->getYear()-1;
         $years = [$board->getYear()-1, $board->getYear()];
 
@@ -303,7 +303,7 @@ class AgentOrderRepository extends EntityRepository
 
         $qb->where('e.month = :month')->setParameter('month', $board->getMonth());
         $qb->andWhere('e.year IN (:years)')->setParameter('years', $years);
-        $qb->andWhere('district.id IN (:districtId)')->setParameter('districtId', $locationsId);
+        $qb->andWhere('district.id IN (:districtId)')->setParameter('districtId', $districtsId);
         $qb->andWhere('agent.status = 1');
 
         $qb->groupBy('agent.id');
@@ -323,26 +323,27 @@ class AgentOrderRepository extends EntityRepository
             $data[$board->getYear()-1] = [];
         }
         $commonAgentBetweenYears = array_intersect_key($data[$board->getYear()],$data[$prevYear]);  //Common agents and SalesQuantity(Current Year)
-        $growthAgentNumber = 0;
+//        $growthAgentNumber = 0;
         foreach ($commonAgentBetweenYears as $agentId => $currentYearAgentSalesQty) {
             if ($data[$prevYear][$agentId]){
                 if ($currentYearAgentSalesQty > $data[$prevYear][$agentId]){
-                    $growthAgentNumber++;
-                    $growthPercentage = (($currentYearAgentSalesQty - $data[$prevYear][$agentId]) * 100) / $data[$prevYear][$agentId];
+//                    $growthAgentNumber++;
+                    $growthAgents[] = $agentId;
+/*                    $growthPercentage = (($currentYearAgentSalesQty - $data[$prevYear][$agentId]) * 100) / $data[$prevYear][$agentId];
                     if ($growthPercentage >= 20){
-                        $twentyPercentGrowthAgents[] = $agentId;
-                    }
+                        $growthAgents[] = $agentId;
+                    }*/
                 }
             }
         }
-        $returnData = $this->getSalesDetails($twentyPercentGrowthAgents, $years, $board);
+        $returnData = $this->getSalesDetails($growthAgents, $years, $board);
         $returnData['totalAgent'] = count($commonAgentBetweenYears);
-        $returnData['growthAgent'] = $growthAgentNumber;
-        $returnData['twentyPercentGrowthAgents'] = count($twentyPercentGrowthAgents);
+        $returnData['growthAgent'] = count($growthAgents);
+//        $returnData['twentyPercentGrowthAgents'] = count($growthAgents);
         return $returnData;
     }
 
-    private function getSalesDetails($twentyPercentGrowthAgentsId, $years, $board)
+    private function getSalesDetails($growthAgents, $years, $board)
     {
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent', 'agent');
@@ -353,7 +354,7 @@ class AgentOrderRepository extends EntityRepository
         $qb->addSelect('agent.agentId AS agentId', 'agent.name AS agentName', 'upozila.name AS agentThana', 'district.name AS agentDistrict');
 
         $qb->where('e.year IN (:years)')->setParameter('years', $years);
-        $qb->andWhere('agent.id IN (:agentId)')->setParameter('agentId', $twentyPercentGrowthAgentsId);
+        $qb->andWhere('agent.id IN (:agentId)')->setParameter('agentId', $growthAgents);
         $qb->andWhere('e.month = :month')->setParameter('month', $board->getMonth());
         $qb->groupBy('e.year');
         $qb->addGroupBy('agent.id');

@@ -389,12 +389,12 @@
                                        style="margin-top: 0px !important;" id="datatable">
                                     <thead class="thead-dark">
                                     <tr>
-                                        <th>{{ 'Total Agent:' }} {{ twentyPercentGrowthAgentSalesDetails.totalAgent|default(0) }}</th>
-                                        <th>{{ 'Total Growth Agent:' }} {{ twentyPercentGrowthAgentSalesDetails.growthAgent|default(0) }}</th>
-                                        <th>{{ '20% Growth Agent:' }} {{ twentyPercentGrowthAgentSalesDetails.twentyPercentGrowthAgents|default(0) }}</th>
-                                        <th>{{ '20% growth Agent percentage:' }}
-                                            {% if twentyPercentGrowthAgentSalesDetails.totalAgent > 0 %}
-                                                {{ ((twentyPercentGrowthAgentSalesDetails.twentyPercentGrowthAgents * 100) / twentyPercentGrowthAgentSalesDetails.totalAgent)|number_format(2) }} %
+                                        <th>{{ 'Total Agent:' }} {{ growthAgentSalesDetails.totalAgent|default(0) }}</th>
+                                        <th>{{ 'Total Growth Agent:' }} {{ growthAgentSalesDetails.growthAgent|default(0) }}</th>
+{#                                        <th>{{ '20% Growth Agent:' }} {{ growthAgentSalesDetails.twentyPercentGrowthAgents|default(0) }}</th>#}
+                                        <th>{{ 'Growth Agent percentage:' }}
+                                            {% if growthAgentSalesDetails.totalAgent > 0 %}
+                                                {{ ((growthAgentSalesDetails.growthAgent * 100) / growthAgentSalesDetails.totalAgent)|number_format(2) }} %
 
                                             {% endif %}
                                         </th>
@@ -405,6 +405,7 @@
                                        style="margin-top: 0px !important;" id="datatable">
                                     <thead class="thead-dark">
                                     <tr>
+                                        <th scope="col">S/N</th>
                                         <th scope="col">{{ 'Agent Id'|trans }}</th>
                                         <th scope="col">{{ 'Agent Name'|trans }}</th>
                                         <th scope="col">{{ 'Address'|trans }}</th>
@@ -414,12 +415,13 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% if twentyPercentGrowthAgentSalesDetails is not empty %}
-                                        {% for agentId, details in twentyPercentGrowthAgentSalesDetails %}
+                                    {% if growthAgentSalesDetails is not empty %}
+                                        {% for agentId, details in growthAgentSalesDetails %}
                                             {% if details is iterable %}
                                                 {% set prevYearSale = details[entity.year-1]|number_format(2) %}
                                                 {% set currentYearSale = details[entity.year]|number_format(2) %}
                                                 <tr>
+                                                    <td>{{ loop.index }}</td>
                                                     <td>{{ agentId|default('') }}</td>
                                                     <td>{{ details.agentName|default('') }}</td>
                                                     <td>{{ details.agentAddress|default('') }}</td>

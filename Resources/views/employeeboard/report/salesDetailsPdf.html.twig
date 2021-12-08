@@ -351,12 +351,12 @@
                         <table width="100%" cellspacing="0" cellpadding="5" border="1">
                             <thead>
                             <tr>
-                                <td>{{ 'Total Agent:' }} {{ twentyPercentGrowthAgentSalesDetails.totalAgent|default(0) }}</td>
-                                <td>{{ 'Total Growth Agent:' }} {{ twentyPercentGrowthAgentSalesDetails.growthAgent|default(0) }}</td>
-                                <td>{{ '20% Growth Agent:' }} {{ twentyPercentGrowthAgentSalesDetails.twentyPercentGrowthAgents|default(0) }}</td>
-                                <td>{{ '20% growth Agent percentage:' }}
-                                    {% if twentyPercentGrowthAgentSalesDetails.totalAgent > 0 %}
-                                        {{ ((twentyPercentGrowthAgentSalesDetails.twentyPercentGrowthAgents * 100) / twentyPercentGrowthAgentSalesDetails.totalAgent)|number_format(2) }} %
+                                <td>{{ 'Total Agent:' }} {{ growthAgentSalesDetails.totalAgent|default(0) }}</td>
+                                <td>{{ 'Total Growth Agent:' }} {{ growthAgentSalesDetails.growthAgent|default(0) }}</td>
+{#                                <td>{{ '20% Growth Agent:' }} {{ growthAgentSalesDetails.twentyPercentGrowthAgents|default(0) }}</td>#}
+                                <td>{{ 'Growth Agent percentage:' }}
+                                    {% if growthAgentSalesDetails.totalAgent > 0 %}
+                                        {{ ((growthAgentSalesDetails.growthAgent * 100) / growthAgentSalesDetails.totalAgent)|number_format(2) }} %
 
                                     {% endif %}
                                 </td>
@@ -375,8 +375,8 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% if twentyPercentGrowthAgentSalesDetails is not empty %}
-                                {% for agentId, details in twentyPercentGrowthAgentSalesDetails %}
+                            {% if growthAgentSalesDetails is not empty %}
+                                {% for agentId, details in growthAgentSalesDetails %}
                                     {% if details is iterable %}
                                         {% set prevYearSale = details[entity.year-1]|number_format(2) %}
                                         {% set currentYearSale = details[entity.year]|number_format(2) %}
