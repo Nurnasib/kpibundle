@@ -271,6 +271,7 @@ class EmployeeBoardController extends AbstractController
         }
         $outstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->findOneBy(['employeeBoard' => $board]);
         $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->findOneBy(['employeeBoard' => $board]);
+//        $customerDevelopment = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'activity']);
 //        $skills = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findBy(['employeeBoard' => $board]);
 
         $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($board);
@@ -279,7 +280,6 @@ class EmployeeBoardController extends AbstractController
         foreach ($boardAttributes as $boardAttribute){
             $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][]=$boardAttribute;
         }
-
 /*        $districts = null;
         foreach ($board->getEmployee()->getDistrict() as $key => $district) {
             $districts[$district->getId()] = $district->getName();
@@ -789,7 +789,7 @@ class EmployeeBoardController extends AbstractController
             'monthly-3-cattle-introduce-to-nourish-feed',
             'fish-agents-sales-20-growth-only-for-permanent-agents',
             'monthly-new-cattle-farm-introduce-to-nourish-feed',
-            'agent-up-gradation-20-sales-growth-from-previous-year-at-same-month',
+            'agent-upgradation',
             '5-cattle-included-per-month-in-your-head',
         ];
         $markFourAttributeSlug = [
@@ -947,6 +947,54 @@ class EmployeeBoardController extends AbstractController
                     $em->flush();
                 }
 
+            }elseif ($key === 'customerDevelopment'){
+                foreach ($item as $attributeId => $agentNumber) {
+                    $agentNumber['upgradeAgent'] = $agentNumber['upgradeAgent'] ?: 0;
+                    $agentNumber['totalAgents'] = $agentNumber['totalAgents'] ?: 0;
+                    $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
+                    if ($findAttribute){
+                        $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
+                        if ($boardAttribute){
+                            if ($boardAttribute->getAttribute()->getSlug() == 'agent-upgradation'){
+                                if ($agentNumber['totalAgents'] > 0){
+                                    $agentNumberWithPercentage = ($agentNumber['upgradeAgent'] * 100) / $agentNumber['totalAgents'];
+                                    if ($agentNumberWithPercentage >= 20) {
+                                        $mark = 3;
+                                    } elseif ($agentNumberWithPercentage >= 10 && $agentNumberWithPercentage < 20) {
+                                        $mark = 2;
+                                    } elseif ($agentNumberWithPercentage >= 1 && $agentNumberWithPercentage < 10) {
+                                        $mark = 1;
+                                    } else {
+                                        $mark = 1;
+                                    }
+                                }
+                            }else{
+                                $fiftyPercentAgents = $agentNumber['totalAgents'] /  2; //50% agents
+                                if ($fiftyPercentAgents > 0){
+                                    $percentage = round(($agentNumber['upgradeAgent'] * 100) / $fiftyPercentAgents);
+                                    if($percentage >= 100){
+                                        $mark = 5;
+                                    }elseif ($percentage < 100 && $percentage >= 80){
+                                        $mark = 4;
+                                    }elseif ($percentage < 80 && $percentage >= 70){
+                                        $mark = 3;
+                                    }elseif ($percentage < 70 && $percentage >= 60){
+                                        $mark = 2;
+                                    }elseif ($percentage < 60 && $percentage > 0){
+                                        $mark = 1;
+                                    }else{
+                                        $mark = 0;
+                                    }
+                                }
+                            }
+                            $boardAttribute->setTargetAmount($agentNumber['totalAgents']);
+                            $boardAttribute->setTargetAchievement($agentNumber['upgradeAgent']);
+                            $boardAttribute->setMark($mark);
+                            $em->persist($boardAttribute);
+                            $em->flush();
+                        }
+                    }
+                }
             }elseif ($key === 'skills'){
                 foreach ($item as $attributeId => $markDistributionId) {
                     $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);

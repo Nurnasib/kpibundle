@@ -86,7 +86,7 @@
                         </table>
                         <form action="{{ path('custom_format_kpi', {board: board.id}) }}" method="post">
                             <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Sales Feed Achivement' }}</h5>
-                            <table class="table table-bordered" id="datatable">
+                            <table class="table table-bordered">
                                 <thead class="thead-dark">
                                 <tr>
                                     <th scope="col">{{ 'Mark Parameter'|trans }}</th>
@@ -131,7 +131,7 @@
                             </table>
 
                             <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Product Sales Growth' }}</h5>
-                            <table class="table table-bordered" id="datatable">
+                            <table class="table table-bordered">
                                 <thead class="thead-dark">
                                 <tr>
                                     <th scope="col">{{ 'Mark Parameter'|trans }}</th>
@@ -179,11 +179,11 @@
                             <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Outstanding' }}</h5>
                             <table class="table table-bordered">
                                 <thead class="thead-dark">
-                                {#                                    <tr>#}
-                                {#                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>#}
-                                {#                                        <th scope="col" width="20%">{{ 'Actual Amount'|trans }}</th>#}
-                                {#                                        <th scope="col" width="20%">{{ 'Limit Amount'|trans }}</th>#}
-                                {#                                    </tr>#}
+                                    <tr>
+                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                        <th scope="col" width="20%">{{ 'Actual Amount'|trans }}</th>
+                                        <th scope="col" width="20%">{{ 'Limit Amount'|trans }}</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                 {% if board.employeeBoardAttributes is not empty %}
@@ -192,18 +192,18 @@
                                             {% for activity in parameters %}
                                                 {% for entity in activity %}
                                                     {% if entity.attribute.slug == 'outstanding-limit-vs-actual-feed' %}
-                                                        <tr>
+{#                                                        <tr>
                                                             <td colspan="2" style="padding: 0 !important;"
                                                                 align="center">
                                                                 <p class="yellow-bg p-1 m-0">{{ 'Outstanding limit vs actual feed' }}</p>
                                                             </td>
-                                                        </tr>
-                                                        <tr>
-{#                                                            <th scope="col">{{ 'Agents'|trans }}</th>#}
-                                                            <th scope="col">{{ 'Actual Amount'|trans }}</th>
-                                                            <th scope="col">{{ 'Limit Amount'|trans }}</th>
-{#                                                            <th scope="col" width="50" class="text-center"><i class="feather icon-settings"></i></th>#}
-                                                        </tr>
+                                                        </tr>#}
+{#                                                        <tr>
+                                                            <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                                            <th scope="col" width="20%">{{ 'Actual Amount'|trans }}</th>
+                                                            <th scope="col" width="20%">{{ 'Limit Amount'|trans }}</th>
+                                                            <th scope="col" width="50" class="text-center"><i class="feather icon-settings"></i></th>
+                                                        </tr>#}
                                                         <tr>
 {#                                                            <td>#}
 {#                                                                <select data-action="{{ path('core_agent_search_select2') }}"#}
@@ -211,6 +211,7 @@
 {#                                                                    <option value="">Select Agent</option>#}
 {#                                                                </select>#}
 {#                                                            </td>#}
+                                                            <td>{{ entity.attribute.name }}</td>
                                                             <td>
                                                                 <input min="0" type="number" name="outstanding[actual-amount]" class="form-control" value="{% if outstanding is defined %}{{ outstanding.actualAmount|default('') }}{% endif %}">
                                                             </td>
@@ -238,18 +239,18 @@
 {#                                                            {% endfor %}#}
 {#                                                        {% endif %}#}
                                                     {% elseif entity.attribute.slug == 'doc-sales-collection' %}
-                                                        <tr>
+{#                                                        <tr>
                                                             <td colspan="2" style="padding: 0 !important;"
                                                                 align="center">
                                                                 <p class="yellow-bg p-1 m-0">{{ 'Doc Sales Collection' }}</p>
                                                             </td>
-                                                        </tr>
-                                                        <tr>
+                                                        </tr>#}
+{#                                                        <tr>#}
 {#                                                            <th scope="col">{{ 'Agents'|trans }}</th>#}
-                                                            <th scope="col">{{ 'Sales Amount'|trans }}</th>
-                                                            <th scope="col">{{ 'Collection Amount'|trans }}</th>
+{#                                                            <th scope="col">{{ 'Sales Amount'|trans }}</th>#}
+{#                                                            <th scope="col">{{ 'Collection Amount'|trans }}</th>#}
 {#                                                            <th scope="col" width="50" class="text-center"><i class="feather icon-settings"></i></th>#}
-                                                        </tr>
+{#                                                        </tr>#}
                                                         <tr>
 {#                                                            <td>#}
 {#                                                                <select data-action="{{ path('core_agent_search_select2') }}"#}
@@ -257,6 +258,7 @@
 {#                                                                    <option value="">Select Agent</option>#}
 {#                                                                </select>#}
 {#                                                            </td>#}
+                                                            <td>{{ entity.attribute.name }}</td>
                                                             <td>
                                                                 <input min="0" type="number" name="docSale[sale]" class="form-control" value="{% if docSale is defined %}{{ docSale.sales|default('') }}{% endif %}">
                                                             </td>
@@ -295,7 +297,7 @@
                             </table>
 
                             <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Customer Development' }}</h5>
-                            <table class="table table-bordered" id="datatable">
+                            <table class="table table-bordered">
                                 <thead class="thead-dark">
                                 <tr>
                                     <th scope="col">{{ 'Mark Parameter'|trans }}</th>
@@ -316,12 +318,12 @@
                                                                     {% if entity.attribute.status == 1 %}
                                                                         <td>{{ entity.attribute.name }}</td>
 
-                                                                        <td><input min="0" type="number"
-                                                                                   name="customerDevelopment[{{ entity.attribute.id }}][totalAgents]"
-                                                                                   class="form-control"></td>
-                                                                        <td><input min="0" type="number"
-                                                                                   name="customerDevelopment[{{ entity.attribute.id }}][upgradeAgent]"
-                                                                                   class="form-control"></td>
+                                                                        <td>
+                                                                            <input min="0" type="number" name="customerDevelopment[{{ entity.attribute.id }}][totalAgents]" class="form-control" value="{{ entity.targetAmount ?: 0 }}">
+                                                                        </td>
+                                                                        <td>
+                                                                            <input min="0" type="number" name="customerDevelopment[{{ entity.attribute.id }}][upgradeAgent]" class="form-control" value="{{ entity.targetAchievement ?: 0 }}">
+                                                                        </td>
                                                                     {% endif %}
                                                                 {% endif %}
                                                             {% endif %}

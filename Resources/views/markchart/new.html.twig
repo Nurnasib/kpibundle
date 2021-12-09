@@ -67,11 +67,9 @@
                                             </div>
                                         </div>
                                          <div class="form-group">
-                                            {{ form_label(form.slug, 'Slug'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
+                                             <label for="" class="control-label col-md-4">{{ 'Slug'|trans }}</label>
                                             <div class="col-md-8">
-{#                                                <span class="not-blank"> *</span>#}
-                                                {{ form_widget(form.slug) }}
-                                                {{ form_errors(form.slug) }}
+                                                <span class="form-control">{{ entity ? entity.slug : '' }}</span>
                                             </div>
                                         </div>
 {#                                        <div class="form-group">

@@ -132,11 +132,11 @@ class MarkChartFormType extends AbstractType
                 'label' => 'label.ordering',
                 'required' => false,
             ])
-            ->add('slug', TextType::class,[
+/*            ->add('slug', TextType::class,[
                 'attr' => [
                     'disabled' => 'disabled',
                 ]
-        ])
+        ])*/
         ;
     }
 

@@ -189,7 +189,6 @@ class AgentCategoryRepository extends EntityRepository
         foreach ($results as $result){
             $agentsIdWithCategory[$result['grade']][]= $result['agentId'];
         }
-
         $categoryUpgradationPercentages = $this->currentMonthCategoryUpgradationPercentage($agentsIdWithCategory,$employeeBoard);
         $marks = $this->categoryUpgradationMarks($categoryUpgradationPercentages);
         return $marks;
@@ -221,9 +220,9 @@ class AgentCategoryRepository extends EntityRepository
             $currentCategoryNumber = count($results);
 
 //            $prevGrade = chr(ord($category)-1);
-
             $categoryUpgradationPercentages[$category . 'to' . 'UpperGrade'] = round(($currentCategoryNumber * 100) / ($pervYearCategoryNumber / 2));
         }
+//        dd($pervYearCategoryNumber,$currentCategoryNumber,$categoryUpgradationPercentages);
         return $categoryUpgradationPercentages;
     }
 
@@ -239,13 +238,12 @@ class AgentCategoryRepository extends EntityRepository
                 $marks[$grade] = 3;
             }elseif ($percentage < 70 && $percentage >= 60){
                 $marks[$grade] = 2;
-            }elseif ($percentage < 60){
+            }elseif ($percentage < 60 && $percentage > 0){
                 $marks[$grade] = 1;
             }else{
-                $marks[$grade] = 1;
+                $marks[$grade] = 0;
             }
         }
-
         return $marks;
     }
 

@@ -111,7 +111,7 @@
                                                                 <td>
                                                                     {{ entity.attribute.name }}
 
-                                                                    {% if entity.activity.slug == 'customer-development' and entity.attribute.slug != 'aqua-develop-existing-customer-sales-volume' and entity.attribute.slug != 'cattle-develop-existing-customer-sales-volume' and entity.attribute.slug != 'minimum-50-c-category-agents-converts-to-b' and entity.attribute.slug != 'minimum-50-d-category-agents-converts-to-c' and entity.attribute.slug != 'develop-existing-customer-sales-volume' and entity.attribute.slug != 'agent-up-gradation-20-sales-growth-from-previous-year-at-same-month' %}
+                                                                    {% if entity.activity.slug == 'customer-development' and entity.attribute.slug != 'agent-upgradation' and entity.attribute.slug != 'minimum-50-c-category-agents-converts-to-b' and entity.attribute.slug != 'minimum-50-d-category-agents-converts-to-c' %}
                                                                         <div style="display: flex; align-items: center">
                                                                             <label for="customer-development-{{ entity.attribute.id }}" style="margin-bottom: 0; margin-right: 5px">Marks: </label>
                                                                             <input type="text" value="{{ entity.mark }}" class="form-control customerDevelopment" id="customer-development-{{ entity.attribute.id }}" data-id="{{ entity.attribute.id }}" data-action="{{ path('kpi_employee_update_customer_development',{'id':entity.id}) }}" style="width: 10%">

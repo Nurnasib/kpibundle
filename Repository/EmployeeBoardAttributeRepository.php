@@ -279,14 +279,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 }
             }
         }
-        if ($board->getEmployee()->getReportMode()->getSlug() == 'aqua-service'){
-            $slug = 'aqua-develop-existing-customer-sales-volume';
-        }elseif ($board->getEmployee()->getReportMode()->getSlug() == 'cattle-service'){
-            $slug = 'cattle-develop-existing-customer-sales-volume';
-        }else{
-            $slug = 'develop-existing-customer-sales-volume';
-        }
-        $agentSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => $slug));
+        $agentSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'agent-upgradation'));
         $employeeBoardAttributeForAgentSalesGrowth = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $agentSalesDistribution]);
 
         if ($employeeBoardAttributeForAgentSalesGrowth) {
