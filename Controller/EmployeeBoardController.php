@@ -638,6 +638,8 @@ class EmployeeBoardController extends AbstractController
      */
     public function salesAchievementSummaryForCustomFormat(EmployeeBoard $board, $mode, Request $request): Response
     {
+        $outstandingMark = 0;
+        $docSaleMark = 0;
         $parameter = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(array('slug'=>'core-responsibilities','status'=>1));
 
         $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getKpiSummaryForFeedAndGrowth($board);
@@ -653,12 +655,23 @@ class EmployeeBoardController extends AbstractController
 
         $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->findBy(['employeeBoard' => $board]);
         $findDocSaleAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['slug' => 'doc-sales-collection']);
+
         if ($findDocSaleAttribute){
             $docSaleBoardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findDocSaleAttribute]);
             if ($docSaleBoardAttribute){
                 $docSaleMark = $docSaleBoardAttribute->getMark();
             }
         }
+
+
+        $findDtoUpgradetAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['slug' => 'minimum-50-d-category-agents-converts-to-c']);
+        $findCtoUpgradetAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['slug' => 'minimum-50-c-category-agents-converts-to-b']);
+        $findAgentUpgradeAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['slug' => 'agent-upgradation']);
+
+        $dToUpgrade = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board,'attribute' => $findDtoUpgradetAttribute]);
+        $cToUpgrade = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board,'attribute' => $findCtoUpgradetAttribute]);
+        $agentUpgradation = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board,'attribute' => $findAgentUpgradeAttribute]);
+
         if ($mode == 'pdf'){
 
             // Configure Dompdf according to your needs
@@ -676,6 +689,9 @@ class EmployeeBoardController extends AbstractController
                 'outstandingMark' => $outstandingMark,
                 'docSale' => $docSale,
                 'docSaleMark' => $docSaleMark,
+                'dToUpgrade' => $dToUpgrade,
+                'cToUpgrade' => $cToUpgrade,
+                'agentUpgradation' => $agentUpgradation,
             ]);
 
             // Load HTML to Dompdf
@@ -700,6 +716,9 @@ class EmployeeBoardController extends AbstractController
                 'outstanding' => $outstanding,
                 'docSale' => $docSale,
                 'docSaleMark' => $docSaleMark,
+                'dToUpgrade' => $dToUpgrade,
+                'cToUpgrade' => $cToUpgrade,
+                'agentUpgradation' => $agentUpgradation,
             ]);
 
             $fileName = $request->get('_route') . '_' . $board->getEmployee()->getName() . '_' . $board->getMonth() . '_' . $board->getYear() . '_' . time() . '.xls';
@@ -712,6 +731,8 @@ class EmployeeBoardController extends AbstractController
             die();
 
         }
+
+
         return $this->render('@TerminalbdKpi/employeeboard/report/salesDetailsCustomFormat.html.twig', [
             'board' => $board,
             'feedAndGrowth' => $feedAndGrowth,
@@ -719,6 +740,9 @@ class EmployeeBoardController extends AbstractController
             'outstandingMark' => $outstandingMark,
             'docSale' => $docSale,
             'docSaleMark' => $docSaleMark,
+            'dToUpgrade' => $dToUpgrade,
+            'cToUpgrade' => $cToUpgrade,
+            'agentUpgradation' => $agentUpgradation,
         ]);
 
     }

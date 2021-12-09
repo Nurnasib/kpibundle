@@ -1654,6 +1654,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.employeeBoard', 'board');
         $qb->join('board.employee', 'employee');
+        $qb->join('board.reportMode', 'boardReportMode');
         $qb->leftJoin('employee.designation', 'designation');
         $qb->join('employee.lineManager', 'lineManager');
         $qb->join('employee.reportMode', 'reportMode');
@@ -1664,11 +1665,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $qb->addSelect('employee.name AS employeeName','employee.id AS employeeId', 'employee.userId');
         $qb->addSelect('activity.name AS activityName','activity.id AS activityId');
         $qb->addSelect('designation.name AS employeeDesignation');
-        $qb->addSelect('board.month', 'board.obtainMark', 'board.grade', 'board.id AS boardId');
+        $qb->addSelect('board.month','boardReportMode.name AS boardReportFormat', 'board.obtainMark', 'board.grade', 'board.id AS boardId');
 
         $qb->where('board.year =:year')->setParameter('year', $filterBy['year']);
         if (isset($filterBy['kpiFormat'])){
-            $qb->andWhere('reportMode.id = :reportMode')->setParameter('reportMode', $filterBy['kpiFormat']);
+            $qb->andWhere('boardReportMode.id = :reportMode')->setParameter('reportMode', $filterBy['kpiFormat']);
         }
 
         if (isset($filterBy['employee'])){
@@ -1691,6 +1692,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         foreach ($results as $result) {
             $data[$result['userId']]['data']['employeeName'] = $result['employeeName'];
             $data[$result['userId']]['data']['designation'] = $result['employeeDesignation'];
+            $data[$result['userId']]['data'][$result['month']]['reportMode'] = $result['boardReportFormat'];
             $data[$result['userId']]['data'][$result['month']]['obtainMark'] = $result['obtainMark'];
             $data[$result['userId']]['data'][$result['month']]['grade'] = $result['grade'];
             $data[$result['userId']]['data'][$result['month']]['boardId'] = $result['boardId'];
@@ -1698,7 +1700,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 //            $data[$result['userId']]['activityName'][$result['activityName']]= $result['activityName'];
             $data[$result['userId']]['mark'][$result['month']][$result['activityName']]= $result['mark'];
         }
-//        dd($data);
         return $data;
     }
 

@@ -112,8 +112,8 @@
                                         </table>
                                 {% endfor %}
                             {% endif %}
-                            <h5 class="h5 bg-secondary p-1 text-white w-100">Outstanding</h5>
-                            <table class="table table-striped table-bordered table-hover" id="datatable">
+                            <h5 class="h5 bg-secondary p-1 text-white w-100">{{ 'Outstanding'|trans }}</h5>
+                            <table class="table table-striped table-bordered table-hover">
                                 <thead class="thead-dark">
                                 <tr>
                                     <th scope="col">{{ 'District'|trans }}</th>
@@ -157,8 +157,8 @@
                                 </tbody>
                             </table>
 
-                            <h5 class="h5 bg-secondary p-1 text-white w-100">DOC sales collection</h5>
-                            <table class="table table-striped table-bordered table-hover" id="datatable">
+                            <h5 class="h5 bg-secondary p-1 text-white w-100">{{ 'DOC sales collection'|trans }}</h5>
+                            <table class="table table-striped table-bordered table-hover">
                                 <thead class="thead-dark">
                                 <tr>
                                     <th scope="col">{{ 'District'|trans }}</th>
@@ -206,9 +206,8 @@
                                 </tbody>
                             </table>
                             {% if entity.employee.reportMode.slug == 'spo-format' %}
-                                <h5 class="h5 bg-secondary p-1 text-white w-100">Minimum 50% "D" category agents
-                                    converts to "C"</h5>
-                                <table class="table table-striped table-bordered table-hover" style="margin-top: 0px !important;" id="datatable">
+                                <h5 class="h5 bg-secondary p-1 text-white w-100">{{ 'Minimum 50% "D" category agents converts to "C"'|trans }}</h5>
+                                <table class="table table-striped table-bordered table-hover" style="margin-top: 0 !important;">
                                     <thead class="thead-dark">
                                     <tr>
                                         <th scope="col">{{ 'Previous "D" Category Agents: '|trans }} {{ dCategoryUpgrade.totalAgent|default(0) }}</th>
@@ -222,8 +221,7 @@
                                     </tr>
                                     </thead>
                                 </table>
-                                <table class="table table-striped table-bordered table-hover"
-                                       style="margin-top: 0px !important;" id="datatable">
+                                <table class="table table-striped table-bordered table-hover" style="margin-top: 0 !important;" id="datatable">
                                     <thead class="thead-dark">
                                     <tr>
                                         <th scope="col">{{ 'Category'|trans }}</th>
@@ -270,8 +268,7 @@
                             {% endif %}
 
                             {% if entity.employee.reportMode.slug == 'spo-format' %}
-                                <h5 class="h5 bg-secondary p-1 text-white w-100">Minimum 50 % "C" category agents
-                                    converts to "B"</h5>
+                                <h5 class="h5 bg-secondary p-1 text-white w-100">{{ 'Minimum 50 % "C" category agents converts to "B"'|trans }}</h5>
                                 <table class="table table-striped table-bordered table-hover" style="margin-top: 0px !important;" id="datatable">
                                     <thead class="thead-dark">
                                     <tr>
@@ -286,8 +283,7 @@
                                     </tr>
                                     </thead>
                                 </table>
-                                <table class="table table-striped table-bordered table-hover"
-                                       style="margin-top: 0px !important;" id="datatable">
+                                <table class="table table-striped table-bordered table-hover" style="margin-top: 0 !important;">
                                     <thead class="thead-dark">
                                     <tr>
                                         <th scope="col">{{ 'Category'|trans }}</th>
@@ -333,7 +329,7 @@
                                 </table>
                             {% endif %}
                             {% if (entity.employee.reportMode.slug == 'agm-kpi' or entity.employee.reportMode.slug == 'rsm-arsm-kpi') %}
-                                <h5 class="h5 bg-secondary p-1 text-white w-100">Team members ach(=100%) mark on core activities</h5>
+                                <h5 class="h5 bg-secondary p-1 text-white w-100">{{ 'Team members ach(=100%) mark on core activities'|trans }}</h5>
                                 <table class="table table-striped table-bordered table-hover" id="datatable">
                                     <thead class="thead-dark">
                                     <tr>
@@ -384,7 +380,7 @@
                             {% endif %}
 
                             {% if (entity.employee.reportMode.slug == 'spo-format' or entity.employee.reportMode.slug == 'aqua-service' or entity.employee.reportMode.slug == 'cattle-service') %}
-                                <h5 class="h5 bg-secondary p-1 text-white w-100">Agents Sales 20% Growth (Only for permanent agents: Will consider same period from previous year)</h5>
+                                <h5 class="h5 bg-secondary p-1 text-white w-100">{{ 'Agent Upgradation'|trans }}</h5>
                                 <table class="table table-striped table-bordered table-hover"
                                        style="margin-top: 0px !important;" id="datatable">
                                     <thead class="thead-dark">
@@ -401,8 +397,7 @@
                                     </tr>
                                     </thead>
                                 </table>
-                                    <table class="table table-striped table-bordered table-hover"
-                                       style="margin-top: 0px !important;" id="datatable">
+                                    <table class="table table-striped table-bordered table-hover" style="margin-top: 0 !important;">
                                     <thead class="thead-dark">
                                     <tr>
                                         <th scope="col">S/N</th>

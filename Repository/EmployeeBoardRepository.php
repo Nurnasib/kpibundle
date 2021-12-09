@@ -29,9 +29,6 @@ class EmployeeBoardRepository extends EntityRepository
 
     public function getEmployeeBoardList(User $user)
     {
-        $userGroup = $user->getUserGroup()->getSlug();
-
-        $userRoles = $user->getRoles();
         $qb = $this->createQueryBuilder('s');
         $qb->join('s.employee','u');
         $qb->leftJoin('u.lineManager','lm');
@@ -71,6 +68,7 @@ class EmployeeBoardRepository extends EntityRepository
 
         $qb = $this->createQueryBuilder('s');
         $qb->join('s.employee','u');
+        $qb->leftJoin('s.reportMode','boardReportMode');
         $qb->leftJoin('u.lineManager','lm');
         $qb->leftJoin('u.designation','d');
         $qb->leftJoin('s.createdBy', 'createdBy');
@@ -90,7 +88,7 @@ class EmployeeBoardRepository extends EntityRepository
             $qb->andWhere('d.id = :designationId')->setParameter('designationId', $filterBy['designation']->getId());
         }
         if ($filterBy['kpiFormat']){
-            $qb->andWhere('reportMode.id = :reportModeId')->setParameter('reportModeId', $filterBy['kpiFormat']->getId());
+            $qb->andWhere('boardReportMode.id = :reportModeId')->setParameter('reportModeId', $filterBy['kpiFormat']->getId());
         }
         if (isset($filterBy['lineManager'])){
             $qb->andWhere('lm.id = :lineManagerId')->setParameter('lineManagerId', $filterBy['lineManager']);

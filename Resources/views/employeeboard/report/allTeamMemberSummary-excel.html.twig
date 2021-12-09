@@ -1,22 +1,23 @@
 <table>
     <thead>
     <tr>
-        <th colspan="6" align="center">All Team Member Summary</th>
+        <th colspan="16" align="center">All Team Member Summary</th>
     </tr>
     {% if not is_granted('ROLE_KPI_ADMIN') %}
         <tr>
-            <th colspan="6" align="center">{{ app.user.name }}</th>
+            <th colspan="16" align="center">{{ app.user.name }}</th>
         </tr>
     {% endif %}
     <tr>
-        <th colspan="6"
+        <th colspan="16"
             align="center">{{ '(' ~ filterBy.startMonth ~ ' - ' ~ filterBy.endMonth ~ ')' ~ ' - ' ~ filterBy.year }}</th>
     </tr>
     <tr>
-        <th>Employee ID</th>
-        <th>Employee</th>
-        <th>Designation</th>
-        <th>Month</th>
+        <th>{{ 'Employee ID'|trans }}</th>
+        <th>{{ 'Employee'|trans }}</th>
+        <th>{{ 'Designation'|trans }}</th>
+        <th>{{ 'Format'|trans }}</th>
+        <th>{{ 'Month'|trans }}</th>
         {% if teamMemberSummary is not empty %}
             {% for employeeId, details in teamMemberSummary %}
                 {% if loop.first %}
@@ -28,8 +29,8 @@
                 {% endif %}
             {% endfor %}
         {% endif %}
-        <th>Mark</th>
-        <th>Grade</th>
+        <th>{{ 'Mark'|trans }}</th>
+        <th>{{ 'Grade'|trans }}</th>
     </tr>
     </thead>
     <tbody>
@@ -40,21 +41,22 @@
                     <td align="center">{{ employeeId }}</td>
                     <td>{{ details['data']['employeeName'] }}</td>
                     <td>{{ details['data']['designation'] }}</td>
+                    <td>{{ details['data'][month]['reportMode'] }}</td>
                     <td>{{ month }}</td>
                     {% if details['activityName'] is not empty %}
                         {% for activityName in details['activityName'] %}
                             <td align="center">{{ teamMemberSummary[employeeId]['mark'][month][activityName]|default(0) }}</td>
                         {% endfor %}
                     {% endif %}
-                    <td align="center">{{ teamMemberSummary[employeeId]['data'][month]['obtainMark']|default(0) }}</td>
-                    <td align="center">{{ teamMemberSummary[employeeId]['data'][month]['grade']|default('') }}</td>
+                    <td align="center">{{ details['data'][month]['obtainMark']|default(0) }}</td>
+                    <td align="center">{{ details['data'][month]['grade']|default('') }}</td>
 
                 </tr>
             {% endfor %}
         {% endfor %}
     {% else %}
         <tr>
-            <td colspan="6" align="center">{{ 'No record has been found!' }}</td>
+            <td colspan="16" align="center">{{ 'No record has been found!' }}</td>
         </tr>
     {% endif %}
     </tbody>

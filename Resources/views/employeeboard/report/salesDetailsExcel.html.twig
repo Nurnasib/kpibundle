@@ -41,8 +41,7 @@
                 <th></th>
             </tr>
             <tr>
-                <th colspan="5"><h5
-                            style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ key == 'feed' ? 'Sales Feed Achivement' : 'Product Sales Growth' }}</h5>
+                <th colspan="5"><h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ key == 'feed' ? 'Sales Feed Achivement' : 'Product Sales Growth' }}</h5>
                 </th>
             </tr>
             <tr>
@@ -79,7 +78,8 @@
         <th></th>
     </tr>
     <tr>
-        <th colspan="5"><h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">Outstanding</h5>
+        <th colspan="5">
+            <h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ 'Outstanding'|trans }}</h5>
         </th>
     </tr>
     <tr>
@@ -131,7 +131,9 @@
         <th></th>
     </tr>
     <tr>
-        <th colspan="5"><h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">DOC sales collection</h5></th>
+        <th colspan="5">
+            <h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ 'DOC sales collection'|trans }}</h5>
+        </th>
     </tr>
     <tr>
         <th scope="col">{{ 'District'|trans }}</th>
@@ -179,8 +181,9 @@
             <th></th>
         </tr>
         <tr>
-            <th colspan="4"><h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">Minimum 50% "D"
-                    category agents converts to "C"</h5></th>
+            <th colspan="4">
+                <h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ 'Minimum 50% "D" category agents converts to "C"'|trans }}</h5>
+            </th>
         </tr>
         <tr>
             <td scope="col">{{ 'Previous "D" Category Agents: '|trans }} {{ dCategoryUpgrade.totalAgent|default(0) }}</td>
@@ -247,9 +250,9 @@
             <th></th>
         </tr>
         <tr>
-            <th colspan="4"><h5
-                        style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">
-                    Minimum 50 % "C" category agents converts to "B"</h5></th>
+            <th colspan="4">
+                <h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px"> {{ 'Minimum 50 % "C" category agents converts to "B"'|trans }}</h5>
+            </th>
         </tr>
         <tr>
             <td scope="col">{{ 'Previous "C" Category Agents: '|trans }} {{ cCategoryUpgrade.totalAgent|default(0) }}</td>
@@ -316,7 +319,7 @@
             <th></th>
         </tr>
         <tr>
-            <th colspan="3"><h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">Team members ach(=100%) mark on core activities</h5></th>
+            <th colspan="3"><h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ 'Team members ach(=100%) mark on core activities'|trans }}</h5></th>
         </tr>
         <tr>
             <th scope="col">{{ 'Employee'|trans }}</th>
@@ -367,10 +370,9 @@
             <th></th>
         </tr>
         <tr>
-            <th colspan="4"><h5
-                        style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">
-                    Agents Sales 20% Growth (Only for permanent agents: Will consider same period
-                    from previous year)</h5></th>
+            <th colspan="4">
+                <h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ 'Agent Upgradation'|trans }}</h5>
+            </th>
         </tr>
         <tr>
             <td>{{ 'Total Agent:' }} {{ growthAgentSalesDetails.totalAgent|default(0) }}</td>

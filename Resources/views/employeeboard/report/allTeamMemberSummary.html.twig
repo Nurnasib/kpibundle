@@ -84,10 +84,11 @@
                             <thead class="thead-dark">
 
                             <tr>
-                                <th>Employee ID</th>
-                                <th>Employee</th>
-                                <th>Designation</th>
-                                <th>Month</th>
+                                <th>{{ 'Employee ID'|trans }}</th>
+                                <th>{{ 'Employee'|trans }}</th>
+                                <th>{{ 'Designation'|trans }}</th>
+                                <th>{{ 'Format'|trans }}</th>
+                                <th>{{ 'Month'|trans }}</th>
                                 {% if teamMemberSummary is not empty %}
                                     {% for employeeId, details in teamMemberSummary %}
                                         {% if loop.first %}
@@ -100,8 +101,8 @@
                                         {% endif %}
                                     {% endfor %}
                                 {% endif %}
-                                <th>Mark</th>
-                                <th>Grade</th>
+                                <th>{{ 'Mark'|trans }}</th>
+                                <th>{{ 'Grade'|trans }}</th>
                                 <th><i class="feather icon-settings"></i></th>
                             </tr>
                             </thead>
@@ -111,9 +112,10 @@
                                     {% for month, activities in details['mark'] %}
                                         <tr>
                                             {% if loop.first %}
-                                                <td rowspan="{{ teamMemberSummary[employeeId]['mark']|length }}">{{ employeeId }}</td>
-                                                <td rowspan="{{ teamMemberSummary[employeeId]['mark']|length }}">{{ details['data']['employeeName'] }}</td>
-                                                <td rowspan="{{ teamMemberSummary[employeeId]['mark']|length }}">{{ details['data']['designation'] }}</td>
+                                                <td rowspan="{{ details['mark']|length }}">{{ employeeId }}</td>
+                                                <td rowspan="{{ details['mark']|length }}">{{ details['data']['employeeName'] }}</td>
+                                                <td rowspan="{{ details['mark']|length }}">{{ details['data']['designation'] }}</td>
+                                                <td rowspan="{{ details['mark']|length }}">{{ details['data'][month]['reportMode'] }}</td>
                                             {% endif %}
                                             <td>{{ month }}</td>
                                             {% if details['activityName'] is not empty %}

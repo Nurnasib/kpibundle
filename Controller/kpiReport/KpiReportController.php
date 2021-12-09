@@ -184,7 +184,7 @@ class KpiReportController extends AbstractController
                 ]);
                 $fileName = $request->get('_route').'_'.time().'.xls';
                 header("Content-Type: application/vnd.ms-excel; charset=utf-8");
-                header("Content-Disposition: attachement; filename=$fileName");
+                header("Content-Disposition: attachment; filename=$fileName");
                 echo $html;
                 die();
 

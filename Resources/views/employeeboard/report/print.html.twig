@@ -38,6 +38,7 @@
         <th scope="col">Marks</th>
         <th scope="col" style="width: 27%">Mark Distribution</th>
         <th scope="col">Obtain Marks</th>
+        <th scope="col">Self Marks</th>
     </tr>
     </thead>
     <tbody>
@@ -72,6 +73,9 @@
                         </td>
                         <td class="text-center">
                             {{ entity.mark }}
+                        </td>
+                        <td class="text-center">
+                            {{ entity.selfMark }}
                         </td>
                     </tr>
                     {% set countActity=0 %}
