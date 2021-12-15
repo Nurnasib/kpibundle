@@ -235,7 +235,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $em->flush();
     }
 
-    private function gradeCalculation($percentage)
+    public function gradeCalculation($percentage)
     {
         if ($percentage >= 80){
             return 'A';
@@ -1700,6 +1700,48 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 //            $data[$result['userId']]['activityName'][$result['activityName']]= $result['activityName'];
             $data[$result['userId']]['mark'][$result['month']][$result['activityName']]= $result['mark'];
         }
+        return $data;
+    }
+
+
+    public function getTeamMemberMarksByYear(User $employee, $year)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.employeeBoard', 'board');
+        $qb->join('board.employee', 'employee');
+        $qb->join('e.attribute', 'attribute');
+        $qb->select('e.mark AS lineManagerMark', 'e.selfMark');
+        $qb->addSelect('attribute.id AS attributeId','attribute.name AS attributeName');
+        $qb->addSelect('board.month');
+        $qb->where('board.year = :year')->setParameter('year', $year);
+        $qb->andWhere('employee.id = :employeeId')->setParameter('employeeId', $employee->getId());
+
+        $results = $qb->getQuery()->getArrayResult();
+        $data = [];
+        $attributes = [];
+        foreach ($results as $key => $result) {
+            $monthNumber = (new \DateTime($result['month']))->format('m');
+
+//            $data[$monthNumber . '-' . $result['month']]['month'] = $result['month'];
+            $data['month'][$monthNumber . '-' . $result['month']][$result['attributeId']] = [
+                "lineManagerMark" => $result['lineManagerMark'],
+                "selfMark" => $result['selfMark'],
+            ];
+
+/*            if ($key == key($results)){
+                $data['total'][$result['attributeId']] = [
+                    'totalLineManagerMark' => $result['lineManagerMark']
+                ];
+            }else{
+                $data['total'][$result['attributeId']] = [
+                    'totalLineManagerMark' => $data['total'][$result['attributeId']]['totalLineManagerMark'] + $result['lineManagerMark']
+                ];
+            }*/
+            $attributes[$result['attributeId']] =  $result['attributeName'];
+            $data['attributes'] = $attributes;
+        }
+
+        ksort($data);
         return $data;
     }
 

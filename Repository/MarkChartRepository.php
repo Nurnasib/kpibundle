@@ -290,4 +290,44 @@ class MarkChartRepository extends MaterializedPathRepository
         return $results;
     }*/
 
+    public function getParameters()
+    {
+        $qb = $this->createQueryBuilder('attribute');
+        $qb->leftJoin('attribute.parent', 'activity');
+        $qb->leftJoin('activity.parent', 'parameter');
+        $qb->where('attribute.status = 1');
+        $qb->andWhere('activity.status = 1');
+        $qb->andWhere('parameter.status = 1');
+        $qb->andWhere('attribute.level = 3');
+        $qb->orderBy('parameter.ordering', 'ASC');
+        $qb->addOrderBy('activity.ordering', 'ASC');
+        $qb->addOrderBy('attribute.ordering', 'ASC');
+
+        $results = $qb->getQuery()->getResult();
+        $data = [];
+        foreach ($results as $result) {
+
+            if (($result->getParent()->getSlug() == 'sales' && in_array($result->getSlug(),['broiler', 'layer', 'sonali', 'fish', 'cattle']) || ($result->getParent()->getSlug() == 'sales-growth-always-consider-among-same-period' &&  in_array($result->getSlug(),['growth-broiler', 'growth-layer', 'growth-sonali', 'growth-fish', 'growth-cattle'])) || ($result->getParent()->getSlug() == 'outstanding' && in_array($result->getSlug(),['agm-outstanding-limit-vs-actual-feed', 'rsm-outstanding-limit-vs-actual-feed']) == false))){
+//                if ($result->getParent()->getParent()->isStatus() && $result->getParent()->isStatus()){
+                    $data[$result->getParent()->getName()][] = [
+                        'id' => $result->getId(),
+                        'name' => $result->getName(),
+                        'slug' => $result->getSlug(),
+                    ];
+//                }
+
+            }elseif($result->getParent()->getSlug() !== 'sales' && $result->getParent()->getSlug() !== 'sales-growth-always-consider-among-same-period' && $result->getParent()->getSlug() !== 'outstanding'){
+//                if ($result->getParent()->getParent()->isStatus() && $result->getParent()->isStatus()){
+                    $data[$result->getParent()->getName()][] = [
+                        'id' => $result->getId(),
+                        'name' => $result->getName(),
+                        'slug' => $result->getSlug(),
+                    ];
+//                }
+
+            }
+
+        }
+        return $data;
+    }
 }
