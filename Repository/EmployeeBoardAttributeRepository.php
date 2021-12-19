@@ -1728,15 +1728,30 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 "selfMark" => $result['selfMark'],
             ];
 
-/*            if ($key == key($results)){
-                $data['total'][$result['attributeId']] = [
-                    'totalLineManagerMark' => $result['lineManagerMark']
-                ];
+            if (array_key_exists('total', $data)){
+                if (array_key_exists($result['attributeId'], $data['total'])){
+
+                    if (array_key_exists('totalLineManagerMark',$data['total'][$result['attributeId']] )){
+                        $data['total'][$result['attributeId']]['totalLineManagerMark'] += $result['lineManagerMark'];
+                    }else{
+                        $data['total'][$result['attributeId']]['totalLineManagerMark'] = $result['lineManagerMark'];
+                    }
+
+                    if (array_key_exists('totalSelfMark',$data['total'][$result['attributeId']] )){
+                        $data['total'][$result['attributeId']]['totalSelfMark'] += $result['selfMark'];
+                    }else{
+                        $data['total'][$result['attributeId']]['totalSelfMark'] = $result['selfMark'];
+                    }
+                }else{
+                    $data['total'][$result['attributeId']]['totalLineManagerMark'] = $result['lineManagerMark'];
+                    $data['total'][$result['attributeId']]['totalSelfMark'] = $result['selfMark'];
+
+                }
             }else{
-                $data['total'][$result['attributeId']] = [
-                    'totalLineManagerMark' => $data['total'][$result['attributeId']]['totalLineManagerMark'] + $result['lineManagerMark']
-                ];
-            }*/
+                $data['total'][$result['attributeId']]['totalLineManagerMark'] = $result['lineManagerMark'];
+                $data['total'][$result['attributeId']]['totalSelfMark'] = $result['selfMark'];
+
+            }
             $attributes[$result['attributeId']] =  $result['attributeName'];
             $data['attributes'] = $attributes;
         }
