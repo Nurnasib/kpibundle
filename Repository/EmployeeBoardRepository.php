@@ -219,7 +219,9 @@ class EmployeeBoardRepository extends EntityRepository
         $qb->addSelect('lineManager.name AS lineManagerName');
         $qb->addSelect('designation.name AS designationName');
         $qb->where('board.approvedBy IS NOT NULL');
-        $qb->andWhere('employee.lineManager = :lineManager')->setParameter('lineManager', $user);
+        if (!in_array('ROLE_KPI_ADMIN', $user->getRoles())){
+            $qb->andWhere('employee.lineManager = :lineManager')->setParameter('lineManager', $user);
+        }
         $qb->andWhere('board.year = :year')->setParameter('year', $year);
         $qb->groupBy('employee.id');
         return $qb->getQuery()->getResult();
