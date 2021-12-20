@@ -867,6 +867,8 @@ class EmployeeBoardController extends AbstractController
         foreach ($data as $key => $item) {
             if ($key === 'sales'){
                 foreach ($item as $attributeId => $sale) {
+                    $sale['target'] = $sale['target'] ?: 0;
+                    $sale['sales'] = $sale['sales'] ?: 0;
                     $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
                     if ($findAttribute){
                         $subAttribute = new EmployeeBoardSubAttribute();
@@ -876,8 +878,8 @@ class EmployeeBoardController extends AbstractController
                         }
                         $subAttribute->setEmployeeBoard($board);
                         $subAttribute->setMarkDistribution($findAttribute);
-                        $subAttribute->setTargetQuantity($sale['target'] ?: 0);
-                        $subAttribute->setSalesQuantity($sale['sales'] ?: 0);
+                        $subAttribute->setTargetQuantity($sale['target']);
+                        $subAttribute->setSalesQuantity($sale['sales']);
 
                         $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesTargetCalculation($sale['target'], $sale['sales']);
                         $subAttribute->setMark($mark);
@@ -896,6 +898,9 @@ class EmployeeBoardController extends AbstractController
                 }
             }elseif ($key === 'growth'){
                 foreach ($item as $attributeId => $growth) {
+                    $growth['previous'] = $growth['previous'] ?: 0;
+                    $growth['current'] = $growth['current'] ?: 0;
+
                     $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
                     if ($findAttribute){
                         $subAttribute = new EmployeeBoardSubAttribute();
@@ -905,11 +910,11 @@ class EmployeeBoardController extends AbstractController
                         }
                         $subAttribute->setEmployeeBoard($board);
                         $subAttribute->setMarkDistribution($findAttribute);
-                        $subAttribute->setTargetQuantity($growth['previous'] ?: 0);
-                        $subAttribute->setSalesQuantity($growth['current'] ?: 0);
+                        $subAttribute->setTargetQuantity($growth['previous']);
+                        $subAttribute->setSalesQuantity($growth['current']);
 
                         $slug = explode('-', $findAttribute->getSlug());
-                        $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesGrowthCalculation($slug[1], $growth['previous'] ?: 0, $growth['current'] ?: 0)[$findAttribute->getSlug()];
+                        $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesGrowthCalculation($slug[1], $growth['previous'], $growth['current'])[$findAttribute->getSlug()];
 
                         $subAttribute->setMark($mark);
 
@@ -927,13 +932,16 @@ class EmployeeBoardController extends AbstractController
                 }
 
             }elseif ($key === 'outstanding'){
+                $item['actual-amount'] = $item['actual-amount'] ?: 0;
+                $item['limit-amount'] = $item['limit-amount'] ?: 0;
+
                 $findOutstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->findOneBy(['employeeBoard' => $board]);
                 $newOutstanding = $findOutstanding ?: new AgentOutstandingForCustomFormat();
 
                 $newOutstanding->setEmployeeBoard($board);
-                $newOutstanding->setActualAmount($item['actual-amount'] ?: 0);
-                $newOutstanding->setLimitAmount($item['limit-amount'] ?: 0);
-                $newOutstanding->setOutstanding(($item['limit-amount'] ?: 0) - ($item['actual-amount'] ?: 0));
+                $newOutstanding->setActualAmount($item['actual-amount']);
+                $newOutstanding->setLimitAmount($item['limit-amount']);
+                $newOutstanding->setOutstanding($item['limit-amount'] - $item['actual-amount']);
                 $this->getDoctrine()->getManager()->persist($newOutstanding);
                 $this->getDoctrine()->getManager()->flush();
 
@@ -950,13 +958,16 @@ class EmployeeBoardController extends AbstractController
                 }
 
             }elseif ($key === 'docSale'){
+                $item['sale'] = $item['sale'] ?: 0;
+                $item['collection'] = $item['collection'] ?: 0;
+
                 $findDocSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->findOneBy(['employeeBoard' => $board]);
 
                 $newDocSale = $findDocSale ?: new AgentDocSaleCollectionForCustomFormat();
 
                 $newDocSale->setEmployeeBoard($board);
-                $newDocSale->setSales($item['sale'] ?: 0);
-                $newDocSale->setCollection($item['collection'] ?: 0);
+                $newDocSale->setSales($item['sale']);
+                $newDocSale->setCollection($item['collection']);
                 $this->getDoctrine()->getManager()->persist($newDocSale);
                 $this->getDoctrine()->getManager()->flush();
 
@@ -975,6 +986,7 @@ class EmployeeBoardController extends AbstractController
                 foreach ($item as $attributeId => $agentNumber) {
                     $agentNumber['upgradeAgent'] = $agentNumber['upgradeAgent'] ?: 0;
                     $agentNumber['totalAgents'] = $agentNumber['totalAgents'] ?: 0;
+
                     $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
                     if ($findAttribute){
                         $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);

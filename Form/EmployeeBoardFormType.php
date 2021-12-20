@@ -73,6 +73,8 @@ class EmployeeBoardFormType extends AbstractType
                             ->orderBy('e.name', 'ASC');
                         if ($format == 'custom-format'){
                             $qb->andWhere('reportMode.slug =:reportMode')->setParameter('reportMode', $format);
+                        }else{
+                            $qb->andWhere('reportMode.slug !=:reportMode')->setParameter('reportMode', 'custom-format');
                         }
                         return $qb;
                     }
