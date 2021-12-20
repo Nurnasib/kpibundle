@@ -486,6 +486,8 @@ class EmployeeController extends AbstractController
      */
     public function districtProcess()
     {
+        set_time_limit(0);
+        ignore_user_abort(true);
         $users = $this->getDoctrine()->getRepository(User::class)->findBy(['userGroup' => [8,9], 'userMode' => ['KPI']]);
         $data = null;
         foreach ($users as $user) {
@@ -499,15 +501,22 @@ class EmployeeController extends AbstractController
                     $month = (new \DateTime($date))->format('F');
                     $year = (new \DateTime('now'))->format('Y');
 
-                    $sql = "INSERT INTO `kpi_employee_district_history`(`employee_id`, `district`, `month`, `year`, `created_at`, `updated_at`) VALUES (:employee_id, :district, :month, :year, :created_at, :updated_at)";
-                    $stmt = $this->getDoctrine()->getConnection()->prepare($sql);
-                    $stmt->bindValue('employee_id', $user->getId());
-                    $stmt->bindValue('district', json_encode($districts));
-                    $stmt->bindValue('month', $month);
-                    $stmt->bindValue('year', $year);
-                    $stmt->bindValue('created_at', (new \DateTime('now'))->format('Y-m-d H:i:s'));
-                    $stmt->bindValue('updated_at', (new \DateTime('now'))->format('Y-m-d H:i:s'));
-                    $stmt->execute();
+                    $exist = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $user, 'month' => $month, 'year' => $year]);
+                    if ($exist){
+                        $exist->setDistrict(json_encode($districts));
+                        $exist->setUpdatedBy($this->getUser());
+                        $exist->setUpdatedAt(new \DateTime('now'));
+                        $this->getDoctrine()->getManager()->flush();
+                    }else{
+                        $sql = "INSERT INTO `kpi_employee_district_history`(`employee_id`, `district`, `month`, `year`, `created_at`) VALUES (:employee_id, :district, :month, :year, :created_at)";
+                        $stmt = $this->getDoctrine()->getConnection()->prepare($sql);
+                        $stmt->bindValue('employee_id', $user->getId());
+                        $stmt->bindValue('district', json_encode($districts));
+                        $stmt->bindValue('month', $month);
+                        $stmt->bindValue('year', $year);
+                        $stmt->bindValue('created_at', (new \DateTime('now'))->format('Y-m-d H:i:s'));
+                        $stmt->execute();
+                    }
                 }
         }
         $this->addFlash('success', 'District history updated!');
