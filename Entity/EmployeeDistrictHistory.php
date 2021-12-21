@@ -41,6 +41,15 @@ class EmployeeDistrictHistory
      * @ORM\ManyToOne(targetEntity="App\Entity\User")
      * @ORM\JoinColumn(referencedColumnName="id")
      */
+    private $lineManager;
+
+
+    /**
+     * @var User
+     *
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     * @ORM\JoinColumn(referencedColumnName="id")
+     */
     private $updatedBy;
 
     /**
@@ -108,6 +117,23 @@ class EmployeeDistrictHistory
     {
         $this->employee = $employee;
     }
+
+    /**
+     * @return User
+     */
+    public function getLineManager(): User
+    {
+        return $this->lineManager;
+    }
+
+    /**
+     * @param User $lineManager
+     */
+    public function setLineManager(User $lineManager): void
+    {
+        $this->lineManager = $lineManager;
+    }
+
 
     /**
      * @return User

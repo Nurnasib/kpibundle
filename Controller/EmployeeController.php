@@ -137,6 +137,7 @@ class EmployeeController extends AbstractController
      * @param Request $request
      * @param User $post
      * @return Response
+     * @throws \Exception
      */
     public function edit(Request $request, User $post): Response
     {
@@ -173,6 +174,7 @@ class EmployeeController extends AbstractController
                 $districtHistory = $findHistory ?: new EmployeeDistrictHistory();
 
                 $districtHistory->setEmployee($post);
+                $districtHistory->setLineManager($form->getData()->getLineManager());
                 $districtHistory->setDistrict(json_encode($districts));
                 $districtHistory->setMonth($transferJoiningMonth);
                 $districtHistory->setYear($transferJoiningYear);
@@ -194,7 +196,7 @@ class EmployeeController extends AbstractController
             }
 
             $em->flush();
-
+            $this->addFlash('success', 'Employee details updated!');
             return $this->redirectToRoute('kpi_employee_edit',array('id'=> $post->getId()));
         }
         return $this->render('@TerminalbdKpi/employee/editRegister.html.twig', [
@@ -503,14 +505,16 @@ class EmployeeController extends AbstractController
 
                     $exist = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $user, 'month' => $month, 'year' => $year]);
                     if ($exist){
+                        $exist->setLineManager($user->getLineManager());
                         $exist->setDistrict(json_encode($districts));
                         $exist->setUpdatedBy($this->getUser());
                         $exist->setUpdatedAt(new \DateTime('now'));
                         $this->getDoctrine()->getManager()->flush();
                     }else{
-                        $sql = "INSERT INTO `kpi_employee_district_history`(`employee_id`, `district`, `month`, `year`, `created_at`) VALUES (:employee_id, :district, :month, :year, :created_at)";
+                        $sql = "INSERT INTO `kpi_employee_district_history`(`employee_id`,`line_manager_id`, `district`, `month`, `year`, `created_at`) VALUES (:employee_id, :line_manager_id, :district, :month, :year, :created_at)";
                         $stmt = $this->getDoctrine()->getConnection()->prepare($sql);
                         $stmt->bindValue('employee_id', $user->getId());
+                        $stmt->bindValue('line_manager_id', $user->getLineManager()->getId());
                         $stmt->bindValue('district', json_encode($districts));
                         $stmt->bindValue('month', $month);
                         $stmt->bindValue('year', $year);

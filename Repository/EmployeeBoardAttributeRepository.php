@@ -1710,9 +1710,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $qb->join('e.employeeBoard', 'board');
         $qb->join('board.employee', 'employee');
         $qb->join('e.attribute', 'attribute');
+        $qb->join('e.parameter', 'parameter');
         $qb->select('e.mark AS lineManagerMark', 'e.selfMark');
         $qb->addSelect('attribute.id AS attributeId','attribute.name AS attributeName');
         $qb->addSelect('board.month');
+        $qb->addSelect('parameter.id AS parameterId', 'parameter.slug AS parameterSlug');
         $qb->where('board.year = :year')->setParameter('year', $year);
         $qb->andWhere('employee.id = :employeeId')->setParameter('employeeId', $employee->getId());
 
@@ -1752,7 +1754,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 $data['total'][$result['attributeId']]['totalSelfMark'] = $result['selfMark'];
 
             }
-            $attributes[$result['attributeId']] =  $result['attributeName'];
+            $attributes[$result['attributeId']] =  [
+                'name' => $result['attributeName'],
+                'parameterSlug' => $result['parameterSlug'],
+            ];
             $data['attributes'] = $attributes;
         }
 
