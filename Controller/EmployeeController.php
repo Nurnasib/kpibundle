@@ -156,17 +156,31 @@ class EmployeeController extends AbstractController
 
             $transferJoiningMonth = null;
             $transferJoiningYear = null;
+            $districts = null;
+
             if ($form['transferJoiningDate']->getData() != null){
                 $transferJoiningMonth = (new \DateTime($form['transferJoiningDate']->getData()))->format('F');
                 $transferJoiningYear = (new \DateTime($form['transferJoiningDate']->getData()))->format('Y');
 
             }
-            $districts = null;
 
             foreach ($form->getData()->getDistrict() as $district){
                 $districts[$district->getId()]= $district->getName();
             }
+            // update line manager for current month to end of the year
+            $monthArray = [];
+            for ($i = date('m'); $i <= 12; $i++){
+                $date = '01-'.$i.'-2021';
+                array_push($monthArray, (new \DateTime($date))->format('F'));
+            }
+            $findHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findBy(['employee' => $post, 'month' => $monthArray, 'year' => date('Y')]);
+            foreach ($findHistory as $history) {
+                $history->setLineManager($form->getData()->getLineManager());
+                $em->persist($history);
+                $em->flush();
+            }
 
+            // add history
             if ($transferJoiningMonth){
 
                 $findHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $post, 'month' => $transferJoiningMonth, 'year' => $transferJoiningYear]);
@@ -360,6 +374,20 @@ class EmployeeController extends AbstractController
         $lineManager = $this->getDoctrine()->getRepository(User::class)->find($data['value']);
         $user->setLineManager($lineManager);
         $this->getDoctrine()->getManager()->flush();
+
+        // update line manager for current month to end of the year
+        $monthArray = [];
+        for ($i = date('m'); $i <= 12; $i++){
+            $date = '01-'.$i.'-2021';
+            array_push($monthArray, (new \DateTime($date))->format('F'));
+        }
+        $findHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findBy(['employee' => $user, 'month' => $monthArray, 'year' => date('Y')]);
+        foreach ($findHistory as $history) {
+            $history->setLineManager($lineManager);
+            $this->getDoctrine()->getManager()->persist($history);
+            $this->getDoctrine()->getManager()->flush();
+        }
+
         return new JsonResponse(['status' => 200]);
 
     }
