@@ -122,6 +122,24 @@ class EmployeeController extends AbstractController
             $user->setTerminal($terminal);
             $em->persist($user);
             $em->flush();
+
+
+            // add on history
+            $districtsArray = [];
+            foreach ($user->getDistrict() as $district) {
+                $districtsArray[$district->getId()] = $district->getName();
+            }
+            $history = new EmployeeDistrictHistory();
+            $history->setEmployee($user);
+            $history->setLineManager($user->getLineManager());
+            $history->setDistrict(json_encode($districtsArray));
+            $history->setMonth($user->getJoiningDate() ? (new \DateTime($user->getJoiningDate()))->format('F') : null);
+            $history->setYear($user->getJoiningDate() ? (new \DateTime($user->getJoiningDate()))->format('Y') : null);
+            $history->setCreatedAt(new \DateTime('now'));
+            $em->persist($history);
+            $em->flush();
+
+            $this->addFlash('success', 'Employee added successfully!');
             return $this->redirectToRoute('kpi_employee');
         }
         return $this->render('@TerminalbdKpi/employee/register.html.twig', [
