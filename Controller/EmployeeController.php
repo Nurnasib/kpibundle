@@ -133,8 +133,8 @@ class EmployeeController extends AbstractController
             $history->setEmployee($user);
             $history->setLineManager($user->getLineManager());
             $history->setDistrict(json_encode($districtsArray));
-            $history->setMonth($user->getJoiningDate() ? (new \DateTime($user->getJoiningDate()))->format('F') : null);
-            $history->setYear($user->getJoiningDate() ? (new \DateTime($user->getJoiningDate()))->format('Y') : null);
+            $history->setMonth($user->getJoiningDate() ? (new \DateTime($user->getJoiningDate()))->format('F') : date('F'));
+            $history->setYear($user->getJoiningDate() ? (new \DateTime($user->getJoiningDate()))->format('Y') : date('Y'));
             $history->setCreatedAt(new \DateTime('now'));
             $em->persist($history);
             $em->flush();
