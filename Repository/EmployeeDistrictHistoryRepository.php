@@ -85,19 +85,25 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
 
     public function getDistricts(User $employee)
     {
-        $em = $this->_em;
+        $qb = $this->createQueryBuilder('e');
 
-        $query = "SELECT * FROM kpi_employee_district_history WHERE employee_id = :employeeId";
+        $qb->join('e.employee', 'employee');
+        $qb->where('employee.id = :employeeId')->setParameter('employeeId', $employee->getId());
 
-        $stmt = $em->getConnection()->prepare($query);
-        $stmt->bindValue('employeeId', $employee->getId());
-        $stmt->execute();
-        $records =  $stmt->fetchAll();
+        $qb->select('e');
+        $qb->orderBy('e.year', 'DESC');
+
+        $records = $qb->getQuery()->getArrayResult();
+
         $data = [];
+
         foreach ($records as $record) {
             $arr = json_decode($record['district'], true);
-            $data[$record['year'].'-'.$record['month']] = $record;
-            $data[$record['year'].'-'.$record['month']]['district'] = $arr ? implode(', ', $arr) : '';
+            $record['district'] = $arr ? implode(', ', $arr) : '';
+            $monthNumber = date("m", strtotime($record['month']));
+
+            $data[$record['year']][$monthNumber . '-' . $record['month']] = $record;
+            ksort($data[$record['year']]);
         }
         return $data;
     }

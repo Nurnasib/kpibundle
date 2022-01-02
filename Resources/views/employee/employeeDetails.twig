@@ -74,31 +74,27 @@ table.district-history thead {
 <div class="row">
     <h4 class="text-center bg-secondary w-100 p-1">{{ 'District History'|trans }}</h4>
     <div class="col-md-12" style="max-height: 250px; overflow-y: auto">
-        <table class="table table-bordered table-striped table-hover district-history">
+        <table class="table table-bordered table-striped table-hover district-history" id="datatable">
             <thead class="thead-dark">
             <tr>
-                <th>{{ 'Month/Year'|trans }}</th>
+                <th>{{ 'Year'|trans }}</th>
+                <th>{{ 'Month'|trans }}</th>
                 <th class="text-center">{{ 'Districts'|trans }}</th>
             </tr>
             </thead>
             <tbody>
             {% if districtHistory is defined and districtHistory is not empty %}
-                    {% for year in 2020..'now'|date('Y') %}
-                        {% for month in 1..12 %}
-                            {% set date = month ~ "/1/2020" %}
-                            {% set yearMonthKey = year~'-'~date|date('F') %}
-                            {% if districtHistory[yearMonthKey] is defined %}
-                                <tr>
-                                    <td>{{ districtHistory[yearMonthKey].month ~ ', ' ~ districtHistory[yearMonthKey].year }}</td>
-                                    <td>{{ districtHistory[yearMonthKey].district }}</td>
-                                </tr>
+                {% for year, data in districtHistory %}
+                    {% for month, history in data %}
+                        <tr>
+                            {% if loop.first %}
+                                <td rowspan="{{ data|length }}" align="center">{{ year }}</td>
                             {% endif %}
-                        {% endfor %}
+                            <td>{{ (month|split('-'))[1] }}</td>
+                            <td>{{ history.district }}</td>
+                        </tr>
                     {% endfor %}
-                {% else %}
-                <tr>
-                    <td colspan="2" align="center">{{ 'No records Found!'|trans }}</td>
-                </tr>
+                {% endfor %}
             {% endif %}
             </tbody>
         </table>

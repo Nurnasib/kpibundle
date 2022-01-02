@@ -63,6 +63,7 @@ class EmployeeController extends AbstractController
      */
     public function index(Request $request, UserRepository $userRepository, $mode): Response
     {
+
         $lineManagers = $userRepository->getLineManager();
         $user = $this->getUser();
 
@@ -172,13 +173,11 @@ class EmployeeController extends AbstractController
             $lastAssignReportFormat = $this->getDoctrine()->getRepository(EmployeeReportFormatHistory::class)->findOneBy(['employee' => $post], ['id' => 'DESC']);
             $reportFormat = $form->getData()->getReportMode();
 
-            $transferJoiningMonth = null;
-            $transferJoiningYear = null;
+            $transferJoiningDate = null;
             $districts = null;
 
             if ($form['transferJoiningDate']->getData() != null){
-                $transferJoiningMonth = (new \DateTime($form['transferJoiningDate']->getData()))->format('F');
-                $transferJoiningYear = (new \DateTime($form['transferJoiningDate']->getData()))->format('Y');
+                $transferJoiningDate = new \DateTime($form['transferJoiningDate']->getData());
 
             }
 
@@ -199,20 +198,22 @@ class EmployeeController extends AbstractController
             }
 
             // add history
-            if ($transferJoiningMonth){
+            if ($transferJoiningDate){
+                $monthArray = [];
+                for ($i = $transferJoiningDate->format('m'); $i <= 12; $i++){
+                    $date = '01-'.$i.'-2021';
+                    array_push($monthArray, (new \DateTime($date))->format('F'));
+                }
 
-                $findHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $post, 'month' => $transferJoiningMonth, 'year' => $transferJoiningYear]);
+                $findHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findBy(['employee' => $post, 'month' => $monthArray, 'year' => $transferJoiningDate->format('Y')]);
 
-                $districtHistory = $findHistory ?: new EmployeeDistrictHistory();
-
-                $districtHistory->setEmployee($post);
-                $districtHistory->setLineManager($form->getData()->getLineManager());
-                $districtHistory->setDistrict(json_encode($districts));
-                $districtHistory->setMonth($transferJoiningMonth);
-                $districtHistory->setYear($transferJoiningYear);
-                $districtHistory->setUpdatedBy($this->getUser());
-                $districtHistory->setUpdatedAt(new \DateTime('now'));
-                $em->persist($districtHistory);
+                foreach ($findHistory as $history) {
+                    $history->setDistrict(json_encode($districts));
+                    $history->setUpdatedBy($this->getUser());
+                    $history->setUpdatedAt(new \DateTime('now'));
+                    $em->persist($history);
+                    $em->flush();
+                }
             }
 
             if ($lastAssignReportFormat == null || $lastAssignReportFormat->getReportFormat()->getId() != $reportFormat->getId()){

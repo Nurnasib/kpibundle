@@ -100,7 +100,7 @@
             <div class="card">
                 <div class="card-block">
                     <div class="col-md-12">
-                        <table class="table table-striped table-bordered table-hover" id="datatable">
+                        <table class="table table-striped table-bordered table-hover">
                             <thead class="thead-dark">
                             <tr>
                                 <th scope="col">S/L</th>
@@ -328,29 +328,24 @@
 {% block documentready %}
 {#<script>#}
     {{ parent() }}
-    {#    $('#datatable').DataTable( {
-        "pageLength": 100,
-        'columnDefs': [ {
-        'targets': [0,8],
-        'orderable': false
-        }]
-        });#}
-
-
 
     $.fn.editable.defaults.mode ='inline';
     {#    $.fn.editable.defaults.mode = 'popover';#}
     $('.editable').editable();
 
 
-{#    Append Employee details#}
+    {#    Append Employee details#}
     jQuery("#myModal").on("show.bs.modal", function(e) {
-    var url = jQuery(e.relatedTarget).data('action');
+        var url = jQuery(e.relatedTarget).data('action');
 
-    jQuery.get( url, function( data ) {
-    jQuery(".modal-body").html(data.html);
+        jQuery.get( url, function( data ) {
+            jQuery(".modal-body").html(data.html);
+        });
+
     });
 
+    $('#datatable').DataTable( {
+        "pageLength": 12,
     });
 
 
