@@ -209,6 +209,8 @@ class EmployeeFormType extends AbstractType
                 'query_builder' => function(EntityRepository $er){
                     return $er->createQueryBuilder('e')
                         ->where("e.enabled =1")
+                        ->andWhere('e.roles LIKE :admin')->setParameter('admin', '%ROLE_KPI_ADMIN%')
+                        ->orWhere('e.roles LIKE :lineManager')->setParameter('lineManager', '%ROLE_KPI_LINE_MANAGER%')
                         ->orderBy('e.name', 'ASC');
                 },
             ))
