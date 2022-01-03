@@ -125,20 +125,31 @@ class EmployeeController extends AbstractController
             $em->flush();
 
 
-            // add on history
+            // add history
             $districtsArray = [];
             foreach ($user->getDistrict() as $district) {
                 $districtsArray[$district->getId()] = $district->getName();
             }
-            $history = new EmployeeDistrictHistory();
-            $history->setEmployee($user);
-            $history->setLineManager($user->getLineManager());
-            $history->setDistrict(json_encode($districtsArray));
-            $history->setMonth($user->getJoiningDate() ? (new \DateTime($user->getJoiningDate()))->format('F') : date('F'));
-            $history->setYear($user->getJoiningDate() ? (new \DateTime($user->getJoiningDate()))->format('Y') : date('Y'));
-            $history->setCreatedAt(new \DateTime('now'));
-            $em->persist($history);
-            $em->flush();
+            $joiningYear = (new \DateTime($user->getJoiningDate()))->format('Y');
+            $currentYear = (new \DateTime('now'))->format('Y');
+
+            for ($i = $joiningYear; $i <= $currentYear; $i++){
+                for ($j = 1; $j <= 12; $j++){
+                    $date = '01-' . $j . '-' . $i;
+
+                    $history = new EmployeeDistrictHistory();
+                    $history->setEmployee($user);
+                    $history->setLineManager($user->getLineManager());
+                    $history->setDistrict(json_encode($districtsArray));
+                    $history->setMonth((new \DateTime($date))->format('F'));
+                    $history->setYear((new \DateTime($date))->format('Y'));
+                    $history->setCreatedAt(new \DateTime('now'));
+                    $em->persist($history);
+                    $em->flush();
+
+                }
+            }
+
 
             $this->addFlash('success', 'Employee added successfully!');
             return $this->redirectToRoute('kpi_employee');
