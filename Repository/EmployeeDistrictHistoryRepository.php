@@ -46,7 +46,6 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
         }
         $stmt->execute();
         $records =  $stmt->fetchAll();
-
         $history = [];
 
         foreach ($records as $record){
