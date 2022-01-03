@@ -127,11 +127,11 @@
                                     <tr>
                                         <td>{{ loop.index + offset }}</td>
                                         <td>{{ entity.userId|default('') }}</td>
-                                        <td>{{ entity.name|default('') }}</td>
+                                        <td>{{ entity.employeeName|default('') }}</td>
                                         {% if not is_granted('ROLE_KPI_ADMIN') %}
-                                            <td>{{ entity.designation.name|default('') }}</td>
-                                            <td>{{ entity.lineManager.name|default('') }}</td>
-                                            <td>{{ entity.reportMode.name|default('') }}</td>
+                                            <td>{{ entity.designationName|default('') }}</td>
+                                            <td>{{ entity.lineManagerName|default('') }}</td>
+                                            <td>{{ entity.reportModeName|default('') }}</td>
                                         {% endif %}
 
                                         {% if is_granted('ROLE_KPI_ADMIN') %}
@@ -139,49 +139,46 @@
                                                 <a
                                                         data-type="select"
                                                         class="editable"
-                                                        id="designation-{% if entity.designation.id is defined and entity.designation.id is not empty %}{{ entity.designation.id }}{% endif %}"
+{#                                                        id="designation-{% if entity.designationId is defined and entity.designation.id is not empty %}{{ entity.designation.id }}{% endif %}"#}
+                                                        id="designation-{{ entity.designationId }}"
                                                         data-name="designation"
                                                         href="#"
                                                         data-source="{{ path('kpi_designation_select',{id:entity.id}) }}"
                                                         data-url="{{ path('kpi_designation_inline_update',{id:entity.id}) }}"
-                                                        data-pk="{% if entity.designation.id is defined and entity.designation.id is not empty %}{{ entity.designation.id }}{% endif %}"
-                                                        data-value="{% if entity.designation.id is defined and entity.designation.id is not empty %}{{ entity.designation.id }}{% endif %}"
+                                                        data-pk="{{ entity.designationId }}"
+                                                        data-value="{{ entity.designationId }}"
                                                         data-original-title="Select designation">
-                                                    {% if entity.designation.name is defined and entity.designation.name is not empty %}{{ entity.designation.name }}{% endif %}
+                                                    {{ entity.designationName }}
                                                 </a>
                                             </td>
                                             <td>
                                                 <a
                                                         data-type="select"
                                                         class="editable"
-                                                        id="lineManager-{% if entity.lineManager.id is defined and entity.lineManager.id is not empty %}{{ entity.lineManager.id }}{% endif %}"
+                                                        id="lineManager-{{ entity.lineManagerId }}"
                                                         data-name="lineManager"
                                                         href="#"
                                                         data-source="{{ path('kpi_line_manager_select',{id:entity.id}) }}"
                                                         data-url="{{ path('kpi_line_manager_inline_update',{id:entity.id}) }}"
-                                                        data-pk="{% if entity.lineManager.id is defined and entity.lineManager.id is not empty %}{{ entity.lineManager.id }}{% endif %}"
-                                                        data-value="{% if entity.lineManager.id is defined and entity.lineManager.id is not empty %}{{ entity.lineManager.id }}{% endif %}"
+                                                        data-pk="{{ entity.lineManagerId }}"
+                                                        data-value="{{ entity.lineManagerId }}"
                                                         data-original-title="Select Line Manager">
-                                                    {% if entity.lineManager.name is defined and entity.lineManager.name is not empty %}
-                                                        {{ entity.lineManager.name|default('') }}
-                                                    {% endif %}
+                                                    {{ entity.lineManagerName }}
                                                 </a>
                                             </td>
                                             <td>
                                                 <a
                                                         data-type="select"
                                                         class="editable"
-                                                        id="reportMode-{% if entity.reportMode.id is defined and entity.reportMode.id is not empty %}{{ entity.reportMode.id }}{% endif %}"
+                                                        id="reportMode-{{ entity.reportModeId }}"
                                                         data-name="reportMode"
                                                         href="#"
                                                         data-source="{{ path('kpi_report_mode_select',{id:entity.id}) }}"
                                                         data-url="{{ path('kpi_report_mode_inline_update',{id:entity.id}) }}"
-                                                        data-pk="{% if entity.reportMode.id is defined and entity.reportMode.id is not empty %}{{ entity.reportMode.id }}{% endif %}"
-                                                        data-value="{% if entity.reportMode.id is defined and entity.reportMode.id is not empty %}{{ entity.reportMode.id }}{% endif %}"
+                                                        data-pk="{{ entity.reportModeId }}"
+                                                        data-value="{{ entity.reportModeId }}"
                                                         data-original-title="Select Report Mode">
-                                                    {% if entity.reportMode.name is defined and entity.reportMode.name is not empty %}
-                                                        {{ entity.reportMode.name|default('') }}
-                                                    {% endif %}
+                                                    {{ entity.reportModeName }}
                                                 </a>
                                             </td>
                                             <td>
@@ -199,15 +196,19 @@
 
                                         <td>{{ entity.mobile }}</td>
                                         <td>
+
+{#                                            {{ dump(entity.district|json_decode) }}#}
+{#                                            {{ entity.districtHistories ? entity.districtHistories.district : '' }}#}
+
                                             {% if entity.district is not empty %}
-                                                {% for dist in entity.district %}
-                                                    {{ dist.name }}
+                                                {% for dist in entity.district|json_decode %}
+                                                    {{ dist }}
                                                     {% if loop.last!=1 %}{{ ',' }}{% endif %}
                                                 {% endfor %}
                                             {% endif %}
                                         </td>
                                         <td>{{ entity.email }}</td>
-                                        <td>{{ entity.department.name|default('') }}</td>
+                                        <td>{{ entity.departmentName|default('') }}</td>
                                         <td>{{ entity.enabled == 1 ? "Enabled":"Disabled" }}</td>
                                         <td>
                                             <div class="btn-group">

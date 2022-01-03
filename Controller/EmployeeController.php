@@ -103,6 +103,7 @@ class EmployeeController extends AbstractController
      * @Route("/register", methods={"GET", "POST"}, name="kpi_employee_register")
      * @param Request $request
      * @return Response
+     * @throws \Exception
      */
     public function register(Request $request): Response
     {
@@ -210,20 +211,27 @@ class EmployeeController extends AbstractController
 
             // add history
             if ($transferJoiningDate){
+                $months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
                 $monthArray = [];
+                $yearArray = range($transferJoiningDate->format('Y'), date('Y'));
+
                 for ($i = $transferJoiningDate->format('m'); $i <= 12; $i++){
                     $date = '01-'.$i.'-2021';
                     array_push($monthArray, (new \DateTime($date))->format('F'));
                 }
+                $monthArray = array_diff($months,$monthArray );
 
-                $findHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findBy(['employee' => $post, 'month' => $monthArray, 'year' => $transferJoiningDate->format('Y')]);
+                $findHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findBy(['employee' => $post, 'year' => $yearArray]);
 
                 foreach ($findHistory as $history) {
-                    $history->setDistrict(json_encode($districts));
-                    $history->setUpdatedBy($this->getUser());
-                    $history->setUpdatedAt(new \DateTime('now'));
-                    $em->persist($history);
-                    $em->flush();
+                    if ($history->getYear() != $transferJoiningDate->format('Y') || ($history->getYear() == $transferJoiningDate->format('Y') && !in_array($history->getMonth(), $monthArray))){
+                        $history->setDistrict(json_encode($districts));
+                        $history->setUpdatedBy($this->getUser());
+                        $history->setUpdatedAt(new \DateTime('now'));
+                        $em->persist($history);
+                        $em->flush();
+                    }
+
                 }
             }
 
