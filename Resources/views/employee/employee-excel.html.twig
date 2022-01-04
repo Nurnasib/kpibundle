@@ -5,10 +5,10 @@
         <th scope="col">Employee ID</th>
         <th scope="col">Name</th>
         <th scope="col">Designation</th>
-        <th scope="col">Zonal Area</th>
-        <th scope="col">Regional Area</th>
-        <th scope="col">Working Area</th>
-        <th scope="col">Service Mode</th>
+{#        <th scope="col">Zonal Area</th>#}
+{#        <th scope="col">Regional Area</th>#}
+{#        <th scope="col">Working Area</th>#}
+{#        <th scope="col">Service Mode</th>#}
         <th scope="col">Line Manager</th>
         <th scope="col">Report Mode</th>
         <th scope="col">Mobile</th>
@@ -25,30 +25,24 @@
             <tr>
                 <td>{{ loop.index }}</td>
                 <td>{{ entity.userId|default('') }}</td>
-                <td>{{ entity.name|default('') }}</td>
-                <td>{{ entity.designation.name|default('') }}</td>
-                <td>{{ entity.zonal.name|default('') }}</td>
-                <td>{{ entity.regional.name|default('') }}</td>
-                <td>
-                    {% for district in entity.district %}
-                        {{ district.name }}{% if not loop.last %},{% endif %}
-                    {% endfor %}
-                </td>
-                <td>{{ entity.serviceMode.name|default('') }}</td>
-                <td>{{ entity.lineManager.name|default('') }}</td>
-                <td>{{ entity.reportMode.name|default('') }}</td>
+                <td>{{ entity.employeeName|default('') }}</td>
+                <td>{{ entity.designationName|default('') }}</td>
+{#                <td>{{ entity.zonal.name|default('') }}</td>#}
+{#                <td>{{ entity.regional.name|default('') }}</td>#}
+                <td>{{ entity.lineManagerName|default('') }}</td>
+                <td>{{ entity.reportModeName|default('') }}</td>
                 <td>{{ entity.mobile|default('') }}</td>
                 <td>
                     {% if entity.district is not empty %}
-                        {% for dist in entity.district %}
-                            {{ dist.name }}
+                        {% for dist in entity.district|json_decode %}
+                            {{ dist }}
                             {% if loop.last!=1 %}{{ ',' }}{% endif %}
                         {% endfor %}
                     {% endif %}
                 </td>
                 <td>{{ entity.email|default('') }}</td>
-                <td>{{ entity.department.name|default('') }}</td>
-                <td>{{ entity.joiningDate|date('d-m-Y') }}</td>
+                <td>{{ entity.departmentName|default('') }}</td>
+                <td>{{ entity.joiningDate ? entity.joiningDate|date('d-m-Y') : '' }}</td>
                 <td>{{ entity.enabled == 1 ? "Enabled":"Disabled" }}</td>
             </tr>
         {% endfor %}
