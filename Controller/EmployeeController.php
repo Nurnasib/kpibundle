@@ -233,6 +233,12 @@ class EmployeeController extends AbstractController
                     }
 
                 }
+            }else{
+                $findCurrentMonthHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $post, 'month' => date('F'), 'year' => date('Y')]);
+                $findCurrentMonthHistory->setDistrict(json_encode($districts));
+                $em->persist($findCurrentMonthHistory);
+                $em->flush();
+
             }
 
             if ($lastAssignReportFormat == null || $lastAssignReportFormat->getReportFormat()->getId() != $reportFormat->getId()){
@@ -245,9 +251,11 @@ class EmployeeController extends AbstractController
                 $reportFormatHistory->setYear($date->format('Y'));
                 $reportFormatHistory->setUpdatedBy($this->getUser());
                 $em->persist($reportFormatHistory);
+                $em->flush();
+
             }
 
-            $em->flush();
+//            $em->flush();
             $this->addFlash('success', 'Employee details updated!');
             return $this->redirectToRoute('kpi_employee_edit',array('id'=> $post->getId()));
         }
