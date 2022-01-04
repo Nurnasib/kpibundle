@@ -207,11 +207,19 @@ class EmployeeFormType extends AbstractType
                 'choice_label' => 'name',
                 'attr'=>array('class'=>'span12 m-wrap select2'),
                 'query_builder' => function(EntityRepository $er){
-                    return $er->createQueryBuilder('e')
-                        ->where("e.enabled =1")
-                        ->andWhere('e.roles LIKE :admin')->setParameter('admin', '%ROLE_KPI_ADMIN%')
-                        ->orWhere('e.roles LIKE :lineManager')->setParameter('lineManager', '%ROLE_KPI_LINE_MANAGER%')
+                    $qb = $er->createQueryBuilder('e');
+                    $qb->where("e.enabled = 1")
+                        ->andWhere('e.isDelete = 0')
+                        ->andWhere($qb->expr()->orX(
+                            $qb->expr()->like("e.roles", ':lineManager'),
+                            $qb->expr()->like("e.roles", ':admin')
+                        ))
+                        ->setParameters([
+                            'lineManager' => '%ROLE_KPI_LINE_MANAGER%',
+                            'admin' => '%ROLE_KPI_ADMIN%'
+                        ])
                         ->orderBy('e.name', 'ASC');
+                        return $qb;
                 },
             ))
 
