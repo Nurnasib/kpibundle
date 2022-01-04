@@ -85,7 +85,7 @@ class EmployeeController extends AbstractController
             $html = $this->renderView('@TerminalbdKpi/employee/employee-excel.html.twig',[
                 'entities' => $entities,
             ]);
-            $fileName = $request->get('_route').'_'.time().'.xls';
+            $fileName = $request->get('_route').'_'.time().'.xlsx';
             header("Content-Type: application/vnd.ms-excel; charset=utf-8");
             header("Content-Disposition: attachment; filename=$fileName");
             echo $html;
