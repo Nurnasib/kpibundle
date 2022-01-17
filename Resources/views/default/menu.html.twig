@@ -56,7 +56,5 @@
             </ul>
         </li>
     {% endif %}
-    {% if is_granted('ROLE_DEVELOPER') %}
-        <li><a class="dropdown-item" href="{{ path('district_history_process') }}" onclick="return confirm('Are you sure?')">{{ 'Process District History'|trans }}</a></li>
-    {% endif %}
+
 </ul>

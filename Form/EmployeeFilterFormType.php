@@ -47,13 +47,13 @@ class EmployeeFilterFormType extends AbstractType
                 if (!in_array('ROLE_KPI_ADMIN', $loginUser->getRoles())){
                     return $er->createQueryBuilder('e')
                         ->join('e.lineManager','lineManager')
-//                        ->where('e.enabled =1')
+                        ->where('e.enabled =1')
                         ->andWhere("e.userMode = 'KPI'")
                         ->andWhere('lineManager.id = :lineManagerId')->setParameter('lineManagerId', $loginUser->getId())
                         ->orderBy('e.name', 'ASC');
                 }else{
                     return $er->createQueryBuilder('e')
-//                        ->where('e.enabled =1')
+                        ->where('e.enabled =1')
                         ->andWhere("e.userMode = 'KPI'")
                         ->orderBy('e.name', 'ASC');
                 }
@@ -78,6 +78,9 @@ class EmployeeFilterFormType extends AbstractType
                         ;
                 },
                 'required' => false,
+                'attr'=>[
+                    'class'=>'select2'
+                ],
 
             ])
             ->add('kpiFormat', EntityType::class, [
@@ -90,6 +93,9 @@ class EmployeeFilterFormType extends AbstractType
                         ->where('settingType.slug = :slug')->setParameter('slug', 'report-mode');
                 },
                 'required' => false,
+                'attr'=>[
+                    'class'=>'select2'
+                ],
 
             ])
             ->add('employeeMobile', TextType::class,[

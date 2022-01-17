@@ -77,7 +77,7 @@ class EmployeeController extends AbstractController
             if (count(array_keys($filterBy, null)) == count($filterBy)){
                 $entities = [];
             } else{
-                $entities = $this->getDoctrine()->getRepository(User::class)->getSearchedEmployee($filterBy, $user);
+                $entities = $this->getDoctrine()->getRepository(User::class)->getSearchedKpiEmployee($filterBy, $user);
             }
         }
         $data = $this->paginate($request, $entities);
@@ -555,52 +555,5 @@ class EmployeeController extends AbstractController
         ]);
         return new JsonResponse(array('html'=>$html));
     }
-
-    /**
-     * @Route("/district/history/process", name="district_history_process")
-     * @Security("is_granted('ROLE_DEVELOPER')")
-     */
-    public function districtProcess()
-    {
-        set_time_limit(0);
-        ignore_user_abort(true);
-        $users = $this->getDoctrine()->getRepository(User::class)->findBy(['userGroup' => [8,9], 'userMode' => ['KPI']]);
-        $data = null;
-        foreach ($users as $user) {
-            $districts = null;
-
-           foreach ($user->getDistrict() as $district) {
-                $districts[$district->getId()] = $district->getName();
-            }
-                for ($i = 1; $i <= 12; $i++){
-                    $date = "01-$i-2021";
-                    $month = (new \DateTime($date))->format('F');
-                    $year = (new \DateTime('now'))->format('Y');
-
-                    $exist = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $user, 'month' => $month, 'year' => $year]);
-                    if ($exist){
-                        $exist->setLineManager($user->getLineManager());
-                        $exist->setDistrict(json_encode($districts));
-                        $exist->setUpdatedBy($this->getUser());
-                        $exist->setUpdatedAt(new \DateTime('now'));
-                        $this->getDoctrine()->getManager()->flush();
-                    }else{
-                        $sql = "INSERT INTO `kpi_employee_district_history`(`employee_id`,`line_manager_id`, `district`, `month`, `year`, `created_at`) VALUES (:employee_id, :line_manager_id, :district, :month, :year, :created_at)";
-                        $stmt = $this->getDoctrine()->getConnection()->prepare($sql);
-                        $stmt->bindValue('employee_id', $user->getId());
-                        $stmt->bindValue('line_manager_id', $user->getLineManager()->getId());
-                        $stmt->bindValue('district', json_encode($districts));
-                        $stmt->bindValue('month', $month);
-                        $stmt->bindValue('year', $year);
-                        $stmt->bindValue('created_at', (new \DateTime('now'))->format('Y-m-d H:i:s'));
-                        $stmt->execute();
-                    }
-                }
-        }
-        $this->addFlash('success', 'District history updated!');
-        return $this->redirectToRoute('kpi_employee');
-    }
-
-
 
 }
