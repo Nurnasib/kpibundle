@@ -51,7 +51,7 @@
                 {% endif %}
                 {% if is_granted('ROLE_KPI_ADMIN') or is_granted("ROLE_DEVELOPER") %}
                     <li><a class="dropdown-item" href="{{ path('kpi_setting') }}">{{ 'Setting'|trans}}</a></li>
-                    <li><a class="dropdown-item" href="{{ path('kpi_setting_new') }}">{{ 'New Setting'|trans }}</a></li>
+{#                    <li><a class="dropdown-item" href="{{ path('kpi_setting_new') }}">{{ 'New Setting'|trans }}</a></li>#}
                 {% endif %}
             </ul>
         </li>
