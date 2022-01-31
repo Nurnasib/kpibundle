@@ -77,7 +77,7 @@ class EditEmployeeFormType extends AbstractType
                             $qb->expr()->like("e.roles", ':admin')
                         ))
                         ->setParameters([
-                            'lineManager' => '%ROLE_KPI_LINE_MANAGER%',
+                            'lineManager' => '%ROLE_LINE_MANAGER%',
                             'admin' => '%ROLE_KPI_ADMIN%'
                         ])
                         ->orderBy('e.name', 'ASC');

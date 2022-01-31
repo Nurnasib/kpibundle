@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @Route("/kpi/location-sales")
  * @author Md Shafiqul Islam <shafiqabs@gmail.com>
- * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_KPI_LINE_MANAGER')")
+ * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_LINE_MANAGER')")
  */
 class LocationSalesTargetController extends AbstractController
 {

@@ -45,9 +45,9 @@ class EmployeeBoardRepository extends EntityRepository
         $qb->addSelect('reportMode.name AS reportFormat');
         $qb->addSelect('reportMode.slug AS reportFormatSlug');
 
-        if (in_array('ROLE_KPI_LINE_MANAGER', $user->getRoles())){
+        if (in_array('ROLE_LINE_MANAGER', $user->getRoles())){
             $qb->andWhere('u.lineManager = :user')->setParameter('user', $user);
-        }elseif (!in_array('ROLE_KPI_LINE_MANAGER', $user->getRoles()) && !in_array('ROLE_KPI_ADMIN', $user->getRoles())){
+        }elseif (!in_array('ROLE_LINE_MANAGER', $user->getRoles()) && !in_array('ROLE_KPI_ADMIN', $user->getRoles())){
             $qb->andWhere('s.employee = :user')->setParameter('user', $user);
         }
         $qb->orderBy('s.created','DESC');
@@ -103,9 +103,9 @@ class EmployeeBoardRepository extends EntityRepository
             $qb->andWhere('createdBy.id = :createdById')->setParameter('createdById', $filterBy['createdBy']);
         }
 
-        if (in_array('ROLE_KPI_LINE_MANAGER', $user->getRoles())){
+        if (in_array('ROLE_LINE_MANAGER', $user->getRoles())){
             $qb->andWhere('u.lineManager = :user')->setParameter('user', $user);
-        }elseif (!in_array('ROLE_KPI_LINE_MANAGER', $user->getRoles()) && !in_array('ROLE_KPI_ADMIN', $user->getRoles())){
+        }elseif (!in_array('ROLE_LINE_MANAGER', $user->getRoles()) && !in_array('ROLE_KPI_ADMIN', $user->getRoles())){
             $qb->andWhere('s.employee = :user')->setParameter('user', $user);
         }
 

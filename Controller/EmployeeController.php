@@ -55,7 +55,7 @@ class EmployeeController extends AbstractController
 
     /**
      * @Route("/list/{mode}", defaults={"mode" = null}, methods={"GET"}, name="kpi_employee")
-     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_KPI_LINE_MANAGER')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_LINE_MANAGER')")
      * @param Request $request
      * @param UserRepository $userRepository
      * @param $mode
@@ -541,7 +541,7 @@ class EmployeeController extends AbstractController
 
     /**
      * @Route("/{id}/details", name="kpi_employee_details", options={"expose"=true})
-     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_KPI_LINE_MANAGER')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN') or is_granted('ROLE_LINE_MANAGER')")
      * @param User $employee
      * @return JsonResponse
      */
