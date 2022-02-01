@@ -50,7 +50,7 @@ class EmployeeSetupController extends AbstractController
     }
 
     /**
-     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_KPI_USER') or is_granted('ROLE_DOMAIN')")
      * @Route("/new", methods={"GET", "POST"}, name="kpi_setup_new")
      * @param Request $request
      * @return Response
@@ -90,7 +90,7 @@ class EmployeeSetupController extends AbstractController
      * Displays a form to edit an existing Post entity.
      *
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="kpi_setup_edit")
-     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_KPI_USER') or is_granted('ROLE_DOMAIN')")
      * @param Request $request
      * @param EmployeeSetup $entity
      * @return Response
@@ -141,7 +141,7 @@ class EmployeeSetupController extends AbstractController
      * Deletes a Setting entity.
      *
      * @Route("/{id}/delete", methods={"GET"}, name="kpi_setup_delete")
-     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_KPI_USER') or is_granted('ROLE_DOMAIN')")
      * @param $id
      * @return Response
      */
@@ -160,7 +160,7 @@ class EmployeeSetupController extends AbstractController
      * Deletes a Setting entity.
      *
      * @Route("/{id}/{upozila}/delete-matrix", methods={"GET"}, name="kpi_setup_delete_matrix")
-     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_KPI_USER') or is_granted('ROLE_DOMAIN')")
      * @param $id
      * @param $upozila
      * @return Response
@@ -182,7 +182,7 @@ class EmployeeSetupController extends AbstractController
      * Status a Setting entity.
      *
      * @Route("/{id}/status", methods={"GET"}, name="kpi_setup_status")
-     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_KPI_USER') or is_granted('ROLE_DOMAIN')")
      * @param $id
      * @return Response
      */
@@ -200,7 +200,7 @@ class EmployeeSetupController extends AbstractController
      * Status a Setting entity.
      *
      * @Route("/{setup}/{upozila}/sales-matrix", methods={"GET"}, name="kpi_setup_sales_matrix")
-     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_KPI') or is_granted('ROLE_DOMAIN')")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_KPI_USER') or is_granted('ROLE_DOMAIN')")
      * @param $setup
      * @param $upozila
      * @return Response
