@@ -119,17 +119,17 @@ class EmployeeDistrictHistory
     }
 
     /**
-     * @return User
+     * @return User $lineManager
      */
-    public function getLineManager(): User
+    public function getLineManager()
     {
         return $this->lineManager;
     }
 
     /**
-     * @param User $lineManager
+     * @param $lineManager
      */
-    public function setLineManager(User $lineManager): void
+    public function setLineManager($lineManager): void
     {
         $this->lineManager = $lineManager;
     }
