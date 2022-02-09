@@ -73,10 +73,10 @@
                                         {{ form_widget(form.lineManager) }}
                                     </th>
                                 {% endif %}
-                                <th colspan="2">
+{#                                <th colspan="2">
                                     {{ form_label(form.department) }}
                                     {{ form_widget(form.department) }}
-                                </th>
+                                </th>#}
                                 <th colspan="1">
                                     <div class="btn-group" style="margin-top: 25px">
                                         <button type="submit" name="search" class="btn btn-primary btn-sm"
@@ -115,7 +115,7 @@
                                 <th scope="col">Mobile</th>
                                 <th scope="col" width="20%">Districts</th>
                                 <th scope="col">Email</th>
-                                <th scope="col">Department</th>
+{#                                <th scope="col">Department</th>#}
 {#                                <th scope="col">Status</th>#}
                                 <th scope="col" style="text-align: center"><i class="feather icon-settings"></i></th>
                             </tr>
@@ -205,7 +205,7 @@
                                             {% endif %}
                                         </td>
                                         <td>{{ entity.email }}</td>
-                                        <td>{{ entity.departmentName|default('') }}</td>
+{#                                        <td>{{ entity.departmentName|default('') }}</td>#}
 {#                                        <td>{{ entity.enabled == 1 ? "Enabled":"Disabled" }}</td>#}
                                         <td>
                                             <div class="btn-group">

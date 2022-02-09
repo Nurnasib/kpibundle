@@ -104,7 +104,7 @@ class EmployeeFilterFormType extends AbstractType
                 ],
                 'required' => false
             ])
-            ->add('department', EntityType::class, [
+/*            ->add('department', EntityType::class, [
                 'class' => Setting::class,
                 'choice_label' => 'name',
                 'query_builder' => function (EntityRepository $er) {
@@ -120,7 +120,7 @@ class EmployeeFilterFormType extends AbstractType
                 'placeholder' => 'Choose a department',
                 'required' => false,
 
-            ])
+            ])*/
             ->setMethod('get')
         ;
      }

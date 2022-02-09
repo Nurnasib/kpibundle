@@ -63,7 +63,6 @@ class EmployeeController extends AbstractController
      */
     public function index(Request $request, UserRepository $userRepository, $mode): Response
     {
-
         $lineManagers = $userRepository->getLineManager();
         $user = $this->getUser();
 
