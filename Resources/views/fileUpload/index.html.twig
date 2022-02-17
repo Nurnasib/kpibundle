@@ -2,15 +2,38 @@
 
 {% block body %}
 
-{#    <div class="row">
-        <div class="card">
-            <div class="card-header">
-                <h5>{{ 'Manage Import File'|trans }}</h5>
+<div class="pcoded-inner-content">
+    <!-- [ breadcrumb ] start -->
+    <div class="page-header">
+        <div class="page-block">
+            <div class="row align-items-center">
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                    <li class="breadcrumb-item"> <a href="javascript:void(0)">  {{ 'Data Import'|trans }}</a></li>
+                </ul>
             </div>
         </div>
-    </div>#}
+    </div>
+    <!-- [ breadcrumb ] end -->
+    <!-- [ Main Content ] start -->
     <div class="row">
-        <div class="col-md-9">
+        <div class="card">
+            <div class="card-header">
+                <h5>{{ 'Data Import'|trans }}</h5>
+{#                <div class="card-header-right">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
+                        <a href="{{ path('kpi_setting_new') }}" class="btn btn-sm  green-bg white-font"><i class="fas fa-plus"></i>{{ 'Add New'|trans }}</a>
+                        <a href="{{ path('kpi_setting') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>{{ 'Settings'|trans }}</a>
+                    </div>
+                </div>#}
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="row">
+        <div class="col-md-9 pl-0">
             <div class="card p-3">
                 <table class="table table-bordered table-striped" id="datatable">
                     <thead class="thead-dark">
@@ -37,13 +60,13 @@
                                 <td class="text-right">
                                     <div class="btn-group" role="group" aria-label="Basic example">
                                         {% if entity.status == 0 %}
-                                            <a class="btn btn-mini bg-primary white-font" href="{{ path('kpi_file_upload_insert_data',{'id':entity.id}) }}"><i class="feather icon-upload"></i> Import</a>
+                                            <a class="btn btn-mini bg-primary white-font loader" href="{{ path('kpi_file_upload_insert_data',{'id':entity.id}) }}"><i class="feather icon-upload"></i> Import</a>
                                         {% endif %}
 
                                         {% if entity.title|replace({' ': "-"})|lower == 'agent-sales' and entity.status == 1 %}
-                                            <a class="btn btn-mini bg-success white-font" href="{{ path('kpi_insert_data_district_wise',{'id':entity.id}) }}"><i class="feather icon-upload"></i> Migrate</a>
+                                            <a class="btn btn-mini bg-success white-font loader" href="{{ path('kpi_insert_data_district_wise',{'id':entity.id}) }}"><i class="feather icon-upload"></i> Migrate</a>
                                             {% elseif entity.title|replace({' ': "-"})|lower == 'agent-sales' and entity.status == 2 %}
-                                                <a class="btn btn-mini bg-secondary white-font" href="{{ path('kpi_insert_agent_category',{'id':entity.id}) }}"><i class="feather icon-upload"></i>Grade Change</a>
+                                                <a class="btn btn-mini bg-secondary white-font loader" href="{{ path('kpi_insert_agent_category',{'id':entity.id}) }}"><i class="feather icon-upload"></i>Grade Change</a>
                                         {% endif %}
                                         
                                         {% if entity.status == 0 and not is_granted('ROLE_KPI_ADMIN') %}
@@ -64,7 +87,7 @@
                 </table>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 pr-0">
             <div class="card">
 {#                <div class="card-header text-white text-center text-uppercase font-weight-bold" style="background: #3699FF">
                     <p class="mb-0">{{ 'Add New File'|trans }}</p>
@@ -85,6 +108,7 @@
             </div>
         </div>
     </div>
+</div>
 
 
 {% endblock %}
@@ -93,11 +117,13 @@
     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
     <style>
         .ui-datepicker-calendar{display: none}
+
     </style>
 {% endblock  %}
 {% block javascripts %}
     {{ parent() }}
     <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+
 {% endblock  %}
 {% block documentready %}
     {{ parent() }}
