@@ -137,7 +137,7 @@ class EmployeeBoardController extends AbstractController
             );
 
             if (empty($exist)) {
-                $employeeDistrictHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $emp, 'year' => $year, 'month' => 0]);
+                $employeeDistrictHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $emp, 'year' => $year, 'month' => $month]);
                 $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
 
                 if (!$districts){
