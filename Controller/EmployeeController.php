@@ -546,9 +546,8 @@ class EmployeeController extends AbstractController
      */
     public function employeeDetails(User $employee)
     {
-        $year = (new \DateTime('now'))->format('Y');
         $districtHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->getDistricts($employee);
-        $html = $this->renderView('@TerminalbdKpi/employee/employeeDetails.twig',[
+        $html = $this->renderView('@TerminalbdKpi/employee/employeeDetails.html.twig',[
             'employee' => $employee,
             'districtHistory' => $districtHistory,
         ]);

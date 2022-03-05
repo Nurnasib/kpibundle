@@ -123,7 +123,11 @@ class EmployeeBoardController extends AbstractController
 
 //            $totalTeamMembers = $this->getDoctrine()->getRepository(User::class)->findBy(['lineManager' => $emp]);
             $totalTeamMembers = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findBy(['lineManager' => $emp, 'month' => $month, 'year' => $year]);
-            $generatedTeamMember = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getGeneratedTeamMember($totalTeamMembers, $month, $year);
+            $totalTeamMembersId = [];
+            foreach ($totalTeamMembers as $member){
+                array_push($totalTeamMembersId, $member->getEmployee()->getId());
+            }
+            $generatedTeamMember = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getGeneratedTeamMember($totalTeamMembersId, $month, $year);
             if (count($totalTeamMembers) != count($generatedTeamMember)){
                 $this->addFlash('error',  "{$emp->getName()} has not generated all team members KPI of {$month}, {$year} under him. So you won't be able to generate KPI of {$emp->getName()} for this month.");
                 if ($format == 'custom-format'){

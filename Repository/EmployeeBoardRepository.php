@@ -155,13 +155,14 @@ class EmployeeBoardRepository extends EntityRepository
         return $data;
     }
 
-    public function getGeneratedTeamMember($totalTeamMembers, $month, $year)
+    public function getGeneratedTeamMember($totalTeamMembersId, $month, $year)
     {
         $qb = $this->createQueryBuilder('e');
+        $qb->join('e.employee', 'employee');
         $qb->where('e.year = :year')->setParameter('year', $year)
             ->andWhere('e.month = :month')->setParameter('month', $month)
             ->andWhere($qb->expr()->isNotNull('e.approvedBy'))
-            ->andWhere('e.employee IN (:employee)')->setParameter('employee', $totalTeamMembers)
+            ->andWhere('employee.id IN (:employee)')->setParameter('employee', $totalTeamMembersId)
             ;
 
         return $qb->getQuery()->getResult();

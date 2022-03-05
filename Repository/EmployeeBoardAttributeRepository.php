@@ -16,6 +16,7 @@ use Doctrine\ORM\EntityRepository;
 use Terminalbd\CrmBundle\Entity\AntibioticFreeFarm;
 use Terminalbd\CrmBundle\Entity\ChickLifeCycle;
 use Terminalbd\CrmBundle\Entity\CostBenefitAnalysisForLessCostingFarm;
+use Terminalbd\CrmBundle\Entity\CrmVisit;
 use Terminalbd\CrmBundle\Entity\DiseaseMapping;
 use Terminalbd\CrmBundle\Entity\FarmerTrainingReport;
 use Terminalbd\CrmBundle\Entity\FcrDetails;
@@ -135,7 +136,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $this->updateDocSales($board, $districtsId);
         $this->updateCategoryUpgrade($board, $districtsId);
 
-        /*        $filterBy = [];
+                $filterBy = [];
                 $filterBy['employeeId'] = $board->getEmployee()->getId();
                 $filterBy['monthStart'] = date("{$board->getYear()}-m-01", strtotime($board->getMonth()));
                 $filterBy['monthEnd'] = date("{$board->getYear()}-m-t", strtotime($board->getMonth()));
@@ -146,7 +147,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $this->updateEvaluationCriteriaAqua($board, $filterBy);
                 } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'cattle-service') {
                     $this->updateEvaluationCriteriaCattle($board, $filterBy);
-                }*/
+                }
 
         $this->agentSalesGrowth($board, $districtsId);
         $this->gradeUpdate($board);
@@ -312,8 +313,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     public function updateEvaluationCriteriaCattle(EmployeeBoard $board, $filterBy)
     {
-//        dd(date("01-m-{$board->getYear()}",strtotime('February')));
         $em = $this->_em;
+
+        $visits = $em->getRepository(CrmVisit::class)->visitsCountForKpi($board->getEmployee(), $board->getMonth(), $board->getYear());
+        dd($visits);
+//        dd(date("01-m-{$board->getYear()}",strtotime('February')));
 /*        $monthlyNewFarmerIntroduceReport = $this->getAttributeForMonthlyReport($board, 'cattle-new-farm-introduce-report');
         if ($monthlyNewFarmerIntroduceReport) {
             $numberOfReports = 0;
