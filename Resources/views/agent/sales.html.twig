@@ -7,7 +7,7 @@
                 <div class="row align-items-center">
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
-                        <li class="breadcrumb-item"> <a href="{{ path('core_agent_index') }}"> {{ 'Manage Agent'|trans }}</a></li>
+                        <li class="breadcrumb-item"> <a href="javascript:void(0)"> {{ 'Agent Sales'|trans }}</a></li>
                     </ul>
                 </div>
             </div>
@@ -17,14 +17,13 @@
         <div class="row">
             <div class="card">
                 <div class="card-header">
-                    <h5>{{ 'Manage Agent'|trans }}</h5>
-                    <div class="card-header-right">
+                    <h5>{{ 'Agent Sales'|trans }}</h5>
+{#                    <div class="card-header-right">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
-                            <a href="{{ path('core_agent_index') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-large"></i>{{ 'Agents'|trans }}</a>
-                            <a href="?process=createForm&check=new#modal" id="createForm"   data-action="{{ path('core_agent_create') }}" class="btn btn-sm  green-bg white-font"><i class="fa fa-plus"></i>{{ 'New Agent'|trans }}</a>
+                            <a href="{{ path('kpi_agent_sales') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-large"></i>{{ 'Agents Sales'|trans }}</a>
                         </div>
 
-                    </div>
+                    </div>#}
                 </div>
 
             </div>
@@ -38,7 +37,7 @@
                         <thead class="thead-dark">
                         <tr role="row" class="filter">
                             <td colspan="2">
-                                <input autocomplete="off" type="text" class="form-control  input-sm" placeholder="dd-yyyy" value="{{ selectedMonthYear }}" name="monthYear" id="inputMonth">
+                                <input autocomplete="off" type="text" class="form-control  input-sm" placeholder="Month,Year" value="{{ selectedMonthYear }}" name="monthYear" id="inputMonth">
                             </td>
                             <td colspan="3">
                                 <select data-action="{{ path('core_agent_search_select2') }}" name="agent" class="agentSearch" id="">
@@ -93,7 +92,7 @@
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td class="text-center" colspan="20">No record has been found!</td>
+                                <td class="text-center" colspan="20">{{ 'No record has been found for '|trans }}{{ data['month'] ~', '~ data['year'] }}</td>
                             </tr>
                         {% endif %}
                         </tbody>

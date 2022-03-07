@@ -174,6 +174,7 @@ class AgentSalesController extends AbstractController
                 'selectedMonthYear'=> $requestData,
                 'district'=> $district,
                 'agent'=> $agent,
+                'data'=> $data,
             ]
         );
     }

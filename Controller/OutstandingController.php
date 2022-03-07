@@ -53,7 +53,8 @@ class OutstandingController extends AbstractController
             $district = null;
         }
         
-        $monthYear = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>Date('Y', strtotime(date('Y') . " last year")));
+//        $monthYear = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>Date('Y', strtotime(date('Y') . " last year")));
+        $monthYear = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>Date('Y'));
 
         if($requestMonthYear){
             $explode= explode(',',$requestMonthYear);

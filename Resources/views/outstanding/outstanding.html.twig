@@ -31,7 +31,7 @@
                         <thead class="thead-dark">
                         <tr role="row" class="filter">
                             <td colspan="2">
-                                <input autocomplete="off" type="text" class="form-control  input-sm" placeholder="mm-yyyy" value="{{ selectedMonthYear }}" name="monthYear" id="inputMonth">
+                                <input autocomplete="off" type="text" class="form-control  input-sm" placeholder="Month,Year" value="{{ selectedMonthYear }}" name="monthYear" id="inputMonth">
                             </td>
                             <td colspan="2">
                                 <select data-action="{{ path('core_agent_search_select2') }}" name="agent" class="agentSearch" id="">
@@ -83,7 +83,7 @@
                             {% endfor %}
                         {% else %}
                         <tr>
-                            <td colspan="8" style="text-align: center">{{ 'No record Found for '|trans }}{{ monthYear|join(', ') }}</td>
+                            <td colspan="8" style="text-align: center">{{ 'No has been record found for '|trans }}{{ monthYear|join(', ') }}</td>
                         </tr>
                         {% endif %}
                         </tbody>
