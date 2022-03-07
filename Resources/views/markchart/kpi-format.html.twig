@@ -21,10 +21,10 @@
                 <div class="card-header">
                     <h5>{{ 'KPI Element'|trans }}</h5>
                     <div class="card-header-right">
-                        <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
+                        <div class="btn-group btn-group-mini" role="group" aria-label="Button group with nested dropdown">
                             {% if modes is not empty %}
                                 {% for mode in modes %}
-                                    <a href="{{ path('kpi_markchart_matrix',{'slug': mode.slug}) }}" class="btn btn-sm bg-success white-font">{{ mode.name }}</a>
+                                    <a href="{{ path('kpi_markchart_matrix',{'slug': mode.slug}) }}" class="btn btn-mini white-font font-weight-bold" style="background-color: {{ mode.slug is same as report.slug ? '#1e7e34 !important' : '#28a745!important' }}">{{ mode.name }}</a>
                                 {% endfor %}
                             {% endif %}
                         </div>

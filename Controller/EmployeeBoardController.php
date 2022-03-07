@@ -105,12 +105,11 @@ class EmployeeBoardController extends AbstractController
         $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
         $board = new EmployeeBoard();
 
-        $form = $this->createForm(EmployeeBoardFormType::class , $board,['user'=>$this->getUser(), 'format' => $format])
-            ->add('monthYear', TextType::class,['attr'=>['class'=>'inputMonth','autocomplete'=>'off'],'mapped'=>false])
-            ->add('SaveAndCreate', SubmitType::class);
+        $form = $this->createForm(EmployeeBoardFormType::class , $board,['user'=>$this->getUser(), 'format' => $format]);
         $form->handleRequest($request);
         $data = $request->request->all();
         if ($form->isSubmitted() && $form->isValid()) {
+//            dd($form->get('format')->getData());
 //            $employee = $data['employee_board_form']['employee'];
             if (isset($data['self_kpi']) && $data['self_kpi'] === 'on'){
                 $emp = $this->getUser();
@@ -121,7 +120,10 @@ class EmployeeBoardController extends AbstractController
             $month = $monthYear[0];
             $year = $monthYear[1];
 
-//            $totalTeamMembers = $this->getDoctrine()->getRepository(User::class)->findBy(['lineManager' => $emp]);
+
+
+
+            // Check if team member kpi exists
             $totalTeamMembers = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findBy(['lineManager' => $emp, 'month' => $month, 'year' => $year]);
             $totalTeamMembersId = [];
             foreach ($totalTeamMembers as $member){
@@ -136,6 +138,9 @@ class EmployeeBoardController extends AbstractController
                 return $this->redirectToRoute('kpi_board_new');
             }
 
+
+
+            // Check if kpi exists
             $exist = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findOneBy(
                 array('employee' => $emp,'month'=>$month, 'year'=>$year, 'reportMode'=>$emp->getReportMode())
             );
@@ -219,13 +224,12 @@ class EmployeeBoardController extends AbstractController
      * Displays a form to edit an existing Post entity.
      *
      * @Route("/{id}/edit/", methods={"GET", "POST"}, name="kpi_employee_board_edit")
-     * @param Request $request
      * @param EmployeeBoard $entity
      * @return Response
      * @Security("is_granted('ROLE_USER')")
      */
 
-    public function edit(Request $request, EmployeeBoard $entity): Response
+    public function edit(EmployeeBoard $entity): Response
     {
         if ($entity->getApprovedBy()){
             return $this->redirectToRoute('kpi_employee_board');
@@ -257,13 +261,12 @@ class EmployeeBoardController extends AbstractController
      * Displays a form to edit an existing Post entity.
      *
      * @Route("/{id}/edit/custom-format", methods={"GET", "POST"}, name="kpi_employee_board_edit_custom_format")
-     * @param Request $request
      * @param EmployeeBoard $board
      * @return Response
      * @Security("is_granted('ROLE_USER')")
      */
 
-    public function editCustomFormat(Request $request, EmployeeBoard $board): Response
+    public function editCustomFormat(EmployeeBoard $board): Response
     {
         if ($board->getApprovedBy()){
             return $this->redirectToRoute('kpi_employee_board');
@@ -919,7 +922,9 @@ class EmployeeBoardController extends AbstractController
                         $subAttribute->setSalesQuantity($growth['current']);
 
                         $slug = explode('-', $findAttribute->getSlug());
-                        $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesGrowthCalculation($slug[1], $growth['previous'], $growth['current'])[$findAttribute->getSlug()];
+                        $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesGrowthCalculation($slug[1], $growth['previous'], $growth['current'])[$slug[0].'-'.$slug[1]];
+
+//                        $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesGrowthCalculation($slug[1], $growth['previous'], $growth['current'])[$findAttribute->getSlug()];
 
                         $subAttribute->setMark($mark);
 
@@ -988,54 +993,69 @@ class EmployeeBoardController extends AbstractController
                 }
 
             }elseif ($key === 'customerDevelopment'){
-                foreach ($item as $attributeId => $agentNumber) {
-                    $agentNumber['upgradeAgent'] = $agentNumber['upgradeAgent'] ?: 0;
-                    $agentNumber['totalAgents'] = $agentNumber['totalAgents'] ?: 0;
+                if ($board->getReportMode()->getSlug() === 'custom-format-spo'){ // SPO format operation
+                    foreach ($item as $attributeId => $agentNumber) {
+                        $agentNumber['upgradeAgent'] = $agentNumber['upgradeAgent'] ?: 0;
+                        $agentNumber['totalAgents'] = $agentNumber['totalAgents'] ?: 0;
 
-                    $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
-                    if ($findAttribute){
-                        $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
-                        if ($boardAttribute){
-                            if ($boardAttribute->getAttribute()->getSlug() == 'agent-upgradation'){
-                                if ($agentNumber['totalAgents'] > 0){
-                                    $agentNumberWithPercentage = ($agentNumber['upgradeAgent'] * 100) / $agentNumber['totalAgents'];
-                                    if ($agentNumberWithPercentage >= 20) {
-                                        $mark = 3;
-                                    } elseif ($agentNumberWithPercentage >= 10 && $agentNumberWithPercentage < 20) {
-                                        $mark = 2;
-                                    } elseif ($agentNumberWithPercentage >= 1 && $agentNumberWithPercentage < 10) {
-                                        $mark = 1;
-                                    } else {
-                                        $mark = 1;
+                        $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
+                        if ($findAttribute){
+                            $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
+                            if ($boardAttribute){
+                                if ($boardAttribute->getAttribute()->getSlug() == 'agent-upgradation'){
+                                    if ($agentNumber['totalAgents'] > 0){
+                                        $agentNumberWithPercentage = ($agentNumber['upgradeAgent'] * 100) / $agentNumber['totalAgents'];
+                                        if ($agentNumberWithPercentage >= 20) {
+                                            $mark = 3;
+                                        } elseif ($agentNumberWithPercentage >= 10 && $agentNumberWithPercentage < 20) {
+                                            $mark = 2;
+                                        } elseif ($agentNumberWithPercentage >= 1 && $agentNumberWithPercentage < 10) {
+                                            $mark = 1;
+                                        } else {
+                                            $mark = 1;
+                                        }
+                                    }
+                                }else{
+                                    $fiftyPercentAgents = $agentNumber['totalAgents'] /  2; //50% agents
+                                    if ($fiftyPercentAgents > 0){
+                                        $percentage = round(($agentNumber['upgradeAgent'] * 100) / $fiftyPercentAgents);
+                                        if($percentage >= 100){
+                                            $mark = 5;
+                                        }elseif ($percentage < 100 && $percentage >= 80){
+                                            $mark = 4;
+                                        }elseif ($percentage < 80 && $percentage >= 70){
+                                            $mark = 3;
+                                        }elseif ($percentage < 70 && $percentage >= 60){
+                                            $mark = 2;
+                                        }elseif ($percentage < 60 && $percentage > 0){
+                                            $mark = 1;
+                                        }else{
+                                            $mark = 0;
+                                        }
                                     }
                                 }
-                            }else{
-                                $fiftyPercentAgents = $agentNumber['totalAgents'] /  2; //50% agents
-                                if ($fiftyPercentAgents > 0){
-                                    $percentage = round(($agentNumber['upgradeAgent'] * 100) / $fiftyPercentAgents);
-                                    if($percentage >= 100){
-                                        $mark = 5;
-                                    }elseif ($percentage < 100 && $percentage >= 80){
-                                        $mark = 4;
-                                    }elseif ($percentage < 80 && $percentage >= 70){
-                                        $mark = 3;
-                                    }elseif ($percentage < 70 && $percentage >= 60){
-                                        $mark = 2;
-                                    }elseif ($percentage < 60 && $percentage > 0){
-                                        $mark = 1;
-                                    }else{
-                                        $mark = 0;
-                                    }
-                                }
+                                $boardAttribute->setTargetAmount($agentNumber['totalAgents']);
+                                $boardAttribute->setTargetAchievement($agentNumber['upgradeAgent']);
+                                $boardAttribute->setMark($mark);
+                                $em->persist($boardAttribute);
+                                $em->flush();
                             }
-                            $boardAttribute->setTargetAmount($agentNumber['totalAgents']);
-                            $boardAttribute->setTargetAchievement($agentNumber['upgradeAgent']);
-                            $boardAttribute->setMark($mark);
-                            $em->persist($boardAttribute);
-                            $em->flush();
+                        }
+                    }
+                }else{ // Poultry, Cattle, Aqua format operation
+
+                    foreach ($item as $attributeId => $mark) {
+                        $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
+                        if ($findAttribute){
+                            $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
+                            if ($boardAttribute){
+                                $boardAttribute->setMark((int)$mark < $boardAttribute->getActualMark() ?: $boardAttribute->getActualMark());
+                                $em->flush();
+                            }
                         }
                     }
                 }
+
             }elseif ($key === 'skills'){
                 foreach ($item as $attributeId => $markDistributionId) {
                     $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);

@@ -12,19 +12,19 @@
 namespace Terminalbd\KpiBundle\Form;
 
 
+use App\Entity\Core\Setting;
 use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\NotBlank;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
-use Terminalbd\KpiBundle\Entity\EmployeeSetup;
-use Terminalbd\KpiBundle\Entity\Setting;
-use Terminalbd\KpiBundle\Entity\SettingType;
+use function Sodium\add;
 
 /**
  * Defines the form used to create and manipulate blog posts.
@@ -49,7 +49,7 @@ class EmployeeBoardFormType extends AbstractType
                 'class' => User::class,
                 'required' => true,
                 'query_builder' => function (EntityRepository $er) use ($userId, $userGroup, $format) {
-                    if($userGroup=='administrator'){
+                    if($userGroup == 'administrator'){
                         $qb = $er->createQueryBuilder('e');
                         $qb->join('e.userGroup','ug');
                         $qb->join('e.reportMode','reportMode');
@@ -58,9 +58,9 @@ class EmployeeBoardFormType extends AbstractType
                         $qb->andWhere("e.userMode = 'KPI'");
                         $qb->orderBy('e.name', 'ASC');
                         if ($format == 'custom-format'){
-                            $qb->andWhere('reportMode.slug =:reportMode')->setParameter('reportMode', $format);
+                            $qb->andWhere('reportMode.slug IN (:reportMode)')->setParameter('reportMode', ['custom-format-poultry', 'custom-format-cattle', 'custom-format-aqua', 'custom-format-spo']);
                         }else{
-                            $qb->andWhere('reportMode.slug !=:reportMode')->setParameter('reportMode', 'custom-format');
+                            $qb->andWhere('reportMode.slug NOT IN (:reportMode)')->setParameter('reportMode', ['custom-format-poultry', 'custom-format-cattle', 'custom-format-aqua', 'custom-format-spo']);
                         }
                         return $qb;
                     }else{
@@ -72,9 +72,9 @@ class EmployeeBoardFormType extends AbstractType
                             ->andWhere("lm.id =:lmId")->setParameter('lmId',$userId)
                             ->orderBy('e.name', 'ASC');
                         if ($format == 'custom-format'){
-                            $qb->andWhere('reportMode.slug =:reportMode')->setParameter('reportMode', $format);
+                            $qb->andWhere('reportMode.slug IN (:reportMode)')->setParameter('reportMode', ['custom-format-poultry', 'custom-format-cattle', 'custom-format-aqua', 'custom-format-spo']);
                         }else{
-                            $qb->andWhere('reportMode.slug !=:reportMode')->setParameter('reportMode', 'custom-format');
+                            $qb->andWhere('reportMode.slug NOT IN (:reportMode)')->setParameter('reportMode', ['custom-format-poultry', 'custom-format-cattle', 'custom-format-aqua', 'custom-format-spo']);
                         }
                         return $qb;
                     }
@@ -83,7 +83,7 @@ class EmployeeBoardFormType extends AbstractType
                 'choice_label' => function($user){
                     return'(' . $user->getUserId() . ') ' . $user->getName() . ' (' . $user->getDesignation()->getName() . ')';
                 },
-                'placeholder' => 'Choose a employee',
+                'placeholder' => '- Select employee -',
             ])
             ->add('status',CheckboxType::class,[
                 'required' => false,
@@ -97,6 +97,11 @@ class EmployeeBoardFormType extends AbstractType
                     'data-off'=> "Disabled"
                 ],
             ])
+            ->add('monthYear', TextType::class,[
+                'attr'=>['class'=>'inputMonth','autocomplete'=>'off'],
+                'mapped'=>false
+            ])
+            ->add('SaveAndCreate', SubmitType::class)
         ;
     }
 

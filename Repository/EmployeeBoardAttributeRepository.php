@@ -136,18 +136,18 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $this->updateDocSales($board, $districtsId);
         $this->updateCategoryUpgrade($board, $districtsId);
 
-                $filterBy = [];
+/*                $filterBy = [];
                 $filterBy['employeeId'] = $board->getEmployee()->getId();
                 $filterBy['monthStart'] = date("{$board->getYear()}-m-01", strtotime($board->getMonth()));
-                $filterBy['monthEnd'] = date("{$board->getYear()}-m-t", strtotime($board->getMonth()));
+                $filterBy['monthEnd'] = date("{$board->getYear()}-m-t", strtotime($board->getMonth()));*/
 
-                if ($board->getEmployee()->getReportMode()->getSlug() == 'poultry-service') {
-                    $this->updateEvaluationCriteriaPoultry($board, $filterBy);
+/*                if ($board->getEmployee()->getReportMode()->getSlug() == 'poultry-service') {
+                    $this->updateEvaluationCriteriaPoultry($board);
                 } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'aqua-service') {
                     $this->updateEvaluationCriteriaAqua($board, $filterBy);
                 } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'cattle-service') {
                     $this->updateEvaluationCriteriaCattle($board, $filterBy);
-                }
+                }*/
 
         $this->agentSalesGrowth($board, $districtsId);
         $this->gradeUpdate($board);
@@ -184,14 +184,15 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         }
 //        $this->updateSalesProcess($board);
         $subAttrs = $this->groupByAttributeMarks($board);
-        foreach ($subAttrs as $sub):
+        foreach ($subAttrs as $sub){
             $exist = $this->findOneBy(array('employeeBoard' => $board, 'attribute' => $sub['parentId']));
             if (!empty($exist)) {
                 $exist->setActualMark(5);
                 $em->persist($exist);
                 $em->flush();
             }
-        endforeach;
+        }
+
 
 //        $this->updateIndividualSales($board);
 //        $this->updateOutStandingLimit($board);
@@ -315,8 +316,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     {
         $em = $this->_em;
 
-        $visits = $em->getRepository(CrmVisit::class)->visitsCountForKpi($board->getEmployee(), $board->getMonth(), $board->getYear());
-        dd($visits);
+/*        $visits = $em->getRepository(CrmVisit::class)->visitsCountForKpi($board->getEmployee(), $board->getMonth(), $board->getYear());
+        dd($visits);*/
 //        dd(date("01-m-{$board->getYear()}",strtotime('February')));
 /*        $monthlyNewFarmerIntroduceReport = $this->getAttributeForMonthlyReport($board, 'cattle-new-farm-introduce-report');
         if ($monthlyNewFarmerIntroduceReport) {
@@ -415,7 +416,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         }*/
     }
 
-    public function updateEvaluationCriteriaPoultry(EmployeeBoard $board, $filterBy)
+    public function updateEvaluationCriteriaPoultry(EmployeeBoard $board)
     {
 //        dd(date("01-m-{$board->getYear()}",strtotime('February')));
         $em = $this->_em;
@@ -865,8 +866,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $qb->select('p.id as parentId', 'SUM(e.mark) as mark');
         $qb->groupBy('parentId');
         $qb->where("e.employeeBoard = {$board->getId()}");
-        $result = $qb->getQuery()->getArrayResult();
-        return $result;
+        return $qb->getQuery()->getArrayResult();
     }
 
     public function individualTeamMemberMarks($employees, $parameter, $year, $month)
@@ -1181,6 +1181,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     public function salesGrowthCalculation($productSlug, $previousValue, $currentValue)
     {
+//        dd($productSlug, $previousValue, $currentValue);
+
         $returnValue = [];
         
         if ($productSlug) {
