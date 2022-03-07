@@ -120,7 +120,11 @@ class EmployeeBoardController extends AbstractController
             $month = $monthYear[0];
             $year = $monthYear[1];
 
-
+            // Prevent next month
+            if ($year > date('Y') || ($year == date('Y') && date('m', strtotime($month)) > date('m'))){
+                $this->addFlash('warning', 'Only allow previous or current month!');
+                return $this->redirectToRoute('kpi_board_new', ['format' => $format]);
+            }
 
 
             // Check if team member kpi exists
@@ -145,6 +149,7 @@ class EmployeeBoardController extends AbstractController
                 array('employee' => $emp,'month'=>$month, 'year'=>$year, 'reportMode'=>$emp->getReportMode())
             );
 
+            // Generate new
             if (empty($exist)) {
                 $employeeDistrictHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $emp, 'year' => $year, 'month' => $month]);
                 $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
@@ -168,14 +173,14 @@ class EmployeeBoardController extends AbstractController
                 $em->persist($board);
                 $em->flush();
 
-                if ($format == 'custom-format'){
+                if ($format == 'custom-format'){ // Insert parameters for custom format
                     $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->insertMarkDistributionForCustomFormat($board,$parameters);
                     return $this->redirectToRoute('kpi_employee_board_edit_custom_format',array('id' => $board->getId()));
-                }else{
+                }else{ // Insert parameters for regular format
                     $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($board, $parameters);
                     return $this->redirectToRoute('kpi_employee_board_edit',array('id' => $board->getId()));
                 }
-            }else{
+            }else{  // If KPI exist
                 if ($format == 'custom-format'){
                     return $this->redirectToRoute('kpi_employee_board_edit_custom_format',array('id' => $exist->getId()));
                 }else{
