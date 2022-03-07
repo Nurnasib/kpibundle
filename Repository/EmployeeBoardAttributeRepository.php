@@ -765,7 +765,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
         $employeeBoardAttributeForIndividualTeam = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $individualTeamDistribution]);
         if ($employeeBoardAttributeForIndividualTeam) {
-            $employeeBoardAttributeForIndividualTeam->setMark($individualEntity->getMark());
+            $employeeBoardAttributeForIndividualTeam->setMark($individualEntity->getMark() ?: 0);
             $em->persist($employeeBoardAttributeForIndividualTeam);
             $em->flush();
         }
