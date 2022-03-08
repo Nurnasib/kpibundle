@@ -120,6 +120,12 @@ class EmployeeBoardAttribute
     private $selfMark;
 
     /**
+     * @var integer
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $numberOfReport;
+
+    /**
      * @var boolean
      *
      * @ORM\Column(type="boolean", nullable=true)
@@ -349,6 +355,23 @@ class EmployeeBoardAttribute
     {
         $this->selfMark = $selfMark;
     }
+
+    /**
+     * @return int
+     */
+    public function getNumberOfReport(): int
+    {
+        return $this->numberOfReport;
+    }
+
+    /**
+     * @param int $numberOfReport
+     */
+    public function setNumberOfReport(int $numberOfReport): void
+    {
+        $this->numberOfReport = $numberOfReport;
+    }
+
 
     /**
      * @return bool

@@ -1048,13 +1048,13 @@ class EmployeeBoardController extends AbstractController
                         }
                     }
                 }else{ // Poultry, Cattle, Aqua format operation
-
                     foreach ($item as $attributeId => $mark) {
+                        $mark = empty($mark) ? 0 : $mark;
                         $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
                         if ($findAttribute){
                             $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
                             if ($boardAttribute){
-                                $boardAttribute->setMark((int)$mark < $boardAttribute->getActualMark() ?: $boardAttribute->getActualMark());
+                                $boardAttribute->setMark((int)$mark < $boardAttribute->getActualMark() ? (int)$mark : $boardAttribute->getActualMark());
                                 $em->flush();
                             }
                         }

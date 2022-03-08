@@ -14,16 +14,24 @@ namespace Terminalbd\KpiBundle\Repository;
 use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
 use Terminalbd\CrmBundle\Entity\AntibioticFreeFarm;
+use Terminalbd\CrmBundle\Entity\CattleLifeCycle;
+use Terminalbd\CrmBundle\Entity\CattlePerformanceDetails;
 use Terminalbd\CrmBundle\Entity\ChickLifeCycle;
+use Terminalbd\CrmBundle\Entity\ChickLifeCycleDetails;
+use Terminalbd\CrmBundle\Entity\CompanyWiseFeedSale;
 use Terminalbd\CrmBundle\Entity\CostBenefitAnalysisForLessCostingFarm;
 use Terminalbd\CrmBundle\Entity\CrmVisit;
 use Terminalbd\CrmBundle\Entity\DiseaseMapping;
 use Terminalbd\CrmBundle\Entity\FarmerTrainingReport;
 use Terminalbd\CrmBundle\Entity\FcrDetails;
+use Terminalbd\CrmBundle\Entity\FishCompanyAndSpeciesWiseAverageFcr;
+use Terminalbd\CrmBundle\Entity\FishLifeCycle;
 use Terminalbd\CrmBundle\Entity\LayerLifeCycle;
+use Terminalbd\CrmBundle\Entity\LayerLifeCycleDetails;
 use Terminalbd\CrmBundle\Entity\LayerPerformanceDetails;
 use Terminalbd\CrmBundle\Entity\NewFarmerIntroduce\FarmerIntroduceDetails;
 use Terminalbd\CrmBundle\Entity\NewFarmerTouch\FarmerTouchReport;
+use Terminalbd\CrmBundle\Repository\FcrDetailsRepository;
 use Terminalbd\KpiBundle\Entity\AgentCategory;
 use Terminalbd\KpiBundle\Entity\AgentDocSaleCollection;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
@@ -136,18 +144,14 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $this->updateDocSales($board, $districtsId);
         $this->updateCategoryUpgrade($board, $districtsId);
 
-/*                $filterBy = [];
-                $filterBy['employeeId'] = $board->getEmployee()->getId();
-                $filterBy['monthStart'] = date("{$board->getYear()}-m-01", strtotime($board->getMonth()));
-                $filterBy['monthEnd'] = date("{$board->getYear()}-m-t", strtotime($board->getMonth()));*/
-
-/*                if ($board->getEmployee()->getReportMode()->getSlug() == 'poultry-service') {
-                    $this->updateEvaluationCriteriaPoultry($board);
-                } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'aqua-service') {
-                    $this->updateEvaluationCriteriaAqua($board, $filterBy);
-                } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'cattle-service') {
-                    $this->updateEvaluationCriteriaCattle($board, $filterBy);
-                }*/
+        // Customer Development Report Marks Calculation **Stay for Mr. Murad permission
+//        if ($board->getEmployee()->getReportMode()->getSlug() == 'poultry-service') {
+//            $this->updateCustomerDevelopmentPoultry($board);
+//        } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'aqua-service') {
+//            $this->updateCustomerDevelopmentAqua($board);
+//        } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'cattle-service') {
+//            $this->updateCustomerDevelopmentCattle($board);
+//        }
 
         $this->agentSalesGrowth($board, $districtsId);
         $this->gradeUpdate($board);
@@ -312,165 +316,200 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         }
     }
 
-    public function updateEvaluationCriteriaCattle(EmployeeBoard $board, $filterBy)
-    {
-        $em = $this->_em;
+    private function getCustomerDevelopmentAttribute(EmployeeBoard $board){
+        $qb = $this->createQueryBuilder('e');
 
-/*        $visits = $em->getRepository(CrmVisit::class)->visitsCountForKpi($board->getEmployee(), $board->getMonth(), $board->getYear());
-        dd($visits);*/
-//        dd(date("01-m-{$board->getYear()}",strtotime('February')));
-/*        $monthlyNewFarmerIntroduceReport = $this->getAttributeForMonthlyReport($board, 'cattle-new-farm-introduce-report');
-        if ($monthlyNewFarmerIntroduceReport) {
-            $numberOfReports = 0;
-            if ($numberOfReports >= 5){
-                $monthlyNewFarmerIntroduceReport->setMark(5);
-            }else{
-                $monthlyNewFarmerIntroduceReport->setMark($numberOfReports);
-            }
-            $monthlyNewFarmerIntroduceReport->setTargetReport(5);
-            $monthlyNewFarmerIntroduceReport->setAchieveReport($numberOfReports);
-            $monthlyNewFarmerIntroduceReport->setTargetMark(5);
-            $em->persist($monthlyNewFarmerIntroduceReport);
-            $em->flush();
-        }*/
+        $qb->join('e.activity', 'activity');
 
-        $monthlyLessCostingFarmReport = $this->getAttributeForMonthlyReport($board, 'cattle-less-costing-farm-report');
-        if ($monthlyLessCostingFarmReport) {
-            $numberOfReports = 0;
-            if ($numberOfReports >= 5){
-                $monthlyLessCostingFarmReport->setMark(5);
-            }else{
-                $monthlyLessCostingFarmReport->setMark($numberOfReports);
-            }
-            $monthlyLessCostingFarmReport->setTargetReport(5);
-            $monthlyLessCostingFarmReport->setAchieveReport($numberOfReports);
-            $monthlyLessCostingFarmReport->setTargetMark(5);
-            $em->persist($monthlyLessCostingFarmReport);
-            $em->flush();
-        }
+        $qb->select('e');
 
-/*        $monthlyAgentUpgradationReport = $this->getAttributeForMonthlyReport($board, 'cattle-agent-upgradation-report');
-        if ($monthlyAgentUpgradationReport) {
-            $numberOfReports = 0;
-            if ($numberOfReports >= 2){
-                $monthlyAgentUpgradationReport->setMark(3);
-            }else{
-                $monthlyAgentUpgradationReport->setMark($numberOfReports);
-            }
-            $monthlyAgentUpgradationReport->setTargetReport(2);
-            $monthlyAgentUpgradationReport->setAchieveReport($numberOfReports);
-            $monthlyAgentUpgradationReport->setTargetMark(3);
-            $em->persist($monthlyAgentUpgradationReport);
-            $em->flush();
-        }*/
+        $qb->where('e.employeeBoard = :board')->setParameter('board', $board);
+        $qb->andWhere('activity.slug = :slug')->setParameter('slug', 'customer-development');
+        return $qb->getQuery()->getResult();
     }
-
-    public function updateEvaluationCriteriaAqua(EmployeeBoard $board, $filterBy)
+    public function updateCustomerDevelopmentPoultry(EmployeeBoard $board)
     {
         $em = $this->_em;
 
-        $monthlyLessCostingFarmReport = $this->getAttributeForMonthlyReport($board, 'aqua-less-costing-farm-report');
-        if ($monthlyLessCostingFarmReport) {
-            $numberOfReports = 0;
-            if ($numberOfReports >= 4){
-                $monthlyLessCostingFarmReport->setMark(4);
-            }else{
-                $monthlyLessCostingFarmReport->setMark($numberOfReports);
+        $boardAttributes = $this->getCustomerDevelopmentAttribute($board);
+
+        foreach ($boardAttributes as $boardAttribute) {
+            /**
+             * @var EmployeeBoardAttribute $boardAttribute
+             */
+            switch ($boardAttribute->getAttribute()->getSlug()){
+                case 'monthly-broiler-sonali-fcr-report-after-sale':
+                    $numberOfReports = $em->getRepository(FcrDetails::class)->getNumberOfReportsForKpi($board, 'AFTER');
+                    $mark = $numberOfReports * 0.1;
+                    $boardAttribute->setNumberOfReport($numberOfReports);
+                    $boardAttribute->setMark($boardAttribute->getActualMark() < $mark ?: $mark);
+                    $em->flush();
+//                    dd($mark, $numberOfReports, $boardAttribute->getAttribute()->getSlug(),$boardAttribute);
+                    break;
+                case 'monthly-broiler-sonali-before-sale-report-layer-performance-report':
+                    $numberOfReportsBroilerSonali = $em->getRepository(FcrDetails::class)->getNumberOfReportsForKpi($board, 'BEFORE');
+                    $numberOfLayerPerformance = $em->getRepository(LayerPerformanceDetails::class)->getNumberOfReportsForKpi($board);
+                    $numberOfReports = $numberOfReportsBroilerSonali + $numberOfLayerPerformance;
+
+                    $mark = $numberOfReports * 0.05;
+                    $boardAttribute->setNumberOfReport($numberOfReports);
+                    $boardAttribute->setMark($boardAttribute->getActualMark() < $mark ?: $mark);
+                    $em->flush();
+                    break;
+
+                case 'monthly-broiler-sonali-life-cycle-report-layer-life-cycle-report':
+                    $numberOfReportsBroilerSonali = $em->getRepository(ChickLifeCycleDetails::class)->getNumberOfReportsForKpi($board);
+                    $numberOfReportsLayer = $em->getRepository(LayerLifeCycleDetails::class)->getNumberOfReportsForKpi($board);
+
+                    $numberOfReports = $numberOfReportsBroilerSonali + $numberOfReportsLayer;
+                    $mark = $numberOfReports * 1;
+                    $boardAttribute->setNumberOfReport($numberOfReports);
+                    $boardAttribute->setMark($boardAttribute->getActualMark() < $mark ?: $mark);
+                    $em->flush();
+                    break;
+                case 'monthly-less-costing-model-farm-develop':
+                    $numberOfReports = $em->getRepository(CostBenefitAnalysisForLessCostingFarm::class)->getNumberOfReportsForKpi($board);
+                    $mark = $numberOfReports * 1;
+                    $boardAttribute->setNumberOfReport($numberOfReports);
+                    $boardAttribute->setMark($boardAttribute->getActualMark() < $mark ?: $mark);
+                    $em->flush();
+                    break;
+                case 'monthly-antibiotic-free-farm-develop':
+                    $numberOfReports = $em->getRepository(AntibioticFreeFarm::class)->getNumberOfReportsForKpi($board);
+                    $mark = $numberOfReports * 1;
+                    $boardAttribute->setNumberOfReport($numberOfReports);
+                    $boardAttribute->setMark($boardAttribute->getActualMark() < $mark ?: $mark);
+                    $em->flush();
+                    break;
+                case 'monthly-farmers-training-program-10-15-farmers':
+                    $numberOfReports = $em->getRepository(FarmerTrainingReport::class)->getNumberOfReportsForKpi($board, 'poultry-breed');
+                    $mark = $numberOfReports * 1;
+                    $boardAttribute->setNumberOfReport($numberOfReports);
+                    $boardAttribute->setMark($boardAttribute->getActualMark() < $mark ?: $mark);
+                    $em->flush();
+                    break;
+                case 'monthly-new-poultry-farm-introduce-to-nourish-feed':
+                    $numberOfReports = $em->getRepository(FarmerIntroduceDetails::class)->getNumberOfReportsForKpi($board, 'poultry-breed');
+                    $mark = $numberOfReports * 1;
+                    $boardAttribute->setNumberOfReport($numberOfReports);
+                    $boardAttribute->setMark($boardAttribute->getActualMark() < $mark ?: $mark);
+                    $em->flush();
+                    break;
+                case 'monthly-3-cattle-introduce-to-nourish-feed':
+                    $numberOfReports = $em->getRepository(FarmerIntroduceDetails::class)->getNumberOfReportsForKpi($board, 'cattle-breed');
+                    $mark = $numberOfReports * 1;
+                    $boardAttribute->setNumberOfReport($numberOfReports);
+                    $boardAttribute->setMark($boardAttribute->getActualMark() < $mark ?: $mark);
+                    $em->flush();
+                    break;
             }
-            $monthlyLessCostingFarmReport->setTargetReport(4);
-            $monthlyLessCostingFarmReport->setAchieveReport($numberOfReports);
-            $monthlyLessCostingFarmReport->setTargetMark(4);
-            $em->persist($monthlyLessCostingFarmReport);
-            $em->flush();
         }
-
-/*        $monthlyNewFarmIntroduceReport = $this->getAttributeForMonthlyReport($board, 'aqua-new-farm-introduce');
-        if ($monthlyNewFarmIntroduceReport) {
-            $numberOfReports = 0;
-            if ($numberOfReports >= 5){
-                $monthlyNewFarmIntroduceReport->setMark(5);
-            }else{
-                $monthlyNewFarmIntroduceReport->setMark($numberOfReports);
-            }
-            $monthlyNewFarmIntroduceReport->setTargetReport(5);
-            $monthlyNewFarmIntroduceReport->setAchieveReport($numberOfReports);
-            $monthlyNewFarmIntroduceReport->setTargetMark(5);
-            $em->persist($monthlyNewFarmIntroduceReport);
-            $em->flush();
-        }*/
-
-/*        $monthlyNewAgentCreationReport = $this->getAttributeForMonthlyReport($board, 'aqua-new-agent-creation-and-up-gradation-report');
-        if ($monthlyNewAgentCreationReport) {
-            $numberOfReports = 0;
-
-            if ($numberOfReports >= 1){
-                $monthlyNewAgentCreationReport->setMark(2);
-            }else{
-                $monthlyNewAgentCreationReport->setMark($numberOfReports);
-            }
-            $monthlyNewAgentCreationReport->setTargetReport(1);
-            $monthlyNewAgentCreationReport->setAchieveReport($numberOfReports);
-            $monthlyNewAgentCreationReport->setTargetMark(2);
-            $em->persist($monthlyNewAgentCreationReport);
-            $em->flush();
-        }*/
     }
-
-    public function updateEvaluationCriteriaPoultry(EmployeeBoard $board)
+    public function updateCustomerDevelopmentAqua(EmployeeBoard $board)
     {
-//        dd(date("01-m-{$board->getYear()}",strtotime('February')));
         $em = $this->_em;
 
-        $monthlyAntibioticFreeFarmReport = $this->getAttributeForMonthlyReport($board, 'poultry-antibiotic-free-farm-report');
-        if ($monthlyAntibioticFreeFarmReport) {
-            $numberOfReports = (int)$em->getRepository(AntibioticFreeFarm::class)->getMonthlyAntibioticFreeFarmTotalReport($filterBy);
-
-            if ($numberOfReports >= 4){
-                $monthlyAntibioticFreeFarmReport->setMark(4);
-            }else{
-                $monthlyAntibioticFreeFarmReport->setMark($numberOfReports);
+        $boardAttributes = $this->getCustomerDevelopmentAttribute($board);
+        foreach ($boardAttributes as $boardAttribute) {
+            /**
+             * @var EmployeeBoardAttribute $boardAttribute
+             */
+            switch ($boardAttribute->getAttribute()->getSlug()){
+                case 'life-cycle-report-culture-after-sale':
+                    $numberOfReports = $em->getRepository(FishLifeCycle::class)->getNumberOfReportsForKpi($board);
+                    $mark = $numberOfReports * 1;
+                    $boardAttribute->setNumberOfReport($numberOfReports);
+                    $boardAttribute->setMark($boardAttribute->getActualMark() < $mark ?: $mark);
+                    $em->flush();
+                    break;
+                case 'company-species-wise-avg-fcr-report-culture-after-sale':
+                    $numberOfReports = $em->getRepository(FishCompanyAndSpeciesWiseAverageFcr::class)->getNumberOfReportsForKpi($board);
+                    $mark = $numberOfReports * 0.4;
+                    $boardAttribute->setNumberOfReport($numberOfReports);
+                    $boardAttribute->setMark($boardAttribute->getActualMark() < $mark ?: $mark);
+                    $em->flush();
+                    break;
+                case 'monthly-fish-farm-information-survey-report':
+                    $numberOfReports = $em->getRepository(FarmerIntroduceDetails::class)->getNumberOfReportsNewFarmerForKpi($board, 'fish-breed');
+                    $mark = $numberOfReports * 1;
+                    $boardAttribute->setNumberOfReport($numberOfReports);
+                    $boardAttribute->setMark($boardAttribute->getActualMark() < $mark ?: $mark);
+                    $em->flush();
+                    break;
+                case 'monthly-new-fish-farmer-introduce-to-nourish-family':
+                    $numberOfReports = $em->getRepository(FarmerIntroduceDetails::class)->getNumberOfReportsForKpi($board, 'fish-breed');
+                    $mark = $numberOfReports * 1;
+                    $boardAttribute->setNumberOfReport($numberOfReports);
+                    $boardAttribute->setMark($boardAttribute->getActualMark() < $mark ?: $mark);
+                    $em->flush();
+                    break;
+                case 'monthly-model-farm-develop':
+                    break;
+                case 'monthly-farmers-training-program-10-15-farmers':
+                    $numberOfReports = $em->getRepository(FarmerTrainingReport::class)->getNumberOfReportsForKpi($board, 'fish-breed');
+                    $mark = $numberOfReports * 1;
+                    $boardAttribute->setNumberOfReport($numberOfReports);
+                    $boardAttribute->setMark($boardAttribute->getActualMark() < $mark ?: $mark);
+                    $em->flush();
+                    break;
+                case 'monthly-new-agent-or-sub-agent-introduce-to-nourish-family':
+                    break;
+                case 'monthly-3-cattle-introduce-to-nourish-feed':
+                    $numberOfReports = $em->getRepository(FarmerIntroduceDetails::class)->getNumberOfReportsForKpi($board, 'cattle-breed');
+                    $mark = $numberOfReports * 1;
+                    $boardAttribute->setNumberOfReport($numberOfReports);
+                    $boardAttribute->setMark($boardAttribute->getActualMark() < $mark ?: $mark);
+                    $em->flush();
+                    break;
             }
-
-            $monthlyAntibioticFreeFarmReport->setTargetReport(4);
-            $monthlyAntibioticFreeFarmReport->setAchieveReport($numberOfReports);
-            $monthlyAntibioticFreeFarmReport->setTargetMark(4);
-            $em->persist($monthlyAntibioticFreeFarmReport);
-            $em->flush();
         }
+    }
+    public function updateCustomerDevelopmentCattle(EmployeeBoard $board)
+    {
+        $em = $this->_em;
+        $boardAttributes = $this->getCustomerDevelopmentAttribute($board);
+        foreach ($boardAttributes as $boardAttribute) {
+            /**
+             * @var EmployeeBoardAttribute $boardAttribute
+             */
+            switch ($boardAttribute->getAttribute()->getSlug()){
+                case 'monthly-farm-visit-report':
 
-        $monthlyLessCostingFarmReport = $this->getAttributeForMonthlyReport($board, 'poultry-less-costing-farm-report');
-
-        if ($monthlyLessCostingFarmReport) {
-            $numberOfReports = (int)$em->getRepository(CostBenefitAnalysisForLessCostingFarm::class)->getMonthlyLessCostingFarmOrSkillFarmDevelopTotalReport($filterBy);
-
-            if ($numberOfReports >= 4){
-                $monthlyLessCostingFarmReport->setMark(4);
-            }else{
-                $monthlyLessCostingFarmReport->setMark($numberOfReports);
+                    break;
+                case 'monthly-dairy-fattening-feed-performance-report':
+                    $numberOfReports = $em->getRepository(CattlePerformanceDetails::class)->getNumberOfReportsForKpi($board);
+                    $mark = $numberOfReports * 0.4;
+                    $boardAttribute->setNumberOfReport($numberOfReports);
+                    $boardAttribute->setMark($boardAttribute->getActualMark() < $mark ?: $mark);
+                    $em->flush();
+                    break;
+                case 'monthly-dairy-fattening-life-cycle-report':
+                    $numberOfReports = $em->getRepository(CattleLifeCycle::class)->getNumberOfReportsForKpi($board, 'COMPLETE');
+                    $mark = $numberOfReports * 1;
+                    $boardAttribute->setNumberOfReport($numberOfReports);
+                    $boardAttribute->setMark($boardAttribute->getActualMark() < $mark ?: $mark);
+                    $em->flush();
+                    break;
+                case 'monthly-new-cattle-farm-introduce-to-nourish-feed':
+                    $numberOfReports = $em->getRepository(FarmerIntroduceDetails::class)->getNumberOfReportsForKpi($board, 'cattle-breed');
+                    $mark = $numberOfReports * 1;
+                    $boardAttribute->setNumberOfReport($numberOfReports);
+                    $boardAttribute->setMark($boardAttribute->getActualMark() < $mark ?: $mark);
+                    $em->flush();
+                    break;
+                case 'monthly-new-agent-or-sub-agent-creation':
+                    break;
+                case 'monthly-farmers-training-program-10-15-farmers':
+                    $numberOfReports = $em->getRepository(FarmerTrainingReport::class)->getNumberOfReportsForKpi($board, 'cattle-breed');
+                    $mark = $numberOfReports * 1;
+                    $boardAttribute->setNumberOfReport($numberOfReports);
+                    $boardAttribute->setMark($boardAttribute->getActualMark() < $mark ?: $mark);
+                    $em->flush();
+                    break;
+                case 'monthly-model-cattle-farm-develop':
+                    break;
             }
-
-            $monthlyLessCostingFarmReport->setTargetReport(4);
-            $monthlyLessCostingFarmReport->setAchieveReport($numberOfReports);
-            $monthlyLessCostingFarmReport->setTargetMark(4);
-            $em->persist($monthlyLessCostingFarmReport);
-            $em->flush();
         }
-
-/*        $monthlyNewFarmerIntroduceReport = $this->getAttributeForMonthlyReport($board, 'poultry-new-farm-introduce-report');
-
-        if ($monthlyNewFarmerIntroduceReport) {
-            $numberOfReports = (int)$em->getRepository(FarmerIntroduceDetails::class)->getMonthlyNewFarmerIntroduceTotalReport($filterBy);
-            if ($numberOfReports >= 5){
-                $monthlyNewFarmerIntroduceReport->setMark(5);
-            }else{
-                $monthlyNewFarmerIntroduceReport->setMark($numberOfReports);
-            }
-            $monthlyNewFarmerIntroduceReport->setTargetReport(5);
-            $monthlyNewFarmerIntroduceReport->setAchieveReport($numberOfReports);
-            $monthlyNewFarmerIntroduceReport->setTargetMark(5);
-            $em->persist($monthlyNewFarmerIntroduceReport);
-            $em->flush();
-        }*/
     }
 
 

@@ -14,15 +14,16 @@
 
     {% if is_granted('ROLE_KPI_ADMIN') or is_granted("ROLE_DEVELOPER") %}
         <li><a class="dropdown-item" href="{{ path('kpi_markchart_matrix') }}">{{ 'KPI Format'|trans }}</a>
-            <ul>
-                <li><a class="dropdown-item" href="{{ path('kpi_markchart') }}">{{ 'Mark Chart'|trans }}</a></li>
-                {% if modes is not empty %}
-                    {% for mode in modes %}
-                        <li><a href="{{ path('kpi_markchart_matrix',{'slug':mode.slug}) }}">{{ mode.name }}</a></li>
-                    {% endfor %}
-                {% endif %}
 
-            </ul>
+{#            <ul>#}
+{#                <li><a class="dropdown-item" href="{{ path('kpi_markchart') }}">{{ 'Mark Chart'|trans }}</a></li>#}
+{#                {% if modes is not empty %}#}
+{#                    {% for mode in modes %}#}
+{#                        <li><a href="{{ path('kpi_markchart_matrix',{'slug':mode.slug}) }}">{{ mode.name }}</a></li>#}
+{#                    {% endfor %}#}
+{#                {% endif %}#}
+
+{#            </ul>#}
         </li>
         <li><a class="dropdown-item" href="{{ path('kpi_location_sales') }}">{{ 'District Sales Target'|trans }}</a></li>
         <li><a class="dropdown-item" href="javascript:">{{ 'Sales'|trans }}</a>
@@ -50,6 +51,7 @@
                     <li><a class="dropdown-item" href="{{ path('kpi_file_upload_index') }}">{{ 'Data Import'|trans }}</a></li>
                 {% endif %}
                 {% if is_granted('ROLE_KPI_ADMIN') or is_granted("ROLE_DEVELOPER") %}
+                    <li><a class="dropdown-item" href="{{ path('kpi_markchart') }}">{{ 'Mark Chart'|trans }}</a></li>
                     <li><a class="dropdown-item" href="{{ path('kpi_setting') }}">{{ 'Setting'|trans}}</a></li>
 {#                    <li><a class="dropdown-item" href="{{ path('kpi_setting_new') }}">{{ 'New Setting'|trans }}</a></li>#}
                 {% endif %}

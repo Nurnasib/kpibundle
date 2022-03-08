@@ -129,9 +129,9 @@ class MarkChartController extends AbstractController
      */
     public function markChartMatrix(Request $request)
     {
-        $mode = $request->query->get('slug');
-        $report = $this->getDoctrine()->getRepository(Setting::class)->findOneBy(['slug'=>$mode]);
-        $result = $this->getDoctrine()->getRepository(MarkChart::class)->groupReportMode($mode);
+        $format = $request->query->get('slug');
+        $report = $this->getDoctrine()->getRepository(Setting::class)->findOneBy(['slug'=> $format]);
+        $result = $this->getDoctrine()->getRepository(MarkChart::class)->groupReportMode($format);
         $arrayData = [];
         /* @var MarkChart $boardAttribute */
         foreach ($result as $boardAttribute) {
