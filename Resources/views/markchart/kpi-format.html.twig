@@ -17,17 +17,18 @@
         <!-- [ Main Content ] start -->
         <div class="row">
             <div class="card">
-                <div class="card-header">
-                    <h5>{{ 'KPI Format'|trans }}</h5>
-                    <div class="card-header-right">
-                        <div class="btn-group btn-group-mini" role="group" aria-label="Button group with nested dropdown">
-                            {% if modes is defined and modes is not empty %}
-                                {% for mode in modes %}
-                                    <a href="{{ path('kpi_markchart_matrix',{'slug': mode.slug}) }}" class="btn btn-mini white-font font-weight-bold" style="background-color: {{ mode.slug is same as (report ? report.slug : '-') ? '#1e7e34 !important' : '#28a745!important' }}">{{ mode.name }}</a>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
+                <div class="card-header text-center">
+{#                    <h5>{{ 'KPI Format'|trans }}</h5>#}
+                    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                        {% if modes is defined and modes is not empty %}
+                            {% for mode in modes %}
+                                <a href="{{ path('kpi_markchart_matrix',{'slug': mode.slug}) }}" class="btn btn-mini white-font font-weight-bold" style="background-color: {{ mode.slug is same as (report ? report.slug : '-') ? '#1e7e34 !important' : '#28a745!important' }}">{{ mode.name }}</a>
+                            {% endfor %}
+                        {% endif %}
                     </div>
+{#                    <div class="card-header-right">
+
+                    </div>#}
                 </div>
             </div>
         </div>
