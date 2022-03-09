@@ -32,97 +32,99 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="card">
-                <div class="portlet box green ">
-                    <div class="portlet-title">
-                        <div class="caption">{{ report ? report.name : '' }} VIEW</div>
-                    </div>
-                    <div class="portlet-body form">
-                        {#<div class="row">
-                            <div class="col-md-2"><img src="{{ asset('assets/images/nourish.jpg') }}" alt=""></div>
-                            <div class="col-md-10 text-center"><span class="h5 text-dark"><strong>KPI- for -AGM <br> Year 2021</strong></span></div>
-                        </div>#}
-                        <style>
-                            ul.header-info {
-                                margin: 0;
-                                padding: 0;
-                                display: flex;
-                                flex-wrap: wrap;
-                            }
-                            ul.header-info li {
-                                list-style: none;
-                                width: 50%;
-                            }
-                        </style>
-                        {% if arrayData is not empty %}
-                            <table class="table table-striped table-bordered">
-                                <thead class="thead-dark">
-                                <tr><th colspan="2" class="text-center">KPI- for {{ report.name }}</th></tr>
-                                </thead>
+        {% if report %}
+            <div class="row">
+                <div class="card">
+                    <div class="portlet box green ">
+                        <div class="portlet-title">
+                            <div class="caption">{{ report ? report.name : '' }}</div>
+                        </div>
+                        <div class="portlet-body form">
+                            {#<div class="row">
+                                <div class="col-md-2"><img src="{{ asset('assets/images/nourish.jpg') }}" alt=""></div>
+                                <div class="col-md-10 text-center"><span class="h5 text-dark"><strong>KPI- for -AGM <br> Year 2021</strong></span></div>
+                            </div>#}
+                            <style>
+                                ul.header-info {
+                                    margin: 0;
+                                    padding: 0;
+                                    display: flex;
+                                    flex-wrap: wrap;
+                                }
+                                ul.header-info li {
+                                    list-style: none;
+                                    width: 50%;
+                                }
+                            </style>
+                            {% if arrayData is not empty %}
+                                <table class="table table-striped table-bordered">
+                                    <thead class="thead-dark">
+                                    <tr><th colspan="2" class="text-center">KPI- for {{ report.name }}</th></tr>
+                                    </thead>
 
-                            </table>
-                            <table class="table table-striped table-bordered" id="datatable">
-                                <thead class="thead-dark">
-                                <tr>
-                                    <th scope="col">Parameter</th>
-                                    <th scope="col" style="width: 5%;">Activity</th>
-                                    <th scope="col" style="width: 45%">Attributes</th>
-                                    <th scope="col">Marks</th>
-                                    <th scope="col" style="width: 27%">Mark Distribution</th>
-                                    <th scope="col">Obtain Marks</th>
-                                    {% if is_granted('ROLE_DEVELOPER') %}
-                                        <th scope="col">Ordering</th>
-                                    {% endif %}
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for parameters in arrayData %}
-                                    {% set count=1 %}
-                                    {% for activity in parameters %}
-                                        {% set countActity=1 %}
-                                        {% for entity in activity %}
-                                            <tr>
-                                                {% if(count==1) %}
-                                                    <td rowspan="{{ parameters|multiArrayLength }}" class="parameter"><span>{{ entity.parent.parent.name }}</span></td>
-                                                {% endif %}
-                                                {% if(countActity==1) %}
-                                                    <td rowspan="{{ activity|length }}" class=""><span>{{ entity.parent.name }}</span></td>
-                                                {% endif %}
-                                                <td>
-                                                    {{ entity.name }}
-                                                </td>
-                                                <td>
-                                                    {{ entity.mark }}
-                                                </td>
-                                                <td>
-                                                    <ul class="markDistribution">
-                                                        {% for children in entity.children %}
-                                                            {% if children.status == 1 %}
-                                                                <li>{{ children.name }}</li>
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                    </ul>
-                                                </td>
-                                                <td class="attribute-score" id="markDistribution">0</td>
-                                                {% if is_granted('ROLE_DEVELOPER') %}
+                                </table>
+                                <table class="table table-striped table-bordered" id="datatable">
+                                    <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">Parameter</th>
+                                        <th scope="col" style="width: 5%;">Activity</th>
+                                        <th scope="col" style="width: 45%">Attributes</th>
+                                        <th scope="col">Marks</th>
+                                        <th scope="col" style="width: 27%">Mark Distribution</th>
+                                        <th scope="col">Obtain Marks</th>
+                                        {% if is_granted('ROLE_DEVELOPER') %}
+                                            <th scope="col">Ordering</th>
+                                        {% endif %}
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for parameters in arrayData %}
+                                        {% set count=1 %}
+                                        {% for activity in parameters %}
+                                            {% set countActity=1 %}
+                                            {% for entity in activity %}
+                                                <tr>
+                                                    {% if(count==1) %}
+                                                        <td rowspan="{{ parameters|multiArrayLength }}" class="parameter"><span>{{ entity.parent.parent.name }}</span></td>
+                                                    {% endif %}
+                                                    {% if(countActity==1) %}
+                                                        <td rowspan="{{ activity|length }}" class=""><span>{{ entity.parent.name }}</span></td>
+                                                    {% endif %}
                                                     <td>
-                                                        <input data-product-id="" type="number" data-action="{{ path('kpi_markchart_format_ordering',{'id':entity.id}) }}" data-index="" class="form-control sortingValue" data-id="{{ entity.id }}" name="" value="{{ entity.ordering?entity.ordering:'' }}" >
+                                                        {{ entity.name }}
                                                     </td>
-                                                {% endif %}
-                                            </tr>
-                                            {% set countActity=0 %}
-                                            {% set count=count+1 %}
+                                                    <td>
+                                                        {{ entity.mark }}
+                                                    </td>
+                                                    <td>
+                                                        <ul class="markDistribution">
+                                                            {% for children in entity.children %}
+                                                                {% if children.status == 1 %}
+                                                                    <li>{{ children.name }}</li>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </td>
+                                                    <td class="attribute-score" id="markDistribution">0</td>
+                                                    {% if is_granted('ROLE_DEVELOPER') %}
+                                                        <td>
+                                                            <input data-product-id="" type="number" data-action="{{ path('kpi_markchart_format_ordering',{'id':entity.id}) }}" data-index="" class="form-control sortingValue" data-id="{{ entity.id }}" name="" value="{{ entity.ordering?entity.ordering:'' }}" >
+                                                        </td>
+                                                    {% endif %}
+                                                </tr>
+                                                {% set countActity=0 %}
+                                                {% set count=count+1 %}
+                                            {% endfor %}
                                         {% endfor %}
                                     {% endfor %}
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        {% endif %}
+                                    </tbody>
+                                </table>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        {% endif %}
         <!-- [ Main Content ] end -->
     </div>
 <style>
