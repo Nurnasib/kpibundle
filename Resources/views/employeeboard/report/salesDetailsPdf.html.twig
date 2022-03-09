@@ -26,32 +26,32 @@
                         <thead>
                         <tr>
                             <th align="left" width="25%">{{ 'Employee Name: '|trans }}</th>
-                            <td align="left" >{{ entity.employee.name }}</td>
+                            <td align="left" >{{ board.employee.name }}</td>
                         </tr>
                         <tr>
                             <th align="left" width="25%">{{ 'Employee Id: '|trans }}</th>
-                            <td align="left" >{{ entity.employee.userId }}</td>
+                            <td align="left" >{{ board.employee.userId }}</td>
                         </tr>
                         <tr>
                             <th align="left" width="25%">{{ 'Month & Year: '|trans }}</th>
-                            <td align="left" >{{ entity.month }}, {{ entity.year }}</td>
+                            <td align="left" >{{ board.month }}, {{ board.year }}</td>
                         </tr>
                         <tr>
                             <th align="left" width="25%">{{ 'Designation: '|trans }}</th>
-                            <td align="left" >{{ entity.employee.designation.name }}</td>
+                            <td align="left" >{{ board.employee.designation.name }}</td>
                         </tr>
                         <tr>
                             <th align="left" width="25%">{{ 'Working Area: '|trans }}</th>
-                            <td align="left" >{% for district in entity.employee.district %}{{ district.name }}{% if not loop.last %},{% endif %} {% endfor %}</td>
+                            <td align="left" >{% for district in board.employee.district %}{{ district.name }}{% if not loop.last %},{% endif %} {% endfor %}</td>
                         </tr>
                         <tr>
                             <th align="left" width="25%">{{ 'Format: '|trans }}</th>
-                            <td align="left" >{{ entity.employee.reportMode.name|default('') }}</td>
+                            <td align="left" >{{ board.employee.reportMode.name|default('') }}</td>
                         </tr>
-                        {% if entity.employee.department is not empty %}
+                        {% if board.employee.department is not empty %}
                             <tr>
                                 <th align="left" width="25%">{{ 'Department: '|trans }}</th>
-                                <td align="left" >{{ entity.employee.department.name }}</td>
+                                <td align="left" >{{ board.employee.department.name }}</td>
                             </tr>
                         {% endif %}
                         </thead>
@@ -178,7 +178,7 @@
                         {% endif %}
                         </tbody>
                     </table>
-                    {% if entity.employee.reportMode.slug == 'spo-format' %}
+                    {% if board.employee.reportMode.slug == 'spo-format' %}
                         <h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ 'Minimum 50% "D" category agents converts to "C"'|trans }}</h5>
                         <table width="100%" border="1" cellpadding="5" cellspacing="0">
                             <thead>
@@ -204,10 +204,10 @@
                                 <th scope="col">{{ 'Zone'|trans }}</th>
                                 <th scope="col">{{ 'Average'|trans }}</th>
                                 {% if dCategoryUpgrade is not empty %}
-                                    {% for entity in dCategoryUpgrade %}
-                                        {% if entity is iterable and loop.index == 1 %}
-                                            <th scope="col">{{ entity.month|default('') }} (Avg.)</th>
-                                            <th scope="col">{{ 'Category'|trans }} {{ entity.year|default('') }}</th>
+                                    {% for board in dCategoryUpgrade %}
+                                        {% if board is iterable and loop.index == 1 %}
+                                            <th scope="col">{{ board.month|default('') }} (Avg.)</th>
+                                            <th scope="col">{{ 'Category'|trans }} {{ board.year|default('') }}</th>
                                         {% endif %}
                                     {% endfor %}
                                 {% endif %}
@@ -240,7 +240,7 @@
                         </table>
                     {% endif %}
 
-                    {% if entity.employee.reportMode.slug == 'spo-format' %}
+                    {% if board.employee.reportMode.slug == 'spo-format' %}
                         <h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ 'Minimum 50 % "C" category agents converts to "B"'|trans }}</h5>
                         <table width="100%" cellpadding="5" cellspacing="0" border="1">
                             <thead>
@@ -266,10 +266,10 @@
                                 <th scope="col">{{ 'Zone'|trans }}</th>
                                 <th scope="col">{{ 'Average'|trans }}</th>
                                 {% if cCategoryUpgrade is not empty %}
-                                    {% for entity in cCategoryUpgrade %}
-                                        {% if entity is iterable and loop.index == 1 %}
-                                            <th scope="col">{{ entity.month|default('') }} (Avg.)</th>
-                                            <th scope="col">{{ 'Category'|trans }} {{ entity.year|default('') }}</th>
+                                    {% for board in cCategoryUpgrade %}
+                                        {% if board is iterable and loop.index == 1 %}
+                                            <th scope="col">{{ board.month|default('') }} (Avg.)</th>
+                                            <th scope="col">{{ 'Category'|trans }} {{ board.year|default('') }}</th>
                                         {% endif %}
                                     {% endfor %}
                                 {% endif %}
@@ -301,7 +301,7 @@
                             </tbody>
                         </table>
                     {% endif %}
-                    {% if (entity.employee.reportMode.slug == 'agm-kpi' or entity.employee.reportMode.slug == 'rsm-arsm-kpi') %}
+                    {% if (board.employee.reportMode.slug == 'agm-kpi' or board.employee.reportMode.slug == 'rsm-arsm-kpi') %}
                         <h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ 'Team members ach(=100%) mark on core activities'|trans }}</h5>
                         <table width="100%" cellpadding="5", cellspacing="0" border="1">
                             <thead>
@@ -346,7 +346,7 @@
                         </table>
                     {% endif %}
 
-                    {% if (entity.employee.reportMode.slug == 'spo-format' or entity.employee.reportMode.slug == 'aqua-service' or entity.employee.reportMode.slug == 'cattle-service') %}
+                    {% if (board.employee.reportMode.slug == 'spo-format' or board.employee.reportMode.slug == 'aqua-service' or board.employee.reportMode.slug == 'cattle-service') %}
                         <h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ 'Agent Upgradation'|trans }}</h5>
                         <table width="100%" cellspacing="0" cellpadding="5" border="1">
                             <thead>
@@ -369,8 +369,8 @@
                                 <th scope="col">{{ 'Agent Id'|trans }}</th>
                                 <th scope="col">{{ 'Agent Name'|trans }}</th>
                                 <th scope="col">{{ 'Address'|trans }}</th>
-                                <th scope="col">{{ 'Total Sales'|trans }} ({{ (entity.year)-1 }})</th>
-                                <th scope="col">{{ 'Total Sales'|trans }} ({{ entity.year }})</th>
+                                <th scope="col">{{ 'Total Sales'|trans }} ({{ (board.year)-1 }})</th>
+                                <th scope="col">{{ 'Total Sales'|trans }} ({{ board.year }})</th>
                                 <th scope="col">{{ 'Growth'|trans }}</th>
                             </tr>
                             </thead>
@@ -378,14 +378,14 @@
                             {% if growthAgentSalesDetails is not empty %}
                                 {% for agentId, details in growthAgentSalesDetails %}
                                     {% if details is iterable %}
-                                        {% set prevYearSale = details[entity.year-1]|number_format(2) %}
-                                        {% set currentYearSale = details[entity.year]|number_format(2) %}
+                                        {% set prevYearSale = details[board.year-1]|number_format(2) %}
+                                        {% set currentYearSale = details[board.year]|number_format(2) %}
                                         <tr>
                                             <td align="center">{{ agentId|default('') }}</td>
                                             <td>{{ details.agentName|default('') }}</td>
                                             <td>{{ details.agentAddress|default('') }}</td>
-                                            <td align="right">{{ details[entity.year-1]|number_format(2) }}</td>
-                                            <td align="right">{{ details[entity.year]|number_format(2) }}</td>
+                                            <td align="right">{{ details[board.year-1]|number_format(2) }}</td>
+                                            <td align="right">{{ details[board.year]|number_format(2) }}</td>
                                             <td align="center">{{ (((currentYearSale - prevYearSale) * 100) / prevYearSale)|number_format(2) }}
                                                 %
                                             </td>

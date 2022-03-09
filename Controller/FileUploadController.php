@@ -103,6 +103,13 @@ class FileUploadController extends AbstractController
         $slug = str_replace(' ', '-', strtolower($file->getTitle()));
         switch ($slug){
             case "agent-sales":
+                $findDistrictTarget = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->findBy(['month' => $month, 'year' => $year]);
+                if (! $findDistrictTarget){
+                    $this->addFlash('warning', 'Do not find district target for ' . $month . ',' . $year . '. Please set district target first!');
+                    return $this->redirectToRoute('kpi_file_upload_index');
+                } // Find District target
+
+
                 $flashArray = $this->getDoctrine()->getRepository(AgentOrder::class)->insertAgentSales($file, $keys, $allData, $month, $year);
                 if (isset($flashArray['new']) && sizeof($flashArray['new'])>0) {
                     $this->addFlash('success', 'Record inserted successfully into Database!');
@@ -114,6 +121,12 @@ class FileUploadController extends AbstractController
                 }
                 break;
             case "agent-outstanding":
+                $findDistrictTarget = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->findBy(['month' => $month, 'year' => $year]);
+                if (! $findDistrictTarget){
+                    $this->addFlash('warning', 'Do not find district target for ' . $month . ',' . $year . '. Please set district target first!');
+                    return $this->redirectToRoute('kpi_file_upload_index');
+                } // Find District target
+
                 $addedId = $this->getDoctrine()->getRepository(AgentOutstanding::class)->insertAgentOutstanding($file, $keys, $allData, $month, $year);
                 if($addedId){
                     $this->addFlash('success', 'Data inserted successfully!');
@@ -122,6 +135,12 @@ class FileUploadController extends AbstractController
                 }
                 break;
             case "doc-sales-collection":
+                $findDistrictTarget = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->findBy(['month' => $month, 'year' => $year]);
+                if (! $findDistrictTarget){
+                    $this->addFlash('warning', 'Do not find district target for ' . $month . ',' . $year . '. Please set district target first!');
+                    return $this->redirectToRoute('kpi_file_upload_index');
+                } // Find District target
+
                 $addedId = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->insertDocSalesCollection($file, $keys, $allData, $month, $year);
                 if($addedId){
                     $this->addFlash('success', 'Data inserted successfully!');
@@ -130,6 +149,7 @@ class FileUploadController extends AbstractController
                 }
                 break;
             case "district-sales-target":
+
                 $addedId = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->insertTargetAmount($file, $keys, $allData, $month, $year);
                 if(isset($addedId['new']) && sizeof($addedId['new'])>0){
                     $this->addFlash('success', 'Data inserted successfully!');
@@ -178,16 +198,16 @@ class FileUploadController extends AbstractController
             $salesPriviousGrouthQty = $this->getDoctrine()->getRepository(DistrictOrder::class)->getGrouthPreviousProductQty($district, $product, $year, $month);
             $salesCurrentGrouthQty = $this->getDoctrine()->getRepository(DistrictOrder::class)->getGrouthCurrentProductQty($district, $product, $year, $month);
 
-            $targetSalesQty =$salesTargetQty?$salesTargetQty->getQuantity():0;
+            $targetSalesQty =$salesTargetQty ? $salesTargetQty->getQuantity() : 0;
 
             $districtOrder->setYear($agentOrder['oYear']);
             $districtOrder->setMonth($agentOrder['oMonth']);
             $districtOrder->setQuantity($agentOrder['totalQty']);
-            $districtOrder->setDistrict($district?$district:null);
-            $districtOrder->setProduct($product?$product:null);
+            $districtOrder->setDistrict($district ?: null);
+            $districtOrder->setProduct($product ?: null);
             $districtOrder->setTargetQuantity($targetSalesQty);
-            $districtOrder->setSalesGrouthPreviousQuantity($salesPriviousGrouthQty?$salesPriviousGrouthQty:0);
-            $districtOrder->setSalesGrouthCurrentQuantity($salesCurrentGrouthQty?($salesCurrentGrouthQty+$agentOrder['totalQty']):$agentOrder['totalQty']);
+            $districtOrder->setSalesGrouthPreviousQuantity($salesPriviousGrouthQty ?:0);
+            $districtOrder->setSalesGrouthCurrentQuantity($salesCurrentGrouthQty ? ($salesCurrentGrouthQty + $agentOrder['totalQty']):$agentOrder['totalQty']);
 
             $districtOrder->setSalesMarkPercentage($this->salesTargetPercentageCalculation($targetSalesQty, $agentOrder['totalQty']));
             $districtOrder->setSalesMark($this->salesTargetMarkCalculation($targetSalesQty, $agentOrder['totalQty']));

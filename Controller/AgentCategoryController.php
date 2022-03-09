@@ -59,8 +59,8 @@ class AgentCategoryController extends AbstractController
         $monthYear = explode(',', $file->getMonthYear());
         $monthName = $monthYear[0];
         $year = $monthYear[1];
-        $date = "01 $monthName $year";
-        $month = date('d-m-Y', strtotime($date));
+//        $date = "01 $monthName $year";
+//        $month = date('d-m-Y', strtotime($date));
 
         $returnValue = $this->getDoctrine()->getRepository(AgentCategory::class)->insertAgentOrderInAgentCategory($monthName, $year, $file);
         if($returnValue){

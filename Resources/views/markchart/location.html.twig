@@ -74,16 +74,27 @@
                                         <tbody id="inputform">
                                         {% set aa = 0 %}
                                         {% if matrixArr is not empty %}
-                                        {% for entity in entities %}
+                                        {% for district in districts %}
                                             <tr>
                                                 <td>{{ loop.index }}.</td>
-                                                <td>{{ entity.parent.parent.name }}</td>
-                                                <td>{{ entity.parent.name }}</td>
-                                                <td>{{ entity.name }}</td>
+                                                <td>{{ district.parent.parent.name }}</td>
+                                                <td>{{ district.parent.name }}</td>
+                                                <td>{{ district.name }}</td>
                                                 {% for product in products %}
                                                     <td>
-                                                        {% set ids = year~'-'~month~'-'~entity.id~'-'~product.id %}
-                                                        <input data-product-id="{{ product.id }}" type="number" data-action="{{ path('kpi_markchart_location_sales_target',{'id':matrixArr[ids]['matrixId']}) }}" data-index="{{ matrixArr[ids]['matrixId'] }}" class="form-control matrixId" data-id="{{ matrixArr[ids]['matrixId'] }}"  id="quantity-{{ matrixArr[ids]['matrixId'] }}" name="quantity-{{ matrixArr[ids]['matrixId'] }}" value="{% if matrixArr[ids] is defined and  matrixArr[ids].districtId ==  entity.id and  matrixArr[ids].markId == product.id %}{{ matrixArr[ids]['quantity'] }}{% endif %}" >
+                                                        {% set ids = year ~ '-' ~ month ~ '-' ~ district.id ~ '-' ~ product.id %}
+
+                                                        <input
+                                                                data-product-id="{{ product.id }}"
+                                                                type="number"
+                                                                data-action="{{ path('kpi_markchart_location_sales_target',{'id':matrixArr[ids]['matrixId']}) }}"
+                                                                data-index="{{ matrixArr[ids]['matrixId'] }}"
+                                                                class="form-control matrixId"
+                                                                data-id="{{ matrixArr[ids]['matrixId'] }}"
+                                                                id="quantity-{{ matrixArr[ids]['matrixId'] }}"
+                                                                name="quantity-{{ matrixArr[ids]['matrixId'] }}"
+                                                                value="{% if matrixArr[ids] is defined and  matrixArr[ids].districtId ==  district.id and  matrixArr[ids].markId == product.id %}{{ matrixArr[ids]['quantity'] }}{% endif %}"
+                                                        >
                                                     </td>
                                                 {% endfor %}
                                             </tr>

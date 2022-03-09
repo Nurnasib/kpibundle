@@ -44,15 +44,15 @@ class LocationSalesTargetController extends AbstractController
             $requestYear = date('Y');
         }
         
-        $entities = $this->getDoctrine()->getRepository(Location::class)->findBy(array('level'=> 4),array('parent' => 'ASC'));
+        $districts = $this->getDoctrine()->getRepository(Location::class)->findBy(array('level'=> 4),array('parent' => 'ASC'));
         $products = $this->getDoctrine()->getRepository(MarkChart::class)->salesProductItems();
-        $locationMarks = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->processLocationPrice($entities,$products,$requestYear);
+        $locationMarks = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->processLocationPrice($districts,$products,$requestYear);
         $months=[];
         for ($m=1; $m<=12; $m++) {
             $months[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
         }
             return $this->render('@TerminalbdKpi/markchart/location.html.twig',[
-                'entities' => $entities,
+                'districts' => $districts,
                 'products' => $products , 
                 'matrixArr' => $locationMarks,
                 'months' => $months,

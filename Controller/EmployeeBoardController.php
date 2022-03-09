@@ -523,15 +523,15 @@ class EmployeeBoardController extends AbstractController
     /**
      * @Security("is_granted('ROLE_USER')")
      * @Route("/{id}/report-sales-achievement/{mode}", defaults={"mode" = null}, methods={"GET"}, name="kpi_report_sales_achievement")
-     * @param EmployeeBoard $entity
+     * @param EmployeeBoard $board
      * @param $mode
      * @param Request $request
      * @return Response
      */
-    public function salesAchievementSummary(EmployeeBoard $entity, $mode, Request $request): Response
+    public function salesAchievementSummary(EmployeeBoard $board, $mode, Request $request): Response
     {
 //        $locations = $entity->getEmployee()->getDistrict();
-        $districtHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $entity->getEmployee(), 'month' => $entity->getMonth(), 'year' => $entity->getYear()]);
+        $districtHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'month' => $board->getMonth(), 'year' => $board->getYear()]);
         $districts = $districtHistory ? $districtHistory->getDistrict() : '';
         $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
 /*        $locationsId = array();
@@ -541,7 +541,7 @@ class EmployeeBoardController extends AbstractController
             }
         }*/
 
-        $employee = $entity->getEmployee();
+        $employee = $board->getEmployee();
 
         $getEmployeesByLineManager = $this->getDoctrine()->getRepository(User::class)->findBy(['lineManager'=>$employee, 'enabled'=>1]);
 
@@ -553,17 +553,16 @@ class EmployeeBoardController extends AbstractController
         }
         $parameter = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(array('slug'=>'core-responsibilities','status'=>1));
 
-        $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getKpiSummaryForFeedAndGrowth($entity);
+        $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getKpiSummaryForFeedAndGrowth($board);
 
-        $outstanding = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getLocationWiseOutstanding($districtsId, $entity);
+        $outstanding = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getLocationWiseOutstanding($districtsId, $board);
 
-        $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getLocationWiseDocSales($districtsId, $entity);
-        $individualTeamMemberMarks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getIndividualTeamMemberMarks($employeeArrs, $parameter, $entity);
+        $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getLocationWiseDocSales($districtsId, $board);
+        $individualTeamMemberMarks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getIndividualTeamMemberMarks($employeeArrs, $parameter, $board);
 
-        $dCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithDInDecember($entity,$districtsId);
-        $cCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithCInDecember($entity,$districtsId);
-        $growthAgentSalesDetails = $this->getDoctrine()->getRepository(AgentOrder::class)->getGrowthAgentSalesDetails($entity, $districtsId);
-
+        $dCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithDInDecember($board,$districtsId);
+        $cCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithCInDecember($board,$districtsId);
+        $growthAgentSalesDetails = $this->getDoctrine()->getRepository(AgentOrder::class)->getGrowthAgentSalesDetails($board, $districtsId);
         if ($mode == 'pdf'){
 
             // Configure Dompdf according to your needs
@@ -575,7 +574,7 @@ class EmployeeBoardController extends AbstractController
 
             // Retrieve the HTML generated in our twig file
             $html = $this->renderView('@TerminalbdKpi/employeeboard/report/salesDetailsPdf.html.twig', [
-                'entity' => $entity,
+                'board' => $board,
                 'feedAndGrowth' => $feedAndGrowth,
                 'outstanding' => $outstanding,
                 'dCategoryUpgrade' => $dCategoryUpgrade,
@@ -594,7 +593,7 @@ class EmployeeBoardController extends AbstractController
 
             // Render the HTML as PDF
             $dompdf->render();
-            $fileName = $request->get('_route') . '_' . $entity->getEmployee()->getName() . '_' . $entity->getMonth() . '_' . $entity->getYear() . '_' . time();
+            $fileName = $request->get('_route') . '_' . $board->getEmployee()->getName() . '_' . $board->getMonth() . '_' . $board->getYear() . '_' . time();
             // Output the generated PDF to Browser (force download)
             $dompdf->stream($fileName . ".pdf", [
                 "Attachment" => false
@@ -602,7 +601,7 @@ class EmployeeBoardController extends AbstractController
 
         }elseif ($mode == 'excel'){
             $html = $this->renderView('@TerminalbdKpi/employeeboard/report/salesDetailsExcel.html.twig', [
-                'entity' => $entity,
+                'board' => $board,
                 'feedAndGrowth' => $feedAndGrowth,
 //            'attributes' => $attributes,
                 'outstanding' => $outstanding,
@@ -614,7 +613,7 @@ class EmployeeBoardController extends AbstractController
 
             ]);
 
-            $fileName = $request->get('_route') . '_' . $entity->getEmployee()->getName() . '_' . $entity->getMonth() . '_' . $entity->getYear() . '_' . time() . '.xls';
+            $fileName = $request->get('_route') . '_' . $board->getEmployee()->getName() . '_' . $board->getMonth() . '_' . $board->getYear() . '_' . time() . '.xls';
 
 
             header("Content-Type: application/vnd.ms-excel; charset=utf-8");
@@ -625,7 +624,7 @@ class EmployeeBoardController extends AbstractController
 
         }else{
             return $this->render('@TerminalbdKpi/employeeboard/report/salesDetails.html.twig', [
-                'entity' => $entity,
+                'board' => $board,
                 'feedAndGrowth' => $feedAndGrowth,
 //            'attributes' => $attributes,
                 'outstanding' => $outstanding,
