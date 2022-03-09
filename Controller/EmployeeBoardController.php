@@ -560,8 +560,8 @@ class EmployeeBoardController extends AbstractController
         $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getLocationWiseDocSales($districtsId, $board);
         $individualTeamMemberMarks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getIndividualTeamMemberMarks($employeeArrs, $parameter, $board);
 
-        $dCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithDInDecember($board,$districtsId);
-        $cCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithCInDecember($board,$districtsId);
+        $dCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithDcategory($board,$districtsId);
+        $cCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithCcategory($board,$districtsId);
         $growthAgentSalesDetails = $this->getDoctrine()->getRepository(AgentOrder::class)->getGrowthAgentSalesDetails($board, $districtsId);
         if ($mode == 'pdf'){
 

@@ -196,7 +196,6 @@ class AgentCategoryRepository extends EntityRepository
         }
 
         $categoryUpgradationPercentages = $this->currentMonthCategoryUpgradationPercentage($agentsIdWithCategory,$board);
-//        dd($agentsIdWithCategory, $categoryUpgradationPercentages);
 
         return $this->categoryUpgradationMarks($categoryUpgradationPercentages);
     }
@@ -215,7 +214,7 @@ class AgentCategoryRepository extends EntityRepository
             $qb->join('e.agent','agent');
             $qb->join('e.gradeStandard','gradeStandard');
 
-            $qb->select('e.id','gradeStandard.grade');
+            $qb->select('e.id','agent.id AS agentId','gradeStandard.grade');
 
             $qb->where('e.year = :currentYear')->setParameter('currentYear', $currentYear);
             $qb->andWhere('e.month = :month')->setParameter('month', $month);
@@ -226,7 +225,8 @@ class AgentCategoryRepository extends EntityRepository
             $currentCategoryNumber = count($results);
 
 //            $prevGrade = chr(ord($category)-1);
-            $categoryUpgradationPercentages[$category . 'to' . 'UpperGrade'] = round(($currentCategoryNumber * 100) / ($pervYearCategoryNumber / 2));
+//            $categoryUpgradationPercentages[$category . 'to' . 'UpperGrade'] = round(($currentCategoryNumber * 100) / ($pervYearCategoryNumber / 2));
+            $categoryUpgradationPercentages[$category . 'to' . 'UpperGrade'] = round(($currentCategoryNumber * 100) / $pervYearCategoryNumber);
         }
         return $categoryUpgradationPercentages;
     }
@@ -254,9 +254,9 @@ class AgentCategoryRepository extends EntityRepository
 
 
 
-    public function getAgentWithDInDecember(EmployeeBoard $employeeBoard, $districtsId)
+    public function getAgentWithDcategory(EmployeeBoard $board, $districtsId)
     {
-        $prevYear = $employeeBoard->getYear()-1;
+        $prevYear = $board->getYear()-1;
 /*        $locations = $employeeBoard->getEmployee()->getDistrict();
         $locationsId = [];
         if(!empty($locations)){
@@ -277,7 +277,7 @@ class AgentCategoryRepository extends EntityRepository
 
         $qb->where('e.year = :prevYear')->setParameter('prevYear', $prevYear);
         $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $districtsId);
-        $qb->andWhere("e.month = 'December'");
+        $qb->andWhere('e.month = :month')->setParameter('month', $board->getMonth());
         $qb->andWhere("gradeStandard.grade = 'D'");
 
         $results = $qb->getQuery()->getArrayResult();
@@ -291,7 +291,7 @@ class AgentCategoryRepository extends EntityRepository
             $agentsId[]= $result['agentId'];
         }
         $currentGrade = [];
-        $agentCategory = $this->getAgentCurrentMonth($employeeBoard,$agentsId);
+        $agentCategory = $this->getAgentCurrentMonth($board,$agentsId);
         foreach ($agentCategory as $key => $item) {
             if(array_key_exists($key, $data)){
                 $agentCategory[$key]['decemberGrade'] = $data[$key]['grade'];
@@ -305,7 +305,7 @@ class AgentCategoryRepository extends EntityRepository
         return $agentCategory;
     }
 
-    private function getAgentCurrentMonth(EmployeeBoard $employeeBoard, $agentsId)
+    private function getAgentCurrentMonth(EmployeeBoard $board, $agentsId)
     {
 
         $qb = $this->createQueryBuilder('e');
@@ -321,8 +321,8 @@ class AgentCategoryRepository extends EntityRepository
         $qb->addSelect('zone.name AS agentZoneName');
         $qb->addSelect('gradeStandard.grade AS currentMonthGrade');
 
-        $qb->where('e.year = :currentYear')->setParameter('currentYear', $employeeBoard->getYear());
-        $qb->andWhere('e.month = :month')->setParameter('month', $employeeBoard->getMonth());
+        $qb->where('e.year = :currentYear')->setParameter('currentYear', $board->getYear());
+        $qb->andWhere('e.month = :month')->setParameter('month', $board->getMonth());
         $qb->andWhere('agent.agentId IN (:agentId)')->setParameter('agentId', $agentsId);
         $results = $qb->getQuery()->getArrayResult();
         $data = [];
@@ -338,9 +338,9 @@ class AgentCategoryRepository extends EntityRepository
 
 
 
-    public function getAgentWithCInDecember(EmployeeBoard $employeeBoard, $districtsId)
+    public function getAgentWithCcategory(EmployeeBoard $board, $districtsId)
     {
-        $prevYear = $employeeBoard->getYear()-1;
+        $prevYear = $board->getYear()-1;
 /*        $locations = $employeeBoard->getEmployee()->getDistrict();
         $locationsId = [];
         if(!empty($locations)){
@@ -361,7 +361,7 @@ class AgentCategoryRepository extends EntityRepository
 
         $qb->where('e.year = :prevYear')->setParameter('prevYear', $prevYear);
         $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $districtsId);
-        $qb->andWhere("e.month = 'December'");
+        $qb->andWhere('e.month = :month')->setParameter('month', $board->getMonth());
         $qb->andWhere("gradeStandard.grade = 'C'");
 
         $results = $qb->getQuery()->getArrayResult();
@@ -375,7 +375,7 @@ class AgentCategoryRepository extends EntityRepository
             $agentsId[]= $result['agentId'];
         }
         $currentGrade = [];
-        $agentCategory = $this->getAgentCurrentMonth($employeeBoard,$agentsId);
+        $agentCategory = $this->getAgentCurrentMonth($board,$agentsId);
         foreach ($agentCategory as $key => $item) {
             if(array_key_exists($key, $data)){
                 $agentCategory[$key]['decemberGrade'] = $data[$key]['grade'];
