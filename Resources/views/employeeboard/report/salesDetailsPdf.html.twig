@@ -179,7 +179,7 @@
                         </tbody>
                     </table>
                     {% if board.employee.reportMode.slug == 'spo-format' %}
-                        <h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ 'Minimum 50% "D" category agents converts to "C"'|trans }}</h5>
+                        <h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ '"D" category agents converts to "C"'|trans }}</h5>
                         <table width="100%" border="1" cellpadding="5" cellspacing="0">
                             <thead>
                             <tr>
@@ -188,7 +188,7 @@
                                 <td scope="col">{{ 'Category Upgrade Agents: '|trans }} {{ dCategoryUpgrade.totalUpgradeAgent|default(0) }}</td>
                                 <td scope="col">{{ 'Category Upgrade Percentage: '|trans }}
                                     {% if dCategoryUpgrade.totalAgent > 0 %}
-                                        {{ ((dCategoryUpgrade.totalUpgradeAgent * 100) / (dCategoryUpgrade.totalAgent / 2)|round)|number_format(2) }} %
+                                        {{ ((dCategoryUpgrade.totalUpgradeAgent * 100) / dCategoryUpgrade.totalAgent)|number_format(2) }} %
                                     {% endif %}
                                 </td>
                             </tr>
@@ -220,12 +220,12 @@
                                 {% for row in dCategoryUpgrade %}
                                     {% if row is iterable %}
                                         <tr>
-                                            <td align="center">{{ row.decemberGrade|default('') }}</td>
+                                            <td align="center">{{ row.prevYearGrade|default('') }}</td>
                                             <td align="center">{{ row.agentId|default('') }}</td>
                                             <td align="left">{{ row.agentName|default('') }}</td>
                                             <td align="left">{{ row.agentRegionName|default('') }}</td>
                                             <td align="left">{{ row.agentZoneName|default('') }}</td>
-                                            <td align="right">{{ row.decemberAvg|round|default('') }}</td>
+                                            <td align="right">{{ row.prevYearAvg|round|default('') }}</td>
                                             <td align="right">{{ row.currentMonthAvg|round|default('') }}</td>
                                             <td align="center">{{ row.currentMonthGrade|default('') }}</td>
                                         </tr>
@@ -241,7 +241,7 @@
                     {% endif %}
 
                     {% if board.employee.reportMode.slug == 'spo-format' %}
-                        <h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ 'Minimum 50 % "C" category agents converts to "B"'|trans }}</h5>
+                        <h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ '"C" category agents converts to "B"'|trans }}</h5>
                         <table width="100%" cellpadding="5" cellspacing="0" border="1">
                             <thead>
                             <tr>
@@ -250,7 +250,7 @@
                                 <td scope="col">{{ 'Category Upgrade Agents: '|trans }} {{ cCategoryUpgrade.totalUpgradeAgent|default(0) }}</td>
                                 <td scope="col">{{ 'Category Upgrade Percentage: '|trans }}
                                     {% if cCategoryUpgrade.totalAgent > 0 %}
-                                        {{ ((cCategoryUpgrade.totalUpgradeAgent * 100) / (cCategoryUpgrade.totalAgent / 2)|round)|number_format(2) }} %
+                                        {{ ((cCategoryUpgrade.totalUpgradeAgent * 100) / cCategoryUpgrade.totalAgent)|number_format(2) }} %
                                     {% endif %}
                                 </td>
                             </tr>
@@ -282,12 +282,12 @@
                                 {% for row in cCategoryUpgrade %}
                                     {% if row is iterable %}
                                         <tr>
-                                            <td align="center">{{ row.decemberGrade|default('') }}</td>
+                                            <td align="center">{{ row.prevYearGrade|default('') }}</td>
                                             <td align="center">{{ row.agentId|default('') }}</td>
                                             <td align="left">{{ row.agentName|default('') }}</td>
                                             <td align="left">{{ row.agentRegionName|default('') }}</td>
                                             <td align="left">{{ row.agentZoneName|default('') }}</td>
-                                            <td align="right">{{ row.decemberAvg|round|default('') }}</td>
+                                            <td align="right">{{ row.prevYearAvg|round|default('') }}</td>
                                             <td align="right">{{ row.currentMonthAvg|round|default('') }}</td>
                                             <td align="center">{{ row.currentMonthGrade|default('') }}</td>
                                         </tr>
@@ -378,8 +378,8 @@
                             {% if growthAgentSalesDetails is not empty %}
                                 {% for agentId, details in growthAgentSalesDetails %}
                                     {% if details is iterable %}
-                                        {% set prevYearSale = details[board.year-1]|number_format(2) %}
-                                        {% set currentYearSale = details[board.year]|number_format(2) %}
+                                        {% set prevYearSale = details[board.year-1] %}
+                                        {% set currentYearSale = details[board.year] %}
                                         <tr>
                                             <td align="center">{{ agentId|default('') }}</td>
                                             <td>{{ details.agentName|default('') }}</td>

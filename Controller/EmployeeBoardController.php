@@ -562,6 +562,9 @@ class EmployeeBoardController extends AbstractController
 
         $dCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithDcategory($board,$districtsId);
         $cCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithCcategory($board,$districtsId);
+
+//        dd($dCategoryUpgrade, $cCategoryUpgrade);
+
         $growthAgentSalesDetails = $this->getDoctrine()->getRepository(AgentOrder::class)->getGrowthAgentSalesDetails($board, $districtsId);
         if ($mode == 'pdf'){
 

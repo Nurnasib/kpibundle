@@ -206,7 +206,7 @@
                                 </tbody>
                             </table>
                             {% if board.employee.reportMode.slug == 'spo-format' %}
-                                <h5 class="h5 bg-secondary p-1 text-white w-100">{{ 'Minimum 50% "D" category agents converts to "C"'|trans }}</h5>
+                                <h5 class="h5 bg-secondary p-1 text-white w-100">{{ '"D" category agents converts to "C"'|trans }}</h5>
                                 <table class="table table-striped table-bordered table-hover" style="margin-top: 0 !important;">
                                     <thead class="thead-dark">
                                     <tr>
@@ -215,7 +215,7 @@
                                         <th scope="col">{{ 'Category Upgrade Agents: '|trans }} {{ dCategoryUpgrade.totalUpgradeAgent|default(0) }}</th>
                                         <th scope="col">{{ 'Category Upgrade Percentage: '|trans }}
                                             {% if dCategoryUpgrade.totalAgent > 0 %}
-                                                {{ ((dCategoryUpgrade.totalUpgradeAgent * 100) / (dCategoryUpgrade.totalAgent / 2)|round)|number_format(2) }} %
+                                                {{ ((dCategoryUpgrade.totalUpgradeAgent * 100) / dCategoryUpgrade.totalAgent)|number_format(2) }} %
                                             {% endif %}
                                         </th>
                                     </tr>
@@ -247,12 +247,12 @@
                                         {% for row in dCategoryUpgrade %}
                                             {% if row is iterable %}
                                                 <tr>
-                                                    <td>{{ row.decemberGrade|default('') }}</td>
+                                                    <td>{{ row.prevYearGrade|default('') }}</td>
                                                     <td>{{ row.agentId|default('') }}</td>
                                                     <td>{{ row.agentName|default('') }}</td>
                                                     <td>{{ row.agentRegionName|default('') }}</td>
                                                     <td>{{ row.agentZoneName|default('') }}</td>
-                                                    <td>{{ row.decemberAvg|round|default('') }}</td>
+                                                    <td>{{ row.prevYearAvg|round|default('') }}</td>
                                                     <td>{{ row.currentMonthAvg|round|default('') }}</td>
                                                     <td>{{ row.currentMonthGrade|default('') }}</td>
                                                 </tr>
@@ -268,7 +268,7 @@
                             {% endif %}
 
                             {% if board.employee.reportMode.slug == 'spo-format' %}
-                                <h5 class="h5 bg-secondary p-1 text-white w-100">{{ 'Minimum 50 % "C" category agents converts to "B"'|trans }}</h5>
+                                <h5 class="h5 bg-secondary p-1 text-white w-100">{{ '"C" category agents converts to "B"'|trans }}</h5>
                                 <table class="table table-striped table-bordered table-hover" style="margin-top: 0px !important;" id="datatable">
                                     <thead class="thead-dark">
                                     <tr>
@@ -277,7 +277,7 @@
                                         <th scope="col">{{ 'Category Upgrade Agents: '|trans }} {{ cCategoryUpgrade.totalUpgradeAgent|default(0) }}</th>
                                         <th scope="col">{{ 'Category Upgrade Percentage: '|trans }}
                                             {% if cCategoryUpgrade.totalAgent > 0 %}
-                                                {{ ((cCategoryUpgrade.totalUpgradeAgent * 100) / (cCategoryUpgrade.totalAgent / 2)|round)|number_format(2) }} %
+                                                {{ ((cCategoryUpgrade.totalUpgradeAgent * 100) / cCategoryUpgrade.totalAgent)|number_format(2) }} %
                                             {% endif %}
                                         </th>
                                     </tr>
@@ -309,12 +309,12 @@
                                         {% for row in cCategoryUpgrade %}
                                             {% if row is iterable %}
                                                 <tr>
-                                                    <td>{{ row.decemberGrade|default('') }}</td>
+                                                    <td>{{ row.prevYearGrade|default('') }}</td>
                                                     <td>{{ row.agentId|default('') }}</td>
                                                     <td>{{ row.agentName|default('') }}</td>
                                                     <td>{{ row.agentRegionName|default('') }}</td>
                                                     <td>{{ row.agentZoneName|default('') }}</td>
-                                                    <td>{{ row.decemberAvg|round|default('') }}</td>
+                                                    <td>{{ row.prevYearAvg|round|default('') }}</td>
                                                     <td>{{ row.currentMonthAvg|round|default('') }}</td>
                                                     <td>{{ row.currentMonthGrade|default('') }}</td>
                                                 </tr>

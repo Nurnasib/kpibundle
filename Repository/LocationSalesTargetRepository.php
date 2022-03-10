@@ -30,9 +30,10 @@ use function Doctrine\ORM\QueryBuilder;
 class LocationSalesTargetRepository extends EntityRepository
 {
 
-    public function processLocationPrice($locations , $charts, $requestYear)
+    public function processLocationPrice($locations , $breed, $requestYear)
     {
 
+        dd($breed);
         $currentYear = date('Y');
 
         foreach ($charts as $chart){
