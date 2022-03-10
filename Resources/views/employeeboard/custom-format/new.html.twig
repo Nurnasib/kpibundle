@@ -287,6 +287,7 @@
                                         <th scope="col" width="20%">{{ 'Total Agents'|trans }}</th>
                                         <th scope="col" width="20%">{{ 'Upgrade Agents'|trans }}</th>
                                     {% else %}
+                                        <th scope="col">{{ 'Actual Marks'|trans }}</th>
                                         <th scope="col" width="20%">{{ 'Marks'|trans }}</th>
                                     {% endif %}
                                 </tr>
@@ -311,6 +312,9 @@
                                                                                 <input min="0" type="number" name="customerDevelopment[{{ entity.attribute.id }}][upgradeAgent]" class="form-control" value="{{ entity.targetAchievement ?: 0 }}">
                                                                             </td>
                                                                         {% else %}
+                                                                            <td>
+                                                                                {{ entity.attribute.mark }}
+                                                                            </td>
                                                                             <td>
                                                                                 <input min="0" type="number" name="customerDevelopment[{{ entity.attribute.id }}]" class="form-control" value="{{ entity.mark }}">
                                                                             </td>

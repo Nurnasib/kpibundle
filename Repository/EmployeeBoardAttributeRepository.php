@@ -833,11 +833,12 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         }
 
         $outstandingDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => $outstandingSlug));
+
         $employeeBoardAttributeForOutStandingLimit = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $outstandingDistribution]);
+
         if ($employeeBoardAttributeForOutStandingLimit) {
-//            dd($this->outstandingLimitCalculation($board, $outstandingAmount['outstanding']));
-            $employeeBoardAttributeForOutStandingLimit->setMark($this->outstandingLimitCalculation($board, $outstandingAmount['outstanding']));
-            $em->persist($employeeBoardAttributeForOutStandingLimit);
+            $employeeBoardAttributeForOutStandingLimit->setMark($this->outstandingLimitCalculation($board, $outstandingAmount));
+//            $em->persist($employeeBoardAttributeForOutStandingLimit);
             $em->flush();
         }
 

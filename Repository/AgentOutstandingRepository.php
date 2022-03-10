@@ -14,6 +14,8 @@ namespace Terminalbd\KpiBundle\Repository;
 use App\Entity\Admin\Location;
 use App\Entity\Core\Agent;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Terminalbd\KpiBundle\Entity\AgentOutstanding;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
 use Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute;
@@ -74,12 +76,12 @@ class AgentOutstandingRepository extends EntityRepository
     {
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.district','d');
-        $qb->select('SUM(e.outstanding) as outstanding');
+        $qb->select('SUM(e.outstanding)');
         $qb->where('d.id IN (:districts)')->setParameter('districts',$locations);
         $qb->andWhere('e.year =:year')->setParameter('year',$year);
         $qb->andWhere('e.month =:month')->setParameter('month',$month);
-        $result = $qb->getQuery()->getOneOrNullResult();
-        return $result;
+
+        return $qb->getQuery()->getSingleScalarResult();
     }
 
     public function getLocationWiseOutstanding($locations, EmployeeBoard $board)
