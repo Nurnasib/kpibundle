@@ -114,7 +114,7 @@ class AgentCategoryController extends AbstractController
 
         $entities = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentGradeMonthWise($filterBy);
         $data = $this->paginate($request, $entities);
-        $prevYearGradeAndAverage = $this->getDoctrine()->getRepository(AgentCategory::class)->getPreviousYearCategoryAndAverage($prevYear);
+        $prevYearGradeAndAverage = $this->getDoctrine()->getRepository(AgentCategory::class)->getPreviousYearCategoryAndAverage($prevYear, $filterBy['month']);
 
         return $this->render('@TerminalbdKpi/agentCategory/month-wise-agent-grade.html.twig', [
             'entities' => $data,

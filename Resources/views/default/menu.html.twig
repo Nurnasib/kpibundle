@@ -12,7 +12,7 @@
         </li>
     {% endif %}
 
-    {% if is_granted('ROLE_KPI_ADMIN') or is_granted("ROLE_DEVELOPER") %}
+    {% if is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DEVELOPER') %}
         <li><a class="dropdown-item" href="{{ path('kpi_markchart_matrix') }}">{{ 'KPI Format'|trans }}</a>
 
 {#            <ul>#}

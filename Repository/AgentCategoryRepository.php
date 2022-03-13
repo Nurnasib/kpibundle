@@ -70,7 +70,7 @@ class AgentCategoryRepository extends EntityRepository
         return $array;
     }
 
-    public function getPreviousYearCategoryAndAverage($prevYear)
+    public function getPreviousYearCategoryAndAverage($prevYear, $month)
     {
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent', 'agent');
@@ -78,7 +78,7 @@ class AgentCategoryRepository extends EntityRepository
         $qb->select('e.average');
         $qb->addSelect('gradeStandard.grade');
         $qb->addSelect('agent.agentId AS agentId');
-        $qb->where("e.month = 'December'");
+        $qb->where('e.month = :month')->setParameter('month', $month);
         $qb->andWhere('e.year = :prevYear')->setParameter('prevYear', $prevYear);
         $qb->groupBy('agent.agentId');
         $qb->orderBy('agent.agentId');
