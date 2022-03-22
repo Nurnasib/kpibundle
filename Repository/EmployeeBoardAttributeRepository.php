@@ -1602,7 +1602,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
         if ($outstandingValue) {
             if ($board->getEmployee()->getReportMode()->getSlug() == 'agm-kpi'){
-                if ($outstandingValue >= 1500000) {
+                if ($outstandingValue > 1500000) {
                     return 0;
                 } elseif ($outstandingValue >= 1400000 && $outstandingValue < 1500000) {
                     return 1;
@@ -1616,7 +1616,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     return 5;
                 }
             }elseif ($board->getEmployee()->getReportMode()->getSlug() == 'rsm-arsm-kpi'){
-                if ($outstandingValue >= 1000000) {
+                if ($outstandingValue > 1000000) {
                     return 0;
                 } elseif ($outstandingValue >= 900000 && $outstandingValue < 1000000) {
                     return 1;
@@ -1630,9 +1630,9 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     return 5;
                 }
             }else{
-                if ($outstandingValue >= 500000) {
+                if ($outstandingValue > 500000) {
                     return 0;
-                } elseif ($outstandingValue >= 400000 && $outstandingValue < 500000) {
+                } elseif ($outstandingValue >= 400000 && $outstandingValue <= 500000) {
                     return 1;
                 } elseif ($outstandingValue >= 300000 && $outstandingValue < 400000) {
                     return 2;
