@@ -923,7 +923,7 @@ class EmployeeBoardController extends AbstractController
 
                         $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
                         if ($boardAttribute) {
-                            $boardAttribute->setMark($mark[$subAttribute->getMarkDistribution()->getSlug()]);
+                            $boardAttribute->setMark($mark);
                             $em->persist($boardAttribute);
                             $em->flush();
                         }
