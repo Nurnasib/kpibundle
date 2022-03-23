@@ -40,7 +40,8 @@
                         <div class="caption">{{ 'Manage KPI Element'|trans }} </div>
                         <div class="btn-group float-right">
                             {% if app.user.id is not same as board.employee.id or is_granted('ROLE_KPI_ADMIN') %}
-                                <a href="{{ path('kpi_approve',{'id':board.id}) }}" id="statusUpdate" name="statusUpdate" class="btn blue-bg text-white">Approved</a>
+                                <a href="{{ path('kpi_approve',{'id':board.id}) }}" id="statusUpdate"
+                                   name="statusUpdate" class="btn blue-bg text-white">Approved</a>
                             {% endif %}
                             {#                            <a href="{{ path('kpi_employee_board_preview',{'id':board.id,'mode':'print'}) }}" class="btn yellow-bg white-font"><i class="fa fa-print"></i> Print</a>#}
                         </div>
@@ -55,15 +56,19 @@
                                 <th>
                                     <ul class="header-info">
                                         <li>Name of the Employee: {{ board.employee.name }}</li>
-                                        <li>Date of Joining: {% if board.employee is not empty %}{{ board.employee.joiningDate|date('d-m-Y') }}{% endif %}</li>
-                                        <li>Line Manager: {% if board.employee.lineManager is not empty %}{{ board.employee.lineManager.name }}{% endif %}</li>
+                                        <li>Date of
+                                            Joining: {% if board.employee is not empty %}{{ board.employee.joiningDate|date('d-m-Y') }}{% endif %}</li>
+                                        <li>Line
+                                            Manager: {% if board.employee.lineManager is not empty %}{{ board.employee.lineManager.name }}{% endif %}</li>
                                         <li>Format: {{ board.reportMode.name|default('') }}</li>
                                     </ul>
                                 </th>
                                 <th>
                                     <ul class="header-info">
-                                        <li>Emp ID: {% if board.employee is not empty %}{{ board.employee.userId }}{% endif %}</li>
-                                        <li>Designation: {% if board.employee.designation is not empty %}{{ board.employee.designation.name }}{% endif %}</li>
+                                        <li>Emp
+                                            ID: {% if board.employee is not empty %}{{ board.employee.userId }}{% endif %}</li>
+                                        <li>
+                                            Designation: {% if board.employee.designation is not empty %}{{ board.employee.designation.name }}{% endif %}</li>
                                     </ul>
                                 </th>
                             </tr>
@@ -82,36 +87,36 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    {% if board.employeeBoardAttributes is not empty %}
-                                        {% for parameters in arrayData %}
-                                            {% for activity in parameters %}
-                                                {% for entity in activity %}
-                                                    <tr>
-                                                        {% if entity.parameter.status == 1 %}
-                                                            {% if entity.activity.status == 1 %}
-                                                                {% if entity.activity.slug == 'sales' %}
-                                                                    {% if entity.attribute.status == 1 %}
-                                                                        <td>{{ entity.attribute.name }}</td>
+                                {% if board.employeeBoardAttributes is not empty %}
+                                    {% for parameters in arrayData %}
+                                        {% for activity in parameters %}
+                                            {% for entity in activity %}
+                                                <tr>
+                                                    {% if entity.parameter.status == 1 %}
+                                                        {% if entity.activity.status == 1 %}
+                                                            {% if entity.activity.slug == 'sales' %}
+                                                                {% if entity.attribute.status == 1 %}
+                                                                    <td>{{ entity.attribute.name }}</td>
 
-                                                                        <td><input min="0" type="number"
-                                                                                   name="sales[{{ entity.attribute.id }}][target]"
-                                                                                   class="form-control"
-                                                                                   value="{% if feedAndGrowth[entity.attribute.id] is defined %}{{ feedAndGrowth[entity.attribute.id]['targetQuantity'] }}{% endif %}">
-                                                                        </td>
-                                                                        <td><input min="0" type="number"
-                                                                                   name="sales[{{ entity.attribute.id }}][sales]"
-                                                                                   class="form-control"
-                                                                                   value="{% if feedAndGrowth[entity.attribute.id] is defined %}{{ feedAndGrowth[entity.attribute.id]['salesQuantity'] }}{% endif %}">
-                                                                        </td>
-                                                                    {% endif %}
+                                                                    <td><input type="text"
+                                                                               name="sales[{{ entity.attribute.id }}][target]"
+                                                                               class="form-control"
+                                                                               value="{% if feedAndGrowth[entity.attribute.id] is defined %}{{ feedAndGrowth[entity.attribute.id]['targetQuantity'] }}{% endif %}">
+                                                                    </td>
+                                                                    <td><input type="text"
+                                                                               name="sales[{{ entity.attribute.id }}][sales]"
+                                                                               class="form-control"
+                                                                               value="{% if feedAndGrowth[entity.attribute.id] is defined %}{{ feedAndGrowth[entity.attribute.id]['salesQuantity'] }}{% endif %}">
+                                                                    </td>
                                                                 {% endif %}
                                                             {% endif %}
                                                         {% endif %}
-                                                    </tr>
-                                                {% endfor %}
+                                                    {% endif %}
+                                                </tr>
                                             {% endfor %}
                                         {% endfor %}
-                                    {% endif %}
+                                    {% endfor %}
+                                {% endif %}
                                 </tbody>
                             </table>
 
@@ -125,36 +130,36 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    {% if board.employeeBoardAttributes is not empty %}
-                                        {% for parameters in arrayData %}
-                                            {% for activity in parameters %}
-                                                {% for entity in activity %}
-                                                    <tr>
-                                                        {% if entity.parameter.status == 1 %}
-                                                            {% if entity.activity.status == 1 %}
-                                                                {% if entity.activity.slug == 'sales-growth-always-consider-among-same-period' %}
-                                                                    {% if entity.attribute.status == 1 %}
-                                                                        <td>{{ entity.attribute.name }}</td>
+                                {% if board.employeeBoardAttributes is not empty %}
+                                    {% for parameters in arrayData %}
+                                        {% for activity in parameters %}
+                                            {% for entity in activity %}
+                                                <tr>
+                                                    {% if entity.parameter.status == 1 %}
+                                                        {% if entity.activity.status == 1 %}
+                                                            {% if entity.activity.slug == 'sales-growth-always-consider-among-same-period' %}
+                                                                {% if entity.attribute.status == 1 %}
+                                                                    <td>{{ entity.attribute.name }}</td>
 
-                                                                        <td><input min="0" type="number"
-                                                                                   name="growth[{{ entity.attribute.id }}][previous]"
-                                                                                   class="form-control"
-                                                                                   value="{% if feedAndGrowth[entity.attribute.id] is defined %}{{ feedAndGrowth[entity.attribute.id]['targetQuantity'] }}{% endif %}">
-                                                                        </td>
-                                                                        <td><input min="0" type="number"
-                                                                                   name="growth[{{ entity.attribute.id }}][current]"
-                                                                                   class="form-control"
-                                                                                   value="{% if feedAndGrowth[entity.attribute.id] is defined %}{{ feedAndGrowth[entity.attribute.id]['salesQuantity'] }}{% endif %}">
-                                                                        </td>
-                                                                    {% endif %}
+                                                                    <td><input type="text"
+                                                                               name="growth[{{ entity.attribute.id }}][previous]"
+                                                                               class="form-control"
+                                                                               value="{% if feedAndGrowth[entity.attribute.id] is defined %}{{ feedAndGrowth[entity.attribute.id]['targetQuantity'] }}{% endif %}">
+                                                                    </td>
+                                                                    <td><input type="text"
+                                                                               name="growth[{{ entity.attribute.id }}][current]"
+                                                                               class="form-control"
+                                                                               value="{% if feedAndGrowth[entity.attribute.id] is defined %}{{ feedAndGrowth[entity.attribute.id]['salesQuantity'] }}{% endif %}">
+                                                                    </td>
                                                                 {% endif %}
                                                             {% endif %}
                                                         {% endif %}
-                                                    </tr>
-                                                {% endfor %}
+                                                    {% endif %}
+                                                </tr>
                                             {% endfor %}
                                         {% endfor %}
-                                    {% endif %}
+                                    {% endfor %}
+                                {% endif %}
                                 </tbody>
                             </table>
 
@@ -162,51 +167,56 @@
                             <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Outstanding' }}</h5>
                             <table class="table table-bordered">
                                 <thead class="thead-dark">
-                                    <tr>
-                                        <th scope="col">{{ 'Mark Parameter'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Total Outstanding'|trans }}</th>
-                                        <th scope="col" width="20%">{{ 'Total Limit Amount'|trans }}</th>
-                                    </tr>
+                                <tr>
+                                    <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Total Outstanding'|trans }}</th>
+                                    <th scope="col" width="20%">{{ 'Total Limit Amount'|trans }}</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    {% if board.employeeBoardAttributes is not empty %}
-                                        {% for parameters in arrayData %}
-                                            {% for activity in parameters %}
-                                                {% for entity in activity %}
-                                                    {% if entity.attribute.slug == 'outstanding-limit-vs-actual-feed' %}
-{#                                                        <tr>
+                                {% if board.employeeBoardAttributes is not empty %}
+                                    {% for parameters in arrayData %}
+                                        {% for activity in parameters %}
+                                            {% for entity in activity %}
+                                                {% if entity.attribute.slug == 'outstanding-limit-vs-actual-feed' %}
+        {#                                                        <tr>
                                                             <td colspan="2" style="padding: 0 !important;"
                                                                 align="center">
                                                                 <p class="yellow-bg p-1 m-0">{{ 'Outstanding limit vs actual feed' }}</p>
                                                             </td>
                                                         </tr>#}
-{#                                                        <tr>
+        {#                                                        <tr>
                                                             <th scope="col">{{ 'Mark Parameter'|trans }}</th>
                                                             <th scope="col" width="20%">{{ 'Actual Amount'|trans }}</th>
                                                             <th scope="col" width="20%">{{ 'Limit Amount'|trans }}</th>
                                                             <th scope="col" width="50" class="text-center"><i class="feather icon-settings"></i></th>
                                                         </tr>#}
-                                                        <tr>
+                                                    <tr>
 {#                                                            <td>#}
 {#                                                                <select data-action="{{ path('core_agent_search_select2') }}"#}
 {#                                                                        name="agent" class="agentSearch" id="">#}
 {#                                                                    <option value="">Select Agent</option>#}
 {#                                                                </select>#}
 {#                                                            </td>#}
-                                                            <td>{{ entity.attribute.name }}</td>
-                                                            <td>
-                                                                <input min="0" type="number" name="outstanding[actual-amount]" class="form-control" value="{% if outstanding is defined %}{{ outstanding.actualAmount|default('') }}{% endif %}">
-                                                            </td>
-                                                            <td>
-                                                                <input min="0" type="number" name="outstanding[limit-amount]" class="form-control" value="{% if outstanding is defined %}{{ outstanding.limitAmount|default('') }}{% endif %}">
-                                                            </td>
+                                                        <td>{{ entity.attribute.name }}</td>
+                                                        <td>
+                                                            <input type="text"
+                                                                   name="outstanding[actual-amount]"
+                                                                   class="form-control"
+                                                                   value="{% if outstanding is defined %}{{ outstanding.actualAmount|default('') }}{% endif %}">
+                                                        </td>
+                                                        <td>
+                                                            <input type="text"
+                                                                   name="outstanding[limit-amount]" class="form-control"
+                                                                   value="{% if outstanding is defined %}{{ outstanding.limitAmount|default('') }}{% endif %}">
+                                                        </td>
 {#                                                            <td>#}
 {#                                                                <a data-action="{{ path('agent_outstanding_for_custom_format', {board: board.id}) }}"#}
 {#                                                                   data-board-id="{{ board.id }}"#}
 {#                                                                   class="btn btn-sm green-bg white-font add_button"><i#}
 {#                                                                            class="fa fa-plus"></i> Add New</a>#}
 {#                                                            </td>#}
-                                                        </tr>
+                                                    </tr>
 {#                                                        {% if outstanding is defined and outstanding is not empty %}#}
 {#                                                            {% for item in outstanding %}#}
 {#                                                                <tr>#}
@@ -220,7 +230,7 @@
 {#                                                                </tr>#}
 {#                                                            {% endfor %}#}
 {#                                                        {% endif %}#}
-                                                    {% elseif entity.attribute.slug == 'doc-sales-collection' %}
+                                                {% elseif entity.attribute.slug == 'doc-sales-collection' %}
 {#                                                        <tr>
                                                             <td colspan="2" style="padding: 0 !important;"
                                                                 align="center">
@@ -233,25 +243,29 @@
 {#                                                            <th scope="col">{{ 'Collection Amount'|trans }}</th>#}
 {#                                                            <th scope="col" width="50" class="text-center"><i class="feather icon-settings"></i></th>#}
 {#                                                        </tr>#}
-                                                        <tr>
-                                                            <th></th>
-                                                            <th>Sales Value</th>
-                                                            <th>Collection</th>
-                                                        </tr>
-                                                        <tr>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Sales Value</th>
+                                                        <th>Collection</th>
+                                                    </tr>
+                                                    <tr>
 {#                                                            <td>#}
 {#                                                                <select data-action="{{ path('core_agent_search_select2') }}"#}
 {#                                                                        name="agent" class="agentSearch" id="">#}
 {#                                                                    <option value="">Select Agent</option>#}
 {#                                                                </select>#}
 {#                                                            </td>#}
-                                                            <td>{{ entity.attribute.name }}</td>
-                                                            <td>
-                                                                <input min="0" type="number" name="docSale[sale]" class="form-control" value="{% if docSale is defined %}{{ docSale.sales|default('') }}{% endif %}">
-                                                            </td>
-                                                            <td>
-                                                                <input min="0" type="number" name="docSale[collection]" class="form-control" value="{% if docSale is defined %}{{ docSale.collection|default('') }}{% endif %}">
-                                                            </td>
+                                                        <td>{{ entity.attribute.name }}</td>
+                                                        <td>
+                                                            <input type="text" name="docSale[sale]"
+                                                                   class="form-control"
+                                                                   value="{% if docSale is defined %}{{ docSale.sales|default('') }}{% endif %}">
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" name="docSale[collection]"
+                                                                   class="form-control"
+                                                                   value="{% if docSale is defined %}{{ docSale.collection|default('') }}{% endif %}">
+                                                        </td>
 {#                                                            <td>#}
 {#                                                                <a data-action="{{ path('agent_doc_sale_for_custom_format', {board: board.id}) }}"#}
 {#                                                                   data-board-id="{{ board.id }}"#}
@@ -259,7 +273,7 @@
 {#                                                                            class="fa fa-plus"></i> Add New</a>#}
 
 {#                                                            </td>#}
-                                                        </tr>
+                                                    </tr>
 {#                                                        {% if docSale is defined and docSale is not empty %}#}
 {#                                                            {% for item in docSale %}#}
 {#                                                                <tr>#}
@@ -273,11 +287,11 @@
 {#                                                                </tr>#}
 {#                                                            {% endfor %}#}
 {#                                                        {% endif %}#}
-                                                    {% endif %}
-                                                {% endfor %}
+                                                {% endif %}
                                             {% endfor %}
                                         {% endfor %}
-                                    {% endif %}
+                                    {% endfor %}
+                                {% endif %}
 
                                 </tbody>
                             </table>
@@ -292,47 +306,56 @@
                                         <th scope="col" width="20%">{{ 'Total Agents'|trans }}</th>
                                         <th scope="col" width="20%">{{ 'Upgrade Agents'|trans }}</th>
                                     {% else %}
-                                        <th scope="col">{{ 'Actual Marks'|trans }}</th>
+                                        <th scope="col" width="20%">{{ 'Actual Marks'|trans }}</th>
                                         <th scope="col" width="20%">{{ 'Marks'|trans }}</th>
                                     {% endif %}
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    {% if board.employeeBoardAttributes is not empty %}
-                                        {% for parameters in arrayData %}
-                                            {% for activity in parameters %}
-                                                {% for entity in activity %}
-                                                    <tr>
-                                                        {% if entity.parameter.status == 1 %}
-                                                            {% if entity.activity.status == 1 %}
-                                                                {% if entity.activity.slug == 'customer-development' %}
-                                                                    {% if entity.attribute.status == 1 %}
+                                {% if board.employeeBoardAttributes is not empty %}
+                                    {% for parameters in arrayData %}
+                                        {% for activity in parameters %}
+                                            {% for entity in activity %}
+                                                <tr>
+                                                    {% if entity.parameter.status == 1 %}
+                                                        {% if entity.activity.status == 1 %}
+                                                            {% if entity.activity.slug == 'customer-development' %}
+                                                                {% if entity.attribute.status == 1 %}
 
-                                                                        <td>{{ entity.attribute.name }}</td>
-                                                                        {% if board.reportMode.slug is same as 'custom-format-spo' %}
-                                                                            <td>
-                                                                                <input min="0" type="number" name="customerDevelopment[{{ entity.attribute.id }}][totalAgents]" class="form-control" value="{{ entity.targetAmount ?: 0 }}">
-                                                                            </td>
-                                                                            <td>
-                                                                                <input min="0" type="number" name="customerDevelopment[{{ entity.attribute.id }}][upgradeAgent]" class="form-control" value="{{ entity.targetAchievement ?: 0 }}">
-                                                                            </td>
-                                                                        {% else %}
-                                                                            <td>
-                                                                                {{ entity.attribute.mark }}
-                                                                            </td>
-                                                                            <td>
-                                                                                <input min="0" type="number" name="customerDevelopment[{{ entity.attribute.id }}]" class="form-control" value="{{ entity.mark }}">
-                                                                            </td>
-                                                                        {% endif %}
+                                                                    <td>{{ entity.attribute.name }}</td>
+                                                                    {% if board.reportMode.slug is same as 'custom-format-spo' %}
+                                                                        <td>
+                                                                            <input min="0" type="number"
+                                                                                   name="customerDevelopment[{{ entity.attribute.id }}][totalAgents]"
+                                                                                   class="form-control"
+                                                                                   value="{{ entity.targetAmount ?: 0 }}">
+                                                                        </td>
+                                                                        <td>
+                                                                            <input min="0" type="number"
+                                                                                   name="customerDevelopment[{{ entity.attribute.id }}][upgradeAgent]"
+                                                                                   class="form-control"
+                                                                                   value="{{ entity.targetAchievement ?: 0 }}">
+                                                                        </td>
+                                                                    {% else %}
+                                                                        <td>
+                                                                            {{ entity.attribute.mark }}
+                                                                        </td>
+                                                                        <td>
+                                                                            <input type="text"
+                                                                                   name="customerDevelopment[{{ entity.attribute.id }}]"
+                                                                                   class="form-control"
+                                                                                   value="{{ entity.mark }}">
+                                                                        </td>
                                                                     {% endif %}
                                                                 {% endif %}
                                                             {% endif %}
                                                         {% endif %}
-                                                    </tr>
-                                                {% endfor %}
+                                                    {% endif %}
+                                                </tr>
                                             {% endfor %}
                                         {% endfor %}
-                                    {% endif %}
+                                    {% endfor %}
+                                {% endif %}
                                 </tbody>
                             </table>
 
@@ -345,40 +368,40 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    {% if board.employeeBoardAttributes is not empty %}
-                                        {% for parameters in arrayData %}
-                                            {% for activity in parameters %}
-                                                {% for entity in activity %}
-                                                    <tr>
-                                                        {% if entity.parameter.status == 1 %}
-                                                            {% if entity.activity.status == 1 %}
-                                                                {% if entity.activity.slug == 'time-management' %}
-                                                                    {% if entity.attribute.status == 1 %}
-                                                                        <td>{{ entity.attribute.name }}</td>
-                                                                        <td>
-                                                                            {% if entity.attribute.systemEntry == 1 %}
-                                                                                <select name="skills[{{ entity.attribute.id }}]"
-                                                                                        id="" class="select2">
-                                                                                    <option value="">{{ 'Select mark'|trans }}</option>
-                                                                                    {% for markDis in entity.attribute.children %}
-                                                                                        {% if markDis.status == 1 %}
-{#                                                                                            <option value="{{ markDis.id }}" {% if  entity.markDistribution is not empty and entity.markDistribution.id == markDis.id %} selected="selected" {% endif %}>{{ markDis.name }}</option>#}
-                                                                                            <option value="{{ markDis.id }}">{{ markDis.name }}</option>
-                                                                                        {% endif %}
-                                                                                    {% endfor %}
-                                                                                </select>
-                                                                            {% endif %}
-                                                                            {#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
-                                                                        </td>
-                                                                    {% endif %}
+                                {% if board.employeeBoardAttributes is not empty %}
+                                    {% for parameters in arrayData %}
+                                        {% for activity in parameters %}
+                                            {% for entity in activity %}
+                                                <tr>
+                                                    {% if entity.parameter.status == 1 %}
+                                                        {% if entity.activity.status == 1 %}
+                                                            {% if entity.activity.slug == 'time-management' %}
+                                                                {% if entity.attribute.status == 1 %}
+                                                                    <td>{{ entity.attribute.name }}</td>
+                                                                    <td>
+                                                                        {% if entity.attribute.systemEntry == 1 %}
+                                                                            <select name="skills[{{ entity.attribute.id }}]"
+                                                                                    id="" class="select2">
+                                                                                <option value="">{{ 'Select mark'|trans }}</option>
+                                                                                {% for markDis in entity.attribute.children %}
+                                                                                    {% if markDis.status == 1 %}
+                                                                                        {#                                                                                            <option value="{{ markDis.id }}" {% if  entity.markDistribution is not empty and entity.markDistribution.id == markDis.id %} selected="selected" {% endif %}>{{ markDis.name }}</option>#}
+                                                                                        <option value="{{ markDis.id }}">{{ markDis.name }}</option>
+                                                                                    {% endif %}
+                                                                                {% endfor %}
+                                                                            </select>
+                                                                        {% endif %}
+                                                                        {#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
+                                                                    </td>
                                                                 {% endif %}
                                                             {% endif %}
                                                         {% endif %}
-                                                    </tr>
-                                                {% endfor %}
+                                                    {% endif %}
+                                                </tr>
                                             {% endfor %}
                                         {% endfor %}
-                                    {% endif %}
+                                    {% endfor %}
+                                {% endif %}
                                 </tbody>
                             </table>
 
@@ -391,40 +414,40 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    {% if board.employeeBoardAttributes is not empty %}
-                                        {% for parameters in arrayData %}
-                                            {% for activity in parameters %}
-                                                {% for entity in activity %}
-                                                    <tr>
-                                                        {% if entity.parameter.status == 1 %}
-                                                            {% if entity.activity.status == 1 %}
-                                                                {% if entity.activity.slug == 'communication' %}
-                                                                    {% if entity.attribute.status == 1 %}
-                                                                        <td>{{ entity.attribute.name }}</td>
-                                                                        <td>
-                                                                            {% if entity.attribute.systemEntry == 1 %}
-                                                                                <select name="skills[{{ entity.attribute.id }}]"
-                                                                                        id="" class="select2">
-                                                                                    <option value="">{{ 'Select mark'|trans }}</option>
-                                                                                    {% for markDis in entity.attribute.children %}
-                                                                                        {% if markDis.status == 1 %}
-{#                                                                                            <option value="{{ markDis.id }}" {% if  entity.markDistribution is not empty and entity.markDistribution.id == markDis.id %} selected="selected" {% endif %}>{{ markDis.name }}</option>#}
-                                                                                            <option value="{{ markDis.id }}">{{ markDis.name }}</option>
-                                                                                        {% endif %}
-                                                                                    {% endfor %}
-                                                                                </select>
-                                                                            {% endif %}
-                                                                            {#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
-                                                                        </td>
-                                                                    {% endif %}
+                                {% if board.employeeBoardAttributes is not empty %}
+                                    {% for parameters in arrayData %}
+                                        {% for activity in parameters %}
+                                            {% for entity in activity %}
+                                                <tr>
+                                                    {% if entity.parameter.status == 1 %}
+                                                        {% if entity.activity.status == 1 %}
+                                                            {% if entity.activity.slug == 'communication' %}
+                                                                {% if entity.attribute.status == 1 %}
+                                                                    <td>{{ entity.attribute.name }}</td>
+                                                                    <td>
+                                                                        {% if entity.attribute.systemEntry == 1 %}
+                                                                            <select name="skills[{{ entity.attribute.id }}]"
+                                                                                    id="" class="select2">
+                                                                                <option value="">{{ 'Select mark'|trans }}</option>
+                                                                                {% for markDis in entity.attribute.children %}
+                                                                                    {% if markDis.status == 1 %}
+                                                                                        {#                                                                                            <option value="{{ markDis.id }}" {% if  entity.markDistribution is not empty and entity.markDistribution.id == markDis.id %} selected="selected" {% endif %}>{{ markDis.name }}</option>#}
+                                                                                        <option value="{{ markDis.id }}">{{ markDis.name }}</option>
+                                                                                    {% endif %}
+                                                                                {% endfor %}
+                                                                            </select>
+                                                                        {% endif %}
+                                                                        {#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
+                                                                    </td>
                                                                 {% endif %}
                                                             {% endif %}
                                                         {% endif %}
-                                                    </tr>
-                                                {% endfor %}
+                                                    {% endif %}
+                                                </tr>
                                             {% endfor %}
                                         {% endfor %}
-                                    {% endif %}
+                                    {% endfor %}
+                                {% endif %}
                                 </tbody>
                             </table>
 
@@ -437,40 +460,40 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    {% if board.employeeBoardAttributes is not empty %}
-                                        {% for parameters in arrayData %}
-                                            {% for activity in parameters %}
-                                                {% for entity in activity %}
-                                                    <tr>
-                                                        {% if entity.parameter.status == 1 %}
-                                                            {% if entity.activity.status == 1 %}
-                                                                {% if entity.activity.slug == 'job-knowledge' %}
-                                                                    {% if entity.attribute.status == 1 %}
-                                                                        <td>{{ entity.attribute.name }}</td>
-                                                                        <td>
-                                                                            {% if entity.attribute.systemEntry == 1 %}
-                                                                                <select name="skills[{{ entity.attribute.id }}]"
-                                                                                        id="" class="select2">
-                                                                                    <option value="">{{ 'Select mark'|trans }}</option>
-                                                                                    {% for markDis in entity.attribute.children %}
-                                                                                        {% if markDis.status == 1 %}
-{#                                                                                            <option value="{{ markDis.id }}" {% if  entity.markDistribution is not empty and entity.markDistribution.id == markDis.id %} selected="selected" {% endif %}>{{ markDis.name }}</option>#}
-                                                                                            <option value="{{ markDis.id }}">{{ markDis.name }}</option>
-                                                                                        {% endif %}
-                                                                                    {% endfor %}
-                                                                                </select>
-                                                                            {% endif %}
-                                                                            {#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
-                                                                        </td>
-                                                                    {% endif %}
+                                {% if board.employeeBoardAttributes is not empty %}
+                                    {% for parameters in arrayData %}
+                                        {% for activity in parameters %}
+                                            {% for entity in activity %}
+                                                <tr>
+                                                    {% if entity.parameter.status == 1 %}
+                                                        {% if entity.activity.status == 1 %}
+                                                            {% if entity.activity.slug == 'job-knowledge' %}
+                                                                {% if entity.attribute.status == 1 %}
+                                                                    <td>{{ entity.attribute.name }}</td>
+                                                                    <td>
+                                                                        {% if entity.attribute.systemEntry == 1 %}
+                                                                            <select name="skills[{{ entity.attribute.id }}]"
+                                                                                    id="" class="select2">
+                                                                                <option value="">{{ 'Select mark'|trans }}</option>
+                                                                                {% for markDis in entity.attribute.children %}
+                                                                                    {% if markDis.status == 1 %}
+                                                                                        {#                                                                                            <option value="{{ markDis.id }}" {% if  entity.markDistribution is not empty and entity.markDistribution.id == markDis.id %} selected="selected" {% endif %}>{{ markDis.name }}</option>#}
+                                                                                        <option value="{{ markDis.id }}">{{ markDis.name }}</option>
+                                                                                    {% endif %}
+                                                                                {% endfor %}
+                                                                            </select>
+                                                                        {% endif %}
+                                                                        {#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
+                                                                    </td>
                                                                 {% endif %}
                                                             {% endif %}
                                                         {% endif %}
-                                                    </tr>
-                                                {% endfor %}
+                                                    {% endif %}
+                                                </tr>
                                             {% endfor %}
                                         {% endfor %}
-                                    {% endif %}
+                                    {% endfor %}
+                                {% endif %}
                                 </tbody>
                             </table>
 
@@ -483,40 +506,40 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    {% if board.employeeBoardAttributes is not empty %}
-                                        {% for parameters in arrayData %}
-                                            {% for activity in parameters %}
-                                                {% for entity in activity %}
-                                                    <tr>
-                                                        {% if entity.parameter.status == 1 %}
-                                                            {% if entity.activity.status == 1 %}
-                                                                {% if entity.activity.slug == 'creativity-willingness' %}
-                                                                    {% if entity.attribute.status == 1 %}
-                                                                        <td>{{ entity.attribute.name }}</td>
-                                                                        <td>
-                                                                            {% if entity.attribute.systemEntry == 1 %}
-                                                                                <select name="skills[{{ entity.attribute.id }}]"
-                                                                                        id="" class="select2">
-                                                                                    <option value="">{{ 'Select mark'|trans }}</option>
-                                                                                    {% for markDis in entity.attribute.children %}
-                                                                                        {% if markDis.status == 1 %}
-{#                                                                                            <option value="{{ markDis.id }}" {% if  entity.markDistribution is not empty and entity.markDistribution.id == markDis.id %} selected="selected" {% endif %}>{{ markDis.name }}</option>#}
-                                                                                            <option value="{{ markDis.id }}">{{ markDis.name }}</option>
-                                                                                        {% endif %}
-                                                                                    {% endfor %}
-                                                                                </select>
-                                                                            {% endif %}
-                                                                            {#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
-                                                                        </td>
-                                                                    {% endif %}
+                                {% if board.employeeBoardAttributes is not empty %}
+                                    {% for parameters in arrayData %}
+                                        {% for activity in parameters %}
+                                            {% for entity in activity %}
+                                                <tr>
+                                                    {% if entity.parameter.status == 1 %}
+                                                        {% if entity.activity.status == 1 %}
+                                                            {% if entity.activity.slug == 'creativity-willingness' %}
+                                                                {% if entity.attribute.status == 1 %}
+                                                                    <td>{{ entity.attribute.name }}</td>
+                                                                    <td>
+                                                                        {% if entity.attribute.systemEntry == 1 %}
+                                                                            <select name="skills[{{ entity.attribute.id }}]"
+                                                                                    id="" class="select2">
+                                                                                <option value="">{{ 'Select mark'|trans }}</option>
+                                                                                {% for markDis in entity.attribute.children %}
+                                                                                    {% if markDis.status == 1 %}
+                                                                                        {#                                                                                            <option value="{{ markDis.id }}" {% if  entity.markDistribution is not empty and entity.markDistribution.id == markDis.id %} selected="selected" {% endif %}>{{ markDis.name }}</option>#}
+                                                                                        <option value="{{ markDis.id }}">{{ markDis.name }}</option>
+                                                                                    {% endif %}
+                                                                                {% endfor %}
+                                                                            </select>
+                                                                        {% endif %}
+                                                                        {#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
+                                                                    </td>
                                                                 {% endif %}
                                                             {% endif %}
                                                         {% endif %}
-                                                    </tr>
-                                                {% endfor %}
+                                                    {% endif %}
+                                                </tr>
                                             {% endfor %}
                                         {% endfor %}
-                                    {% endif %}
+                                    {% endfor %}
+                                {% endif %}
                                 </tbody>
                             </table>
 
@@ -529,40 +552,40 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    {% if board.employeeBoardAttributes is not empty %}
-                                        {% for parameters in arrayData %}
-                                            {% for activity in parameters %}
-                                                {% for entity in activity %}
-                                                    <tr>
-                                                        {% if entity.parameter.status == 1 %}
-                                                            {% if entity.activity.status == 1 %}
-                                                                {% if entity.activity.slug == 'values-2' %}
-                                                                    {% if entity.attribute.status == 1 %}
-                                                                        <td>{{ entity.attribute.name }}</td>
-                                                                        <td>
-                                                                            {% if entity.attribute.systemEntry == 1 %}
-                                                                                <select name="values[{{ entity.attribute.id }}]"
-                                                                                        id="" class="select2">
-                                                                                    <option value="">{{ 'Select mark'|trans }}</option>
-                                                                                    {% for markDis in entity.attribute.children %}
-                                                                                        {% if markDis.status == 1 %}
-{#                                                                                            <option value="{{ markDis.id }}" {% if  entity.markDistribution is not empty and entity.markDistribution.id == markDis.id %} selected="selected" {% endif %}>{{ markDis.name }}</option>#}
-                                                                                            <option value="{{ markDis.id }}">{{ markDis.name }}</option>
-                                                                                        {% endif %}
-                                                                                    {% endfor %}
-                                                                                </select>
-                                                                            {% endif %}
-                                                                            {#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
-                                                                        </td>
-                                                                    {% endif %}
+                                {% if board.employeeBoardAttributes is not empty %}
+                                    {% for parameters in arrayData %}
+                                        {% for activity in parameters %}
+                                            {% for entity in activity %}
+                                                <tr>
+                                                    {% if entity.parameter.status == 1 %}
+                                                        {% if entity.activity.status == 1 %}
+                                                            {% if entity.activity.slug == 'values-2' %}
+                                                                {% if entity.attribute.status == 1 %}
+                                                                    <td>{{ entity.attribute.name }}</td>
+                                                                    <td>
+                                                                        {% if entity.attribute.systemEntry == 1 %}
+                                                                            <select name="values[{{ entity.attribute.id }}]"
+                                                                                    id="" class="select2">
+                                                                                <option value="">{{ 'Select mark'|trans }}</option>
+                                                                                {% for markDis in entity.attribute.children %}
+                                                                                    {% if markDis.status == 1 %}
+                                                                                        {#                                                                                            <option value="{{ markDis.id }}" {% if  entity.markDistribution is not empty and entity.markDistribution.id == markDis.id %} selected="selected" {% endif %}>{{ markDis.name }}</option>#}
+                                                                                        <option value="{{ markDis.id }}">{{ markDis.name }}</option>
+                                                                                    {% endif %}
+                                                                                {% endfor %}
+                                                                            </select>
+                                                                        {% endif %}
+                                                                        {#                                                                                <input type="number" name="timeManagement[{{ entity.attribute.id }}]" class="form-control">#}
+                                                                    </td>
                                                                 {% endif %}
                                                             {% endif %}
                                                         {% endif %}
-                                                    </tr>
-                                                {% endfor %}
+                                                    {% endif %}
+                                                </tr>
                                             {% endfor %}
                                         {% endfor %}
-                                    {% endif %}
+                                    {% endfor %}
+                                {% endif %}
                                 </tbody>
                             </table>
                             <div class="form-actions">

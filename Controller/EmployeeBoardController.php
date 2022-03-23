@@ -879,11 +879,12 @@ class EmployeeBoardController extends AbstractController
     {
         $data = $request->request->all();
         $em = $this->getDoctrine()->getManager();
+
         foreach ($data as $key => $item) {
             if ($key === 'sales'){
                 foreach ($item as $attributeId => $sale) {
-                    $sale['target'] = $sale['target'] ?: 0;
-                    $sale['sales'] = $sale['sales'] ?: 0;
+                    $sale['target'] = $sale['target'] ? (double)$sale['target']: 0;
+                    $sale['sales'] = $sale['sales'] ? (double)$sale['sales']: 0;
                     $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
                     if ($findAttribute){
                         $subAttribute = new EmployeeBoardSubAttribute();
@@ -896,15 +897,29 @@ class EmployeeBoardController extends AbstractController
                         $subAttribute->setTargetQuantity($sale['target']);
                         $subAttribute->setSalesQuantity($sale['sales']);
 
-                        $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesTargetCalculation($sale['target'], $sale['sales']);
-                        $subAttribute->setMark($mark);
+                        $breed = current(explode('-', $subAttribute->getMarkDistribution()->getSlug())); //get breed name from slug
+
+                        //Calculate Sales marks
+                        if ($board->getReportMode()->getSlug() === 'custom-format-poultry'){
+                            $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesTargetCalculationPoultryService($breed, $sale['target'], $sale['sales']);
+
+                        }elseif ($board->getReportMode()->getSlug() === 'custom-format-cattle'){
+                            $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesTargetCalculationCattleService($breed, $sale['target'], $sale['sales']);
+
+                        }elseif ($board->getReportMode()->getSlug() === 'custom-format-aqua'){
+                            $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesTargetCalculationAquaService($breed, $sale['target'], $sale['sales']);
+
+                        }else{
+                            $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesTargetCalculation($sale['target'], $sale['sales']);
+                        }
+                        $subAttribute->setMark($mark[$subAttribute->getMarkDistribution()->getSlug()]);
 
                         $em->persist($subAttribute);
                         $em->flush();
 
                         $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
                         if ($boardAttribute) {
-                            $boardAttribute->setMark($mark);
+                            $boardAttribute->setMark($mark[$subAttribute->getMarkDistribution()->getSlug()]);
                             $em->persist($boardAttribute);
                             $em->flush();
                         }
@@ -913,8 +928,8 @@ class EmployeeBoardController extends AbstractController
                 }
             }elseif ($key === 'growth'){
                 foreach ($item as $attributeId => $growth) {
-                    $growth['previous'] = $growth['previous'] ?: 0;
-                    $growth['current'] = $growth['current'] ?: 0;
+                    $growth['previous'] = $growth['previous'] ? (double)$growth['previous'] : 0;
+                    $growth['current'] = $growth['current'] ? (double)$growth['current'] : 0;
 
                     $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
                     if ($findAttribute){
@@ -929,18 +944,32 @@ class EmployeeBoardController extends AbstractController
                         $subAttribute->setSalesQuantity($growth['current']);
 
                         $slug = explode('-', $findAttribute->getSlug());
-                        $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesGrowthCalculation($slug[1], $growth['previous'], $growth['current'])[$slug[0].'-'.$slug[1]];
 
-//                        $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesGrowthCalculation($slug[1], $growth['previous'], $growth['current'])[$findAttribute->getSlug()];
+                        //Calculate Sales Growth
+                        if ($board->getReportMode()->getSlug() === 'custom-format-poultry'){
+                            $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesGrowthCalculationPoultryService($slug[1], $growth['previous'], $growth['current']);
 
-                        $subAttribute->setMark($mark);
+
+                        }elseif ($board->getReportMode()->getSlug() === 'custom-format-cattle'){
+                            $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesGrowthCalculationCattleService($slug[1], $growth['previous'], $growth['current']);
+
+
+                        }elseif ($board->getReportMode()->getSlug() === 'custom-format-aqua'){
+                            $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesGrowthCalculationAquaService($slug[1], $growth['previous'], $growth['current']);
+
+                        }else{
+                            $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesGrowthCalculation($slug[1], $growth['previous'], $growth['current']);
+
+                        }
+
+                        $subAttribute->setMark($mark[$findAttribute->getSlug()]);
 
                         $em->persist($subAttribute);
                         $em->flush();
 
                         $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
                         if ($boardAttribute) {
-                            $boardAttribute->setMark($mark);
+                            $boardAttribute->setMark($mark[$findAttribute->getSlug()]);
                             $em->persist($boardAttribute);
                             $em->flush();
                         }
@@ -949,8 +978,8 @@ class EmployeeBoardController extends AbstractController
                 }
 
             }elseif ($key === 'outstanding'){
-                $item['actual-amount'] = $item['actual-amount'] ?: 0;
-                $item['limit-amount'] = $item['limit-amount'] ?: 0;
+                $item['actual-amount'] = $item['actual-amount'] ? (double)$item['actual-amount'] : 0;
+                $item['limit-amount'] = $item['limit-amount'] ? (double)$item['limit-amount'] : 0;
 
                 $findOutstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->findOneBy(['employeeBoard' => $board]);
                 $newOutstanding = $findOutstanding ?: new AgentOutstandingForCustomFormat();
@@ -958,7 +987,7 @@ class EmployeeBoardController extends AbstractController
                 $newOutstanding->setEmployeeBoard($board);
                 $newOutstanding->setActualAmount($item['actual-amount']);
                 $newOutstanding->setLimitAmount($item['limit-amount']);
-                $newOutstanding->setOutstanding($item['limit-amount'] - $item['actual-amount']);
+                $newOutstanding->setOutstanding($item['actual-amount'] - $item['limit-amount']);
                 $this->getDoctrine()->getManager()->persist($newOutstanding);
                 $this->getDoctrine()->getManager()->flush();
 
@@ -975,8 +1004,8 @@ class EmployeeBoardController extends AbstractController
                 }
 
             }elseif ($key === 'docSale'){
-                $item['sale'] = $item['sale'] ?: 0;
-                $item['collection'] = $item['collection'] ?: 0;
+                $item['sale'] = $item['sale'] ? (double)$item['sale'] : 0;
+                $item['collection'] = $item['collection'] ? (double)$item['collection'] : 0;
 
                 $findDocSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->findOneBy(['employeeBoard' => $board]);
 
@@ -1002,8 +1031,8 @@ class EmployeeBoardController extends AbstractController
             }elseif ($key === 'customerDevelopment'){
                 if ($board->getReportMode()->getSlug() === 'custom-format-spo'){ // SPO format operation
                     foreach ($item as $attributeId => $agentNumber) {
-                        $agentNumber['upgradeAgent'] = $agentNumber['upgradeAgent'] ?: 0;
-                        $agentNumber['totalAgents'] = $agentNumber['totalAgents'] ?: 0;
+                        $agentNumber['upgradeAgent'] = $agentNumber['upgradeAgent'] ? (double)$agentNumber['upgradeAgent'] : 0;
+                        $agentNumber['totalAgents'] = $agentNumber['totalAgents'] ? (double)$agentNumber['totalAgents'] : 0;
 
                         $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
                         if ($findAttribute){
@@ -1023,10 +1052,10 @@ class EmployeeBoardController extends AbstractController
                                         }
                                     }
                                 }else{
-                                    $fiftyPercentAgents = $agentNumber['totalAgents'] /  2; //50% agents
-                                    if ($fiftyPercentAgents > 0){
-                                        $percentage = round(($agentNumber['upgradeAgent'] * 100) / $fiftyPercentAgents);
-                                        if($percentage >= 100){
+//                                    $fiftyPercentAgents = $agentNumber['totalAgents'] /  2; //50% agents
+                                    if ($agentNumber['totalAgents'] > 0){
+                                        $percentage = round(($agentNumber['upgradeAgent'] * 100) / $agentNumber['totalAgents']);
+                                        /*if($percentage >= 100){
                                             $mark = 5;
                                         }elseif ($percentage < 100 && $percentage >= 80){
                                             $mark = 4;
@@ -1035,6 +1064,20 @@ class EmployeeBoardController extends AbstractController
                                         }elseif ($percentage < 70 && $percentage >= 60){
                                             $mark = 2;
                                         }elseif ($percentage < 60 && $percentage > 0){
+                                            $mark = 1;
+                                        }else{
+                                            $mark = 0;
+                                        }*/
+
+                                        if($percentage >= 50){
+                                            $mark = 5;
+                                        }elseif ($percentage < 50 && $percentage >= 40){
+                                            $mark = 4;
+                                        }elseif ($percentage < 40 && $percentage >= 30){
+                                            $mark = 3;
+                                        }elseif ($percentage < 30 && $percentage >= 20){
+                                            $mark = 2;
+                                        }elseif ($percentage < 20 && $percentage > 10){
                                             $mark = 1;
                                         }else{
                                             $mark = 0;
@@ -1051,12 +1094,12 @@ class EmployeeBoardController extends AbstractController
                     }
                 }else{ // Poultry, Cattle, Aqua format operation
                     foreach ($item as $attributeId => $mark) {
-                        $mark = empty($mark) ? 0 : $mark;
+                        $mark = empty($mark) ? 0 : (double)$mark;
                         $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
                         if ($findAttribute){
                             $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findAttribute]);
                             if ($boardAttribute){
-                                $boardAttribute->setMark((int)$mark < $boardAttribute->getActualMark() ? (int)$mark : $boardAttribute->getActualMark());
+                                $boardAttribute->setMark($mark < $boardAttribute->getActualMark() ? $mark : $boardAttribute->getActualMark());
                                 $em->flush();
                             }
                         }
@@ -1074,9 +1117,9 @@ class EmployeeBoardController extends AbstractController
                             if ($findMarkDistribution){
                                 $boardAttribute->setMarkDistribution($findMarkDistribution);
                                 if ($board->getEmployee()->getId() === $this->getUser()->getId()){
-                                    $boardAttribute->setSelfMark($findMarkDistribution->getMark());
+                                    $boardAttribute->setSelfMark((float)$findMarkDistribution->getMark());
                                 }else{
-                                    $boardAttribute->setMark($findMarkDistribution->getMark());
+                                    $boardAttribute->setMark((float)$findMarkDistribution->getMark());
                                 }
 
                                 $em->persist($boardAttribute);
@@ -1096,9 +1139,9 @@ class EmployeeBoardController extends AbstractController
                             if ($findMarkDistribution){
                                 $boardAttribute->setMarkDistribution($findMarkDistribution);
                                 if ($board->getEmployee()->getId() === $this->getUser()->getId()){
-                                    $boardAttribute->setSelfMark($findMarkDistribution->getMark());
+                                    $boardAttribute->setSelfMark((float)$findMarkDistribution->getMark());
                                 }else{
-                                    $boardAttribute->setMark($findMarkDistribution->getMark());
+                                    $boardAttribute->setMark((float)$findMarkDistribution->getMark());
                                 }
 
                                 $em->persist($boardAttribute);

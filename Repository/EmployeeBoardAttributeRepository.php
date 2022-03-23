@@ -675,7 +675,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 //                    $growthEntity->setSalesAmount($parameter['quantity'] ?: 0);
                     $growthEntity->setSalesQuantity($parameter['salesGrouthCurrentQuantity'] ?: 0);
                     $growthEntity->setMark($this->salesGrowthCalculationCattleService($distribution->getSlug(), $parameter['salesGrouthPreviousQuantity'], $parameter['salesGrouthCurrentQuantity'])[$growthDistribution->getSlug()] ?: 0);
-//                    dd($parameter);
                     $em->persist($growthEntity);
                     $em->flush();
 
@@ -1221,8 +1220,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     public function salesGrowthCalculation($productSlug, $previousValue, $currentValue)
     {
-//        dd($productSlug, $previousValue, $currentValue);
-
         $returnValue = [];
         
         if ($productSlug) {
@@ -1319,7 +1316,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         }
 
     }
-    private function salesGrowthCalculationPoultryService($productSlug, $previousValue, $currentValue)
+    public function salesGrowthCalculationPoultryService($productSlug, $previousValue, $currentValue)
     {
         $returnValue = [];
         if ($productSlug) {
@@ -1407,7 +1404,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     }
 
-    private function salesGrowthCalculationAquaService($productSlug, $previousValue, $currentValue)
+    public function salesGrowthCalculationAquaService($productSlug, $previousValue, $currentValue)
     {
         $returnValue = [];
         if ($productSlug) {
@@ -1481,7 +1478,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             return $returnValue;
         }
     }
-    private function salesGrowthCalculationCattleService($productSlug, $previousValue, $currentValue)
+    public function salesGrowthCalculationCattleService($productSlug, $previousValue, $currentValue)
     {
         $returnValue = [];
         if ($productSlug) {
@@ -1599,8 +1596,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     public function outstandingLimitCalculation(EmployeeBoard $board, $outstandingValue)
     {
-
-        if ($outstandingValue) {
             if ($board->getEmployee()->getReportMode()->getSlug() == 'agm-kpi'){
                 if ($outstandingValue >= 1500000) {
                     return 0;
@@ -1644,8 +1639,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     return 5;
                 }
             }
-        }
-        return 0;
     }
 
     public function docSalesCollectionCalculation($collectionAmount, $salesAmount)
