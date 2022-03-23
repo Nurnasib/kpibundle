@@ -883,8 +883,8 @@ class EmployeeBoardController extends AbstractController
         foreach ($data as $key => $item) {
             if ($key === 'sales'){
                 foreach ($item as $attributeId => $sale) {
-                    $sale['target'] = $sale['target'] ? (double)$sale['target']: 0;
-                    $sale['sales'] = $sale['sales'] ? (double)$sale['sales']: 0;
+                    $sale['target'] = $sale['target'] ? (double)$sale['target'] : 0;
+                    $sale['sales'] = $sale['sales'] ? (double)$sale['sales'] : 0;
                     $findAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
                     if ($findAttribute){
                         $subAttribute = new EmployeeBoardSubAttribute();
@@ -902,17 +902,21 @@ class EmployeeBoardController extends AbstractController
                         //Calculate Sales marks
                         if ($board->getReportMode()->getSlug() === 'custom-format-poultry'){
                             $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesTargetCalculationPoultryService($breed, $sale['target'], $sale['sales']);
+                            $mark = $mark[$subAttribute->getMarkDistribution()->getSlug()];
 
                         }elseif ($board->getReportMode()->getSlug() === 'custom-format-cattle'){
                             $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesTargetCalculationCattleService($breed, $sale['target'], $sale['sales']);
+                            $mark = $mark[$subAttribute->getMarkDistribution()->getSlug()];
+
 
                         }elseif ($board->getReportMode()->getSlug() === 'custom-format-aqua'){
                             $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesTargetCalculationAquaService($breed, $sale['target'], $sale['sales']);
+                            $mark = $mark[$subAttribute->getMarkDistribution()->getSlug()];
 
                         }else{
                             $mark = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->salesTargetCalculation($sale['target'], $sale['sales']);
                         }
-                        $subAttribute->setMark($mark[$subAttribute->getMarkDistribution()->getSlug()]);
+                        $subAttribute->setMark($mark);
 
                         $em->persist($subAttribute);
                         $em->flush();
