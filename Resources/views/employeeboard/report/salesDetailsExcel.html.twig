@@ -95,20 +95,37 @@
         {% set totalActual = 0 %}
         {% set totalLimit = 0 %}
         {% set totalOutstanding = 0 %}
-        {% for key, amount in outstanding %}
-            {% if key != 'mark' %}
-                {% set totalActual = totalActual + amount.actualAmount %}
-                {% set totalLimit = totalLimit + amount.limitAmount %}
-                {% set totalOutstanding = totalOutstanding + amount.outstanding %}
-                <tr>
-                    <td>{{ key|default() }}</td>
-                    <td>{{ amount.actualAmount|number_format(2,'.',',')|default() }}</td>
-                    <td>{{ amount.limitAmount|number_format(2,'.',',')|default() }}</td>
-                    <td>{{ amount.outstanding|number_format(2,'.')|default() }}</td>
-                    <td>{{ amount.mark|default() }}</td>
-                </tr>
-            {% endif %}
-        {% endfor %}
+        {% if board.reportMode.slug in ['custom-format-spo', 'custom-format-poultry', 'custom-format-cattle', 'custom-format-aqua'] %}
+
+            {% set totalActual = totalActual + outstanding['actualAmount'] %}
+            {% set totalLimit = totalLimit + outstanding['limitAmount'] %}
+            {% set totalOutstanding = totalOutstanding + outstanding['outstanding'] %}
+            <tr>
+                <td></td>
+                <td>{{ outstanding['actualAmount']|number_format(2,'.',',')|default() }}</td>
+                <td>{{ outstanding['limitAmount']|number_format(2,'.',',')|default() }}</td>
+                <td>{{ outstanding['outstanding']|number_format(2,'.')|default() }}</td>
+                <td></td>
+            </tr>
+
+        {% else %}
+
+            {% for key, amount in outstanding %}
+                {% if key != 'mark' %}
+                    {% set totalActual = totalActual + amount.actualAmount %}
+                    {% set totalLimit = totalLimit + amount.limitAmount %}
+                    {% set totalOutstanding = totalOutstanding + amount.outstanding %}
+                    <tr>
+                        <td>{{ key|default() }}</td>
+                        <td>{{ amount.actualAmount|number_format(2,'.',',')|default() }}</td>
+                        <td>{{ amount.limitAmount|number_format(2,'.',',')|default() }}</td>
+                        <td>{{ amount.outstanding|number_format(2,'.')|default() }}</td>
+                        <td>{{ amount.mark|default() }}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+
+        {% endif %}
         <tr>
             <th>{{ 'Total'|trans }}</th>
             <th>{{ totalActual|number_format(2,'.', ',')|default() }}</th>
@@ -147,19 +164,31 @@
     {% if docSale is not empty %}
         {% set totalCollection = 0 %}
         {% set totalSales = 0 %}
-        {% for key, amount in docSale %}
-            {% if key != 'mark' %}
-                {% set totalCollection = totalCollection + amount.salesAmount %}
-                {% set totalSales = totalSales + amount.collectionAmount %}
-                <tr>
-                    <td>{{ key|default() }}</td>
-                    <td>{{ amount.salesAmount|number_format(2,'.', ',')|default() }}</td>
-                    <td>{{ amount.collectionAmount|number_format(2,'.',',')|default() }}</td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            {% endif %}
-        {% endfor %}
+        {% if board.reportMode.slug in ['custom-format-spo', 'custom-format-poultry', 'custom-format-cattle', 'custom-format-aqua'] %}
+            {% set totalCollection = totalCollection + docSale['salesAmount'] %}
+            {% set totalSales = totalSales + docSale['collectionAmount'] %}
+            <tr>
+                <td></td>
+                <td>{{ docSale['salesAmount']|number_format(2,'.', ',')|default() }}</td>
+                <td>{{ docSale['collectionAmount']|number_format(2,'.',',')|default() }}</td>
+                <td></td>
+                <td></td>
+            </tr>
+        {% else %}
+            {% for key, amount in docSale %}
+                {% if key != 'mark' %}
+                    {% set totalCollection = totalCollection + amount.salesAmount %}
+                    {% set totalSales = totalSales + amount.collectionAmount %}
+                    <tr>
+                        <td>{{ key|default() }}</td>
+                        <td>{{ amount.salesAmount|number_format(2,'.', ',')|default() }}</td>
+                        <td>{{ amount.collectionAmount|number_format(2,'.',',')|default() }}</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
         <tr>
             <th>{{ 'Total'|trans }}</th>
             <th>{{ totalCollection|number_format(2,'.', ',')|default(0) }}</th>

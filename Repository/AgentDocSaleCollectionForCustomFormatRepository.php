@@ -13,6 +13,8 @@ namespace Terminalbd\KpiBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
+use Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute;
+use Terminalbd\KpiBundle\Entity\MarkChart;
 
 /**
  * This custom Doctrine repository contains some methods which are useful when
@@ -32,5 +34,19 @@ class AgentDocSaleCollectionForCustomFormatRepository extends EntityRepository
         $qb->where('employeeBoard.id =:boardId')->setParameter('boardId', $board->getId());
 
         return $qb->getQuery()->getOneOrNullResult();
+    }
+    public function getDocSale(EmployeeBoard $board)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->select('e.collection AS collectionAmount', 'e.sales AS salesAmount');
+        $qb->where('e.employeeBoard =:board')->setParameter('board', $board);
+
+        $data = $qb->getQuery()->getSingleResult();
+
+        $docSalesDistribution = $this->_em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'doc-sales-collection'));
+
+        $employeeBoardAttributeForDocSales = $this->_em->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $docSalesDistribution]);
+        $data['mark'] = $employeeBoardAttributeForDocSales ? (int)$employeeBoardAttributeForDocSales->getMark() : 0;
+        return $data;
     }
 }

@@ -12,6 +12,9 @@
 namespace Terminalbd\KpiBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Terminalbd\KpiBundle\Entity\EmployeeBoard;
+use Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute;
+use Terminalbd\KpiBundle\Entity\MarkChart;
 
 /**
  * This custom Doctrine repository contains some methods which are useful when
@@ -23,12 +26,18 @@ use Doctrine\ORM\EntityRepository;
  */
 class AgentOutstandingForCustomFormatRepository extends EntityRepository
 {
-/*    public function getTotalOutstanding($board)
+    public function getOutstanding(EmployeeBoard $board)
     {
         $qb = $this->createQueryBuilder('e');
-        $qb->join('e.employeeBoard', 'employeeBoard');
-        $qb->select('SUM(e.outstanding) AS total');
-        $qb->where('employeeBoard.id =:boardId')->setParameter('boardId', $board->getId());
-        return $qb->getQuery()->getOneOrNullResult();
-    }*/
+
+        $qb->select('e.actualAmount', 'e.limitAmount', 'e.outstanding');
+        $qb->where('e.employeeBoard = :board')->setParameter('board', $board);
+
+        $data = $qb->getQuery()->getSingleResult();
+
+        $outstandingDistribution = $this->_em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'outstanding-limit-vs-actual-feed'));
+        $employeeBoardAttributeForOutStandingLimit = $this->_em->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $outstandingDistribution]);
+        $data['mark'] = $employeeBoardAttributeForOutStandingLimit ? (int)$employeeBoardAttributeForOutStandingLimit->getMark() : 0;
+        return $data;
+    }
 }
