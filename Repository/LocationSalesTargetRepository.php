@@ -30,26 +30,25 @@ use function Doctrine\ORM\QueryBuilder;
 class LocationSalesTargetRepository extends EntityRepository
 {
 
-    public function processLocationPrice($locations , $breed, $requestYear)
+    public function processLocationPrice($locations , $breeds, $requestYear)
     {
 
-        dd($breed);
         $currentYear = date('Y');
 
-        foreach ($charts as $chart){
-            $chartId=$chart->getId();
+        foreach ($breeds as $breed){
+            $chartId = $breed->getId();
 
             foreach ($locations as $location ){
                 $districtId = $location->getId();
                 $regionalId = $location->getParent()->getId();
                 $zonalId = $location->getParent()->getParent()->getId();
-                $exist = $this->findOneBy(array('markDistribution' => $chart, 'district' => $location, 'year'=>$currentYear));
+                $exist = $this->findOneBy(array('markDistribution' => $breed, 'district' => $location, 'year'=>$currentYear));
                 if(empty($exist)){
                     for ($m=1; $m<=12; $m++) {
                         $month = date('F', mktime(0,0,0,$m, 1, date('Y')));
                         $year = date('Y', mktime(0,0,0,$m, 1, date('Y')));
 
-                        $exist = $this->findOneBy(array('markDistribution' => $chart, 'district' => $location, 'month'=>$month, 'year'=>$year));
+                        $exist = $this->findOneBy(array('markDistribution' => $breed, 'district' => $location, 'month'=>$month, 'year'=>$year));
                             $sql ="INSERT INTO kpi_location_sales_target
     (`mark_distribution_id`, `district_id`,`regional_id`, `zone_id`, `month`, `year`, `quantity`) 
     VALUE ($chartId , $districtId , $regionalId , $zonalId , '{$month}', '{$year}', 1000)
