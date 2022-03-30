@@ -345,7 +345,7 @@ class EmployeeBoardController extends AbstractController
 
             // Configure Dompdf according to your needs
             $pdfOptions = new Options();
-            $pdfOptions->set('defaultFont', 'Arial');
+            $pdfOptions->set('defaultFont', 'Arial, sans-serif');
 
             // Instantiate Dompdf with our options
             $dompdf = new Dompdf($pdfOptions);
@@ -575,7 +575,7 @@ class EmployeeBoardController extends AbstractController
 
             // Configure Dompdf according to your needs
             $pdfOptions = new Options();
-            $pdfOptions->set('defaultFont', 'Arial');
+            $pdfOptions->set('defaultFont', 'Arial, sans-serif');
 
             // Instantiate Dompdf with our options
             $dompdf = new Dompdf($pdfOptions);
@@ -696,7 +696,7 @@ class EmployeeBoardController extends AbstractController
 
             // Configure Dompdf according to your needs
             $pdfOptions = new Options();
-            $pdfOptions->set('defaultFont', 'Arial');
+            $pdfOptions->set('defaultFont', 'Arial, sans-serif');
 
             // Instantiate Dompdf with our options
             $dompdf = new Dompdf($pdfOptions);
