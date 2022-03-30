@@ -236,15 +236,15 @@ class AgentCategoryRepository extends EntityRepository
     {
         $marks = [];
         foreach ($categoryUpgradationPercentages as $grade => $percentage){
-            if($percentage >= 50){
+            if($percentage >= 20){
                 $marks[$grade] = 5;
-            }elseif ($percentage < 50 && $percentage >= 40){
+            }elseif ($percentage < 20 && $percentage >= 15){
                 $marks[$grade] = 4;
-            }elseif ($percentage < 40 && $percentage >= 30){
+            }elseif ($percentage < 15 && $percentage >= 10){
                 $marks[$grade] = 3;
-            }elseif ($percentage < 30 && $percentage >= 20){
+            }elseif ($percentage < 10 && $percentage >= 5){
                 $marks[$grade] = 2;
-            }elseif ($percentage < 20 && $percentage > 10){
+            }elseif ($percentage < 5 && $percentage >= 1){
                 $marks[$grade] = 1;
             }else{
                 $marks[$grade] = 0;

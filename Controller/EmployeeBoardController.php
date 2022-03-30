@@ -1063,7 +1063,7 @@ class EmployeeBoardController extends AbstractController
                                 }else{
 //                                    $fiftyPercentAgents = $agentNumber['totalAgents'] /  2; //50% agents
                                     if ($agentNumber['totalAgents'] > 0){
-                                        $percentage = round(($agentNumber['upgradeAgent'] * 100) / $agentNumber['totalAgents']);
+                                        $percentage = ($agentNumber['upgradeAgent'] * 100) / $agentNumber['totalAgents'];
                                         /*if($percentage >= 100){
                                             $mark = 5;
                                         }elseif ($percentage < 100 && $percentage >= 80){
@@ -1078,15 +1078,15 @@ class EmployeeBoardController extends AbstractController
                                             $mark = 0;
                                         }*/
 
-                                        if($percentage >= 50){
+                                        if($percentage >= 20){
                                             $mark = 5;
-                                        }elseif ($percentage < 50 && $percentage >= 40){
+                                        }elseif ($percentage < 20 && $percentage >= 15){
                                             $mark = 4;
-                                        }elseif ($percentage < 40 && $percentage >= 30){
+                                        }elseif ($percentage < 15 && $percentage >= 10){
                                             $mark = 3;
-                                        }elseif ($percentage < 30 && $percentage >= 20){
+                                        }elseif ($percentage < 10 && $percentage >= 5){
                                             $mark = 2;
-                                        }elseif ($percentage < 20 && $percentage > 10){
+                                        }elseif ($percentage < 5 && $percentage >= 1){
                                             $mark = 1;
                                         }else{
                                             $mark = 0;
