@@ -1059,6 +1059,8 @@ class EmployeeBoardController extends AbstractController
                                         } else {
                                             $mark = 1;
                                         }
+                                    }else{
+                                        $mark = 0;
                                     }
                                 }else{
 //                                    $fiftyPercentAgents = $agentNumber['totalAgents'] /  2; //50% agents
@@ -1091,6 +1093,8 @@ class EmployeeBoardController extends AbstractController
                                         }else{
                                             $mark = 0;
                                         }
+                                    }else{
+                                        $mark = 0;
                                     }
                                 }
                                 $boardAttribute->setTargetAmount($agentNumber['totalAgents']);
