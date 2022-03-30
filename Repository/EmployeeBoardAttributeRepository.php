@@ -711,6 +711,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                         $em->persist($employeeBoardAttribute);
                         $em->flush();
                     }
+                    //Sales Growth
 
                     $growthDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode' => 'growth', 'slug' => 'growth-' . $distribution->getSlug()));
 

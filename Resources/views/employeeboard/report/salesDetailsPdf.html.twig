@@ -213,7 +213,7 @@
                             <thead>
                             <tr>
                                 <td scope="col">{{ 'Previous "D" Category Agents: '|trans }} {{ dCategoryUpgrade.totalAgent|default(0) }}</td>
-                                <td scope="col">{{ '50% "D" Category Agents: '|trans }} {{ (dCategoryUpgrade.totalAgent / 2)|round }}</td>
+{#                                <td scope="col">{{ '50% "D" Category Agents: '|trans }} {{ (dCategoryUpgrade.totalAgent / 2)|round }}</td>#}
                                 <td scope="col">{{ 'Category Upgrade Agents: '|trans }} {{ dCategoryUpgrade.totalUpgradeAgent|default(0) }}</td>
                                 <td scope="col">{{ 'Category Upgrade Percentage: '|trans }}
                                     {% if dCategoryUpgrade.totalAgent > 0 %}
@@ -275,7 +275,7 @@
                             <thead>
                             <tr>
                                 <td scope="col">{{ 'Previous "C" Category Agents: '|trans }} {{ cCategoryUpgrade.totalAgent|default(0) }}</td>
-                                <td scope="col">{{ '50% "C" Category Agents: '|trans }} {{ (cCategoryUpgrade.totalAgent / 2)|round }}</td>
+{#                                <td scope="col">{{ '50% "C" Category Agents: '|trans }} {{ (cCategoryUpgrade.totalAgent / 2)|round }}</td>#}
                                 <td scope="col">{{ 'Category Upgrade Agents: '|trans }} {{ cCategoryUpgrade.totalUpgradeAgent|default(0) }}</td>
                                 <td scope="col">{{ 'Category Upgrade Percentage: '|trans }}
                                     {% if cCategoryUpgrade.totalAgent > 0 %}
