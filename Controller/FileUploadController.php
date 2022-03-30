@@ -42,8 +42,11 @@ class FileUploadController extends AbstractController
         $uploadFile = new DocumentUpload();
         $allowFileType = ['xlsx'];
 
-        $entities = [];
         $entities = $this->getDoctrine()->getRepository(DocumentUpload::class)->findBy([], ['createdAt' => 'DESC']);
+        $data = [];
+        foreach ($entities as $entity) {
+            $data[$entity->getMonthYear()][] = $entity;
+        }
         $form = $this->createForm(FileUploadFormType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
@@ -74,7 +77,7 @@ class FileUploadController extends AbstractController
         }
         return $this->render('@TerminalbdKpi/fileUpload/index.html.twig', [
             'form' => $form->createView(),
-            'entities' => $entities,
+            'entities' => $data,
         ]);
     }
 

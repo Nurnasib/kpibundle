@@ -37,44 +37,49 @@
                     <thead class="thead-dark">
                     <tr>
                         <th width="40" class="text-center">{{ 'S/N'|trans }}</th>
+                        <th>{{ 'Month'|trans }}</th>
                         <th>{{ 'Title'|trans }}</th>
                         <th>{{ 'File Name'|trans }}</th>
-                        <th>{{ 'Month'|trans }}</th>
                         <th width="100" class="text-center">{{ 'Status'|trans }}</th>
                         <th width="10%">{{ 'Created Date'|trans }}</th>
                         <th class="text-center" width="100"><i class="feather icon-settings"></i></th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% if entities is not empty %}
-                        {% for entity in entities %}
-                            <tr>
-                                <td class="text-center">{{ loop.index }}</td>
-                                <td>{{ entity.title|capitalize|default('') }}</td>
-                                <td><a href="{{ asset('/uploads/excel/' ~ entity.fileName) }}" download>{{ entity.fileName|default('') }}</a></td>
-                                <td>{{ entity.monthYear|default('') }}</td>
-                                <td class="text-center">{{ entity.status > 0 ? 'Yes' : 'No' }}</td>
-                                <td class="text-center">{{ entity.createdAt|date('d-m-Y') }}</td>
+                    {% if entities is defined and entities is not empty %}
+                        {% for monthYear,entity in entities %}
+                            {% for data in entity %}
+                                <tr>
+                                {% if loop.first %}
+                                    <td rowspan="{{ entity|length }}" class="text-center">{{ loop.parent.loop.index }}</td>
+                                    <td rowspan="{{ entity|length }}">{{ monthYear }}</td>
+                                {% endif %}
+                                <td>{{ loop.index }}. {{ data.title|capitalize|default('') }}</td>
+                                <td><a href="{{ asset('/uploads/excel/' ~ data.fileName) }}" download>{{ data.fileName|default('') }}</a></td>
+                                <td class="text-center">{{ data.status > 0 ? 'Yes' : 'No' }}</td>
+                                <td class="text-center">{{ data.createdAt|date('d-m-Y') }}</td>
                                 <td class="text-right">
                                     <div class="btn-group" role="group" aria-label="Basic example">
-                                        {% if entity.status == 0 %}
-                                            <a class="btn btn-mini bg-primary white-font loader" href="{{ path('kpi_file_upload_insert_data',{'id':entity.id}) }}"><i class="feather icon-upload"></i> Import</a>
+                                        {% if data.status == 0 %}
+                                            <a class="btn btn-mini bg-primary white-font loader" href="{{ path('kpi_file_upload_insert_data',{'id':data.id}) }}"><i class="feather icon-upload"></i> Import</a>
                                         {% endif %}
 
-                                        {% if entity.title|replace({' ': "-"})|lower == 'agent-sales' and entity.status == 1 %}
-                                            <a class="btn btn-mini bg-success white-font loader" href="{{ path('kpi_insert_data_district_wise',{'id':entity.id}) }}"><i class="feather icon-upload"></i> Migrate</a>
-                                            {% elseif entity.title|replace({' ': "-"})|lower == 'agent-sales' and entity.status == 2 %}
-                                                <a class="btn btn-mini bg-secondary white-font loader" href="{{ path('kpi_insert_agent_category',{'id':entity.id}) }}"><i class="feather icon-upload"></i>Grade Change</a>
+                                        {% if data.title|replace({' ': "-"})|lower == 'agent-sales' and data.status == 1 %}
+                                            <a class="btn btn-mini bg-success white-font loader" href="{{ path('kpi_insert_data_district_wise',{'id':data.id}) }}"><i class="feather icon-upload"></i> Migrate</a>
+                                            {% elseif data.title|replace({' ': "-"})|lower == 'agent-sales' and data.status == 2 %}
+                                                <a class="btn btn-mini bg-secondary white-font loader" href="{{ path('kpi_insert_agent_category',{'id':data.id}) }}"><i class="feather icon-upload"></i>Grade Change</a>
                                         {% endif %}
-                                        
-                                        {% if entity.status == 0 and not is_granted('ROLE_KPI_ADMIN') %}
-                                            <a data-action="{{ path('kpi_file_upload_file_delete',{'id':entity.id}) }}" class="btn  btn-transparent btn-mini red-font remove" href="javascript:"><i class="fa fa-remove"></i></a>
+
+                                        {% if data.status == 0 and not is_granted('ROLE_KPI_ADMIN') %}
+                                            <a data-action="{{ path('kpi_file_upload_file_delete',{'id':data.id}) }}" class="btn  btn-transparent btn-mini red-font remove" href="javascript:"><i class="fa fa-remove"></i></a>
                                             {% elseif is_granted('ROLE_KPI_ADMIN') %}
-                                                <a data-action="{{ path('kpi_file_upload_file_delete',{'id':entity.id}) }}" class="btn  btn-transparent btn-mini red-font remove" href="javascript:"><i class="fa fa-remove"></i></a>
+                                                <a data-action="{{ path('kpi_file_upload_file_delete',{'id':data.id}) }}" class="btn  btn-transparent btn-mini red-font remove" href="javascript:"><i class="fa fa-remove"></i></a>
                                         {% endif %}
                                     </div>
                                 </td>
                             </tr>
+                            {% endfor %}
+
                         {% endfor %}
                     {% else %}
                             <tr>
