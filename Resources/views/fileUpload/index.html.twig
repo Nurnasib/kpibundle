@@ -55,7 +55,11 @@
                                     <td rowspan="{{ entity|length }}">{{ monthYear }}</td>
                                 {% endif %}
                                 <td>{{ loop.index }}. {{ data.title|capitalize|default('') }}</td>
-                                <td><a href="{{ asset('/uploads/excel/' ~ data.fileName) }}" download>{{ data.fileName|default('') }}</a></td>
+                                <td style="display: flex; justify-content: space-between;">
+{#                                    <a href="{{ asset('/uploads/excel/' ~ data.fileName) }}" download>{{ data.fileName|default('') }}</a>#}
+                                    <span>{{ data.fileName|default('') }}</span>
+                                    <a href="{{ asset('/uploads/excel/' ~ data.fileName) }}" download><i class="fa fa-download"></i></a>
+                                </td>
                                 <td class="text-center">{{ data.status > 0 ? 'Yes' : 'No' }}</td>
                                 <td class="text-center">{{ data.createdAt|date('d-m-Y') }}</td>
                                 <td class="text-right">
