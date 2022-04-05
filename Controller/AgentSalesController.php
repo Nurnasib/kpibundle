@@ -134,9 +134,10 @@ class AgentSalesController extends AbstractController
     public function sales(Request $request): Response
     {
         $allData = $request->query->all();
-        $requestData = isset($allData['monthYear'])?$allData['monthYear']:'';
-        $requestAgentId = isset($allData['agent'])?$allData['agent']:'';
-        $districtId = isset($allData['district'])?$allData['district']:'';
+
+        $requestData = isset($allData['monthYear']) ? $allData['monthYear'] : '';
+        $requestAgentId = isset($allData['agent']) ? $allData['agent'] : '';
+        $districtId = isset($allData['district']) ? $allData['district'] : '';
         if ($districtId){
             $district = $this->getDoctrine()->getRepository(Location::class)->find($districtId);
         }else{
@@ -161,6 +162,8 @@ class AgentSalesController extends AbstractController
         }
 
         $entities = $this->getDoctrine()->getRepository(AgentOrder::class)->findWithAgentSearch($data);
+        dump($entities);
+
         $agentSalesQty = $this->getDoctrine()->getRepository(AgentOrder::class)->findWithAgentOrderOty($data);
         $pagination = $this->paginate($request,$entities);
         $salesItems = $this->getDoctrine()->getRepository(AgentOrder::class)->findSalesItems($pagination,$data);

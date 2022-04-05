@@ -34,25 +34,30 @@ class AgentOrderRepository extends EntityRepository
     {
         $year = isset($data['year']) ? $data['year']:'';
         $month = isset($data['month']) ? $data['month']:'';
+
         $qb = $this->createQueryBuilder('e');
         $qb->leftJoin('e.agent','agent');
         $qb->leftJoin('e.district','d');
+
         $qb->select('agent.id as customerId','agent.agentId as agentId','agent.name as agentName');
         $qb->addSelect('d.id as districtId','d.name as districtName');
         $qb->addSelect('e.month as month','e.year as year');
+
 //        $qb->groupBy('agent.id','e.month','e.year');
         $qb->groupBy('agent.id');
+
         $qb->where('e.year =:year')->setParameter('year',$year);
         $qb->andWhere('e.month =:month')->setParameter('month',$month);
 
-        if(isset($data['agent'])){
-            $qb->andWhere('agent.id =:agent')->setParameter('agent',$data['agent']);
+        if(isset($data['agent']) && $data['agent']){
+            $qb->andWhere('agent.id = :agent')->setParameter('agent', $data['agent']);
         }
-        if(isset($data['district'])){
+        if(isset($data['district']) && $data['district']){
             $qb->andWhere('d.id =:district')->setParameter('district', $data['district']);
         }
 
         $qb->orderBy('agent.name','ASC');
+
         return $qb->getQuery()->getArrayResult();
     }
 
@@ -255,6 +260,12 @@ class AgentOrderRepository extends EntityRepository
 
 //        $prevYear = date('Y',strtotime("-1 year", strtotime($board->getYear())));
         $years = [$board->getYear()-1, $board->getYear()];
+        $months = [];
+        $monthNumber = date('m',strtotime($board->getMonth()));
+
+        for ($i = 1; $i <= $monthNumber; $i++){ // make month name array from January to generated KPI month
+            array_push($months, \DateTime::createFromFormat('!m', $i)->format('F'));
+        }
 
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent', 'agent');
@@ -263,18 +274,19 @@ class AgentOrderRepository extends EntityRepository
         $qb->select('SUM(e.quantity) AS totalQuantity', 'e.year');
         $qb->addSelect('agent.id AS agentId');
 
-        $qb->where('e.month = :month')->setParameter('month', $board->getMonth());
+        $qb->where('e.month IN (:month)')->setParameter('month', $months);
         $qb->andWhere('e.year IN (:years)')->setParameter('years', $years);
         $qb->andWhere('district.id IN (:districtId)')->setParameter('districtId', $locationsId);
         $qb->andWhere('agent.status = 1');
 
         $qb->groupBy('agent.id');
         $qb->addGroupBy('e.year');
+//        $qb->addGroupBy('e.month');
 
         $results = $qb->getQuery()->getArrayResult();
         $data = [];
         foreach ($results as $result){
-            $data[$result['year']][$result['agentId']] = $result['totalQuantity'];
+            $data[$result['year']][$result['agentId']] = $result['totalQuantity'] / count($months);
         }
 
         if (! array_key_exists($board->getYear()-1, $data)){
@@ -291,6 +303,12 @@ class AgentOrderRepository extends EntityRepository
         $growthAgents = [];
         $prevYear = $board->getYear()-1;
         $years = [$board->getYear()-1, $board->getYear()];
+        $months = [];
+        $monthNumber = date('m',strtotime($board->getMonth()));
+
+        for ($i = 1; $i <= $monthNumber; $i++){ // make month name array from January to generated KPI month
+            array_push($months, \DateTime::createFromFormat('!m', $i)->format('F'));
+        }
 
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent', 'agent');
@@ -299,7 +317,7 @@ class AgentOrderRepository extends EntityRepository
         $qb->select('SUM(e.quantity) AS totalQuantity', 'e.year');
         $qb->addSelect('agent.id AS agentId');
 
-        $qb->where('e.month = :month')->setParameter('month', $board->getMonth());
+        $qb->where('e.month IN (:month)')->setParameter('month', $months);
         $qb->andWhere('e.year IN (:years)')->setParameter('years', $years);
         $qb->andWhere('district.id IN (:districtId)')->setParameter('districtId', $districtsId);
         $qb->andWhere('agent.status = 1');
@@ -310,7 +328,7 @@ class AgentOrderRepository extends EntityRepository
         $results = $qb->getQuery()->getArrayResult();
         $data = [];
         foreach ($results as $result){
-            $data[$result['year']][$result['agentId']] = $result['totalQuantity'];
+            $data[$result['year']][$result['agentId']] = $result['totalQuantity'] / count($months);
         }
 
         if (! array_key_exists($board->getYear(), $data)){
@@ -334,14 +352,14 @@ class AgentOrderRepository extends EntityRepository
                 }
             }
         }
-        $returnData = $this->getSalesDetails($growthAgents, $years, $board);
+        $returnData = $this->getSalesDetails($growthAgents, $years, $months);
         $returnData['totalAgent'] = count($commonAgentBetweenYears);
         $returnData['growthAgent'] = count($growthAgents);
 //        $returnData['twentyPercentGrowthAgents'] = count($growthAgents);
         return $returnData;
     }
 
-    private function getSalesDetails($growthAgents, $years, $board)
+    private function getSalesDetails($growthAgents, $years, $months)
     {
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent', 'agent');
@@ -353,13 +371,13 @@ class AgentOrderRepository extends EntityRepository
 
         $qb->where('e.year IN (:years)')->setParameter('years', $years);
         $qb->andWhere('agent.id IN (:agentId)')->setParameter('agentId', $growthAgents);
-        $qb->andWhere('e.month = :month')->setParameter('month', $board->getMonth());
+        $qb->andWhere('e.month IN (:month)')->setParameter('month', $months);
         $qb->groupBy('e.year');
         $qb->addGroupBy('agent.id');
         $results = $qb->getQuery()->getArrayResult();
         $data = [];
         foreach ($results as $result){
-            $data[(int)$result['agentId']][$result['year']] = $result['totalQuantity'];
+            $data[(int)$result['agentId']][$result['year']] = $result['totalQuantity'] / count($months);
             $data[(int)$result['agentId']]['agentName'] = $result['agentName'];
             $data[(int)$result['agentId']]['agentAddress'] = $result['agentThana'] . ' , ' . $result['agentDistrict'];
         }

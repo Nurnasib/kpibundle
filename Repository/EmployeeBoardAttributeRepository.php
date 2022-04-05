@@ -273,9 +273,9 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $commonAgentBetweenYears = array_intersect_key($agentsWithSalesQuantity[$board->getYear()], $agentsWithSalesQuantity[$prevYear]);  //Common agents and SalesQuantity(Current Year)
 
 
-        foreach ($commonAgentBetweenYears as $agentId => $currentYearAgentSalesQty) {
+        foreach ($commonAgentBetweenYears as $agentId => $currentYearAgentCumulativeSalesQty) {
             if ($agentsWithSalesQuantity[$prevYear][$agentId]) {
-                if ($currentYearAgentSalesQty > $agentsWithSalesQuantity[$prevYear][$agentId]) {
+                if ($currentYearAgentCumulativeSalesQty > $agentsWithSalesQuantity[$prevYear][$agentId]) {
                     $growthAgents[] = $agentId;
 
 /*                    $growthPercentage = (($currentYearAgentSalesQty - $agentsWithSalesQuantity[$prevYear][$agentId]) * 100) / $agentsWithSalesQuantity[$prevYear][$agentId];
