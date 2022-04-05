@@ -4,8 +4,6 @@ namespace Terminalbd\KpiBundle\Controller;
 
 
 use App\Entity\Admin\Location;
-use App\Entity\Core\Agent;
-use App\Entity\Core\Setting;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

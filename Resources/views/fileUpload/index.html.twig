@@ -39,7 +39,7 @@
                         <th width="40" class="text-center">{{ 'S/N'|trans }}</th>
                         <th>{{ 'Month'|trans }}</th>
                         <th>{{ 'Title'|trans }}</th>
-                        <th>{{ 'File Name'|trans }}</th>
+{#                        <th>{{ 'File Name'|trans }}</th>#}
                         <th width="100" class="text-center">{{ 'Status'|trans }}</th>
                         <th width="10%">{{ 'Created Date'|trans }}</th>
                         <th class="text-center" width="100"><i class="feather icon-settings"></i></th>
@@ -54,12 +54,15 @@
                                     <td rowspan="{{ entity|length }}" class="text-center">{{ loop.parent.loop.index }}</td>
                                     <td rowspan="{{ entity|length }}">{{ monthYear }}</td>
                                 {% endif %}
-                                <td>{{ loop.index }}. {{ data.title|capitalize|default('') }}</td>
                                 <td style="display: flex; justify-content: space-between;">
-{#                                    <a href="{{ asset('/uploads/excel/' ~ data.fileName) }}" download>{{ data.fileName|default('') }}</a>#}
+                                    {{ loop.index }}. {{ data.title|capitalize|default('') }}
+                                    <a href="{{ asset('/uploads/excel/' ~ data.fileName) }}" download><i class="fa fa-download"></i></a>
+
+                                </td>
+                                {#<td style="display: flex; justify-content: space-between;">
                                     <span>{{ data.fileName|default('') }}</span>
                                     <a href="{{ asset('/uploads/excel/' ~ data.fileName) }}" download><i class="fa fa-download"></i></a>
-                                </td>
+                                </td>#}
                                 <td class="text-center">{{ data.status > 0 ? 'Yes' : 'No' }}</td>
                                 <td class="text-center">{{ data.createdAt|date('d-m-Y') }}</td>
                                 <td class="text-right">
