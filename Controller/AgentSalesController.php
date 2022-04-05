@@ -162,7 +162,6 @@ class AgentSalesController extends AbstractController
         }
 
         $entities = $this->getDoctrine()->getRepository(AgentOrder::class)->findWithAgentSearch($data);
-        dump($entities);
 
         $agentSalesQty = $this->getDoctrine()->getRepository(AgentOrder::class)->findWithAgentOrderOty($data);
         $pagination = $this->paginate($request,$entities);
