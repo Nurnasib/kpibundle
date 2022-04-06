@@ -526,7 +526,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         }*/
 
 
-        $entities = $em->getRepository(DistrictOrder::class)->getLocationWiseTotalProductSalesTarget($districtsId, $board->getYear(), $board->getMonth());
+        $entities = $em->getRepository(DistrictOrder::class)->getLocationWiseTotalProductSalesTarget($districtsId, $board);
+
         if (!empty($entities)) {
             $totalAchivementMark = 0;
             $totalQuantity = 0;
@@ -548,9 +549,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                         $entity = $exist;
                     }
                     $entity->setEmployeeBoard($board);
-                    $entity->setTargetQuantity($parameter['targetQuantity'] ?: 0);
-//                    $entity->setSalesAmount($parameter['quantity'] ?: 0);
-                    $entity->setSalesQuantity($parameter['quantity'] ?: 0);
+                    $entity->setTargetQuantity($parameter['cumulativeTargetQuantity'] ?: 0);
+//                    $entity->setTargetQuantity($parameter['targetQuantity'] ?: 0);
+//                    $entity->setSalesQuantity($parameter['quantity'] ?: 0);
+                    $entity->setSalesQuantity($parameter['cumulativeQuantity'] ?: 0);
                     $entity->setMarkDistribution($distributionPoultry);
 
                     $mark = $this->salesTargetCalculationPoultryService($distribution->getSlug(), $entity->getTargetQuantity(), $entity->getSalesQuantity())[$distributionPoultry->getSlug()];
@@ -597,9 +599,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                         $entity = $exist;
                     }
                     $entity->setEmployeeBoard($board);
-                    $entity->setTargetQuantity($parameter['targetQuantity'] ?: 0);
-//                    $entity->setSalesAmount($parameter['quantity'] ?: 0);
-                    $entity->setSalesQuantity($parameter['quantity'] ?: 0);
+                    $entity->setTargetQuantity($parameter['cumulativeTargetQuantity'] ?: 0);
+//                    $entity->setTargetQuantity($parameter['targetQuantity'] ?: 0);
+//                    $entity->setSalesQuantity($parameter['quantity'] ?: 0);
+                    $entity->setSalesQuantity($parameter['cumulativeQuantity'] ?: 0);
                     $entity->setMarkDistribution($distributionAqua);
 
                     $mark = $this->salesTargetCalculationAquaService($distribution->getSlug(), $entity->getTargetQuantity(), $entity->getSalesQuantity())[$distributionAqua->getSlug()];
@@ -645,9 +648,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                         $entity = $exist;
                     }
                     $entity->setEmployeeBoard($board);
-                    $entity->setTargetQuantity($parameter['targetQuantity'] ?: 0);
-//                    $entity->setSalesAmount($parameter['quantity'] ?: 0);
-                    $entity->setSalesQuantity($parameter['quantity'] ?: 0);
+                    $entity->setTargetQuantity($parameter['cumulativeTargetQuantity'] ?: 0);
+//                    $entity->setTargetQuantity($parameter['targetQuantity'] ?: 0);
+//                    $entity->setSalesQuantity($parameter['quantity'] ?: 0);
+                    $entity->setSalesQuantity($parameter['cumulativeQuantity'] ?: 0);
                     $entity->setMarkDistribution($distributionCattle);
 
                     $mark = $this->salesTargetCalculationCattleService($distribution->getSlug(), $entity->getTargetQuantity(), $entity->getSalesQuantity())[$distributionCattle->getSlug()];
@@ -694,9 +698,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                         $entity = $exist;
                     }
                     $entity->setEmployeeBoard($board);
-                    $entity->setTargetQuantity($parameter['targetQuantity'] ?: 0);
-//                    $entity->setSalesAmount($parameter['quantity'] ?: 0);
-                    $entity->setSalesQuantity($parameter['quantity'] ?: 0);
+                    $entity->setTargetQuantity($parameter['cumulativeTargetQuantity'] ?: 0);
+//                    $entity->setTargetQuantity($parameter['targetQuantity'] ?: 0);
+//                    $entity->setSalesQuantity($parameter['quantity'] ?: 0);
+                    $entity->setSalesQuantity($parameter['cumulativeQuantity'] ?: 0);
 
                     $entity->setMarkDistribution($distribution);
 

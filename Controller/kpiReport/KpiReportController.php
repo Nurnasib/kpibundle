@@ -75,7 +75,7 @@ class KpiReportController extends AbstractController
                 $dompdf->loadHtml($html);
 
                 // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
-                $dompdf->setPaper('legal', 'landscape');
+                $dompdf->setPaper('A4', 'landscape');
 
                 // Render the HTML as PDF
                 $dompdf->render();
@@ -165,7 +165,7 @@ class KpiReportController extends AbstractController
                 $dompdf->loadHtml($html);
 
                 // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
-                $dompdf->setPaper('legal', 'landscape');
+                $dompdf->setPaper('A4', 'landscape');
 
                 // Render the HTML as PDF
                 $dompdf->render();
@@ -239,7 +239,7 @@ class KpiReportController extends AbstractController
                 $dompdf->loadHtml($html);
 
                 // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
-                $dompdf->setPaper('legal', 'landscape');
+                $dompdf->setPaper('A4', 'portrait');
 
                 // Render the HTML as PDF
                 $dompdf->render();

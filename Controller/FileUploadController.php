@@ -179,14 +179,19 @@ class FileUploadController extends AbstractController
 
         $salesDate = new \DateTime("01-{$month}-{$year}");
 
+
+        $months = [];
+        $monthNumber = date('m',strtotime($month));
+        for ($i = 1; $i <= $monthNumber; $i++){ // make month name array from January to generated KPI month
+            array_push($months, \DateTime::createFromFormat('!m', $i)->format('F'));
+        }
         $agentOrders = $this->getDoctrine()->getRepository(AgentOrder::class)->getDistrictWiseTotalProductSales($month, $year);
 
-        foreach ($agentOrders as $key=> $agentOrder){
+        foreach ($agentOrders as $key => $agentOrder){
 
             $district = $this->getDoctrine()->getRepository(Location::class)->find($agentOrder['dId']);
+//            $district = $this->getDoctrine()->getRepository(Location::class)->find(96);
             $product = $this->getDoctrine()->getRepository(MarkChart::class)->find($agentOrder['pId']);
-
-
 
             $districtOrder = new DistrictOrder();
 
@@ -197,7 +202,7 @@ class FileUploadController extends AbstractController
 
             $salesTargetQty = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->findOneBy(array('district'=>$district,'markDistribution'=>$product, 'month'=>$month, 'year'=>$year));
             $salesPriviousGrouthQty = $this->getDoctrine()->getRepository(DistrictOrder::class)->getGrouthPreviousProductQty($district, $product, $year, $month);
-            $salesCurrentGrouthQty = $this->getDoctrine()->getRepository(DistrictOrder::class)->getGrouthCurrentProductQty($district, $product, $year, $month);
+            $salesCurrentGrouthQty = $this->getDoctrine()->getRepository(DistrictOrder::class)->getGrouthCurrentProductQty($district, $product, $year, $months);
 
             $targetSalesQty =$salesTargetQty ? $salesTargetQty->getQuantity() : 0;
 
@@ -208,7 +213,8 @@ class FileUploadController extends AbstractController
             $districtOrder->setProduct($product ?: null);
             $districtOrder->setTargetQuantity($targetSalesQty);
             $districtOrder->setSalesGrouthPreviousQuantity($salesPriviousGrouthQty ?:0);
-            $districtOrder->setSalesGrouthCurrentQuantity($salesCurrentGrouthQty ? ($salesCurrentGrouthQty + $agentOrder['totalQty']):$agentOrder['totalQty']);
+//            $districtOrder->setSalesGrouthCurrentQuantity($salesCurrentGrouthQty ? ($salesCurrentGrouthQty + $agentOrder['totalQty']):$agentOrder['totalQty']);
+            $districtOrder->setSalesGrouthCurrentQuantity($salesCurrentGrouthQty ?: $agentOrder['totalQty']);
 
             $districtOrder->setSalesMarkPercentage($this->salesTargetPercentageCalculation($targetSalesQty, $agentOrder['totalQty']));
             $districtOrder->setSalesMark($this->salesTargetMarkCalculation($targetSalesQty, $agentOrder['totalQty']));
@@ -218,6 +224,14 @@ class FileUploadController extends AbstractController
             $districtOrder->setStatus(2);
             $em->persist($districtOrder);
             $em->flush();
+
+            //Insert cumulative Qty and cumulative Target Qty
+            $salesCumulativeTargetQty = $this->getDoctrine()->getRepository(DistrictOrder::class)->getCumulativeTargetQty($district, $product, $year, $months);
+            $salesCumulativeQty = $this->getDoctrine()->getRepository(DistrictOrder::class)->getCumulativeQty($district, $product, $year, $months);
+            $districtOrder->setCumulativeTargetQuantity($salesCumulativeTargetQty);
+            $districtOrder->setCumulativeQuantity($salesCumulativeQty);
+            $em->flush();
+
         }
 
         $file->setStatus(2);

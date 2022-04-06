@@ -49,7 +49,6 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
         $history = [];
 
         foreach ($records as $record){
-            $dis = $record['district'];
             $history[$record['user_id']] = [
                 'districts' => $record['district'] ? implode(', ', json_decode($record['district'], true)) : '',
             ];

@@ -64,6 +64,20 @@ class DistrictOrder
      * @var float
      * @ORM\Column(type="float", nullable=true)
      */
+    private $cumulativeQuantity;
+
+
+    /**
+     * @var float
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $cumulativeTargetQuantity;
+
+
+    /**
+     * @var float
+     * @ORM\Column(type="float", nullable=true)
+     */
     private $targetQuantity;
 
     /**
@@ -182,6 +196,39 @@ class DistrictOrder
     {
         $this->quantity = $quantity;
     }
+
+    /**
+     * @return float
+     */
+    public function getCumulativeQuantity(): float
+    {
+        return $this->cumulativeQuantity;
+    }
+
+    /**
+     * @param float $cumulativeQuantity
+     */
+    public function setCumulativeQuantity(float $cumulativeQuantity): void
+    {
+        $this->cumulativeQuantity = $cumulativeQuantity;
+    }
+
+    /**
+     * @return float
+     */
+    public function getCumulativeTargetQuantity(): float
+    {
+        return $this->cumulativeTargetQuantity;
+    }
+
+    /**
+     * @param float $cumulativeTargetQuantity
+     */
+    public function setCumulativeTargetQuantity(float $cumulativeTargetQuantity): void
+    {
+        $this->cumulativeTargetQuantity = $cumulativeTargetQuantity;
+    }
+
 
     /**
      * @return float

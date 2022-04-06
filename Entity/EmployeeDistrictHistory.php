@@ -152,17 +152,17 @@ class EmployeeDistrictHistory
     }
 
     /**
-     * @return string
+     * @return string|null ?string
      */
-    public function getDistrict(): string
+    public function getDistrict(): ?string
     {
         return $this->district;
     }
 
     /**
-     * @param string $district
+     * @param $district
      */
-    public function setDistrict(string $district): void
+    public function setDistrict($district): void
     {
         $this->district = $district;
     }

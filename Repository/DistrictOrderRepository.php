@@ -12,6 +12,7 @@
 namespace Terminalbd\KpiBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Terminalbd\KpiBundle\Entity\EmployeeBoard;
 
 /**
  * This custom Doctrine repository contains some methods which are useful when
@@ -109,37 +110,74 @@ class DistrictOrderRepository extends EntityRepository
         return $results;
     }
 
-    public function getGrouthCurrentProductQty($district, $product, $year, $month)
+    public function getGrouthCurrentProductQty($district, $product, $year, $months)
     {
-        $startDate = date('Y-m-01', strtotime("{$year}-01-01"));
-        $endDate = date('Y-m-t', strtotime("{$year}-{$month}-01"));
+//        $startDate = date('Y-m-01', strtotime("{$year}-01-01"));
+//        $endDate = date('Y-m-t', strtotime("{$year}-{$month}-01"));
 
         $qb = $this->createQueryBuilder('e');
 
         $qb->select('SUM(e.quantity) AS quantity');
 
-        $qb->where('e.district = :district');
-        $qb->andWhere('e.product = :product');
-        $qb->andWhere('e.created >= :startDate');
-        $qb->andWhere('e.created <= :endDate');
-        $qb->setParameters(array('district'=>$district,'product'=>$product,'startDate'=>$startDate, 'endDate'=>$endDate));
+        $qb->where('e.district = :district')->setParameter('district', $district);
+        $qb->andWhere('e.product = :product')->setParameter('product', $product);
+        $qb->andWhere('e.month IN (:months)')->setParameter('months', $months);
+        $qb->andWhere('e.year = :year')->setParameter('year', $year);
 
-        $results = $qb->getQuery()->getSingleScalarResult();
+        $qb->groupBy('e.year');
+        $qb->groupBy('e.product');
+        $qb->groupBy('e.district');
 
-        return $results;
+        return $qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function getCumulativeTargetQty($district, $product, $year, $months)
+    {
+        $qb = $this->createQueryBuilder('e');
+
+        $qb->select('SUM(e.targetQuantity) AS cumulativeTargetQuantity');
+
+        $qb->where('e.district = :district')->setParameter('district', $district);
+        $qb->andWhere('e.product = :product')->setParameter('product', $product);
+        $qb->andWhere('e.year = :year')->setParameter('year', $year);
+        $qb->andWhere('e.month IN (:months)')->setParameter('months', $months);
+
+        $qb->groupBy('e.year');
+        $qb->groupBy('e.product');
+        $qb->groupBy('e.district');
+
+        return $qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function getCumulativeQty($district, $product, $year, $months)
+    {
+        $qb = $this->createQueryBuilder('e');
+
+        $qb->select('SUM(e.quantity) AS cumulativeQuantity');
+
+        $qb->where('e.district = :district')->setParameter('district', $district);
+        $qb->andWhere('e.product = :product')->setParameter('product', $product);
+        $qb->andWhere('e.year = :year')->setParameter('year', $year);
+        $qb->andWhere('e.month IN (:months)')->setParameter('months', $months);
+
+        $qb->groupBy('e.year');
+        $qb->groupBy('e.product');
+        $qb->groupBy('e.district');
+
+        return $qb->getQuery()->getSingleScalarResult();
     }
 
 
-    public function getLocationWiseTotalProductSalesTarget($locations, $year, $month)
+    public function getLocationWiseTotalProductSalesTarget($locations, EmployeeBoard $board)
     {
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.product','product');
         $qb->join('e.district','d');
         $qb->select('product.id as id','SUM(e.quantity) as quantity','SUM(e.targetQuantity) as targetQuantity','SUM(e.salesMark) as salesMark');
-        $qb->addSelect('SUM(e.salesMarkPercentage) as salesMarkPercentage','SUM(e.salesGrouthPreviousQuantity) as salesGrouthPreviousQuantity','SUM(e.salesGrouthCurrentQuantity) as salesGrouthCurrentQuantity');
+        $qb->addSelect('SUM(e.salesMarkPercentage) as salesMarkPercentage','SUM(e.salesGrouthPreviousQuantity) as salesGrouthPreviousQuantity','SUM(e.salesGrouthCurrentQuantity) as salesGrouthCurrentQuantity', 'e.cumulativeQuantity', 'e.cumulativeTargetQuantity');
         $qb->where('d.id IN (:districts)')->setParameter('districts',$locations);
-        $qb->andWhere('e.year =:year')->setParameter('year',$year);
-        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->andWhere('e.year =:year')->setParameter('year',$board->getYear());
+        $qb->andWhere('e.month = :month')->setParameter('month',$board->getMonth());
         $qb->groupBy('product.id');
         $result = $qb->getQuery()->getArrayResult();
         $data = array();

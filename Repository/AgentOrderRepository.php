@@ -145,6 +145,7 @@ class AgentOrderRepository extends EntityRepository
         $qb->addSelect('d.id as dId');
         $qb->where('e.month =:month')->setParameter('month',$month);
         $qb->andWhere('e.year =:year')->setParameter('year',$year);
+//        $qb->andWhere('d.id =96');
         $qb->groupBy('d.id','p.id');
         return $qb->getQuery()->getArrayResult();
 
