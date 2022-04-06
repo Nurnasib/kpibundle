@@ -1,4 +1,30 @@
+
 <table>
+    <thead>
+    <tr>
+        <td><b>{{ 'Employee Name:'|trans }}</b></td>
+        <td>{{ board.employee.name }}</td>
+        <td><b>{{ 'Designation:'|trans }}</b></td>
+        <td>{{ board.employee.designation.name }}</td>
+        <td><b>{{ 'Format:'|trans }}</b></td>
+        <td>{{ board.employee.reportMode.name|default('') }}</td>
+
+    </tr>
+    <tr>
+        <td><b>{{ 'Employee Id:'|trans }}</b></td>
+        <td>{{ board.employee.userId }}</td>
+        <td><b>{{ 'Working Area:'|trans }}</b></td>
+        <td>{% for district in board.employee.district %}{{ district.name }}{% if not loop.last %},{% endif %} {% endfor %}</td>
+        <td><b>{{ 'Month & Year:'|trans }}</b></td>
+        <td>{{ board.month }},{{ board.year }}</td>
+
+    </tr>
+    </thead>
+</table>
+
+
+
+{#<table>
     <thead>
     <tr>
         <th align="left" width="25%">{{ 'Employee Name: '|trans }}</th>
@@ -31,7 +57,7 @@
         </tr>
     {% endif %}
     </thead>
-</table>
+</table>#}
 
 {% if feedAndGrowth is not empty %}
     {% for key, item in feedAndGrowth|ksort %}

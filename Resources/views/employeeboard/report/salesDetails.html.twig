@@ -48,36 +48,66 @@
                     <div class="portlet-body form text-dark">
                         <div class="row form-body">
                             <div class="form-inner-no-space">
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>{{ 'Employee Name:'|trans }}</strong></label>
-                                    <label class="col-md-10 control-label">{{ board.employee.name }}</label>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>{{ 'Employee Id:'|trans }}</strong></label>
-                                    <label class="col-md-10 control-label">{{ board.employee.userId }}</label>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>{{ 'Month & Year:'|trans }}</strong></label>
-                                    <label class="col-md-10 control-label">{{ board.month }},{{ board.year }}</label>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>{{ 'Designation:'|trans }}</strong></label>
-                                    <label class="col-md-10 control-label">{{ board.employee.designation.name }}</label>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>{{ 'Working Area:'|trans }}</strong></label>
-                                    <label class="col-md-10 control-label">{% for district in board.employee.district %}{{ district.name }}{% if not loop.last %},{% endif %} {% endfor %}</label>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label"><strong>{{ 'Format:'|trans }}</strong></label>
-                                    <label class="col-md-10 control-label">{{ board.employee.reportMode.name|default('') }}</label>
-                                </div>
-                                {% if board.employee.department is not empty %}
-                                    <div class="form-group">
-                                        <label class="col-md-2 control-label"><strong>{{ 'Department:'|trans }}</strong></label>
-                                        <label class="col-md-10 control-label">{{ board.employee.department.name }}</label>
-                                    </div>
-                                {% endif %}
+                                <style>
+                                    table.employee-details thead tr td:nth-child(odd){
+                                        width: 10%;
+                                    }
+                                    table.employee-details thead tr td:nth-child(even){
+                                        width: 23%;
+                                    }
+                                </style>
+                                <table width="100%" class="mb-5 employee-details">
+                                    <thead>
+                                    <tr>
+                                        <td><b>{{ 'Employee Name:'|trans }}</b></td>
+                                        <td>{{ board.employee.name }}</td>
+                                        <td><b>{{ 'Designation:'|trans }}</b></td>
+                                        <td>{{ board.employee.designation.name }}</td>
+                                        <td><b>{{ 'Format:'|trans }}</b></td>
+                                        <td>{{ board.employee.reportMode.name|default('') }}</td>
+
+                                    </tr>
+                                    <tr>
+                                        <td><b>{{ 'Employee Id:'|trans }}</b></td>
+                                        <td>{{ board.employee.userId }}</td>
+                                        <td><b>{{ 'Working Area:'|trans }}</b></td>
+                                        <td>{% for district in board.employee.district %}{{ district.name }}{% if not loop.last %},{% endif %} {% endfor %}</td>
+                                        <td><b>{{ 'Month & Year:'|trans }}</b></td>
+                                        <td>{{ board.month }},{{ board.year }}</td>
+
+                                    </tr>
+                                    </thead>
+                                </table>
+{#                                <div class="form-group">#}
+{#                                    <label class="col-md-2 control-label"><strong>{{ 'Employee Name:'|trans }}</strong></label>#}
+{#                                    <label class="col-md-10 control-label">{{ board.employee.name }}</label>#}
+{#                                </div>#}
+{#                                <div class="form-group">#}
+{#                                    <label class="col-md-2 control-label"><strong>{{ 'Employee Id:'|trans }}</strong></label>#}
+{#                                    <label class="col-md-10 control-label">{{ board.employee.userId }}</label>#}
+{#                                </div>#}
+{#                                <div class="form-group">#}
+{#                                    <label class="col-md-2 control-label"><strong>{{ 'Month & Year:'|trans }}</strong></label>#}
+{#                                    <label class="col-md-10 control-label">{{ board.month }},{{ board.year }}</label>#}
+{#                                </div>#}
+{#                                <div class="form-group">#}
+{#                                    <label class="col-md-2 control-label"><strong>{{ 'Designation:'|trans }}</strong></label>#}
+{#                                    <label class="col-md-10 control-label">{{ board.employee.designation.name }}</label>#}
+{#                                </div>#}
+{#                                <div class="form-group">#}
+{#                                    <label class="col-md-2 control-label"><strong>{{ 'Working Area:'|trans }}</strong></label>#}
+{#                                    <label class="col-md-10 control-label">{% for district in board.employee.district %}{{ district.name }}{% if not loop.last %},{% endif %} {% endfor %}</label>#}
+{#                                </div>#}
+{#                                <div class="form-group">#}
+{#                                    <label class="col-md-2 control-label"><strong>{{ 'Format:'|trans }}</strong></label>#}
+{#                                    <label class="col-md-10 control-label">{{ board.employee.reportMode.name|default('') }}</label>#}
+{#                                </div>#}
+{#                                {% if board.employee.department is not empty %}#}
+{#                                    <div class="form-group">#}
+{#                                        <label class="col-md-2 control-label"><strong>{{ 'Department:'|trans }}</strong></label>#}
+{#                                        <label class="col-md-10 control-label">{{ board.employee.department.name }}</label>#}
+{#                                    </div>#}
+{#                                {% endif %}#}
                             </div>
                             {% if feedAndGrowth is not empty %}
                                 {% for key, item in feedAndGrowth|ksort %}
