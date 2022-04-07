@@ -527,7 +527,6 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
 
         $entities = $em->getRepository(DistrictOrder::class)->getLocationWiseTotalProductSalesTarget($districtsId, $board);
-
         if (!empty($entities)) {
             $totalAchivementMark = 0;
             $totalQuantity = 0;

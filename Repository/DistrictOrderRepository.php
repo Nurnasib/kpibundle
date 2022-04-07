@@ -174,7 +174,7 @@ class DistrictOrderRepository extends EntityRepository
         $qb->join('e.product','product');
         $qb->join('e.district','d');
         $qb->select('product.id as id','SUM(e.quantity) as quantity','SUM(e.targetQuantity) as targetQuantity','SUM(e.salesMark) as salesMark');
-        $qb->addSelect('SUM(e.salesMarkPercentage) as salesMarkPercentage','SUM(e.salesGrouthPreviousQuantity) as salesGrouthPreviousQuantity','SUM(e.salesGrouthCurrentQuantity) as salesGrouthCurrentQuantity', 'e.cumulativeQuantity', 'e.cumulativeTargetQuantity');
+        $qb->addSelect('SUM(e.salesMarkPercentage) as salesMarkPercentage','SUM(e.salesGrouthPreviousQuantity) as salesGrouthPreviousQuantity','SUM(e.salesGrouthCurrentQuantity) as salesGrouthCurrentQuantity', 'SUM(e.cumulativeQuantity) AS cumulativeQuantity', 'SUM(e.cumulativeTargetQuantity) AS cumulativeTargetQuantity');
         $qb->where('d.id IN (:districts)')->setParameter('districts',$locations);
         $qb->andWhere('e.year =:year')->setParameter('year',$board->getYear());
         $qb->andWhere('e.month = :month')->setParameter('month',$board->getMonth());
