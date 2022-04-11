@@ -52,8 +52,8 @@ class FileUploadController extends AbstractController
             $uploadedFile = $form['UploadFile']->getData();
             if (in_array($uploadedFile->getClientOriginalExtension(), $allowFileType)){
                 $em = $this->getDoctrine()->getManager();
-                $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $newFileName = $form['title']->getData() . '_' . $originalFilename . '-' . date('d-m-Y') . '-' . time() . '.' . $uploadedFile->getClientOriginalExtension();
+//                $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $newFileName = $form['title']->getData() . '_' . $form['monthYear']->getData() . '_upload_date:' . date('d-m-Y') . '-' . time() . '.' . $uploadedFile->getClientOriginalExtension();
                 $uploadDir = $this->get('kernel')->getProjectDir() . '/public/uploads/excel/';
 
                 $uploadedFile->move(
