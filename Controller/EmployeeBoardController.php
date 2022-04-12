@@ -530,16 +530,9 @@ class EmployeeBoardController extends AbstractController
      */
     public function salesAchievementSummary(EmployeeBoard $board, $mode, Request $request): Response
     {
-//        $locations = $entity->getEmployee()->getDistrict();
         $districtHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'month' => $board->getMonth(), 'year' => $board->getYear()]);
         $districts = $districtHistory ? $districtHistory->getDistrict() : '';
         $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
-/*        $locationsId = array();
-        if(!empty($locations)){
-            foreach ($locations as $location){
-                $locationsId[] = $location->getId();
-            }
-        }*/
 
         $employee = $board->getEmployee();
 

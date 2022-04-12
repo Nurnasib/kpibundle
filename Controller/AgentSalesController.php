@@ -150,6 +150,7 @@ class AgentSalesController extends AbstractController
         }
         
         $data = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>date('Y'),'agent'=>null, 'district' => null);
+
         if($requestData){
             $explode= explode(',',$requestData);
             $data = array('month'=>$explode[0],'year'=>$explode[1]);

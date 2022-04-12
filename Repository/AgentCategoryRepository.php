@@ -398,7 +398,7 @@ class AgentCategoryRepository extends EntityRepository
         $qb = $this->createQueryBuilder('e');
 
         $qb->join('e.agent', 'agent');
-        $qb->join('e.gradeStandard', 'grade_standard');
+        $qb->leftJoin('e.gradeStandard', 'grade_standard');
         $qb->join('agent.district', 'district');
 
         $qb->select('e.average', 'e.month', 'e.year');
@@ -415,6 +415,7 @@ class AgentCategoryRepository extends EntityRepository
         foreach ($results as $result) {
             $data[$result['year']][$result['agentId']] = $result;
         }
+
         $agentUpgrade = [];
 
 
@@ -440,7 +441,8 @@ class AgentCategoryRepository extends EntityRepository
                 }
             }
         }
-        $agentUpgrade['totalAgentsCount'] = count($data[$board->getYear()-1]);
+
+        $agentUpgrade['totalAgentsCount'] = count($data[$board->getYear()-1] + $data[$board->getYear()]);
         $agentUpgrade['upgradeAgentsCount'] = count($agentUpgrade['upgradeAgents']);
 
         return $agentUpgrade;
