@@ -430,44 +430,43 @@
             </th>
         </tr>
         <tr>
-            <td>{{ 'Total Agent:' }} {{ growthAgentSalesDetails.totalAgent|default(0) }}</td>
-            <td>{{ 'Total Growth Agent:' }} {{ growthAgentSalesDetails.growthAgent|default(0) }}</td>
-{#            <td>{{ '20% Growth Agent:' }} {{ growthAgentSalesDetails.twentyPercentGrowthAgents|default(0) }}</td>#}
-            <td>{{ 'Growth Agent percentage:' }}
-                {% if growthAgentSalesDetails.totalAgent > 0 %}
-                    {{ ((growthAgentSalesDetails.growthAgent * 100) / growthAgentSalesDetails.totalAgent)|number_format(2) }} %
+            <th>{{ 'Total Agents:' }} {{ agentUpgradationDetails.totalAgentsCount|default(0) }}</th>
+            <th>{{ 'Total Upgrade Agents:' }} {{ agentUpgradationDetails.upgradeAgentsCount|default(0) }}</th>
+            <th>{{ 'Upgrade Agents percentage:' }}
+                {% if agentUpgradationDetails.totalAgentsCount > 0 %}
+                    {{ ((agentUpgradationDetails.upgradeAgentsCount * 100) / agentUpgradationDetails.totalAgentsCount)|number_format(2) }} %
 
                 {% endif %}
-            </td>
+            </th>
         </tr>
         </thead>
     </table>
     <table>
         <thead>
         <tr>
+            <th scope="col">S/N</th>
             <th scope="col">{{ 'Agent Id'|trans }}</th>
             <th scope="col">{{ 'Agent Name'|trans }}</th>
             <th scope="col">{{ 'Address'|trans }}</th>
-            <th scope="col">{{ 'Total Sales'|trans }} ({{ (board.year)-1 }})</th>
+            <th scope="col">{{ 'Total Sales'|trans }} ({{ board.year-1 }})</th>
             <th scope="col">{{ 'Total Sales'|trans }} ({{ board.year }})</th>
-            <th scope="col">{{ 'Growth'|trans }}</th>
+            <th scope="col">{{ 'Grade'|trans }} ({{ board.year-1 }})</th>
+            <th scope="col">{{ 'Grade'|trans }} ({{ board.year }})</th>
         </tr>
         </thead>
         <tbody>
-        {% if growthAgentSalesDetails is not empty %}
-            {% for agentId, details in growthAgentSalesDetails %}
+        {% if agentUpgradationDetails.upgradeAgents is defined and agentUpgradationDetails.upgradeAgents is not empty %}
+            {% for agentId, details in agentUpgradationDetails.upgradeAgents %}
                 {% if details is iterable %}
-                    {% set prevYearSale = details[board.year-1] %}
-                    {% set currentYearSale = details[board.year] %}
                     <tr>
-                        <td align="center">{{ agentId|default('') }}</td>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ agentId|default('') }}</td>
                         <td>{{ details.agentName|default('') }}</td>
                         <td>{{ details.agentAddress|default('') }}</td>
-                        <td align="right">{{ details[board.year-1]|number_format(2) }}</td>
-                        <td align="right">{{ details[board.year]|number_format(2) }}</td>
-                        <td align="center">{{ (((currentYearSale - prevYearSale) * 100) / prevYearSale)|number_format(2) }}
-                            %
-                        </td>
+                        <td>{{ details['average-' ~ (board.year-1)]|number_format(2) }}</td>
+                        <td>{{ details['average-' ~ board.year]|number_format(2) }}</td>
+                        <td>{{ details['grade-' ~ (board.year-1)] }}</td>
+                        <td>{{ details['grade-' ~ board.year] }}</td>
                     </tr>
                 {% endif %}
             {% endfor %}

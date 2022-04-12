@@ -390,4 +390,59 @@ class AgentCategoryRepository extends EntityRepository
         $currentYearAgentsCtoUpgrade['totalUpgradeAgent'] = count(array_intersect($currentGrade, ['A','B']));
         return $currentYearAgentsCtoUpgrade;
     }
+
+    public function getAgentUpgradation(EmployeeBoard $board, $districtsId)
+    {
+        $years = [$board->getYear()-1, (int)$board->getYear()];
+
+        $qb = $this->createQueryBuilder('e');
+
+        $qb->join('e.agent', 'agent');
+        $qb->join('e.gradeStandard', 'grade_standard');
+        $qb->join('agent.district', 'district');
+
+        $qb->select('e.average', 'e.month', 'e.year');
+        $qb->addSelect('agent.agentId', 'agent.name AS agentName', 'agent.address AS agentAddress');
+        $qb->addSelect('grade_standard.grade');
+
+        $qb->where('district.id IN (:districtsId)')->setParameter('districtsId', $districtsId);
+        $qb->andWhere('e.year IN (:years)')->setParameter('years', $years);
+        $qb->andWhere('e.month = :month')->setParameter('month', $board->getMonth());
+
+        $results = $qb->getQuery()->getArrayResult();
+
+        $data = [];
+        foreach ($results as $result) {
+            $data[$result['year']][$result['agentId']] = $result;
+        }
+        $agentUpgrade = [];
+
+
+        foreach ($data[$board->getYear()] as $agentId => $currentYearAgent) {
+            if (array_key_exists($agentId, $data[$board->getYear()-1])){ // find agent in previous year
+                if ($data[$board->getYear()-1][$agentId]['grade'] != $data[$board->getYear()][$agentId]['grade']){ // Remove equal grade agent
+                    $prevYearGradePosition = ord(strtoupper($data[$board->getYear()-1][$agentId]['grade'])) - ord('A') + 1;
+                    $currentYearGradePosition = ord(strtoupper($data[$board->getYear()][$agentId]['grade'])) - ord('A') + 1;
+
+                    if ($currentYearGradePosition < $prevYearGradePosition){ // check grade position upgradation
+
+                        $agentUpgrade['upgradeAgents'][$agentId] = [
+                            'agentId' => $agentId,
+                            'agentName' => $currentYearAgent['agentName'],
+                            'agentAddress' => $currentYearAgent['agentAddress'],
+                            'average-' . ($board->getYear()-1) => $data[$board->getYear()-1][$agentId]['average'],
+                            'average-' . $board->getYear() => $data[$board->getYear()][$agentId]['average'],
+                            'grade-' . ($board->getYear()-1) => $data[$board->getYear()-1][$agentId]['grade'],
+                            'grade-' . $board->getYear() => $data[$board->getYear()][$agentId]['grade']
+                        ];
+
+                    }
+                }
+            }
+        }
+        $agentUpgrade['totalAgentsCount'] = count($data[$board->getYear()-1]);
+        $agentUpgrade['upgradeAgentsCount'] = count($agentUpgrade['upgradeAgents']);
+
+        return $agentUpgrade;
+    }
 }

@@ -566,11 +566,11 @@ class EmployeeBoardController extends AbstractController
 
         $individualTeamMemberMarks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getIndividualTeamMemberMarks($employeeArrs, $parameter, $board);
 
-        $dCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithDcategory($board,$districtsId);
-        $cCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithCcategory($board,$districtsId);
+        $dCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithDcategory($board, $districtsId);
+        $cCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithCcategory($board, $districtsId);
 
+        $agentUpgradationDetails = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentUpgradation($board, $districtsId);
 
-        $growthAgentSalesDetails = $this->getDoctrine()->getRepository(AgentOrder::class)->getGrowthAgentSalesDetails($board, $districtsId);
         if ($mode == 'pdf'){
 
             // Configure Dompdf according to your needs
@@ -587,7 +587,7 @@ class EmployeeBoardController extends AbstractController
                 'outstanding' => $outstanding,
                 'dCategoryUpgrade' => $dCategoryUpgrade,
                 'cCategoryUpgrade' => $cCategoryUpgrade,
-                'growthAgentSalesDetails' => $growthAgentSalesDetails,
+                'agentUpgradationDetails' => $agentUpgradationDetails,
                 'docSale' => $docSale,
                 'individualTeamMemberMarks' => $individualTeamMemberMarks,
 
@@ -615,7 +615,8 @@ class EmployeeBoardController extends AbstractController
                 'outstanding' => $outstanding,
                 'dCategoryUpgrade' => $dCategoryUpgrade,
                 'cCategoryUpgrade' => $cCategoryUpgrade,
-                'growthAgentSalesDetails' => $growthAgentSalesDetails,
+//                'growthAgentSalesDetails' => $growthAgentSalesDetails,
+                'agentUpgradationDetails' => $agentUpgradationDetails,
                 'docSale' => $docSale,
                 'individualTeamMemberMarks' => $individualTeamMemberMarks,
 
@@ -638,7 +639,7 @@ class EmployeeBoardController extends AbstractController
                 'outstanding' => $outstanding,
                 'dCategoryUpgrade' => $dCategoryUpgrade,
                 'cCategoryUpgrade' => $cCategoryUpgrade,
-                'growthAgentSalesDetails' => $growthAgentSalesDetails,
+                'agentUpgradationDetails' => $agentUpgradationDetails,
                 'docSale' => $docSale,
                 'individualTeamMemberMarks' => $individualTeamMemberMarks,
 

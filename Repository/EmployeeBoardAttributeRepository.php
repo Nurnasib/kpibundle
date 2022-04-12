@@ -259,48 +259,24 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     public function agentSalesGrowth(EmployeeBoard $board, $districtsId)
     {
         $em = $this->_em;
-        $prevYear = $board->getYear() - 1;
-//        $twentyPercentGrowthAgents = [];
-        $growthAgents = [];
-/*        $locations = $board->getEmployee()->getDistrict();
-        $locationsId = [];
-        if (!empty($locations)) {
-            foreach ($locations as $location) {
-                $locationsId[] = $location->getId();
-            }
-        }*/
-        $agentsWithSalesQuantity = $em->getRepository(AgentOrder::class)->getAgentWithSalesQuantity($board, $districtsId);
-        $commonAgentBetweenYears = array_intersect_key($agentsWithSalesQuantity[$board->getYear()], $agentsWithSalesQuantity[$prevYear]);  //Common agents and SalesQuantity(Current Year)
 
+        $agentUpgrade = $em->getRepository(AgentCategory::class)->getAgentUpgradation($board, $districtsId);
 
-        foreach ($commonAgentBetweenYears as $agentId => $currentYearAgentCumulativeSalesQty) {
-            if ($agentsWithSalesQuantity[$prevYear][$agentId]) {
-                if ($currentYearAgentCumulativeSalesQty > $agentsWithSalesQuantity[$prevYear][$agentId]) {
-                    $growthAgents[] = $agentId;
-
-/*                    $growthPercentage = (($currentYearAgentSalesQty - $agentsWithSalesQuantity[$prevYear][$agentId]) * 100) / $agentsWithSalesQuantity[$prevYear][$agentId];
-                    if ($growthPercentage >= 20) {
-                        $twentyPercentGrowthAgents[] = $agentId;
-                    }*/
-                }
-            }
-        }
         $agentSalesDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'agent-upgradation'));
         $employeeBoardAttributeForAgentSalesGrowth = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $agentSalesDistribution]);
 
         if ($employeeBoardAttributeForAgentSalesGrowth) {
-            $mark = $this->growthAgentMarkCalculation($commonAgentBetweenYears, $growthAgents);
+            $mark = $this->growthAgentMarkCalculation($agentUpgrade['totalAgentsCount'], $agentUpgrade['upgradeAgentsCount']);
             $employeeBoardAttributeForAgentSalesGrowth->setMark($mark);
             $em->persist($employeeBoardAttributeForAgentSalesGrowth);
             $em->flush();
         }
     }
 
-
-    private function growthAgentMarkCalculation($commonAgentBetweenYears, $growthAgents)
+    private function growthAgentMarkCalculation($totalAgents, $upgradeAgents)
     {
-        if (count($commonAgentBetweenYears) > 0 && count($growthAgents) > 0){
-            $agentNumberWithPercentage = (count($growthAgents) * 100) / count($commonAgentBetweenYears);
+        if ($totalAgents > 0 && $upgradeAgents > 0){
+            $agentNumberWithPercentage = ($upgradeAgents * 100) / $totalAgents;
 
             if ($agentNumberWithPercentage >= 20) {
                 return 3;
