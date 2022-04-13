@@ -114,7 +114,7 @@
                                 <tr>
                                     <td>{{ loop.index }}</td>
                                     <td>{{ entity.created|date('d-m-Y')|default('') }}</td>
-                                    <td>{{ entity.name|default('') }}</td>
+                                    <td>{{ '(' ~ entity.userId ~ ') ' ~ entity.name|default('') }}</td>
                                     <td>{{ entity.designation|default('') }}</td>
                                     <td>{{ entity.reportFormat|default('') }}</td>
                                     <td>{{ entity.lineManager|default('') }}</td>
