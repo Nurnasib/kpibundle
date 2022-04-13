@@ -422,8 +422,8 @@ class AgentCategoryRepository extends EntityRepository
         foreach ($data[$board->getYear()] as $agentId => $currentYearAgent) {
             if (array_key_exists($agentId, $data[$board->getYear()-1])){ // find agent in previous year
                 if ($data[$board->getYear()-1][$agentId]['grade'] != $data[$board->getYear()][$agentId]['grade']){ // Remove equal grade agent
-                    $prevYearGradePosition = ord(strtoupper($data[$board->getYear()-1][$agentId]['grade'])) - ord('A') + 1;
-                    $currentYearGradePosition = ord(strtoupper($data[$board->getYear()][$agentId]['grade'])) - ord('A') + 1;
+                    $prevYearGradePosition = ord(strtoupper($data[$board->getYear()-1][$agentId]['grade'])) - ord('A') + 1; //find grade position
+                    $currentYearGradePosition = ord(strtoupper($data[$board->getYear()][$agentId]['grade'])) - ord('A') + 1; //find grade position
 
                     if ($currentYearGradePosition < $prevYearGradePosition){ // check grade position upgradation
 
@@ -443,7 +443,7 @@ class AgentCategoryRepository extends EntityRepository
         }
 
         $agentUpgrade['totalAgentsCount'] = count($data[$board->getYear()-1] + $data[$board->getYear()]);
-        $agentUpgrade['upgradeAgentsCount'] = count($agentUpgrade['upgradeAgents']);
+        $agentUpgrade['upgradeAgentsCount'] = isset($agentUpgrade['upgradeAgents']) ? count($agentUpgrade['upgradeAgents']) : 0;
 
         return $agentUpgrade;
     }
