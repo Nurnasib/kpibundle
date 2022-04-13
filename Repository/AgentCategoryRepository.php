@@ -416,6 +416,13 @@ class AgentCategoryRepository extends EntityRepository
             $data[$result['year']][$result['agentId']] = $result;
         }
 
+        if (!array_key_exists($board->getYear(), $data)){
+            $data[$board->getYear()] = [];
+        }
+        if (!array_key_exists($board->getYear()-1, $data)){
+            $data[$board->getYear()-1] = [];
+        }
+
         $agentUpgrade = [];
 
 
@@ -442,6 +449,9 @@ class AgentCategoryRepository extends EntityRepository
             }
         }
 
+        if (!array_key_exists('upgradeAgents', $agentUpgrade)){
+            $agentUpgrade['upgradeAgents'] = [];
+        }
         $agentUpgrade['totalAgentsCount'] = count($data[$board->getYear()-1] + $data[$board->getYear()]);
         $agentUpgrade['upgradeAgentsCount'] = isset($agentUpgrade['upgradeAgents']) ? count($agentUpgrade['upgradeAgents']) : 0;
 
