@@ -80,7 +80,7 @@
                                         {% if data.status == 0 and not is_granted('ROLE_KPI_ADMIN') %}
                                             <a data-action="{{ path('kpi_file_upload_file_delete',{'id':data.id}) }}" class="btn  btn-transparent btn-mini red-font remove" href="javascript:"><i class="fa fa-remove"></i></a>
                                             {% elseif is_granted('ROLE_KPI_ADMIN') %}
-                                                <a data-action="{{ path('kpi_file_upload_file_delete',{'id':data.id}) }}" class="btn  btn-transparent btn-mini red-font remove" href="javascript:"><i class="fa fa-remove"></i></a>
+                                                <a data-action="{{ path('kpi_file_upload_file_delete',{'id':data.id}) }}" class="btn  btn-transparent btn-mini red-font removeReload" href="javascript:"><i class="fa fa-remove"></i></a>
                                         {% endif %}
                                     </div>
                                 </td>

@@ -186,10 +186,12 @@ class AgentOrder
     /**
      * @param MarkChart $product
      */
-    public function setProduct(MarkChart $product)
+    public function setProduct(MarkChart $product): void
     {
         $this->product = $product;
     }
+
+
 
     /**
      * @return float

@@ -112,6 +112,7 @@ class FileUploadController extends AbstractController
 
 
                 $flashArray = $this->getDoctrine()->getRepository(AgentOrder::class)->insertAgentSales($file, $keys, $allData, $month, $year);
+//                $this->getDoctrine()->getRepository(AgentOrder::class)->insertAgentSales($file, $keys, $allData, $month, $year);
                 if (isset($flashArray['new']) && sizeof($flashArray['new'])>0) {
                     $this->addFlash('success', 'Record inserted successfully into Database!');
                 }elseif (isset($flashArray['update']) && sizeof($flashArray['update'])>0){

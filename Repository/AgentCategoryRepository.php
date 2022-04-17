@@ -11,7 +11,10 @@
 
 namespace Terminalbd\KpiBundle\Repository;
 
+use App\Entity\Core\Agent;
+use App\Entity\Core\Setting;
 use Doctrine\ORM\EntityRepository;
+use Symfony\Component\Serializer\SerializerInterface;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
 use Terminalbd\KpiBundle\Entity\EmployeeDistrictHistory;
 
@@ -93,7 +96,7 @@ class AgentCategoryRepository extends EntityRepository
 
     public function insertAgentOrderInAgentCategory($monthName, $year, $file)
     {
-//        $createdMonth = new \DateTime($year . '-' .date('m', strtotime($monthName)) . '-01')->format('Y-m-d');
+
         $createdMonth = $year . '-' .date('m', strtotime($monthName)) . '-01';
 
         $query = "INSERT INTO kpi_agent_category(agent_id, quantity, month, year, created_at, document_upload_id, created_month)
@@ -161,18 +164,9 @@ class AgentCategoryRepository extends EntityRepository
 
     public function getCategoryUpgradationMarks(EmployeeBoard $board, $gradeLetters, $districtsId)
     {
-//        $prevYear = date('Y',strtotime('-1 year'));
         $prevYear = $board->getYear() - 1;
         $month = $board->getMonth();
 
-        /*        $locations = $employeeBoard->getEmployee()->getDistrict();
-                $locationsId = [];
-                if(!empty($locations)){
-                    foreach ($locations as $location){
-                        $locationsId[] = $location->getId();
-                    }
-                }*/
-//        $gradeLetters = ['C','D'];
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent','agent');
         $qb->join('agent.district','district');
@@ -202,7 +196,6 @@ class AgentCategoryRepository extends EntityRepository
     }
     private function currentMonthCategoryUpgradationPercentage($agentsIdWithCategory, EmployeeBoard $board)
     {
-//        $lastMonth = Date('F', strtotime(date('F') . " last month"));
         $month = $board->getMonth();
         $currentYear = $board->getYear();
         $categoryUpgradationPercentages = [];
@@ -257,33 +250,37 @@ class AgentCategoryRepository extends EntityRepository
 
     public function getAgentWithDcategory(EmployeeBoard $board, $districtsId)
     {
-        $prevYear = $board->getYear()-1;
-/*        $locations = $employeeBoard->getEmployee()->getDistrict();
-        $locationsId = [];
-        if(!empty($locations)){
-            foreach ($locations as $location){
-                $locationsId[] = $location->getId();
-            }
+/*        $months = [];
+        for ($i = 1; $i <= date('m', strtotime($board->getMonth())); $i++){
+            $months[] = date('F', strtotime('01-' . $i . '-2022')); //get months
         }*/
 
-//        $gradeLetters = ['C','D'];
+        $prevYear = $board->getYear()-1;
+
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent','agent');
         $qb->join('agent.district','district');
+        $qb->leftJoin('district.parent', 'region');
+        $qb->leftJoin('region.parent', 'zone');
         $qb->join('e.gradeStandard','gradeStandard');
 
         $qb->select('gradeStandard.grade');
         $qb->addSelect('agent.agentId AS agentId', 'agent.name AS agentName');
         $qb->addSelect('e.average');
+        $qb->addSelect('region.name AS agentRegionName');
+        $qb->addSelect('zone.name AS agentZoneName');
 
         $qb->where('e.year = :prevYear')->setParameter('prevYear', $prevYear);
         $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $districtsId);
         $qb->andWhere('e.month = :month')->setParameter('month', $board->getMonth());
+//        $qb->andWhere('e.month IN (:months)')->setParameter('months', $months);
         $qb->andWhere("gradeStandard.grade = 'D'");
 
+//        $qb->groupBy('agent.id');
         $agents = $qb->getQuery()->getArrayResult();
+
         $prevYearAgentsWithDcategory = [];
-        $agentsId =[];
+        $agentsId = [];
 
         foreach ($agents as $agent){
             $prevYearAgentsWithDcategory[(int)$agent['agentId']]= $agent;
@@ -292,15 +289,41 @@ class AgentCategoryRepository extends EntityRepository
         }
 
         $currentGrade = [];
-        $currentYearAgentsDtoUpgradeCategory = $this->getAgentCurrentMonth($board,$agentsId);
-        foreach ($currentYearAgentsDtoUpgradeCategory as $key => $item) {
-            if(array_key_exists($key, $prevYearAgentsWithDcategory)){
+        $currentYearAgentsDtoUpgradeCategory = $this->getAgentCurrentMonth($board, $agentsId);
+
+//        dd($prevYearAgentsWithDcategory, $currentYearAgentsDtoUpgradeCategory);
+        foreach ($prevYearAgentsWithDcategory as $key => $item) {
+            if (array_key_exists($key, $currentYearAgentsDtoUpgradeCategory)){
                 $currentYearAgentsDtoUpgradeCategory[$key]['prevYearGrade'] = $prevYearAgentsWithDcategory[$key]['grade'];
                 $currentYearAgentsDtoUpgradeCategory[$key]['prevYearAvg'] = $prevYearAgentsWithDcategory[$key]['average'];
-                array_push($currentGrade, $item['currentMonthGrade']);
-
+                array_push($currentGrade, $currentYearAgentsDtoUpgradeCategory[$key]['currentMonthGrade']);
+            }else{
+                $currentYearAgentsDtoUpgradeCategory[$key] = [
+                    'currentMonthAvg' => 0,
+                    'month' => $board->getMonth(),
+                    'year' => $board->getYear(),
+                    'agentId' => $item['agentId'],
+                    'agentName' => $item['agentName'],
+                    'agentRegionName' => $item['agentRegionName'],
+                    'agentZoneName' => $item['agentZoneName'],
+                    'currentMonthGrade' => '',
+                    'prevYearGrade' => $prevYearAgentsWithDcategory[$key]['grade'],
+                    'prevYearAvg' => $prevYearAgentsWithDcategory[$key]['average'],
+                ];
             }
+
+
         }
+
+        /*
+                foreach ($currentYearAgentsDtoUpgradeCategory as $key => $item) {
+                    if(array_key_exists($key, $prevYearAgentsWithDcategory)){
+                        $currentYearAgentsDtoUpgradeCategory[$key]['prevYearGrade'] = $prevYearAgentsWithDcategory[$key]['grade'];
+                        $currentYearAgentsDtoUpgradeCategory[$key]['prevYearAvg'] = $prevYearAgentsWithDcategory[$key]['average'];
+                        array_push($currentGrade, $item['currentMonthGrade']);
+
+                    }
+                }*/
         $currentYearAgentsDtoUpgradeCategory['totalAgent'] = count($currentYearAgentsDtoUpgradeCategory);
         $currentYearAgentsDtoUpgradeCategory['totalUpgradeAgent'] = count(array_intersect($currentGrade, ['A','B','C']));
         return $currentYearAgentsDtoUpgradeCategory;
@@ -313,8 +336,8 @@ class AgentCategoryRepository extends EntityRepository
         $qb->join('e.agent', 'agent');
         $qb->join('e.gradeStandard', 'gradeStandard');
         $qb->join('agent.district', 'district');
-        $qb->join('district.parent', 'region');
-        $qb->join('region.parent', 'zone');
+        $qb->leftJoin('district.parent', 'region');
+        $qb->leftJoin('region.parent', 'zone');
 
         $qb->select('e.average AS currentMonthAvg','e.month','e.year');
         $qb->addSelect('agent.agentId AS agentId', 'agent.name AS agentName');
@@ -324,46 +347,49 @@ class AgentCategoryRepository extends EntityRepository
 
         $qb->where('e.year = :currentYear')->setParameter('currentYear', $board->getYear());
         $qb->andWhere('e.month = :month')->setParameter('month', $board->getMonth());
+//        $qb->andWhere('district.id IN (:districts)')->setParameter('districts', $districtsId);
+//        $qb->andWhere('e.month IN (:months)')->setParameter('months', $months);
         $qb->andWhere('agent.agentId IN (:agentId)')->setParameter('agentId', $agentsId);
         $results = $qb->getQuery()->getArrayResult();
         $data = [];
         foreach ($results as $result){
             $data[(int)$result['agentId']]= $result;
+            $data[(int)$result['agentId']]['prevYearGrade'] = '';
+            $data[(int)$result['agentId']]['prevYearAvg'] = 0;
         }
 
         return $data;
     }
 
 
-
-
-
-
     public function getAgentWithCcategory(EmployeeBoard $board, $districtsId)
     {
-        $prevYear = $board->getYear()-1;
-/*        $locations = $employeeBoard->getEmployee()->getDistrict();
-        $locationsId = [];
-        if(!empty($locations)){
-            foreach ($locations as $location){
-                $locationsId[] = $location->getId();
-            }
+/*        $months = [];
+        for ($i = 1; $i <= date('m', strtotime($board->getMonth())); $i++){
+            $months[] = date('F', strtotime('01-' . $i . '-2022')); //get months
         }*/
+        $prevYear = $board->getYear()-1;
 
-//        $gradeLetters = ['C','D'];
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent','agent');
         $qb->join('agent.district','district');
+        $qb->leftJoin('district.parent', 'region');
+        $qb->leftJoin('region.parent', 'zone');
         $qb->join('e.gradeStandard','gradeStandard');
 
         $qb->select('gradeStandard.grade');
         $qb->addSelect('agent.agentId AS agentId', 'agent.name AS agentName');
         $qb->addSelect('e.average');
+        $qb->addSelect('region.name AS agentRegionName');
+        $qb->addSelect('zone.name AS agentZoneName');
 
         $qb->where('e.year = :prevYear')->setParameter('prevYear', $prevYear);
         $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $districtsId);
         $qb->andWhere('e.month = :month')->setParameter('month', $board->getMonth());
+//        $qb->andWhere('e.month IN (:months)')->setParameter('months', $months);
         $qb->andWhere("gradeStandard.grade = 'C'");
+
+//        $qb->groupBy('agent.id');
 
         $agents = $qb->getQuery()->getArrayResult();
 
@@ -377,14 +403,37 @@ class AgentCategoryRepository extends EntityRepository
         }
 
         $currentGrade = [];
-        $currentYearAgentsCtoUpgrade = $this->getAgentCurrentMonth($board,$agentsId);
-        foreach ($currentYearAgentsCtoUpgrade as $key => $item) {
-            if(array_key_exists($key, $prevYearAgentsWithCcategory)){
+        $currentYearAgentsCtoUpgrade = $this->getAgentCurrentMonth($board, $agentsId);
+
+        foreach ($prevYearAgentsWithCcategory as $key => $item) {
+            if (array_key_exists($key, $currentYearAgentsCtoUpgrade)){
                 $currentYearAgentsCtoUpgrade[$key]['prevYearGrade'] = $prevYearAgentsWithCcategory[$key]['grade'];
                 $currentYearAgentsCtoUpgrade[$key]['prevYearAvg'] = $prevYearAgentsWithCcategory[$key]['average'];
-                array_push($currentGrade, $item['currentMonthGrade']);
+                array_push($currentGrade, $currentYearAgentsCtoUpgrade[$key]['currentMonthGrade']);
+            }else{
+                $currentYearAgentsCtoUpgrade[$key] = [
+                    'currentMonthAvg' => 0,
+                    'month' => $board->getMonth(),
+                    'year' => $board->getYear(),
+                    'agentId' => $item['agentId'],
+                    'agentName' => $item['agentName'],
+                    'agentRegionName' => $item['agentRegionName'],
+                    'agentZoneName' => $item['agentZoneName'],
+                    'currentMonthGrade' => '',
+                    'prevYearGrade' => $prevYearAgentsWithCcategory[$key]['grade'],
+                    'prevYearAvg' => $prevYearAgentsWithCcategory[$key]['average'],
+                ];
             }
+
         }
+
+        /*        foreach ($currentYearAgentsCtoUpgrade as $key => $item) {
+                    if(array_key_exists($key, $prevYearAgentsWithCcategory)){
+                        $currentYearAgentsCtoUpgrade[$key]['prevYearGrade'] = $prevYearAgentsWithCcategory[$key]['grade'];
+                        $currentYearAgentsCtoUpgrade[$key]['prevYearAvg'] = $prevYearAgentsWithCcategory[$key]['average'];
+                        array_push($currentGrade, $item['currentMonthGrade']);
+                    }
+                }*/
 
         $currentYearAgentsCtoUpgrade['totalAgent'] = count($currentYearAgentsCtoUpgrade);
         $currentYearAgentsCtoUpgrade['totalUpgradeAgent'] = count(array_intersect($currentGrade, ['A','B']));

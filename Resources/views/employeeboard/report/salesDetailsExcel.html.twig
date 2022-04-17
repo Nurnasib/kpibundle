@@ -255,17 +255,17 @@
     <table>
         <thead>
         <tr>
-            <th scope="col">{{ 'Category'|trans }}</th>
+            <th scope="col">{{ 'Category'|trans ~ ' (' ~ (board.year-1) ~ ')' }}</th>
             <th scope="col">{{ 'Agent Id'|trans }}</th>
             <th scope="col">{{ 'Agent Name'|trans }}</th>
             <th scope="col">{{ 'Region'|trans }}</th>
             <th scope="col">{{ 'Zone'|trans }}</th>
-            <th scope="col">{{ 'Average'|trans }}</th>
+            <th scope="col">{{ 'Average'|trans ~ ' (' ~ (board.year-1) ~ ')' }}</th>
             {% if dCategoryUpgrade is not empty %}
                 {% for board in dCategoryUpgrade %}
                     {% if board is iterable and loop.index == 1 %}
                         <th scope="col">{{ board.month|default('') }} (Avg.)</th>
-                        <th scope="col">{{ 'Category'|trans }} {{ board.year|default('') }}</th>
+                        <th scope="col">{{ 'Category'|trans ~ ' (' ~ board.year ~ ')' }}</th>
                     {% endif %}
                 {% endfor %}
             {% endif %}
@@ -283,8 +283,8 @@
                         <td align="left">{{ row.agentName|default('') }}</td>
                         <td align="left">{{ row.agentRegionName|default('') }}</td>
                         <td align="left">{{ row.agentZoneName|default('') }}</td>
-                        <td align="right">{{ row.prevYearAvg|round|default('') }}</td>
-                        <td align="right">{{ row.currentMonthAvg|round|default('') }}</td>
+                        <td align="right">{{ row.prevYearAvg|number_format(2)|default('') }}</td>
+                        <td align="right">{{ row.currentMonthAvg|number_format(2)|default('') }}</td>
                         <td align="center">{{ row.currentMonthGrade|default('') }}</td>
                     </tr>
                 {% endif %}
@@ -324,17 +324,17 @@
     <table>
         <thead>
         <tr>
-            <th scope="col">{{ 'Category'|trans }}</th>
+            <th scope="col">{{ 'Category'|trans ~ ' (' ~ (board.year-1) ~ ')' }}</th>
             <th scope="col">{{ 'Agent Id'|trans }}</th>
             <th scope="col">{{ 'Agent Name'|trans }}</th>
             <th scope="col">{{ 'Region'|trans }}</th>
             <th scope="col">{{ 'Zone'|trans }}</th>
-            <th scope="col">{{ 'Average'|trans }}</th>
+            <th scope="col">{{ 'Average'|trans ~ ' (' ~ (board.year-1) ~ ')'  }}</th>
             {% if cCategoryUpgrade is not empty %}
                 {% for board in cCategoryUpgrade %}
                     {% if board is iterable and loop.index == 1 %}
                         <th scope="col">{{ board.month|default('') }} (Avg.)</th>
-                        <th scope="col">{{ 'Category'|trans }} {{ board.year|default('') }}</th>
+                        <th scope="col">{{ 'Category'|trans ~ ' (' ~ board.year ~ ')' }}</th>
                     {% endif %}
                 {% endfor %}
             {% endif %}
@@ -352,8 +352,8 @@
                         <td align="left">{{ row.agentName|default('') }}</td>
                         <td align="left">{{ row.agentRegionName|default('') }}</td>
                         <td align="left">{{ row.agentZoneName|default('') }}</td>
-                        <td align="right">{{ row.prevYearAvg|round|default('') }}</td>
-                        <td align="right">{{ row.currentMonthAvg|round|default('') }}</td>
+                        <td align="right">{{ row.prevYearAvg|number_format(2)|default('') }}</td>
+                        <td align="right">{{ row.currentMonthAvg|number_format(2)|default('') }}</td>
                         <td align="center">{{ row.currentMonthGrade|default('') }}</td>
                     </tr>
                 {% endif %}
