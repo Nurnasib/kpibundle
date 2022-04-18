@@ -12,11 +12,11 @@
 namespace Terminalbd\KpiBundle\Repository;
 
 use App\Entity\Core\Agent;
-use App\Entity\Core\Setting;
 use Doctrine\ORM\EntityRepository;
-use Symfony\Component\Serializer\SerializerInterface;
+use Terminalbd\KpiBundle\Entity\AgentCategory;
+use Terminalbd\KpiBundle\Entity\AgentGradeStandard;
+use Terminalbd\KpiBundle\Entity\DocumentUpload;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
-use Terminalbd\KpiBundle\Entity\EmployeeDistrictHistory;
 
 /**
  * This custom Doctrine repository contains some methods which are useful when
@@ -37,9 +37,7 @@ class AgentCategoryRepository extends EntityRepository
         $qb->addSelect('agent.name AS agentName');
         $qb->addSelect('gradeStandard.grade AS gradeLetter');
         $qb->orderBy('agent.name', 'ASC');
-        $results = $qb->getQuery()->getArrayResult();
-
-        return $results;
+        return $qb->getQuery()->getArrayResult();
     }
     public function getAgentGradeMonthWise($filterBy)
     {
@@ -158,10 +156,62 @@ class AgentCategoryRepository extends EntityRepository
         $qb->where('agentDistrict.id IN (:agentDistrictId)')->setParameter('agentDistrictId', $districsId);
         $qb->andWhere("e.month = 'December'");
         $qb->andWhere('e.year = :year')->setParameter('year', 2020);
-        $results = $qb->getQuery()->getArrayResult();
-        return $results;
+        return $qb->getQuery()->getArrayResult();
     }
 
+
+
+    private function insertCurrentMonthAgentsThatNotInPreviousYear(EmployeeBoard $board, $districtsId)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.agent','agent');
+        $qb->join('agent.district','district');
+
+        $qb->select('agent.id', 'agent.agentId', 'e.year');
+
+        $qb->where('e.year IN (:years)')->setParameter('years', [$board->getYear()-1, $board->getYear()]);
+        $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $districtsId);
+        $qb->andWhere('e.month = :month')->setParameter('month', $board->getMonth());
+
+        $results = $qb->getQuery()->getArrayResult();
+        $data = [];
+        foreach ($results as $result) {
+            $data[$result['year']][] = $result['id'];
+        }
+
+        $agentsNotInPrevYear = array_diff($data[$board->getYear()], $data[$board->getYear()-1]);
+
+        foreach ($agentsNotInPrevYear as $id) {
+            $agentObj = $this->_em->getRepository(Agent::class)->find($id);
+
+            if ($agentObj){
+                $findCategory = $this->findOneBy(['agent' => $agentObj, 'month' => $board->getMonth(), 'year' => $board->getYear()-1]);
+
+                if (!$findCategory){
+                    $findGrade = $this->_em->getRepository(AgentGradeStandard::class)->findOneBy(['grade' => 'D']);
+
+                    $monthYear = $board->getMonth() . ',' . ($board->getYear()-1);
+                    $findDocument = $this->_em->getRepository(DocumentUpload::class)->findOneBy(['monthYear' => $monthYear, 'title' => 'agent sales']);
+                    $createdMonth = $board->getYear()-1 . '-' . date('m', strtotime($board->getMonth())) . '-01';
+
+                    $newCategory = new AgentCategory();
+                    $newCategory->setAgent($agentObj);
+                    $newCategory->setGradeStandard($findGrade);
+                    $newCategory->setQuantity(0);
+                    $newCategory->setMonth($board->getMonth());
+                    $newCategory->setYear($board->getYear()-1);
+                    $newCategory->setCreatedAt(new \DateTimeImmutable('now'));
+                    $newCategory->setUpdatedAt(new \DateTimeImmutable('now'));
+                    $newCategory->setDocumentUpload($findDocument);
+                    $newCategory->setAverage(0);
+                    $newCategory->setCreatedMonth(new \DateTimeImmutable($createdMonth));
+
+                    $this->_em->persist($newCategory);
+                    $this->_em->flush();
+                }
+            }
+        }
+    }
     public function getCategoryUpgradationMarks(EmployeeBoard $board, $gradeLetters, $districtsId)
     {
         $prevYear = $board->getYear() - 1;
@@ -189,11 +239,12 @@ class AgentCategoryRepository extends EntityRepository
             $agentsIdWithCategory[$result['grade']][]= $result['agentId'];
         }
 
-        $categoryUpgradationPercentages = $this->currentMonthCategoryUpgradationPercentage($agentsIdWithCategory,$board);
-
-
+        $this->insertCurrentMonthAgentsThatNotInPreviousYear($board, $districtsId);
+        $categoryUpgradationPercentages = $this->currentMonthCategoryUpgradationPercentage($agentsIdWithCategory, $board);
         return $this->categoryUpgradationMarks($categoryUpgradationPercentages);
     }
+
+
     private function currentMonthCategoryUpgradationPercentage($agentsIdWithCategory, EmployeeBoard $board)
     {
         $month = $board->getMonth();
@@ -215,6 +266,7 @@ class AgentCategoryRepository extends EntityRepository
             $qb->andWhere('gradeStandard.grade NOT IN (:omittedGradeLetter)')->setParameter('omittedGradeLetter', $omittedGradeLetters);
             $qb->andWhere('agent.id IN (:agentId)')->setParameter('agentId', $agentsId);
             $results = $qb->getQuery()->getArrayResult();
+
             $pervYearCategoryNumber = count($agentsId);
             $currentCategoryNumber = count($results);
 
@@ -250,11 +302,6 @@ class AgentCategoryRepository extends EntityRepository
 
     public function getAgentWithDcategory(EmployeeBoard $board, $districtsId)
     {
-/*        $months = [];
-        for ($i = 1; $i <= date('m', strtotime($board->getMonth())); $i++){
-            $months[] = date('F', strtotime('01-' . $i . '-2022')); //get months
-        }*/
-
         $prevYear = $board->getYear()-1;
 
         $qb = $this->createQueryBuilder('e');
@@ -273,10 +320,8 @@ class AgentCategoryRepository extends EntityRepository
         $qb->where('e.year = :prevYear')->setParameter('prevYear', $prevYear);
         $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $districtsId);
         $qb->andWhere('e.month = :month')->setParameter('month', $board->getMonth());
-//        $qb->andWhere('e.month IN (:months)')->setParameter('months', $months);
         $qb->andWhere("gradeStandard.grade = 'D'");
 
-//        $qb->groupBy('agent.id');
         $agents = $qb->getQuery()->getArrayResult();
 
         $prevYearAgentsWithDcategory = [];
@@ -291,7 +336,6 @@ class AgentCategoryRepository extends EntityRepository
         $currentGrade = [];
         $currentYearAgentsDtoUpgradeCategory = $this->getAgentCurrentMonth($board, $agentsId);
 
-//        dd($prevYearAgentsWithDcategory, $currentYearAgentsDtoUpgradeCategory);
         foreach ($prevYearAgentsWithDcategory as $key => $item) {
             if (array_key_exists($key, $currentYearAgentsDtoUpgradeCategory)){
                 $currentYearAgentsDtoUpgradeCategory[$key]['prevYearGrade'] = $prevYearAgentsWithDcategory[$key]['grade'];
@@ -347,8 +391,6 @@ class AgentCategoryRepository extends EntityRepository
 
         $qb->where('e.year = :currentYear')->setParameter('currentYear', $board->getYear());
         $qb->andWhere('e.month = :month')->setParameter('month', $board->getMonth());
-//        $qb->andWhere('district.id IN (:districts)')->setParameter('districts', $districtsId);
-//        $qb->andWhere('e.month IN (:months)')->setParameter('months', $months);
         $qb->andWhere('agent.agentId IN (:agentId)')->setParameter('agentId', $agentsId);
         $results = $qb->getQuery()->getArrayResult();
         $data = [];
@@ -364,10 +406,6 @@ class AgentCategoryRepository extends EntityRepository
 
     public function getAgentWithCcategory(EmployeeBoard $board, $districtsId)
     {
-/*        $months = [];
-        for ($i = 1; $i <= date('m', strtotime($board->getMonth())); $i++){
-            $months[] = date('F', strtotime('01-' . $i . '-2022')); //get months
-        }*/
         $prevYear = $board->getYear()-1;
 
         $qb = $this->createQueryBuilder('e');
@@ -386,10 +424,7 @@ class AgentCategoryRepository extends EntityRepository
         $qb->where('e.year = :prevYear')->setParameter('prevYear', $prevYear);
         $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $districtsId);
         $qb->andWhere('e.month = :month')->setParameter('month', $board->getMonth());
-//        $qb->andWhere('e.month IN (:months)')->setParameter('months', $months);
         $qb->andWhere("gradeStandard.grade = 'C'");
-
-//        $qb->groupBy('agent.id');
 
         $agents = $qb->getQuery()->getArrayResult();
 

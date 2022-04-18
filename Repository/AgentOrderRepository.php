@@ -162,29 +162,6 @@ class AgentOrderRepository extends EntityRepository
 
         $breedTypes = [$keys[5], $keys[6], $keys[7], $keys[8], $keys[9]]; //Broiler, Sonali, Layer, Fish, Cattle
 
-        $agentGroup = $this->_em->getRepository(Setting::class)->findOneBy(['slug' => 'feed', 'status' => true]);
-        $allFeedAgents = $this->_em->getRepository(Agent::class)->findBy(['agentGroup' => $agentGroup, 'status' => true]);
-
-/*        foreach ($allFeedAgents as $agent) { //Insert all agent
-            $exist = $this->_em->getRepository(AgentOrder::class)->findOneBy(['agent' => $agent, 'month' => $month, 'year' => $year]);
-            if (!$exist){
-                $agentOrder = new AgentOrder();
-                $agentOrder->setAgent($agent);
-                $agentOrder->setDistrict($agent->getDistrict());
-                $agentOrder->setUpozila($agent->getUpozila());
-                $agentOrder->setProduct(null);
-                $agentOrder->setQuantity(0);
-                $agentOrder->setCreated(new \DateTime());
-                $agentOrder->setUpdated(null);
-                $agentOrder->setMonth($month);
-                $agentOrder->setYear($year);
-                $agentOrder->setDocumentUpload($file);
-                $em->persist($agentOrder);
-                $em->flush();
-            }
-
-        }*/
-
         foreach ($allData as $data) {
 
             //Marge Excel heading and value in one array as key and value
@@ -223,7 +200,6 @@ class AgentOrderRepository extends EntityRepository
                 $product = $em->getRepository(MarkChart::class)->findOneBy(['salesMode'=>'feed','name' => $breedType]);
                 if ($product) {
                     $findAgentOrder = $em->getRepository(AgentOrder::class)->findOneBy(array('agent'=>$findAgent,'product'=>$product,'month'=>$month,'year'=>$year));
-//                    $agentOrder = $findAgentOrder ? $findAgentOrder : new AgentOrder();
 
                     if(!$findAgentOrder){
 
