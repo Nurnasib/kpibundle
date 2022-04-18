@@ -185,10 +185,18 @@ class AgentCategoryRepository extends EntityRepository
             $agentObj = $this->_em->getRepository(Agent::class)->find($id);
 
             if ($agentObj){
+                $months = [];
+
+                for ($i = 1; $i <= date('m', strtotime($board->getMonth())); $i++){
+                    $months[] = date('F', strtotime('2022-' . $i . '-01'));
+                }
                 $findCategory = $this->findOneBy(['agent' => $agentObj, 'month' => $board->getMonth(), 'year' => $board->getYear()-1]);
 
                 if (!$findCategory){
+
+
                     $findGrade = $this->_em->getRepository(AgentGradeStandard::class)->findOneBy(['grade' => 'D']);
+                    $avg = $this->getSum($agentObj, $months, $board) / count($months);
 
                     $monthYear = $board->getMonth() . ',' . ($board->getYear()-1);
                     $findDocument = $this->_em->getRepository(DocumentUpload::class)->findOneBy(['monthYear' => $monthYear, 'title' => 'agent sales']);
@@ -203,7 +211,7 @@ class AgentCategoryRepository extends EntityRepository
                     $newCategory->setCreatedAt(new \DateTimeImmutable('now'));
                     $newCategory->setUpdatedAt(new \DateTimeImmutable('now'));
                     $newCategory->setDocumentUpload($findDocument);
-                    $newCategory->setAverage(0);
+                    $newCategory->setAverage($avg);
                     $newCategory->setCreatedMonth(new \DateTimeImmutable($createdMonth));
 
                     $this->_em->persist($newCategory);
@@ -211,6 +219,21 @@ class AgentCategoryRepository extends EntityRepository
                 }
             }
         }
+    }
+
+
+    private function getSum($agent, $months, EmployeeBoard $board)
+    {
+        $qb =$this->createQueryBuilder('e');
+        $qb->select('SUM(e.quantity)');
+
+        $qb->where('e.year = :year')->setParameter('year', $board->getYear()-1);
+        $qb->andWhere('e.month IN (:months)')->setParameter('months', $months);
+        $qb->andWhere('e.agent = :agent')->setParameter('agent', $agent);
+
+        $qb->groupBy('e.agent');
+
+        return $qb->getQuery()->getSingleScalarResult();
     }
     public function getCategoryUpgradationMarks(EmployeeBoard $board, $gradeLetters, $districtsId)
     {
