@@ -13,6 +13,8 @@ namespace Terminalbd\KpiBundle\Repository;
 
 use App\Entity\Core\Agent;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Terminalbd\KpiBundle\Entity\AgentCategory;
 use Terminalbd\KpiBundle\Entity\AgentGradeStandard;
 use Terminalbd\KpiBundle\Entity\DocumentUpload;
@@ -194,7 +196,6 @@ class AgentCategoryRepository extends EntityRepository
 
                 if (!$findCategory){
 
-
                     $findGrade = $this->_em->getRepository(AgentGradeStandard::class)->findOneBy(['grade' => 'D']);
                     $avg = $this->getSum($agentObj, $months, $board) / count($months);
 
@@ -233,7 +234,13 @@ class AgentCategoryRepository extends EntityRepository
 
         $qb->groupBy('e.agent');
 
-        return $qb->getQuery()->getSingleScalarResult();
+        try {
+            return $qb->getQuery()->getSingleScalarResult();
+        } catch (NoResultException $e) {
+            return 0;
+        } catch (NonUniqueResultException $e) {
+            return 0;
+        }
     }
     public function getCategoryUpgradationMarks(EmployeeBoard $board, $gradeLetters, $districtsId)
     {
