@@ -180,6 +180,12 @@ class AgentCategoryRepository extends EntityRepository
         foreach ($results as $result) {
             $data[$result['year']][] = $result['id'];
         }
+        if (!array_key_exists($board->getYear()-1, $data)){
+            $data[$board->getYear()-1] = [];
+        }
+        if (!array_key_exists($board->getYear(), $data)){
+            $data[$board->getYear()] = [];
+        }
 
         $agentsNotInPrevYear = array_diff($data[$board->getYear()], $data[$board->getYear()-1]);
 
