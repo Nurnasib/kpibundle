@@ -17,6 +17,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Terminalbd\KpiBundle\Entity\AgentCategory;
 use Terminalbd\KpiBundle\Entity\AgentGradeStandard;
+use Terminalbd\KpiBundle\Entity\AgentOrder;
 use Terminalbd\KpiBundle\Entity\DocumentUpload;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
 
@@ -163,7 +164,7 @@ class AgentCategoryRepository extends EntityRepository
 
 
 
-    private function insertCurrentMonthAgentsThatNotInPreviousYear(EmployeeBoard $board, $districtsId)
+    private function updateCategory(EmployeeBoard $board, $districtsId)
     {
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent','agent');
@@ -187,9 +188,19 @@ class AgentCategoryRepository extends EntityRepository
             $data[$board->getYear()] = [];
         }
 
-        $agentsNotInPrevYear = array_diff($data[$board->getYear()], $data[$board->getYear()-1]);
+        $agentsNotInCurrentMonth = array_diff($data[$board->getYear()-1], $data[$board->getYear()]); // get previous year agents that not in current month
+        $agentsNotInPreviousYear = array_diff($data[$board->getYear()], $data[$board->getYear()-1]); // get current month agents that not in previous year
+        $commonAgents = array_intersect($data[$board->getYear()], $data[$board->getYear()-1]);
 
-        foreach ($agentsNotInPrevYear as $id) {
+//        $totalUniqueAgents = array_unique(array_merge($data[$board->getYear()-1], $data[$board->getYear()]));
+
+        $agentsNotInCurrentMonthAndCommonAgents = array_merge($agentsNotInCurrentMonth, $commonAgents);
+
+//        dd($agentsNotInCurrentMonthAndCommonAgents);
+//        dd(['total' => $data, 'notInCurrentMonth' => $agentsNotInCurrentMonth, 'notInPrevYear' => $agentsNotInPreviousYear, 'commonAgents' => $commonAgents, 'totalUniqAgents' => $totalUniqueAgents]);
+//        dd(['notInCurrentMonth' => $agentsNotInCurrentMonth, 'commonAgents' => $commonAgents,'totalUniqAgents' => $totalUniqueAgents]);
+//        foreach ($agentsNotInCurrentMonth as $id) {
+        foreach ($agentsNotInCurrentMonthAndCommonAgents as $id) {
             $agentObj = $this->_em->getRepository(Agent::class)->find($id);
 
             if ($agentObj){
@@ -198,23 +209,22 @@ class AgentCategoryRepository extends EntityRepository
                 for ($i = 1; $i <= date('m', strtotime($board->getMonth())); $i++){
                     $months[] = date('F', strtotime('2022-' . $i . '-01'));
                 }
-                $findCategory = $this->findOneBy(['agent' => $agentObj, 'month' => $board->getMonth(), 'year' => $board->getYear()-1]);
+                $findCategory = $this->findOneBy(['agent' => $agentObj, 'month' => $board->getMonth(), 'year' => $board->getYear()]);
+                $avg = $this->getQuantitySum($agentObj, $months, $board) / count($months);
+                $findGrade = $this->getGradeObj($avg);
 
                 if (!$findCategory){
 
-                    $findGrade = $this->_em->getRepository(AgentGradeStandard::class)->findOneBy(['grade' => 'D']);
-                    $avg = $this->getSum($agentObj, $months, $board) / count($months);
-
-                    $monthYear = $board->getMonth() . ',' . ($board->getYear()-1);
+                    $monthYear = $board->getMonth() . ',' . $board->getYear();
                     $findDocument = $this->_em->getRepository(DocumentUpload::class)->findOneBy(['monthYear' => $monthYear, 'title' => 'agent sales']);
-                    $createdMonth = $board->getYear()-1 . '-' . date('m', strtotime($board->getMonth())) . '-01';
+                    $createdMonth = $board->getYear() . '-' . date('m', strtotime($board->getMonth())) . '-01';
 
                     $newCategory = new AgentCategory();
                     $newCategory->setAgent($agentObj);
                     $newCategory->setGradeStandard($findGrade);
                     $newCategory->setQuantity(0);
                     $newCategory->setMonth($board->getMonth());
-                    $newCategory->setYear($board->getYear()-1);
+                    $newCategory->setYear($board->getYear());
                     $newCategory->setCreatedAt(new \DateTimeImmutable('now'));
                     $newCategory->setUpdatedAt(new \DateTimeImmutable('now'));
                     $newCategory->setDocumentUpload($findDocument);
@@ -223,18 +233,50 @@ class AgentCategoryRepository extends EntityRepository
 
                     $this->_em->persist($newCategory);
                     $this->_em->flush();
+                }else{
+                    $findCategory->setAverage($avg);
+                    $findCategory->setGradeStandard($findGrade);
+
+                    $this->_em->flush();
+                }
+            }
+        }
+        foreach ($agentsNotInPreviousYear as $id) {
+            $agentObj = $this->_em->getRepository(Agent::class)->find($id);
+
+            if ($agentObj){
+                $findCategory = $this->findOneBy(['agent' => $agentObj, 'month' => $board->getMonth(), 'year' => $board->getYear()]);
+                if ($findCategory){
+                    $grade = $this->getGradeObj($findCategory->getQuantity());
+                    $findCategory->setAverage($findCategory->getQuantity());
+                    $findCategory->setGradeStandard($grade);
+
+                    $this->_em->flush();
+
                 }
             }
         }
     }
 
+    private function getGradeObj($amount){
+        if ($amount >= 100){
+            $grade = 'A';
+        }elseif ($amount >= 50 && $amount < 100){
+            $grade = 'B';
+        }elseif ($amount >= 30 && $amount < 50){
+            $grade = 'C';
+        }elseif ($amount < 30){
+            $grade = 'D';
+        }
+        return $this->_em->getRepository(AgentGradeStandard::class)->findOneBy(['grade' => $grade]);
+    }
 
-    private function getSum($agent, $months, EmployeeBoard $board)
+    private function getQuantitySum($agent, $months, EmployeeBoard $board)
     {
         $qb =$this->createQueryBuilder('e');
         $qb->select('SUM(e.quantity)');
 
-        $qb->where('e.year = :year')->setParameter('year', $board->getYear()-1);
+        $qb->where('e.year = :year')->setParameter('year', $board->getYear());
         $qb->andWhere('e.month IN (:months)')->setParameter('months', $months);
         $qb->andWhere('e.agent = :agent')->setParameter('agent', $agent);
 
@@ -250,6 +292,43 @@ class AgentCategoryRepository extends EntityRepository
     }
     public function getCategoryUpgradationMarks(EmployeeBoard $board, $gradeLetters, $districtsId)
     {
+        $districtsIdString = implode(',' , $districtsId);
+        $agentOrderQuery = "SELECT agent_id, SUM(quantity) AS totalQuantity, month, year, document_upload_id
+                    FROM kpi_agent_order
+                    WHERE month = :month AND year = :year AND district_id IN ($districtsIdString)
+                    GROUP BY agent_id";
+        $stmt = $this->_em->getConnection()->prepare($agentOrderQuery);
+        $stmt->bindValue('month', $board->getMonth());
+        $stmt->bindValue('year', $board->getYear());
+        $stmt->execute();
+        $data = $stmt->fetchAll();
+
+        foreach ($data as $item) {
+            $agentFindQuery = "SELECT id FROM kpi_agent_category WHERE month = :month AND year = :year AND agent_id = :agent_id";
+            $stmt = $this->_em->getConnection()->prepare($agentFindQuery);
+            $stmt->bindValue('agent_id', $item['agent_id']);
+            $stmt->bindValue('month', $item['month']);
+            $stmt->bindValue('year', $item['year']);
+            $stmt->execute();
+            $findCategory = $stmt->fetch();
+
+            if (!$findCategory){
+                $createdMonth = $board->getYear() . '-' .date('m', strtotime($board->getMonth())) . '-01';
+
+                $categoryInsertQuery = "INSERT INTO kpi_agent_category(agent_id, quantity, month, year, created_at, document_upload_id, created_month) 
+                                        VALUES (:agent_id, :quantity, :month, :year, CURRENT_TIMESTAMP, :document_upload_id, :created_month)";
+                $stmt = $this->_em->getConnection()->prepare($categoryInsertQuery);
+                $stmt->bindValue('agent_id', $item['agent_id']);
+                $stmt->bindValue('quantity', $item['totalQuantity']);
+                $stmt->bindValue('month', $item['month']);
+                $stmt->bindValue('year', $item['year']);
+                $stmt->bindValue('document_upload_id', $item['document_upload_id']);
+                $stmt->bindValue('created_month', $createdMonth);
+                $stmt->execute();
+            }
+        }
+        $this->updateCategory($board, $districtsId);
+
         $prevYear = $board->getYear() - 1;
         $month = $board->getMonth();
 
@@ -275,7 +354,6 @@ class AgentCategoryRepository extends EntityRepository
             $agentsIdWithCategory[$result['grade']][]= $result['agentId'];
         }
 
-        $this->insertCurrentMonthAgentsThatNotInPreviousYear($board, $districtsId);
         $categoryUpgradationPercentages = $this->currentMonthCategoryUpgradationPercentage($agentsIdWithCategory, $board);
         return $this->categoryUpgradationMarks($categoryUpgradationPercentages);
     }
