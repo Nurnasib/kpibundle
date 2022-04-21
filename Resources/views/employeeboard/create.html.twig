@@ -37,6 +37,7 @@
                     <div class="portlet-title">
                         <div class="caption">{{ 'Generate KPI'|trans }}  {{ format ? 'for ' ~ format|replace({'-': ' '}) : '' }}</div>
                     </div>
+
                     <div class="portlet-body form">
                         {{ form_start(form, {'attr': {'class': 'form-horizontal right'}}) }}
                         {{ form_widget(form._token) }}
@@ -51,11 +52,13 @@
                                                 {{ form_widget(form.employee) }}
                                                 {{ form_errors(form.employee) }}
                                             </div>
-                                            <div class="col-md-3 p-0" style="display: flex">
-                                                <input type="checkbox" id="self_kpi" name="self_kpi" class="form-control" style="width: 33px">
-                                                {#                                                <input type="checkbox" id="self_kpi" name="self_kpi" class="checkboxToggle" data-toggle="toggle" data-style="slow" data-offstyle="warning" data-onstyle="info" data-on="Enable" data-off="Disable" data-size="small" checked >#}
-                                                <label for="self_kpi" class="control-label p-1">{{ 'Self KPI'|trans }}</label>
-                                            </div>
+                                            {% if app.user.userGroup.slug is not same as 'administrator' %}
+                                                <div class="col-md-3 p-0" style="display: flex">
+                                                    <input type="checkbox" id="self_kpi" name="self_kpi" class="form-control" style="width: 33px">
+                                                    {#                                                <input type="checkbox" id="self_kpi" name="self_kpi" class="checkboxToggle" data-toggle="toggle" data-style="slow" data-offstyle="warning" data-onstyle="info" data-on="Enable" data-off="Disable" data-size="small" checked >#}
+                                                    <label for="self_kpi" class="control-label p-1">{{ 'Self KPI'|trans }}</label>
+                                                </div>
+                                            {% endif %}
                                         </div>
                                         <div class="form-group">
                                             {{ form_label(form.monthYear, 'Month'|trans, {'label_attr': {'class': 'col-md-4'}}) }}
