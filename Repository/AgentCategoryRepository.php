@@ -724,7 +724,9 @@ class AgentCategoryRepository extends EntityRepository
                 $currentYearAgentsCtoUpgrade[$key]['prevYearGrade'] = $prevYearAgentsWithCcategory[$key]['grade'];
                 $currentYearAgentsCtoUpgrade[$key]['prevYearAvg'] = $prevYearAgentsWithCcategory[$key]['average'];
                 array_push($currentGrade, $currentYearAgentsCtoUpgrade[$key]['currentMonthGrade']);
-            }else{
+            }
+/*            
+            else{
                 $currentYearAgentsCtoUpgrade[$key] = [
                     'currentMonthAvg' => 0,
                     'month' => $board->getMonth(),
@@ -737,7 +739,7 @@ class AgentCategoryRepository extends EntityRepository
                     'prevYearGrade' => $prevYearAgentsWithCcategory[$key]['grade'],
                     'prevYearAvg' => $prevYearAgentsWithCcategory[$key]['average'],
                 ];
-            }
+            }*/
 
         }
 
