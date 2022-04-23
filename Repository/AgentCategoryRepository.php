@@ -191,16 +191,16 @@ class AgentCategoryRepository extends EntityRepository
                                 $newCategory = new AgentCategory();
                                 $newCategory->setAgent($agentObj);
                                 $newCategory->setGradeStandard($findGrade);
-                                $newCategory->setQuantity(0);
+                                $newCategory->setQuantity($districtsSale['totalQuantity']);
                                 $newCategory->setMonth('January');
                                 $newCategory->setYear($prevYear);
                                 $newCategory->setCreatedAt(new \DateTimeImmutable('now'));
                                 $newCategory->setUpdatedAt(new \DateTimeImmutable('now'));
                                 $newCategory->setDocumentUpload($findDocument);
-                                $newCategory->setAverage(0);
+                                $newCategory->setAverage($districtsSale['totalQuantity']);
                                 $newCategory->setCreatedMonth(new \DateTimeImmutable($createdMonth));
                                 $newCategory->setMonthCount(1);
-                                $newCategory->setCumulativeQuantity(0);
+                                $newCategory->setCumulativeQuantity($districtsSale['totalQuantity']);
 
                                 $this->_em->persist($newCategory);
                                 $this->_em->flush();
@@ -618,7 +618,7 @@ class AgentCategoryRepository extends EntityRepository
                 $currentYearAgentsDtoUpgradeCategory[$key]['prevYearAvg'] = $prevYearAgentsWithDcategory[$key]['average'];
                 array_push($currentGrade, $currentYearAgentsDtoUpgradeCategory[$key]['currentMonthGrade']);
             }
-            
+
 /*            else{
                 $currentYearAgentsDtoUpgradeCategory[$key] = [
                     'currentMonthAvg' => 0,
