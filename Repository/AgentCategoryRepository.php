@@ -179,7 +179,7 @@ class AgentCategoryRepository extends EntityRepository
                         $findCategory = $this->findOneBy(['agent' => $districtsSale['agentId'], 'month' => 'January', 'year' => $prevYear]);
 
 //                        $avg = $districtsSale['totalQuantity'];
-                        $findGrade = $this->getGradeObj(0);
+                        $findGrade = $this->getGradeObj($districtsSale['totalQuantity']);
 
                         if (!$findCategory){
                             $agentObj = $this->_em->getRepository(Agent::class)->find($districtsSale['agentId']);
