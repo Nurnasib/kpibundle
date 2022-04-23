@@ -95,6 +95,18 @@ class AgentCategory
      */
     private $updatedAt;
 
+    /**
+     * @var integer
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $monthCount;
+
+    /**
+     * @var float
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $cumulativeQuantity;
+
     public function __construct()
     {
         $this->agent = new ArrayCollection();
@@ -279,6 +291,39 @@ class AgentCategory
         $this->createdMonth = $createdMonth;
     }
 
+    /**
+     * @return int
+     */
+    public function getMonthCount(): int
+    {
+        return $this->monthCount;
+    }
+
+    /**
+     * @param int $monthCount
+     */
+    public function setMonthCount(int $monthCount): void
+    {
+        $this->monthCount = $monthCount;
+    }
+
+    /**
+     * @return float
+     */
+    public function getCumulativeQuantity(): float
+    {
+        return $this->cumulativeQuantity;
+    }
+
+    /**
+     * @param float $cumulativeQuantity
+     */
+    public function setCumulativeQuantity(float $cumulativeQuantity): void
+    {
+        $this->cumulativeQuantity = $cumulativeQuantity;
+    }
+
+    
 
 
     public function addAgent(Agent $agent): self

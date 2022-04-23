@@ -256,47 +256,70 @@ class AgentOrderRepository extends EntityRepository
 
     }
 
-    public function getAgentWithSalesQuantity(EmployeeBoard $board, $locationsId)
+    public function getAgentWithSalesQuantity($months, $year, $locationsId)
     {
-
-//        $prevYear = date('Y',strtotime("-1 year", strtotime($board->getYear())));
-        $years = [$board->getYear()-1, $board->getYear()];
-        $months = [];
-        $monthNumber = date('m',strtotime($board->getMonth()));
-
-        for ($i = 1; $i <= $monthNumber; $i++){ // make month name array from January to generated KPI month
-            array_push($months, \DateTime::createFromFormat('!m', $i)->format('F'));
-        }
-
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent', 'agent');
         $qb->join('e.district', 'district');
+        $qb->leftJoin('e.documentUpload', 'document_upload');
 
-        $qb->select('SUM(e.quantity) AS totalQuantity', 'e.year');
+        $qb->select('SUM(e.quantity) AS totalQuantity', 'e.year', 'e.month');
         $qb->addSelect('agent.id AS agentId');
+        $qb->addSelect('document_upload.id');
 
-        $qb->where('e.month IN (:month)')->setParameter('month', $months);
-        $qb->andWhere('e.year IN (:years)')->setParameter('years', $years);
+        $qb->where('e.month IN (:months)')->setParameter('months', $months);
+        $qb->andWhere('e.year =:year')->setParameter('year', $year);
         $qb->andWhere('district.id IN (:districtId)')->setParameter('districtId', $locationsId);
-        $qb->andWhere('agent.status = 1');
 
         $qb->groupBy('agent.id');
-        $qb->addGroupBy('e.year');
-//        $qb->addGroupBy('e.month');
+        $qb->addGroupBy('district.id');
+//        $qb->addGroupBy('e.year');
 
         $results = $qb->getQuery()->getArrayResult();
-        $data = [];
-        foreach ($results as $result){
-            $data[$result['year']][$result['agentId']] = $result['totalQuantity'] / count($months);
-        }
 
-        if (! array_key_exists($board->getYear()-1, $data)){
-            $data[$board->getYear()-1] = [];
-        }
-        if (! array_key_exists($board->getYear(), $data)){
-            $data[$board->getYear()] = [];
-        }
-        return $data;
+        return $results;
+
+
+
+
+
+
+
+//        $years = [$board->getYear()-1, $board->getYear()];
+//        $months = [];
+//        $monthNumber = date('m',strtotime($board->getMonth()));
+//
+//        for ($i = 1; $i <= $monthNumber; $i++){ // make month name array from January to generated KPI month
+//            array_push($months, \DateTime::createFromFormat('!m', $i)->format('F'));
+//        }
+//
+//        $qb = $this->createQueryBuilder('e');
+//        $qb->join('e.agent', 'agent');
+//        $qb->join('e.district', 'district');
+//
+//        $qb->select('SUM(e.quantity) AS totalQuantity', 'e.year');
+//        $qb->addSelect('agent.id AS agentId');
+//
+//        $qb->where('e.month IN (:month)')->setParameter('month', $months);
+//        $qb->andWhere('e.year IN (:years)')->setParameter('years', $years);
+//        $qb->andWhere('district.id IN (:districtId)')->setParameter('districtId', $locationsId);
+//
+//        $qb->groupBy('agent.id');
+//        $qb->addGroupBy('e.year');
+//
+//        $results = $qb->getQuery()->getArrayResult();
+//        $data = [];
+//        foreach ($results as $result){
+//            $data[$result['year']][$result['agentId']] = $result['totalQuantity'] / count($months);
+//        }
+//
+//        if (! array_key_exists($board->getYear()-1, $data)){
+//            $data[$board->getYear()-1] = [];
+//        }
+//        if (! array_key_exists($board->getYear(), $data)){
+//            $data[$board->getYear()] = [];
+//        }
+//        return $data;
     }
 
 }
