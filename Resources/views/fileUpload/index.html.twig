@@ -73,8 +73,8 @@
 
                                         {% if data.title|replace({' ': "-"})|lower == 'agent-sales' and data.status == 1 %}
                                             <a class="btn btn-mini bg-success white-font loader" href="{{ path('kpi_insert_data_district_wise',{'id':data.id}) }}"><i class="feather icon-upload"></i> Migrate</a>
-                                            {% elseif data.title|replace({' ': "-"})|lower == 'agent-sales' and data.status == 2 %}
-                                                <a class="btn btn-mini bg-secondary white-font loader" href="{{ path('kpi_insert_agent_category',{'id':data.id}) }}"><i class="feather icon-upload"></i>Grade Change</a>
+{#                                            {% elseif data.title|replace({' ': "-"})|lower == 'agent-sales' and data.status == 2 %}#}
+{#                                                <a class="btn btn-mini bg-secondary white-font loader" href="{{ path('kpi_insert_agent_category',{'id':data.id}) }}"><i class="feather icon-upload"></i>Grade Change</a>#}
                                         {% endif %}
 
                                         {% if data.status == 0 and not is_granted('ROLE_KPI_ADMIN') %}
