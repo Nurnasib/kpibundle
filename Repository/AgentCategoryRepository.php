@@ -437,6 +437,49 @@ class AgentCategoryRepository extends EntityRepository
     {
         $this->insertPreviousYearCategory($board, $districtsId);
 
+        if ($board->getMonth() != 'January'){
+            $prevMonth = date('F', strtotime($board->getMonth() . ',' . $board->getYear() . "last month"));
+            $monthCount = date('m', strtotime($board->getMonth() . ',' . $board->getYear()));
+            $createdMonth = $board->getYear() . '-' . $monthCount . '-01';
+//                $monthYear = 'January,' . $prevYear;
+//                $findDocument = $this->_em->getRepository(DocumentUpload::class)->findOneBy(['monthYear' => $monthYear, 'title' => 'agent sales']);
+
+
+            $prevMonthRecords = $this->findBy(['month' => $prevMonth, 'year' => $board->getYear()]);
+
+            foreach ($prevMonthRecords as $record) {
+
+                $currentMonthRecord = new AgentCategory();
+                $currentMonthRecord->setAgent($record->getAgent());
+                $currentMonthRecord->setGradeStandard(null);
+                $currentMonthRecord->setQuantity(0);
+                $currentMonthRecord->setMonth($board->getMonth());
+                $currentMonthRecord->setYear($board->getYear());
+                $currentMonthRecord->setCreatedAt(new \DateTimeImmutable("now"));
+                $currentMonthRecord->setCreatedMonth(new \DateTimeImmutable($createdMonth));
+                $currentMonthRecord->setMonthCount(($record->getMonthCount() + 1));
+                $currentMonthRecord->setCumulativeQuantity($record->getCumulativeQuantity());
+
+                $this->_em->persist($currentMonthRecord);
+                $this->_em->flush();
+
+            }
+            /*$query = "INSERT INTO kpi_agent_category(agent_id, quantity, month, year, created_at, average, created_month, month_count, cumulative_quantity)
+            SELECT agent_id, 0, :currentMonth, year, CURRENT_TIMESTAMP, 0, :createdMonth, :monthCount, cumulative_quantity
+            FROM kpi_agent_category
+            WHERE month = :prevMonth AND year = :year";
+
+            $em = $this->_em;
+            $stmt = $em->getConnection()->prepare($query);
+            $stmt->bindValue('prevMonth', $prevMonth);
+            $stmt->bindValue('month', $prevMonth);
+            $stmt->bindValue('currentMonth', $board->getMonth());
+            $stmt->bindValue('year', $board->getYear());
+            $stmt->bindValue('createdMonth', $createdMonth);
+            $stmt->bindValue('monthCount', $monthCount);
+            $insert = $stmt->execute();*/
+        }
+
         $districtsIdString = implode(',' , $districtsId);
         $agentOrderQuery = "SELECT agent_id, SUM(quantity) AS totalQuantity, month, year, document_upload_id
                     FROM kpi_agent_order
@@ -458,16 +501,49 @@ class AgentCategoryRepository extends EntityRepository
 
             $cumulativeQty = $item['totalQuantity'] + ($findRecord ? $findRecord->getCumulativeQuantity() : 0);
 
-            $agentFindQuery = "SELECT id FROM kpi_agent_category WHERE month = :month AND year = :year AND agent_id = :agent_id";
+/*            $agentFindQuery = "SELECT id FROM kpi_agent_category WHERE month = :month AND year = :year AND agent_id = :agent_id";
             $stmt = $this->_em->getConnection()->prepare($agentFindQuery);
             $stmt->bindValue('agent_id', $item['agent_id']);
             $stmt->bindValue('month', $item['month']);
             $stmt->bindValue('year', $item['year']);
             $stmt->execute();
-            $findCategory = $stmt->fetch();
+            $findCategory = $stmt->fetch();*/
+
+            $findCategory = $this->findOneBy(['month' => $item['month'], 'year' => $item['year'], 'agent' => $item['agent_id']]);
+            $findDocument = $this->_em->getRepository(DocumentUpload::class)->find($item['document_upload_id']);
 
 
             if (!$findCategory){
+
+                $agent = $this->_em->getRepository(Agent::class)->find($item['agent_id']);
+                if ($agent){
+                    $monthCount = date('m', strtotime($board->getMonth() . ',' . $board->getYear()));
+                    $createdMonth = $board->getYear() . '-' . $monthCount . '-01';
+
+                    $findAgentRecords = $this->findBy(['month' => $item['month'], 'year' => $item['year'], 'agent' => $agent]);
+                    $monthCount = (count($findAgentRecords) + 1);
+                    $avg = $item['totalQuantity'] / $monthCount;
+                    $grade = $this->getGradeObj($avg);
+
+                    $newCategory = new AgentCategory();
+                    $newCategory->setAgent($agent);
+                    $newCategory->setGradeStandard($grade);
+                    $newCategory->setQuantity($item['totalQuantity']);
+                    $newCategory->setMonth($item['month']);
+                    $newCategory->setYear($item['year']);
+                    $newCategory->setCreatedAt(new \DateTimeImmutable("now"));
+                    $newCategory->setDocumentUpload($findDocument);
+                    $newCategory->setAverage($avg);
+                    $newCategory->setCreatedMonth(new \DateTimeImmutable($createdMonth));
+                    $newCategory->setMonthCount($monthCount);
+                    $newCategory->setCumulativeQuantity($item['totalQuantity']);
+
+                    $this->_em->persist($newCategory);
+                    $this->_em->flush();
+                }
+/*
+
+
                 $avg = $cumulativeQty / (count($findTotalRecord) + 1);
                 $grade = $this->getGradeObj($avg);
                 $createdMonth = $board->getYear() . '-' .date('m', strtotime($board->getMonth())) . '-01';
@@ -485,7 +561,21 @@ class AgentCategoryRepository extends EntityRepository
                 $stmt->bindValue('created_month', $createdMonth);
                 $stmt->bindValue('month_count', (count($findTotalRecord) + 1));
                 $stmt->bindValue('cumulative_quantity', $cumulativeQty);
-                $stmt->execute();
+                $stmt->execute();*/
+            }else{
+
+//                $findDocument = $this->_em->getRepository(DocumentUpload::class)->find($item['document_upload_id']);
+
+                $avg = ($findCategory->getCumulativeQuantity() + $item['totalQuantity']) / $findCategory->getMonthCount();
+                $grade = $this->getGradeObj($avg);
+
+                $findCategory->setGradeStandard($grade);
+                $findCategory->setQuantity($item['totalQuantity']);
+                $findCategory->setDocumentUpload($findDocument);
+                $findCategory->setAverage($avg);
+                $findCategory->setCumulativeQuantity(($findCategory->getCumulativeQuantity() + $item['totalQuantity']));
+
+                $this->_em->flush();
             }
         }
 
@@ -817,7 +907,8 @@ class AgentCategoryRepository extends EntityRepository
         if (!array_key_exists('upgradeAgents', $agentUpgrade)){
             $agentUpgrade['upgradeAgents'] = [];
         }
-        $agentUpgrade['totalAgentsCount'] = count($data[$board->getYear()-1] + $data[$board->getYear()]);
+//        $agentUpgrade['totalAgentsCount'] = count($data[$board->getYear()-1] + $data[$board->getYear()]);
+        $agentUpgrade['totalAgentsCount'] = count($data[$board->getYear()]);
         $agentUpgrade['upgradeAgentsCount'] = isset($agentUpgrade['upgradeAgents']) ? count($agentUpgrade['upgradeAgents']) : 0;
 
         return $agentUpgrade;
