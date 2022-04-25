@@ -447,9 +447,12 @@ class AgentCategoryRepository extends EntityRepository
 
             $prevMonthRecords = $this->findBy(['month' => $prevMonth, 'year' => $board->getYear()]);
 
+
             foreach ($prevMonthRecords as $record) {
 
-                $currentMonthRecord = new AgentCategory();
+                $exist = $this->findOneBy(['agent' => $record->getAgent(), 'month' => $board->getMonth(), 'year' => $board->getYear()]);
+                $currentMonthRecord = $exist ? $exist : new AgentCategory();
+
                 $currentMonthRecord->setAgent($record->getAgent());
                 $currentMonthRecord->setGradeStandard(null);
                 $currentMonthRecord->setQuantity(0);
@@ -491,15 +494,16 @@ class AgentCategoryRepository extends EntityRepository
         $stmt->execute();
         $data = $stmt->fetchAll();
 
-        $prevMonth = date('F', strtotime($board->getMonth() . ',' . $board->getYear() . "last month"));
+
+//        $prevMonth = date('F', strtotime($board->getMonth() . ',' . $board->getYear() . "last month"));
 
         foreach ($data as $item) {
 
-            /** @var AgentCategory $findRecord**/
-            $findRecord = $this->findOneBy(['agent' => $item['agent_id'],'month' => $prevMonth, 'year' => $item['year']]);
-            $findTotalRecord = $this->findBy(['agent' => $item['agent_id'], 'year' => $item['year']]);
-
-            $cumulativeQty = $item['totalQuantity'] + ($findRecord ? $findRecord->getCumulativeQuantity() : 0);
+//            /** @var AgentCategory $findRecord**/
+//            $findRecord = $this->findOneBy(['agent' => $item['agent_id'],'month' => $prevMonth, 'year' => $item['year']]);
+//            $findTotalRecord = $this->findBy(['agent' => $item['agent_id'], 'year' => $item['year']]);
+//
+//            $cumulativeQty = $item['totalQuantity'] + ($findRecord ? $findRecord->getCumulativeQuantity() : 0);
 
 /*            $agentFindQuery = "SELECT id FROM kpi_agent_category WHERE month = :month AND year = :year AND agent_id = :agent_id";
             $stmt = $this->_em->getConnection()->prepare($agentFindQuery);
