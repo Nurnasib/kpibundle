@@ -379,11 +379,12 @@
                         <table width="100%" cellpadding="5", cellspacing="0" border="1">
                             <thead>
                             <tr>
-                                <td>{{ 'Total Agents:' }} {{ agentUpgradationDetails.totalAgentsCount|default(0) }}</td>
+                                <td>{{ 'Total Agents(Previous Year):' }} {{ agentUpgradationDetails.totalAgentsCountPrevYear|default(0) }}</td>
+                                <td>{{ 'Total Agents:' }} {{ agentUpgradationDetails.totalAgentsCountCurrentYear|default(0) }}</td>
                                 <td>{{ 'Total Upgrade Agents:' }} {{ agentUpgradationDetails.upgradeAgentsCount|default(0) }}</td>
                                 <td>{{ 'Upgrade Agents percentage:' }}
-                                    {% if agentUpgradationDetails.totalAgentsCount > 0 %}
-                                        {{ ((agentUpgradationDetails.upgradeAgentsCount * 100) / agentUpgradationDetails.totalAgentsCount)|number_format(2) }} %
+                                    {% if agentUpgradationDetails.totalAgentsCountPrevYear > 0 %}
+                                        {{ ((agentUpgradationDetails.upgradeAgentsCount * 100) / agentUpgradationDetails.totalAgentsCountPrevYear)|number_format(2) }} %
 
                                     {% endif %}
                                 </td>

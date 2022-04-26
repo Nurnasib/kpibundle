@@ -594,6 +594,7 @@ class EmployeeBoardController extends AbstractController
 
         $agentUpgradationDetails = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentUpgradation($board, $districtsId);
 
+
         if ($mode == 'pdf'){
 
             // Configure Dompdf according to your needs

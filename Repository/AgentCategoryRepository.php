@@ -168,8 +168,10 @@ class AgentCategoryRepository extends EntityRepository
     {
         $prevYear = $board->getYear()-1;
 
-        $findRecord = $this->findBy(['month' => $board->getMonth(), 'year' => $prevYear]);
-        if (!$findRecord){
+        $prevYearRecords = $this->getPreviousCategory($board->getMonth(), $prevYear, $districtsId);
+
+
+        if (!$prevYearRecords){
             if ($board->getMonth() == 'January'){
                 $districtsSales = $this->_em->getRepository(AgentOrder::class)->getAgentWithSalesQuantity(['January'], $prevYear, $districtsId);
                 $createdMonth = $prevYear . '-01-01';
@@ -316,7 +318,7 @@ class AgentCategoryRepository extends EntityRepository
 
     }
 
-    private function getPreviousMonthCategory($prevMonth, $currentYear, $districtsId)
+    private function getPreviousCategory($month, $year, $districtsId)
     {
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.agent', 'agent');
@@ -324,8 +326,8 @@ class AgentCategoryRepository extends EntityRepository
 
         $qb->select('e');
         $qb->where('district.id IN (:districtId)')->setParameter('districtId', $districtsId);
-        $qb->andWhere('e.month = :prevMonth')->setParameter('prevMonth', $prevMonth);
-        $qb->andWhere('e.year = :currentYear')->setParameter('currentYear', $currentYear);
+        $qb->andWhere('e.month = :month')->setParameter('month', $month);
+        $qb->andWhere('e.year = :year')->setParameter('year', $year);
 
         return $qb->getQuery()->getResult();
     }
@@ -339,7 +341,7 @@ class AgentCategoryRepository extends EntityRepository
             $monthCount = date('m', strtotime($board->getMonth() . ',' . $board->getYear()));
             $createdMonth = $board->getYear() . '-' . $monthCount . '-01';
 
-            $prevMonthRecords = $this->getPreviousMonthCategory($prevMonth, $board->getYear(), $districtsId);
+            $prevMonthRecords = $this->getPreviousCategory($prevMonth, $board->getYear(), $districtsId);
 
             $months = [];
 
@@ -829,7 +831,8 @@ class AgentCategoryRepository extends EntityRepository
             $agentUpgrade['upgradeAgents'] = [];
         }
 //        $agentUpgrade['totalAgentsCount'] = count($data[$board->getYear()-1] + $data[$board->getYear()]);
-        $agentUpgrade['totalAgentsCount'] = count($data[$board->getYear()]);
+        $agentUpgrade['totalAgentsCountPrevYear'] = count($data[$board->getYear()-1]);
+        $agentUpgrade['totalAgentsCountCurrentYear'] = count($data[$board->getYear()]);
         $agentUpgrade['upgradeAgentsCount'] = isset($agentUpgrade['upgradeAgents']) ? count($agentUpgrade['upgradeAgents']) : 0;
 
         return $agentUpgrade;
