@@ -124,7 +124,10 @@ class EmployeeBoardController extends AbstractController
             $previousMonth = date('F', strtotime($data['employee_board_form']['monthYear'] . "last month"));
             $findLastMonthKpi = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findOneBy(['employee' => $emp, 'month' => $previousMonth, 'year' => $year]);
             if ($month != 'January' && !$findLastMonthKpi){
-                $this->addFlash('warning', 'Please generate previous month KPI first!');
+                $this->addFlash('warning', 'Please generate/appro previous month KPI first!');
+                return $this->redirectToRoute('kpi_board_new');
+            }elseif ($findLastMonthKpi && !$findLastMonthKpi->getApprovedBy()){ // check unapproved
+                $this->addFlash('warning', 'Unapproved KPI in previous month!');
                 return $this->redirectToRoute('kpi_board_new');
             }
 
@@ -390,6 +393,25 @@ class EmployeeBoardController extends AbstractController
     public function delete(EmployeeBoard $board): Response
     {
         $em = $this->getDoctrine()->getManager();
+        
+        
+        /*$employeeDistrictHistory = $this->_em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
+        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
+        $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
+
+        $districtsIdString = implode(',', $districtsId);
+        $agentOrderQuery = "DELETE FROM `kpi_agent_category`
+                            JOIN core_agent ON core_agent.id = kpi_agent_category.agent_id
+                            WHERE core_agent.district_id IN ($districtsIdString)";
+        $stmt = $this->_em->getConnection()->prepare($agentOrderQuery);
+      
+        $stmt->execute();*/
+
+
+
+
+
+
         $em->remove($board);
         $em->flush();
 //        $this->addFlash('success', 'post.deleted_successfully');
