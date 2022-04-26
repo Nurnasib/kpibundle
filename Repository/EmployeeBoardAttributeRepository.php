@@ -266,7 +266,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $employeeBoardAttributeForAgentSalesGrowth = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $agentSalesDistribution]);
 
         if ($employeeBoardAttributeForAgentSalesGrowth) {
-            $mark = $this->growthAgentMarkCalculation($agentUpgrade['totalAgentsCount'], $agentUpgrade['upgradeAgentsCount']);
+            $mark = $this->growthAgentMarkCalculation($agentUpgrade['totalAgentsCountPrevYear'], $agentUpgrade['upgradeAgentsCount']);
             $employeeBoardAttributeForAgentSalesGrowth->setMark($mark);
             $em->persist($employeeBoardAttributeForAgentSalesGrowth);
             $em->flush();
