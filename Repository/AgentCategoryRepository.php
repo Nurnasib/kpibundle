@@ -356,10 +356,20 @@ class AgentCategoryRepository extends EntityRepository
 
                     $currentMonthRecord = new AgentCategory();
                     $currentMonth = $this->getCurrentMonthSales($record->getAgent()->getId(),$board);
+
+                    if (!$currentMonth){
+                        $currentMonth['totalQuantity'] = 0;
+                        $currentMonth['document_upload_id'] = null;
+                    }
+
                     $totalQuantity = ($record->getCumulativeQuantity() + $currentMonth['totalQuantity']);
                     $avg = ($totalQuantity / ($record->getMonthCount() + 1));
                     $grade = $this->getGradeObj($avg);
-                    $findDocument = $this->_em->getRepository(DocumentUpload::class)->find($currentMonth['document_upload_id']);
+                    if ($currentMonth['document_upload_id']){
+                        $findDocument = $this->_em->getRepository(DocumentUpload::class)->find($currentMonth['document_upload_id']);
+                    }else{
+                        $findDocument = null;
+                    }
 
 
                     $currentMonthRecord->setAgent($record->getAgent());
@@ -397,21 +407,25 @@ class AgentCategoryRepository extends EntityRepository
                 $exist = $this->findOneBy(['agent' => $sale['agent_id'], 'month' => $sale['month'], 'year' => $sale['year']]);
                 if(!$exist){
                     $currentMonthRecord = new AgentCategory();
-                    $grade = $this->getGradeObj($sale['totalQuantity']);
-                    $findDocument = $this->_em->getRepository(DocumentUpload::class)->find($sale['document_upload_id']);
+                    $grade = $this->getGradeObj(isset($sale['totalQuantity']) ? $sale['totalQuantity'] : 0);
+                    if (isset($sale['document_upload_id'])){
+                        $findDocument = $this->_em->getRepository(DocumentUpload::class)->find($sale['document_upload_id']);
+                    }else{
+                        $findDocument = null;
+                    }
 
                     $agentObj = $this->_em->getRepository(Agent::class)->find($sale['agent_id']);
 
                     $currentMonthRecord->setAgent($agentObj);
                     $currentMonthRecord->setGradeStandard($grade);
-                    $currentMonthRecord->setQuantity($sale['totalQuantity']);
+                    $currentMonthRecord->setQuantity(isset($sale['totalQuantity']) ? $sale['totalQuantity'] : 0);
                     $currentMonthRecord->setMonth($board->getMonth());
                     $currentMonthRecord->setYear($board->getYear());
                     $currentMonthRecord->setCreatedAt(new \DateTimeImmutable("now"));
                     $currentMonthRecord->setCreatedMonth(new \DateTimeImmutable($createdMonth));
                     $currentMonthRecord->setMonthCount(1);
-                    $currentMonthRecord->setAverage($sale['totalQuantity']);
-                    $currentMonthRecord->setCumulativeQuantity($sale['totalQuantity']);
+                    $currentMonthRecord->setAverage(isset($sale['totalQuantity']) ? $sale['totalQuantity'] : 0);
+                    $currentMonthRecord->setCumulativeQuantity(isset($sale['totalQuantity']) ? $sale['totalQuantity'] : 0);
                     $currentMonthRecord->setDocumentUpload($findDocument);
 
                     $this->_em->persist($currentMonthRecord);
