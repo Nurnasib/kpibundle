@@ -124,7 +124,7 @@ class EmployeeBoardController extends AbstractController
             $previousMonth = date('F', strtotime($data['employee_board_form']['monthYear'] . "last month"));
             $findLastMonthKpi = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findOneBy(['employee' => $emp, 'month' => $previousMonth, 'year' => $year]);
             if ($month != 'January' && !$findLastMonthKpi){
-                $this->addFlash('warning', 'Please generate/appro previous month KPI first!');
+                $this->addFlash('warning', 'Please generate/approve previous month KPI first!');
                 return $this->redirectToRoute('kpi_board_new');
             }elseif ($findLastMonthKpi && !$findLastMonthKpi->getApprovedBy()){ // check unapproved
                 $this->addFlash('warning', 'Unapproved KPI in previous month!');
