@@ -296,47 +296,50 @@ class AgentCategoryRepository extends EntityRepository
                     }
                 }
 
-                // insert category for new agents sale current month
-                $districtsIdString = implode(',' , $districtsId);
-                $agents = implode(',' , $agents);
-                $agentOrderQuery = "SELECT agent_id, SUM(quantity) AS totalQuantity, month, year, document_upload_id
+                if ($agents){
+
+                    // insert category for new agents sale current month
+                    $districtsIdString = implode(',' , $districtsId);
+                    $agents = implode(',' , $agents);
+                    $agentOrderQuery = "SELECT agent_id, SUM(quantity) AS totalQuantity, month, year, document_upload_id
                     FROM kpi_agent_order
                     WHERE month = :month AND year = :year AND agent_id NOT IN ($agents) AND district_id IN ($districtsIdString)
                     GROUP BY agent_id";
-                $stmt = $this->_em->getConnection()->prepare($agentOrderQuery);
-                $stmt->bindValue('month', $board->getMonth());
-                $stmt->bindValue('year', $prevYear);
-                $stmt->execute();
-                $newAgentsSales = $stmt->fetchAll();
+                    $stmt = $this->_em->getConnection()->prepare($agentOrderQuery);
+                    $stmt->bindValue('month', $board->getMonth());
+                    $stmt->bindValue('year', $prevYear);
+                    $stmt->execute();
+                    $newAgentsSales = $stmt->fetchAll();
 
-                foreach ($newAgentsSales as $sale) {
+                    foreach ($newAgentsSales as $sale) {
 
-                    $exist = $this->findOneBy(['agent' => $sale['agent_id'], 'month' => $sale['month'], 'year' => $sale['year']]);
-                    if(!$exist){
-                        $currentMonthRecord = new AgentCategory();
-                        $grade = $this->getGradeObj(isset($sale['totalQuantity']) ? $sale['totalQuantity'] : 0);
-                        if (isset($sale['document_upload_id'])){
-                            $findDocument = $this->_em->getRepository(DocumentUpload::class)->find($sale['document_upload_id']);
-                        }else{
-                            $findDocument = null;
+                        $exist = $this->findOneBy(['agent' => $sale['agent_id'], 'month' => $sale['month'], 'year' => $sale['year']]);
+                        if(!$exist){
+                            $currentMonthRecord = new AgentCategory();
+                            $grade = $this->getGradeObj(isset($sale['totalQuantity']) ? $sale['totalQuantity'] : 0);
+                            if (isset($sale['document_upload_id'])){
+                                $findDocument = $this->_em->getRepository(DocumentUpload::class)->find($sale['document_upload_id']);
+                            }else{
+                                $findDocument = null;
+                            }
+
+                            $agentObj = $this->_em->getRepository(Agent::class)->find($sale['agent_id']);
+
+                            $currentMonthRecord->setAgent($agentObj);
+                            $currentMonthRecord->setGradeStandard($grade);
+                            $currentMonthRecord->setQuantity(isset($sale['totalQuantity']) ? $sale['totalQuantity'] : 0);
+                            $currentMonthRecord->setMonth($board->getMonth());
+                            $currentMonthRecord->setYear($prevYear);
+                            $currentMonthRecord->setCreatedAt(new \DateTimeImmutable("now"));
+                            $currentMonthRecord->setCreatedMonth(new \DateTimeImmutable($createdMonth));
+                            $currentMonthRecord->setMonthCount(1);
+                            $currentMonthRecord->setAverage(isset($sale['totalQuantity']) ? $sale['totalQuantity'] : 0);
+                            $currentMonthRecord->setCumulativeQuantity(isset($sale['totalQuantity']) ? $sale['totalQuantity'] : 0);
+                            $currentMonthRecord->setDocumentUpload($findDocument);
+
+                            $this->_em->persist($currentMonthRecord);
+                            $this->_em->flush();
                         }
-
-                        $agentObj = $this->_em->getRepository(Agent::class)->find($sale['agent_id']);
-
-                        $currentMonthRecord->setAgent($agentObj);
-                        $currentMonthRecord->setGradeStandard($grade);
-                        $currentMonthRecord->setQuantity(isset($sale['totalQuantity']) ? $sale['totalQuantity'] : 0);
-                        $currentMonthRecord->setMonth($board->getMonth());
-                        $currentMonthRecord->setYear($prevYear);
-                        $currentMonthRecord->setCreatedAt(new \DateTimeImmutable("now"));
-                        $currentMonthRecord->setCreatedMonth(new \DateTimeImmutable($createdMonth));
-                        $currentMonthRecord->setMonthCount(1);
-                        $currentMonthRecord->setAverage(isset($sale['totalQuantity']) ? $sale['totalQuantity'] : 0);
-                        $currentMonthRecord->setCumulativeQuantity(isset($sale['totalQuantity']) ? $sale['totalQuantity'] : 0);
-                        $currentMonthRecord->setDocumentUpload($findDocument);
-
-                        $this->_em->persist($currentMonthRecord);
-                        $this->_em->flush();
                     }
                 }
 
@@ -680,6 +683,7 @@ class AgentCategoryRepository extends EntityRepository
         $qb->addSelect('e.average');
         $qb->addSelect('region.name AS agentRegionName');
         $qb->addSelect('zone.name AS agentZoneName');
+        $qb->addSelect('district.name AS agentDistrictName');
 
         $qb->where('e.year = :prevYear')->setParameter('prevYear', $prevYear);
         $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $districtsId);
@@ -754,6 +758,7 @@ class AgentCategoryRepository extends EntityRepository
         $qb->addSelect('region.name AS agentRegionName');
         $qb->addSelect('zone.name AS agentZoneName');
         $qb->addSelect('gradeStandard.grade AS currentMonthGrade');
+        $qb->addSelect('district.name AS agentDistrictName');
 
         $qb->where('e.year = :currentYear')->setParameter('currentYear', $board->getYear());
         $qb->andWhere('e.month = :month')->setParameter('month', $board->getMonth());
@@ -787,6 +792,7 @@ class AgentCategoryRepository extends EntityRepository
         $qb->addSelect('e.average');
         $qb->addSelect('region.name AS agentRegionName');
         $qb->addSelect('zone.name AS agentZoneName');
+        $qb->addSelect('district.name AS agentDistrictName');
 
         $qb->where('e.year = :prevYear')->setParameter('prevYear', $prevYear);
         $qb->andWhere('district.id IN (:districtsId)')->setParameter('districtsId', $districtsId);

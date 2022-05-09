@@ -261,6 +261,7 @@
                                         <th scope="col">{{ 'Category'|trans ~ ' (' ~ (board.year-1) ~ ')' }}</th>
                                         <th scope="col">{{ 'Agent Id'|trans }}</th>
                                         <th scope="col">{{ 'Agent Name'|trans }}</th>
+                                        <th scope="col">{{ 'District'|trans }}</th>
                                         <th scope="col">{{ 'Region'|trans }}</th>
                                         <th scope="col">{{ 'Zone'|trans }}</th>
                                         <th scope="col">{{ 'Average'|trans ~ ' (' ~ (board.year-1) ~ ')' }}</th>
@@ -284,6 +285,7 @@
                                                     <td>{{ row.prevYearGrade|default('') }}</td>
                                                     <td>{{ row.agentId|default('') }}</td>
                                                     <td>{{ row.agentName|default('') }}</td>
+                                                    <td>{{ row.agentDistrictName|default('') }}</td>
                                                     <td>{{ row.agentRegionName|default('') }}</td>
                                                     <td>{{ row.agentZoneName|default('') }}</td>
                                                     <td>{{ row.prevYearAvg|number_format(2)|default('') }}</td>
@@ -323,6 +325,7 @@
                                         <th scope="col">{{ 'Category'|trans ~ ' (' ~ (board.year-1) ~ ')' }}</th>
                                         <th scope="col">{{ 'Agent Id'|trans }}</th>
                                         <th scope="col">{{ 'Agent Name'|trans }}</th>
+                                        <th scope="col">{{ 'District'|trans }}</th>
                                         <th scope="col">{{ 'Region'|trans }}</th>
                                         <th scope="col">{{ 'Zone'|trans }}</th>
                                         <th scope="col">{{ 'Average'|trans ~ ' (' ~ (board.year-1) ~ ')' }}</th>
@@ -346,6 +349,7 @@
                                                     <td>{{ row.prevYearGrade|default('') }}</td>
                                                     <td>{{ row.agentId|default('') }}</td>
                                                     <td>{{ row.agentName|default('') }}</td>
+                                                    <td>{{ row.agentDistrictName|default('') }}</td>
                                                     <td>{{ row.agentRegionName|default('') }}</td>
                                                     <td>{{ row.agentZoneName|default('') }}</td>
                                                     <td>{{ row.prevYearAvg|number_format(2)|default('') }}</td>
