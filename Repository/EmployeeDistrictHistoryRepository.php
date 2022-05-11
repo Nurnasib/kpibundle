@@ -46,12 +46,17 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
         }
         $stmt->execute();
         $records =  $stmt->fetchAll();
+
         $history = [];
 
         foreach ($records as $record){
-            $history[$record['user_id']] = [
-                'districts' => $record['district'] ? implode(', ', json_decode($record['district'], true)) : '',
-            ];
+            $districtArray = json_decode($record['district'], true);
+
+            if ($districtArray){
+                $history[$record['user_id']]['districts'] = implode(', ', $districtArray);
+            }else{
+                $history[$record['user_id']]['districts'] = '';
+            }
         }
 
         $qb = $this->_em->createQueryBuilder();
