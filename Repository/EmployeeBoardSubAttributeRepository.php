@@ -43,7 +43,7 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
     {
         $qb = $this->createQueryBuilder('e');
         $qb->select('e.targetQuantity', 'e.salesQuantity', 'e.mark');
-        $qb->addSelect('markDistribution.name AS attributeName', 'markDistribution.salesMode');
+        $qb->addSelect('markDistribution.id AS attributeId','markDistribution.name AS attributeName', 'markDistribution.salesMode');
 
         $qb->join('e.markDistribution', 'markDistribution');
         $qb->join('markDistribution.parent', 'markDistributionParent');
