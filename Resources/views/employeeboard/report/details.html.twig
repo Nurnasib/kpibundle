@@ -216,4 +216,19 @@
 {% block javascripts %}
     {{ parent() }}
     <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+
+    <script>
+        $(document).on('click',"#statusUpdate", function (event) {
+            event.preventDefault();
+            var id = $(this).attr('data-id');
+            var url = $(this).attr('data-action');
+            $.MessageBox({
+                buttonFail  : "No",
+                buttonDone  : "Yes",
+                message     : "Are you sure want to approve?"
+            }).done(function(){
+                window.location.href = $('#statusUpdate').attr('href');
+            });
+        });
+    </script>
 {% endblock  %}

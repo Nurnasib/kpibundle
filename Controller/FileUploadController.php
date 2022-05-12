@@ -188,6 +188,7 @@ class FileUploadController extends AbstractController
         }
         $agentOrders = $this->getDoctrine()->getRepository(AgentOrder::class)->getDistrictWiseTotalProductSales($month, $year);
 
+
         foreach ($agentOrders as $key => $agentOrder){
 
             $district = $this->getDoctrine()->getRepository(Location::class)->find($agentOrder['dId']);
@@ -205,7 +206,7 @@ class FileUploadController extends AbstractController
             $salesPriviousGrouthQty = $this->getDoctrine()->getRepository(DistrictOrder::class)->getGrouthPreviousProductQty($district, $product, $year, $month);
             $salesCurrentGrouthQty = $this->getDoctrine()->getRepository(DistrictOrder::class)->getGrouthCurrentProductQty($district, $product, $year, $months);
 
-            $targetSalesQty =$salesTargetQty ? $salesTargetQty->getQuantity() : 0;
+            $targetSalesQty = $salesTargetQty ? $salesTargetQty->getQuantity() : 0;
 
             $districtOrder->setYear($agentOrder['oYear']);
             $districtOrder->setMonth($agentOrder['oMonth']);
