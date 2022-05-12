@@ -711,20 +711,21 @@ class AgentCategoryRepository extends EntityRepository
                 array_push($currentGrade, $currentYearAgentsDtoUpgradeCategory[$key]['currentMonthGrade']);
             }
 
-/*            else{
+            else{
                 $currentYearAgentsDtoUpgradeCategory[$key] = [
                     'currentMonthAvg' => 0,
                     'month' => $board->getMonth(),
                     'year' => $board->getYear(),
                     'agentId' => $item['agentId'],
+                    'agentDistrictName' => $item['agentDistrictName'],
                     'agentName' => $item['agentName'],
                     'agentRegionName' => $item['agentRegionName'],
                     'agentZoneName' => $item['agentZoneName'],
-                    'currentMonthGrade' => '',
+                    'currentMonthGrade' => '-',
                     'prevYearGrade' => $prevYearAgentsWithDcategory[$key]['grade'],
                     'prevYearAvg' => $prevYearAgentsWithDcategory[$key]['average'],
                 ];
-            }*/
+            }
 
 
         }
@@ -738,8 +739,10 @@ class AgentCategoryRepository extends EntityRepository
 
                     }
                 }*/
-        $currentYearAgentsDtoUpgradeCategory['totalAgent'] = count($currentYearAgentsDtoUpgradeCategory);
+//        $currentYearAgentsDtoUpgradeCategory['totalAgent'] = count($currentYearAgentsDtoUpgradeCategory);
+        $currentYearAgentsDtoUpgradeCategory['totalAgent'] = count($prevYearAgentsWithDcategory);
         $currentYearAgentsDtoUpgradeCategory['totalUpgradeAgent'] = count(array_intersect($currentGrade, ['A','B','C']));
+
         return $currentYearAgentsDtoUpgradeCategory;
     }
 
@@ -819,7 +822,6 @@ class AgentCategoryRepository extends EntityRepository
                 $currentYearAgentsCtoUpgrade[$key]['prevYearAvg'] = $prevYearAgentsWithCcategory[$key]['average'];
                 array_push($currentGrade, $currentYearAgentsCtoUpgrade[$key]['currentMonthGrade']);
             }
-/*            
             else{
                 $currentYearAgentsCtoUpgrade[$key] = [
                     'currentMonthAvg' => 0,
@@ -827,13 +829,14 @@ class AgentCategoryRepository extends EntityRepository
                     'year' => $board->getYear(),
                     'agentId' => $item['agentId'],
                     'agentName' => $item['agentName'],
+                    'agentDistrictName' => $item['agentDistrictName'],
                     'agentRegionName' => $item['agentRegionName'],
                     'agentZoneName' => $item['agentZoneName'],
                     'currentMonthGrade' => '',
                     'prevYearGrade' => $prevYearAgentsWithCcategory[$key]['grade'],
                     'prevYearAvg' => $prevYearAgentsWithCcategory[$key]['average'],
                 ];
-            }*/
+            }
 
         }
 
@@ -845,8 +848,9 @@ class AgentCategoryRepository extends EntityRepository
                     }
                 }*/
 
-        $currentYearAgentsCtoUpgrade['totalAgent'] = count($currentYearAgentsCtoUpgrade);
+        $currentYearAgentsCtoUpgrade['totalAgent'] = count($prevYearAgentsWithCcategory);
         $currentYearAgentsCtoUpgrade['totalUpgradeAgent'] = count(array_intersect($currentGrade, ['A','B']));
+
         return $currentYearAgentsCtoUpgrade;
     }
 
