@@ -625,7 +625,7 @@ class EmployeeBoardController extends AbstractController
 
             // Render the HTML as PDF
             $dompdf->render();
-            $fileName = $request->get('_route') . '_' . $board->getEmployee()->getName() . '_' . $board->getMonth() . '_' . $board->getYear() . '_' . time();
+            $fileName = "KPI Achievement-" . $board->getEmployee()->getName() . '(' . $board->getMonth() . ',' . $board->getYear() . ')';
             // Output the generated PDF to Browser (force download)
             $dompdf->stream($fileName . ".pdf", [
                 "Attachment" => false
@@ -646,8 +646,7 @@ class EmployeeBoardController extends AbstractController
 
             ]);
 
-            $fileName = $request->get('_route') . '_' . $board->getEmployee()->getName() . '_' . $board->getMonth() . '_' . $board->getYear() . '_' . time() . '.xls';
-
+            $fileName = "KPI Achivement-" . $board->getEmployee()->getName() . '(' . $board->getMonth() . ',' . $board->getYear() . ')';
 
             header("Content-Type: application/vnd.ms-excel; charset=utf-8");
             header("Content-Disposition: attachment; filename=$fileName");

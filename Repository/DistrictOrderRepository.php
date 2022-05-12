@@ -106,8 +106,11 @@ class DistrictOrderRepository extends EntityRepository
         $qb->andWhere('e.created <= :endDate');
         $qb->setParameters(array('district'=>$district,'product'=>$product,'startDate'=>$startDate, 'endDate'=>$endDate));
 
-        $results = $qb->getQuery()->getSingleScalarResult();
-        return $results;
+        try {
+            return $qb->getQuery()->getSingleScalarResult();
+        }catch (\Exception $e){
+            return 0;
+        }
     }
 
     public function getGrouthCurrentProductQty($district, $product, $year, $months)
@@ -128,7 +131,11 @@ class DistrictOrderRepository extends EntityRepository
         $qb->groupBy('e.product');
         $qb->groupBy('e.district');
 
-        return $qb->getQuery()->getSingleScalarResult();
+        try {
+            return $qb->getQuery()->getSingleScalarResult();
+        }catch (\Exception $e){
+            return 0;
+        }
     }
 
     public function getCumulativeTargetQty($district, $product, $year, $months)

@@ -106,7 +106,7 @@ class FileUploadController extends AbstractController
             case "agent-sales":
                 $findDistrictTarget = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->findBy(['month' => $month, 'year' => $year]);
                 if (! $findDistrictTarget){
-                    $this->addFlash('warning', 'Do not find district target for ' . $month . ',' . $year . '. Please set district target first!');
+                    $this->addFlash('warning', 'Not found district target for ' . $month . ',' . $year . '. Please set district target first!');
                     return $this->redirectToRoute('kpi_file_upload_index');
                 } // Find District target
 
@@ -125,7 +125,7 @@ class FileUploadController extends AbstractController
             case "agent-outstanding":
                 $findDistrictTarget = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->findBy(['month' => $month, 'year' => $year]);
                 if (! $findDistrictTarget){
-                    $this->addFlash('warning', 'Do not find district target for ' . $month . ',' . $year . '. Please set district target first!');
+                    $this->addFlash('warning', 'Not found district target for ' . $month . ',' . $year . '. Please set district target first!');
                     return $this->redirectToRoute('kpi_file_upload_index');
                 } // Find District target
 
@@ -139,7 +139,7 @@ class FileUploadController extends AbstractController
             case "doc-sales-collection":
                 $findDistrictTarget = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->findBy(['month' => $month, 'year' => $year]);
                 if (! $findDistrictTarget){
-                    $this->addFlash('warning', 'Do not find district target for ' . $month . ',' . $year . '. Please set district target first!');
+                    $this->addFlash('warning', 'Not found district target for ' . $month . ',' . $year . '. Please set district target first!');
                     return $this->redirectToRoute('kpi_file_upload_index');
                 } // Find District target
 
