@@ -578,6 +578,7 @@ class EmployeeBoardController extends AbstractController
 
         $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getKpiSummaryForFeedAndGrowth($board);
 
+
         if (str_contains($board->getReportMode()->getSlug(), 'custom')){
             $outstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->getOutstanding($board);
             $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->getDocSale($board);
@@ -632,21 +633,20 @@ class EmployeeBoardController extends AbstractController
             ]);
 
         }elseif ($mode == 'excel'){
+
             $html = $this->renderView('@TerminalbdKpi/employeeboard/report/salesDetailsExcel.html.twig', [
                 'board' => $board,
                 'feedAndGrowth' => $feedAndGrowth,
-//            'attributes' => $attributes,
                 'outstanding' => $outstanding,
                 'dCategoryUpgrade' => $dCategoryUpgrade,
                 'cCategoryUpgrade' => $cCategoryUpgrade,
-//                'growthAgentSalesDetails' => $growthAgentSalesDetails,
                 'agentUpgradationDetails' => $agentUpgradationDetails,
                 'docSale' => $docSale,
                 'individualTeamMemberMarks' => $individualTeamMemberMarks,
-
             ]);
 
-            $fileName = "KPI Achivement-" . $board->getEmployee()->getName() . '(' . $board->getMonth() . ',' . $board->getYear() . ')';
+
+            $fileName = 'KPI Achivement-' . '(' . $board->getEmployee()->getUserId() . ')' . $board->getEmployee()->getName() . '(' . $board->getMonth() . ',' . $board->getYear() . ').xls';
 
             header("Content-Type: application/vnd.ms-excel; charset=utf-8");
             header("Content-Disposition: attachment; filename=$fileName");
