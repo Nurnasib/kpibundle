@@ -43,7 +43,7 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
                     AND month = :month AND year = :year";
 
         if (!in_array('ROLE_KPI_ADMIN', $filterBy['user']->getRoles())){
-            $query .= " AND employee.line_manager_id = :lineManagerId";
+            $query .= " AND kpi_employee_district_history.line_manager_id = :lineManagerId";
         }
 //        if ($filterBy['employee']){
 //            $query .= " AND employee.id = :employeeId";
@@ -72,9 +72,11 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
             }else{
                 $history[$record['user_id']]['districts'] = '';
             }
-            $history[$record['user_id']]['line_manager'] = '(' . $record['line_manager_id'] . ') ' . $record['line_manager_name'];
+            $history[$record['user_id']]['line_manager'] = $record['line_manager_id'] ? ('(' . $record['line_manager_id'] . ') ' . $record['line_manager_name']) : '';
 
         }
+
+
 
         $qb = $this->_em->createQueryBuilder();
         $qb->select('u.id','u.userId','u.name AS employeeName', 'district.name AS districtName')
@@ -85,14 +87,15 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
             ->orderBy('u.userId', 'ASC')
         ;
         if (!in_array('ROLE_KPI_ADMIN', $filterBy['user']->getRoles())){
-            $qb->leftJoin('u.lineManager', 'lineManager')
-                ->andWhere('lineManager.id = :lineManagerId')->setParameter('lineManagerId', $filterBy['user']->getId());
+//            $qb->leftJoin('u.lineManager', 'lineManager')
+//                ->andWhere('lineManager.id = :lineManagerId')->setParameter('lineManagerId', $filterBy['user']->getId());
         }
 //        if ($filterBy['employee']){
 //            $qb->andWhere('u.id = :employeeId')->setParameter('employeeId', $filterBy['employee']->getId());
 //        }
 
         $allEmployees = $qb->getQuery()->getArrayResult();
+
         $allEmployeesArray = [];
         foreach ($allEmployees as $allEmployee) {
             $allEmployeesArray[$allEmployee['userId']]['employeeName']=  $allEmployee['employeeName'];

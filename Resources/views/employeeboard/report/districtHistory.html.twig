@@ -79,21 +79,45 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for employeeId,record in data['allEmployee'] %}
-                                <tr>
-                                    <td>{{ loop.index }}</td>
-                                    <td>{{ employeeId|default('') }}</td>
-                                    <td>{{ record.employeeName|default('') }}</td>
-                                    <td>
-                                        {% if data['history'][employeeId] is defined %}
-                                            {{ data['history'][employeeId]['districts'] }}
-                                        {% else %}
-                                            {{ record.districts|default('') }}
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ data['history'][employeeId]['line_manager'] is defined ? data['history'][employeeId]['line_manager'] : '' }}</td>
-                                </tr>
+                            {% set count = 1 %}
+                            {% for employeeId,record in data['history'] %}
+                                {% if data['allEmployee'][employeeId] is defined %}
+
+                                    <tr>
+                                        <td>
+                                            {{ count }}
+                                            {% set count = count + 1 %}
+                                        </td>
+                                        <td>{{ employeeId|default('') }}</td>
+                                        <td>{{ data['allEmployee'][employeeId].employeeName|default('') }}</td>
+                                        <td>{{ record['districts'] }}</td>
+                                        <td>{{ record['line_manager'] is defined ? data['history'][employeeId]['line_manager'] : '' }}</td>
+                                    </tr>
+
+                                {% endif %}
                             {% endfor %}
+
+
+
+
+                            {#{% for employeeId,record in data['allEmployee'] %}
+                                {% if data['history'][employeeId] is defined %}
+
+                                    <tr>
+                                        <td>
+                                            {{ count }}
+                                            {% set count = count + 1 %}
+                                        </td>
+                                        <td>{{ employeeId|default('') }}</td>
+                                        <td>{{ record.employeeName|default('') }}</td>
+                                        <td>
+                                            {{ data['history'][employeeId]['districts'] }}
+                                        </td>
+                                        <td>{{ data['history'][employeeId]['line_manager'] is defined ? data['history'][employeeId]['line_manager'] : '' }}</td>
+                                    </tr>
+
+                                {% endif %}
+                            {% endfor %}#}
                             </tbody>
                             <tfoot>
                         </table>
