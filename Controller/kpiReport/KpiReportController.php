@@ -212,8 +212,10 @@ class KpiReportController extends AbstractController
             'month' => date('F'),
             'year' => date('Y'),
             'user' => $this->getUser(),
+            'employee' => null,
         ];
 
+//        $form = $this->createForm(DistrictHistorySearchFilterFormType::class, null, ['user' => $this->getUser()]);
         $form = $this->createForm(DistrictHistorySearchFilterFormType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted()){

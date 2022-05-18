@@ -10,6 +10,9 @@
  */
 namespace Terminalbd\KpiBundle\Form;
 
+use App\Entity\User;
+use Doctrine\ORM\EntityRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -26,7 +29,37 @@ class DistrictHistorySearchFilterFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+//        $user = $options['user'];
+
         $builder
+//            ->add('employee', EntityType::class, [
+//                'class' => User::class,
+//                'choice_label' => function($user){
+//                    return'( ' . $user->getUserId() . ' ) ' . $user->getName();
+//                },
+//                'query_builder' => function (EntityRepository $er) use ($user) {
+//                    if(in_array('ROLE_KPI_ADMIN', $user->getRoles())){
+//                        return $er->createQueryBuilder('e')
+//                            ->join('e.userGroup','ug')
+//                            ->where('e.enabled =1')
+//                            ->andWhere("ug.slug =:slug")->setParameter('slug','employee')
+//                            ->andWhere("e.userMode = 'KPI'")
+//                            ->orderBy('e.name', 'ASC');
+//                    }else{
+//                        return $er->createQueryBuilder('e')
+//                            ->join('e.lineManager','lm')
+//                            ->where('e.enabled =1')
+//                            ->andWhere("lm.id =:lmId")->setParameter('lmId', $user->getId())
+//                            ->orderBy('e.name', 'ASC');
+//                    }
+//                },
+//                'attr'=>[
+//                    'class'=>'select2'
+//                ],
+//                'placeholder' => 'Choose a employee',
+//                'required' => false,
+//
+//            ])
             ->add('month', ChoiceType::class,[
                 'choices' => [
                     'January' => 'January',
@@ -73,6 +106,8 @@ class DistrictHistorySearchFilterFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => null,
+//            'user' => User::class,
+
         ]);
     }
 }

@@ -32,6 +32,11 @@
                         <table class="table table-striped table-bordered table-hover dataTable">
                             <thead class="thead-dark">
                             <tr role="row" class="filter">
+{#                                <th colspan="2">#}
+{#                                    {{ form_label(form.employee) }}#}
+{#                                    {{ form_widget(form.employee) }}#}
+
+{#                                </th>#}
                                 <th colspan="2">
                                     {{ form_label(form.month) }}
                                     {{ form_widget(form.month) }}
@@ -70,6 +75,7 @@
                                 <th>Employee ID</th>
                                 <th>Employee</th>
                                 <th>Districts</th>
+                                <th>Line Manager</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -85,6 +91,7 @@
                                             {{ record.districts|default('') }}
                                         {% endif %}
                                     </td>
+                                    <td>{{ data['history'][employeeId]['line_manager'] is defined ? data['history'][employeeId]['line_manager'] : '' }}</td>
                                 </tr>
                             {% endfor %}
                             </tbody>

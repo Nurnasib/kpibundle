@@ -31,11 +31,23 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
     {
         $em = $this->_em;
 
-        $query = "SELECT core_user.name, core_user.user_id, kpi_employee_district_history.district FROM kpi_employee_district_history JOIN core_user ON core_user.id = kpi_employee_district_history.employee_id WHERE kpi_employee_district_history.id IN (SELECT MAX(kpi_employee_district_history.id) FROM kpi_employee_district_history GROUP BY employee_id,month,year ) AND month = :month AND year = :year";
+        $query = "SELECT employee.name, employee.user_id, kpi_employee_district_history.district, line_manager.name AS line_manager_name, line_manager.user_id AS line_manager_id
+                    FROM kpi_employee_district_history 
+                    JOIN core_user employee ON employee.id = kpi_employee_district_history.employee_id 
+                    LEFT JOIN core_user line_manager ON line_manager.id = kpi_employee_district_history.line_manager_id 
+                    WHERE kpi_employee_district_history.id IN (
+                    SELECT MAX(kpi_employee_district_history.id) 
+                    FROM kpi_employee_district_history 
+                    GROUP BY employee_id,month,year 
+                    ) 
+                    AND month = :month AND year = :year";
 
         if (!in_array('ROLE_KPI_ADMIN', $filterBy['user']->getRoles())){
-            $query .= " AND core_user.line_manager_id = :lineManagerId";
+            $query .= " AND employee.line_manager_id = :lineManagerId";
         }
+//        if ($filterBy['employee']){
+//            $query .= " AND employee.id = :employeeId";
+//        }
 
         $stmt = $em->getConnection()->prepare($query);
         $stmt->bindValue('month', $filterBy['month']);
@@ -44,6 +56,9 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
         if (!in_array('ROLE_KPI_ADMIN', $filterBy['user']->getRoles())){
             $stmt->bindValue('lineManagerId', $filterBy['user']->getId());
         }
+//        if ($filterBy['employee']){
+//            $stmt->bindValue('employeeId', $filterBy['employee']->getId());
+//        }
         $stmt->execute();
         $records =  $stmt->fetchAll();
 
@@ -57,6 +72,8 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
             }else{
                 $history[$record['user_id']]['districts'] = '';
             }
+            $history[$record['user_id']]['line_manager'] = '(' . $record['line_manager_id'] . ') ' . $record['line_manager_name'];
+
         }
 
         $qb = $this->_em->createQueryBuilder();
@@ -71,6 +88,9 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
             $qb->leftJoin('u.lineManager', 'lineManager')
                 ->andWhere('lineManager.id = :lineManagerId')->setParameter('lineManagerId', $filterBy['user']->getId());
         }
+//        if ($filterBy['employee']){
+//            $qb->andWhere('u.id = :employeeId')->setParameter('employeeId', $filterBy['employee']->getId());
+//        }
 
         $allEmployees = $qb->getQuery()->getArrayResult();
         $allEmployeesArray = [];
@@ -109,5 +129,18 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
             ksort($data[$record['year']]);
         }
         return $data;
+    }
+
+
+    public function getActiveTeamMembers($emp, $month, $year)
+    {
+        return $this->createQueryBuilder('e')
+            ->join('e.employee', 'employee')
+            ->andWhere('e.month = :month')->setParameter('month', $month)
+            ->andWhere('e.year = :year')->setParameter('year', $year)
+            ->andWhere("employee.enabled = 1")
+            ->andWhere('e.lineManager = :lineManager')->setParameter('lineManager', $emp)
+            ->getQuery()
+            ->getResult();
     }
 }
