@@ -140,7 +140,6 @@ class EmployeeBoardController extends AbstractController
 
             // Check if team member kpi exists
             $totalTeamMembers = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->getActiveTeamMembers($emp, $month, $year);
-            dd($totalTeamMembers);
 
             $totalTeamMembersId = [];
             foreach ($totalTeamMembers as $member){
