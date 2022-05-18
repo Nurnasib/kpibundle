@@ -939,7 +939,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 'actualMark' => $result['actualMark'],
             ];
         }
-        $individualTeamDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'team-members-mark-on-core-activities', 'status' => 1));
+        $individualTeamDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => 'team-members-marks-on-core-activities', 'status' => 1));
         if ($individualTeamDistribution){
             $employeeBoardAttributeForIndividualTeam = $this->findOneBy(['employeeBoard' => $board, 'attribute' => $individualTeamDistribution]);
             $data['obtainMark'] = $employeeBoardAttributeForIndividualTeam ? $employeeBoardAttributeForIndividualTeam->getMark() : 0;
