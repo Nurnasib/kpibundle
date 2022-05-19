@@ -28,6 +28,7 @@
                 </div>
             </div>
         </div>
+
         <div class="row">
             <div class="card">
                 <div class="portlet box green ">
@@ -38,7 +39,9 @@
                                 <a href="{{ path('kpi_approve',{'id':board.id}) }}" id="statusUpdate" name="statusUpdate" class="btn blue-bg text-white">Approved</a>
                             {% endif %}
                             <a href="{{ path('kpi_employee_board_preview',{'id':board.id,'mode':'print'}) }}" target="_blank" class="btn yellow-bg white-font"><i class="fa fa-print"></i> Print</a>
+
                         </div>
+
                     </div>
                     <style>
                         .list-unstyled li {

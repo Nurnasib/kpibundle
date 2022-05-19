@@ -806,7 +806,9 @@ class EmployeeBoardController extends AbstractController
 
         $em = $this->getDoctrine()->getManager();
 
-        $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($employeeBoard,$parameters); //update Actual mark & obtain mark
+        if (!str_contains($employeeBoard->getReportMode()->getSlug(),'custom')){
+            $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($employeeBoard,$parameters); //update Actual mark & obtain mark
+        }
 
         $employeeBoard->setApprovedBy($this->getUser());
         $em->persist($employeeBoard);
@@ -1082,7 +1084,7 @@ class EmployeeBoardController extends AbstractController
                                         } elseif ($agentNumberWithPercentage >= 1 && $agentNumberWithPercentage < 10) {
                                             $mark = 1;
                                         } else {
-                                            $mark = 1;
+                                            $mark = 0;
                                         }
                                     }else{
                                         $mark = 0;
