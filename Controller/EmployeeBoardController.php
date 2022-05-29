@@ -394,6 +394,13 @@ class EmployeeBoardController extends AbstractController
      */
     public function delete(EmployeeBoard $board): Response
     {
+        if ($board->getApprovedBy() && !in_array('ROLE_DEVELOPER', $this->getUser()->getRoles())){
+            return new JsonResponse([
+                'status' => 500,
+                'message' => 'failed'
+            ]);
+        }
+
         $em = $this->getDoctrine()->getManager();
         
         

@@ -135,6 +135,9 @@
                                                 {% if entity.approvedByName is null %}
                                                     <a class="btn btn-mini yellow-bg white-font" href="{% if entity.reportFormatSlug in ['custom-format-spo','custom-format-poultry', 'custom-format-cattle','custom-format-aqua'] %} {{ path('kpi_employee_board_edit_custom_format',{'id':entity.id}) }} {% else %} {{ path('kpi_employee_board_edit',{'id':entity.id}) }} {% endif %}"><i class="feather icon-edit"></i> Edit</a>
                                                 {% endif %}
+{#                                                <a class="btn btn-transparent btn-mini red-font remove" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i></a>#}
+                                            {% endif %}
+                                            {% if is_granted("ROLE_DEVELOPER") %}
                                                 <a class="btn btn-transparent btn-mini red-font remove" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i></a>
                                             {% endif %}
 
