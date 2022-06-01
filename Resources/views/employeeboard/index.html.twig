@@ -126,10 +126,18 @@
                                     <td>{{ entity.approvedByName|default('') }}</td>
                                     <td align="right">
                                         <div class="btn-group">
-                                            {% if entity.approvedByName is null %}
-                                                <a class="btn btn-mini yellow-bg white-font" href="{% if entity.reportFormatSlug in ['custom-format-spo','custom-format-poultry', 'custom-format-cattle','custom-format-aqua'] %} {{ path('kpi_employee_board_edit_custom_format',{'id':entity.id}) }} {% else %} {{ path('kpi_employee_board_edit',{'id':entity.id}) }} {% endif %}"><i class="feather icon-edit"></i> Edit</a>
+                                            {% if is_granted("ROLE_DEVELOPER") %}
+                                                {% if entity.approvedByName is null %}
+                                                    <a class="btn btn-mini yellow-bg white-font" href="{% if entity.reportFormatSlug in ['custom-format-spo','custom-format-poultry', 'custom-format-cattle','custom-format-aqua'] %} {{ path('kpi_employee_board_edit_custom_format',{'id':entity.id}) }} {% else %} {{ path('kpi_employee_board_edit',{'id':entity.id}) }} {% endif %}"><i class="feather icon-edit"></i> Edit</a>
+                                                {% endif %}
                                                 <a class="btn btn-transparent btn-mini red-font remove" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i></a>
+                                            {% else %}
+                                                {% if entity.approvedByName is null %}
+                                                    <a class="btn btn-mini yellow-bg white-font" href="{% if entity.reportFormatSlug in ['custom-format-spo','custom-format-poultry', 'custom-format-cattle','custom-format-aqua'] %} {{ path('kpi_employee_board_edit_custom_format',{'id':entity.id}) }} {% else %} {{ path('kpi_employee_board_edit',{'id':entity.id}) }} {% endif %}"><i class="feather icon-edit"></i> Edit</a>
+                                                    <a class="btn btn-transparent btn-mini red-font remove" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i></a>
+                                                {% endif %}
                                             {% endif %}
+
 
                                             {#{% if not is_granted("ROLE_KPI_ADMIN") %}
                                                 {% if entity.approvedByName is null %}
@@ -142,11 +150,6 @@
                                                 {% endif %}
                                                 <a class="btn btn-transparent btn-mini red-font remove" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i></a>
                                             {% endif %}#}
-
-
-                                            {% if is_granted("ROLE_DEVELOPER") %}
-                                                <a class="btn btn-transparent btn-mini red-font remove" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i></a>
-                                            {% endif %}
 
                                             <a class="btn btn-mini btn-info" href="{{ path('kpi_details_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Details</a>
                                             <a class="btn btn-mini blue-bg white-font" href="{% if entity.reportFormatSlug == 'custom-format' %} {{ path('kpi_report_sales_achievement_custom_format',{'id':entity.id}) }} {% else %} {{ path('kpi_report_sales_achievement',{'id':entity.id}) }} {% endif %}"><i class="feather icon-file"></i> Achieve</a>
