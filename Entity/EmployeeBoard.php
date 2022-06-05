@@ -300,7 +300,7 @@ class EmployeeBoard
     /**
      * @param User $approvedBy
      */
-    public function setApprovedBy(User $approvedBy): void
+    public function setApprovedBy($approvedBy): void
     {
         $this->approvedBy = $approvedBy;
     }

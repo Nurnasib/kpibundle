@@ -1792,5 +1792,16 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         ksort($data);
         return $data;
     }
+    
+    public function checkMarkOrSelfMark($board, $parameters)
+    {
+        $qb = $this->createQueryBuilder('e');
+        
+        $qb->where('e.employeeBoard = :board')->setParameter('board', $board);
+        $qb->andWhere('e.parameter IN (:parameters)')->setParameter('parameters', $parameters);
+        $qb->andWhere('e.mark IS NULL OR e.selfMark IS NULL');
+
+        return count($qb->getQuery()->getArrayResult());
+    }
 
 }

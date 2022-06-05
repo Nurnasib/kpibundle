@@ -102,6 +102,17 @@ class EmployeeBoardController extends AbstractController
 
     public function new(Request $request, $format): Response
     {
+        if (!$this->isGranted('ROLE_DEVELOPER') || !$this->isGranted('ROLE_KPI_ADMIN')){
+           if (
+               $this->getUser()->getReportMode() && ((
+                       (!str_contains($this->getUser()->getReportMode()->getSlug(), 'custom') && str_contains($format, 'custom')) ||
+                       (str_contains($this->getUser()->getReportMode()->getSlug(), 'custom') && !str_contains($format, 'custom')))
+               )){
+
+               return $this->redirectToRoute('kpi_employee_board');
+           }
+        }
+
         $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
         $board = new EmployeeBoard();
 
@@ -803,23 +814,29 @@ class EmployeeBoardController extends AbstractController
 
     /**
      * @Route("/{id}/approve", methods={"GET"}, name="kpi_approve")
-     * @param EmployeeBoard $employeeBoard
+     * @param EmployeeBoard $board
      * @return Response
      * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_LINE_MANAGER') or is_granted('ROLE_DOMAIN')")
      */
-    public function approve(EmployeeBoard $employeeBoard): Response
+    public function approve(EmployeeBoard $board): Response
     {
+        $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1, 'status' => 1, 'name' => ['Values', 'Skill']]);
+        $attributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->checkMarkOrSelfMark($board, $parameters);
+        
+        if ($attributes){
+            $this->addFlash('warning', 'Please fill up all the fields!');
+            return $this->redirectToRoute('kpi_employee_board_edit', ['id' => $board->getId()]);
+        }
 
         $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
 
         $em = $this->getDoctrine()->getManager();
 
-        if (!str_contains($employeeBoard->getReportMode()->getSlug(),'custom')){
-            $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($employeeBoard,$parameters); //update Actual mark & obtain mark
+        if (!str_contains($board->getReportMode()->getSlug(),'custom')){
+            $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($board,$parameters); //update Actual mark & obtain mark
         }
 
-        $employeeBoard->setApprovedBy($this->getUser());
-        $em->persist($employeeBoard);
+        $board->setApprovedBy($this->getUser());
         $em->flush();
         return $this->redirectToRoute('kpi_employee_board');
     }
@@ -1209,6 +1226,34 @@ class EmployeeBoardController extends AbstractController
         $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->gradeUpdate($board);
 
         return $this->redirectToRoute('kpi_details_report', ['id' => $board->getId()]);
+    }
+
+    /**
+     * @Route("/{board}/process-update", name="process_update")
+     */
+    public function processUpdate(EmployeeBoard $board)
+    {
+        if ($this->getUser()->getId() === $board->getEmployee()->getId()){
+            return $this->redirectToRoute('kpi_employee_board');
+        }
+
+        $board->setProcess('in-process');
+        $this->getDoctrine()->getManager()->flush();
+        
+        return $this->redirectToRoute('kpi_employee_board_edit', ['id' => $board->getId()]);
+    }
+    
+    /**
+     * @Route("/{board}/reverse", name="reverse")
+     * @Security("is_granted('ROLE_DEVELOPER') or is_granted('ROLE_KPI_ADMIN')")
+     */
+    public function activeEditMode(EmployeeBoard $board)
+    {
+        $board->setApprovedBy(null);
+        $board->setProcess('created');
+        $this->getDoctrine()->getManager()->flush();
+        
+        return $this->redirectToRoute('kpi_employee_board');
     }
 
 

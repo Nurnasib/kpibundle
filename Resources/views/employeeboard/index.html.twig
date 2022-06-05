@@ -21,9 +21,18 @@
                     <h5>{{ 'Employee KPI Boards'|trans }}</h5>
                     <div class="card-header-right">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
-                            <a href="{{ path('kpi_board_new') }}" class="btn btn-sm green-bg white-font"><i class="fas fa-plus"></i>{{ 'Add New'|trans }}</a>
-                            <a href="{{ path('kpi_board_new', {format: 'custom-format'}) }}" class="btn btn-sm bg-success white-font"><i class="fas fa-plus"></i>{{ 'Custom'|trans }}</a>
-{#                            <a href="#" class="btn btn-sm bg-success white-font"><i class="fas fa-plus"></i>{{ 'Custom'|trans }}</a>#}
+                            {% if not is_granted('ROLE_KPI_ADMIN') or not is_granted('ROLE_DEVELOPER') %}
+                                {% if app.user.reportMode %}
+                                    {% if 'custom' in app.user.reportMode.slug %}
+                                        <a href="{{ path('kpi_board_new', {format: 'custom-format'}) }}" class="btn btn-sm bg-success white-font"><i class="fas fa-plus"></i>{{ 'Custom'|trans }}</a>
+                                    {% else %}
+                                        <a href="{{ path('kpi_board_new') }}" class="btn btn-sm green-bg white-font"><i class="fas fa-plus"></i>{{ 'Add New'|trans }}</a>
+                                    {% endif %}
+                                {% endif %}
+                            {% else %}
+                                <a href="{{ path('kpi_board_new') }}" class="btn btn-sm green-bg white-font"><i class="fas fa-plus"></i>{{ 'Add New'|trans }}</a>
+                                <a href="{{ path('kpi_board_new', {format: 'custom-format'}) }}" class="btn btn-sm bg-success white-font"><i class="fas fa-plus"></i>{{ 'Custom'|trans }}</a>
+                            {% endif %}
                             <a href="{{ path('kpi_employee_board') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>{{ 'KPI Board'|trans }}</a>
                         </div>
                     </div>
@@ -154,7 +163,11 @@
                                             <a class="btn btn-mini btn-info" href="{{ path('kpi_details_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Details</a>
                                             <a class="btn btn-mini blue-bg white-font" href="{% if entity.reportFormatSlug == 'custom-format' %} {{ path('kpi_report_sales_achievement_custom_format',{'id':entity.id}) }} {% else %} {{ path('kpi_report_sales_achievement',{'id':entity.id}) }} {% endif %}"><i class="feather icon-file"></i> Achieve</a>
                                             <a class="btn btn-mini purple-bg white-font" href="{{ path('kpi_summary_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Summary</a>
-
+                                            {% if is_granted("ROLE_DEVELOPER") or is_granted("ROLE_KPI_ADMIN") %}
+                                                {% if entity.approvedByName %}
+                                                    <a class="btn btn-mini gray-bg white-font" href="{{ path('reverse', {board:entity.id}) }}"><i class="feather icon-arrow-left"></i> Reverse</a>
+                                                {% endif %}
+                                            {% endif %}
                                         </div>
                                     </td>
                                 </tr>
