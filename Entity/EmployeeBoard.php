@@ -133,6 +133,13 @@ class EmployeeBoard
      */
     protected $reportMode;
 
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(type="boolean")
+     */
+    private $isReverse = false;
+
     public function setId($id)
     {
         $this->id = $id;
@@ -415,6 +422,22 @@ class EmployeeBoard
     public function setReportMode($reportMode): void
     {
         $this->reportMode = $reportMode;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isReverse(): bool
+    {
+        return $this->isReverse;
+    }
+
+    /**
+     * @param bool $isReverse
+     */
+    public function setIsReverse(bool $isReverse): void
+    {
+        $this->isReverse = $isReverse;
     }
 
 

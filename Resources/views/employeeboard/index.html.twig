@@ -96,10 +96,28 @@
                 </div>
             </div>
         </div>
+        <style>
+            .dropdown-menu{
+                padding: 0 !important;
+                border: 0 !important;
+                background-color: #3699FF !important;
+            }
+            .dropdown-menu a {
+                color: #fff !important;
+            }
+            .dropdown-menu a:hover {
+                color: #000 !important;
+                background-color: #218cff !important;
+
+            }
+            table.info-table tbody tr td.action-area:hover .dropdown-menu{
+                display: block !important;
+            }
+        </style>
         <div class="row">
             <div class="card">
                 <div class="card-block">
-                    <table class="table table-striped table-bordered table-hover">
+                    <table class="table table-striped table-bordered table-hover info-table">
                         <thead class="thead-dark">
                         <tr>
                             <th scope="col">{{ 'S/N'|trans }}</th>
@@ -109,12 +127,14 @@
                             <th scope="col">{{ 'Format'|trans }}</th>
                             <th scope="col">{{ 'Line Manager'|trans }}</th>
                             <th scope="col">{{ 'Districts'|trans }}</th>
-                            <th scope="col">{{ 'Month'|trans }}</th>
-                            <th scope="col">{{ 'Year'|trans }}</th>
+                            <th scope="col">{{ 'Month Year'|trans }}</th>
+{#                            <th scope="col">{{ 'Year'|trans }}</th>#}
                             <th scope="col">{{ 'Created By'|trans }}</th>
                             <th scope="col">{{ 'Approve'|trans }}</th>
                             <th scope="col">{{ 'Approved By'|trans }}</th>
-                            <th scope="col" style="width:100px"><i class="feather icon-settings"></i></th>
+                            <th scope="col">{{ 'Process'|trans }}</th>
+                            <th scope="col">{{ 'Reverse'|trans }}</th>
+                            <th scope="col" style="width:100px; text-align: center"><i class="feather icon-settings"></i></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -128,46 +148,48 @@
                                     <td>{{ entity.reportFormat|default('') }}</td>
                                     <td>{{ entity.lineManager|default('') }}</td>
                                     <td>{{ entity.district|default('') }}</td>
-                                    <td>{{ entity.month|default('') }}</td>
-                                    <td>{{ entity.year|default('') }}</td>
+                                    <td>{{ entity.month ~ ',' ~ entity.year }}</td>
+{#                                    <td>{{ entity.year|default('') }}</td>#}
                                     <td>{{ entity.createdByName|default('') }}</td>
                                     <td>{{ entity.approvedByName == null ? 'No': 'Yes' }}</td>
                                     <td>{{ entity.approvedByName|default('') }}</td>
-                                    <td align="right">
-                                        <div class="btn-group">
-                                            {% if is_granted("ROLE_DEVELOPER") %}
-                                                {% if entity.approvedByName is null %}
-                                                    <a class="btn btn-mini yellow-bg white-font" href="{% if entity.reportFormatSlug in ['custom-format-spo','custom-format-poultry', 'custom-format-cattle','custom-format-aqua'] %} {{ path('kpi_employee_board_edit_custom_format',{'id':entity.id}) }} {% else %} {{ path('kpi_employee_board_edit',{'id':entity.id}) }} {% endif %}"><i class="feather icon-edit"></i> Edit</a>
-                                                {% endif %}
-                                                <a class="btn btn-transparent btn-mini red-font remove" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i></a>
-                                            {% else %}
-                                                {% if entity.approvedByName is null %}
-                                                    <a class="btn btn-mini yellow-bg white-font" href="{% if entity.reportFormatSlug in ['custom-format-spo','custom-format-poultry', 'custom-format-cattle','custom-format-aqua'] %} {{ path('kpi_employee_board_edit_custom_format',{'id':entity.id}) }} {% else %} {{ path('kpi_employee_board_edit',{'id':entity.id}) }} {% endif %}"><i class="feather icon-edit"></i> Edit</a>
-                                                    <a class="btn btn-transparent btn-mini red-font remove" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i></a>
-                                                {% endif %}
-                                            {% endif %}
+                                    <td>{{ entity.process|capitalize }}</td>
+                                    <td>{{ entity.isReverse ? 'Yes' : '' }}</td>
+                                    <td align="center" class="action-area">
 
+                                        <!-- Default dropleft button -->
+                                        <div class="btn-group dropleft">
+                                            <i class="fas fa-ellipsis-h dropdown"></i>
+                                            <div class="dropdown-menu bg-blue">
+                                                <!-- Dropdown menu links -->
+                                                {% if is_granted("ROLE_DEVELOPER") %}
+                                                    {% if entity.approvedByName is null %}
+                                                        <a class="dropdown-item" href="{% if entity.reportFormatSlug in ['custom-format-spo','custom-format-poultry', 'custom-format-cattle','custom-format-aqua'] %} {{ path('kpi_employee_board_edit_custom_format',{'id':entity.id}) }} {% else %} {{ path('kpi_employee_board_edit',{'id':entity.id}) }} {% endif %}"><i class="feather icon-edit"></i> Edit</a>
+                                                    {% endif %}
+{#                                                    <a class="remove dropdown-item" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i> Remove</a>#}
+                                                {% else %}
+                                                    {% if entity.approvedByName is null %}
+                                                        <a class="dropdown-item" href="{% if entity.reportFormatSlug in ['custom-format-spo','custom-format-poultry', 'custom-format-cattle','custom-format-aqua'] %} {{ path('kpi_employee_board_edit_custom_format',{'id':entity.id}) }} {% else %} {{ path('kpi_employee_board_edit',{'id':entity.id}) }} {% endif %}"><i class="feather icon-edit"></i> Edit</a>
+{#                                                        <a class="remove dropdown-item" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i> Remove</a>#}
+                                                    {% endif %}
+                                                {% endif %}
+                                                <a class="dropdown-item" href="{{ path('kpi_details_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Details</a>
+                                                <a class="dropdown-item" href="{% if entity.reportFormatSlug == 'custom-format' %} {{ path('kpi_report_sales_achievement_custom_format',{'id':entity.id}) }} {% else %} {{ path('kpi_report_sales_achievement',{'id':entity.id}) }} {% endif %}"><i class="feather icon-file"></i> Achieve</a>
+                                                <a class="dropdown-item" href="{{ path('kpi_summary_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Summary</a>
+                                                {% if is_granted("ROLE_DEVELOPER") or is_granted("ROLE_KPI_ADMIN") %}
+                                                    {% if entity.approvedByName %}
+                                                        <a class="dropdown-item" href="{{ path('reverse', {board:entity.id}) }}"><i class="feather icon-arrow-left"></i> Reverse</a>
+                                                    {% endif %}
+                                                {% endif %}
+                                                {% if is_granted("ROLE_DEVELOPER") %}
+                                                    <a class="remove dropdown-item" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i> Remove</a>
+                                                {% else %}
+                                                    {% if entity.approvedByName is null %}
+                                                        <a class="remove dropdown-item" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i> Remove</a>
+                                                    {% endif %}
+                                                {% endif %}
 
-                                            {#{% if not is_granted("ROLE_KPI_ADMIN") %}
-                                                {% if entity.approvedByName is null %}
-                                                    <a class="btn btn-mini yellow-bg white-font" href="{% if entity.reportFormatSlug in ['custom-format-spo','custom-format-poultry', 'custom-format-cattle','custom-format-aqua'] %} {{ path('kpi_employee_board_edit_custom_format',{'id':entity.id}) }} {% else %} {{ path('kpi_employee_board_edit',{'id':entity.id}) }} {% endif %}"><i class="feather icon-edit"></i> Edit</a>
-                                                    <a class="btn btn-transparent btn-mini red-font remove" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i></a>
-                                                {% endif %}
-                                            {% else %}
-                                                {% if entity.approvedByName is null %}
-                                                    <a class="btn btn-mini yellow-bg white-font" href="{% if entity.reportFormatSlug in ['custom-format-spo','custom-format-poultry', 'custom-format-cattle','custom-format-aqua'] %} {{ path('kpi_employee_board_edit_custom_format',{'id':entity.id}) }} {% else %} {{ path('kpi_employee_board_edit',{'id':entity.id}) }} {% endif %}"><i class="feather icon-edit"></i> Edit</a>
-                                                {% endif %}
-                                                <a class="btn btn-transparent btn-mini red-font remove" data-action="{{ path('kpi_employee_board_delete',{'id':entity.id}) }}" href="javascript:"><i class="fa fa-remove"></i></a>
-                                            {% endif %}#}
-
-                                            <a class="btn btn-mini btn-info" href="{{ path('kpi_details_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Details</a>
-                                            <a class="btn btn-mini blue-bg white-font" href="{% if entity.reportFormatSlug == 'custom-format' %} {{ path('kpi_report_sales_achievement_custom_format',{'id':entity.id}) }} {% else %} {{ path('kpi_report_sales_achievement',{'id':entity.id}) }} {% endif %}"><i class="feather icon-file"></i> Achieve</a>
-                                            <a class="btn btn-mini purple-bg white-font" href="{{ path('kpi_summary_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Summary</a>
-                                            {% if is_granted("ROLE_DEVELOPER") or is_granted("ROLE_KPI_ADMIN") %}
-                                                {% if entity.approvedByName %}
-                                                    <a class="btn btn-mini gray-bg white-font" href="{{ path('reverse', {board:entity.id}) }}"><i class="feather icon-arrow-left"></i> Reverse</a>
-                                                {% endif %}
-                                            {% endif %}
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>

@@ -821,10 +821,10 @@ class EmployeeBoardController extends AbstractController
     public function approve(EmployeeBoard $board): Response
     {
         $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1, 'status' => 1, 'name' => ['Values', 'Skill']]);
-        $attributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->checkMarkOrSelfMark($board, $parameters);
+        $attributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->checkMarkOrSelfMark($board, $parameters); //get NULL selfMark & mark
         
         if ($attributes){
-            $this->addFlash('warning', 'Please fill up all the fields!');
+            $this->addFlash('warning', 'Sorry! Either you didn\'t put marks in all fields or the employee didn\'t put his self marks. Please fill up all the required fields before Approving.');
             return $this->redirectToRoute('kpi_employee_board_edit', ['id' => $board->getId()]);
         }
 
@@ -837,6 +837,7 @@ class EmployeeBoardController extends AbstractController
         }
 
         $board->setApprovedBy($this->getUser());
+        $board->setProcess('approved');
         $em->flush();
         return $this->redirectToRoute('kpi_employee_board');
     }
@@ -1237,7 +1238,7 @@ class EmployeeBoardController extends AbstractController
             return $this->redirectToRoute('kpi_employee_board');
         }
 
-        $board->setProcess('in-process');
+        $board->setProcess('in-progress');
         $this->getDoctrine()->getManager()->flush();
         
         return $this->redirectToRoute('kpi_employee_board_edit', ['id' => $board->getId()]);
@@ -1250,7 +1251,8 @@ class EmployeeBoardController extends AbstractController
     public function activeEditMode(EmployeeBoard $board)
     {
         $board->setApprovedBy(null);
-        $board->setProcess('created');
+        $board->setProcess('in-progress');
+        $board->setIsReverse(true);
         $this->getDoctrine()->getManager()->flush();
         
         return $this->redirectToRoute('kpi_employee_board');
