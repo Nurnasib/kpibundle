@@ -21,7 +21,7 @@
                     <h5>{{ 'Employee KPI Boards'|trans }}</h5>
                     <div class="card-header-right">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
-                            {% if not is_granted('ROLE_KPI_ADMIN') or not is_granted('ROLE_DEVELOPER') %}
+                            {% if not (is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DEVELOPER')) %}
                                 {% if app.user.reportMode %}
                                     {% if 'custom' in app.user.reportMode.slug %}
                                         <a href="{{ path('kpi_board_new', {format: 'custom-format'}) }}" class="btn btn-sm bg-success white-font"><i class="fas fa-plus"></i>{{ 'Custom'|trans }}</a>
