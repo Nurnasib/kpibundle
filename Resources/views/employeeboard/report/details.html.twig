@@ -35,7 +35,7 @@
                     <div class="portlet-title">
                         <div class="caption">{{ 'Manage KPI Details for '|trans }} : {{ board.employee.name }}</div>
                         <div class="btn-group float-right">
-                            {% if (app.user.id is not same as board.employee.id and board.process is same as 'in-progress') or ((is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DEVELOPER')) and board.process is same as 'in-process') %}
+                            {% if (app.user.id is not same as board.employee.id or is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DEVELOPER')) and board.approvedBy is null %}
                                 <a href="{{ path('kpi_approve',{'id':board.id}) }}" id="statusUpdate" name="statusUpdate" class="btn blue-bg text-white">Approved</a>
                             {% endif %}
                             <a href="{{ path('kpi_employee_board_preview',{'id':board.id,'mode':'print'}) }}" target="_blank" class="btn yellow-bg white-font"><i class="fa fa-print"></i> Print</a>

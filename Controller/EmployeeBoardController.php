@@ -22,6 +22,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -72,6 +73,7 @@ class EmployeeBoardController extends AbstractController
 
     public function index(Request $request, UserRepository $userRepository): Response
     {
+
         $lineManagers = $userRepository->getLineManager();
         $user = $this->getUser();
         $entities = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getEmployeeBoardList($user);
@@ -825,7 +827,10 @@ class EmployeeBoardController extends AbstractController
         
         if ($attributes){
             $this->addFlash('warning', 'Sorry! Either you didn\'t put marks in all fields or the employee didn\'t put his self marks. Please fill up all the required fields before Approving.');
-            return $this->redirectToRoute('kpi_employee_board_edit', ['id' => $board->getId()]);
+            if (str_contains($board->getReportMode()->getSlug(),'custom')){
+                return $this->redirectToRoute('kpi_employee_board_edit_custom_format', ['id' => $board->getId()]);
+            }
+                return $this->redirectToRoute('kpi_employee_board_edit', ['id' => $board->getId()]);
         }
 
         $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
