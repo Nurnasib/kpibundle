@@ -1219,6 +1219,16 @@ class EmployeeBoardController extends AbstractController
         // Customer development
         $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->gradeUpdate($board);
 
+        
+        //Check Values & Skill mark for process update
+        $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1, 'status' => 1, 'name' => ['Values', 'Skill']]);
+        $attributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->checkMarkOrSelfMark($board, $parameters); //get NULL selfMark & mark
+
+        if (!$attributes){
+            $board->setProcess('in-progress');
+            $em->flush();
+        }
+
         return $this->redirectToRoute('kpi_details_report', ['id' => $board->getId()]);
     }
 
