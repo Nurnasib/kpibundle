@@ -96,24 +96,6 @@
                 </div>
             </div>
         </div>
-        <style>
-            .dropdown-menu{
-                padding: 0 !important;
-                border: 0 !important;
-                background-color: #3699FF !important;
-            }
-            .dropdown-menu a {
-                color: #fff !important;
-            }
-            .dropdown-menu a:hover {
-                color: #000 !important;
-                background-color: #218cff !important;
-
-            }
-            table.info-table tbody tr td.action-area:hover .dropdown-menu{
-                display: block !important;
-            }
-        </style>
         <div class="row">
             <div class="card">
                 <div class="card-block">
@@ -130,11 +112,12 @@
                             <th scope="col">{{ 'Month Year'|trans }}</th>
 {#                            <th scope="col">{{ 'Year'|trans }}</th>#}
                             <th scope="col">{{ 'Created By'|trans }}</th>
-                            <th scope="col">{{ 'Approve'|trans }}</th>
+{#                            <th scope="col">{{ 'Approve'|trans }}</th>#}
                             <th scope="col">{{ 'Approved By'|trans }}</th>
                             <th scope="col">{{ 'Process'|trans }}</th>
                             <th scope="col">{{ 'Reverse'|trans }}</th>
-                            <th scope="col" style="width:100px; text-align: center"><i class="feather icon-settings"></i></th>
+{#                            <th scope="col" style="width:100px; text-align: center"><i class="feather icon-settings"></i></th>#}
+                            <th scope="col" style="width:100px; text-align: center">{{ 'Action Button'|trans }}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -151,7 +134,7 @@
                                     <td>{{ entity.month ~ ',' ~ entity.year }}</td>
 {#                                    <td>{{ entity.year|default('') }}</td>#}
                                     <td>{{ entity.createdByName|default('') }}</td>
-                                    <td>{{ entity.approvedByName == null ? 'No': 'Yes' }}</td>
+{#                                    <td>{{ entity.approvedByName == null ? 'No': 'Yes' }}</td>#}
                                     <td>{{ entity.approvedByName|default('') }}</td>
                                     <td>{{ entity.process|capitalize }}</td>
                                     <td>{{ entity.isReverse ? 'Yes' : '' }}</td>
@@ -223,6 +206,22 @@
     <style>
         .pagination{
             float: right;
+        }
+        .dropdown-menu{
+            padding: 0 !important;
+            border: 0 !important;
+            background-color: #3699FF !important;
+        }
+        .dropdown-menu a {
+            color: #fff !important;
+        }
+        .dropdown-menu a:hover {
+            color: #000 !important;
+            background-color: #218cff !important;
+
+        }
+        table.info-table tbody tr td.action-area:hover .dropdown-menu{
+            display: block !important;
         }
     </style>
 {% endblock  %}

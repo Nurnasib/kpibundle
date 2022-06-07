@@ -73,7 +73,6 @@ class EmployeeBoardController extends AbstractController
 
     public function index(Request $request, UserRepository $userRepository): Response
     {
-
         $lineManagers = $userRepository->getLineManager();
         $user = $this->getUser();
         $entities = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getEmployeeBoardList($user);
@@ -822,17 +821,6 @@ class EmployeeBoardController extends AbstractController
      */
     public function approve(EmployeeBoard $board): Response
     {
-        $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1, 'status' => 1, 'name' => ['Values', 'Skill']]);
-        $attributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->checkMarkOrSelfMark($board, $parameters); //get NULL selfMark & mark
-        
-        if ($attributes){
-            $this->addFlash('warning', 'Sorry! Either you didn\'t put marks in all fields or the employee didn\'t put his self marks. Please fill up all the required fields before Approving.');
-            if (str_contains($board->getReportMode()->getSlug(),'custom')){
-                return $this->redirectToRoute('kpi_employee_board_edit_custom_format', ['id' => $board->getId()]);
-            }
-                return $this->redirectToRoute('kpi_employee_board_edit', ['id' => $board->getId()]);
-        }
-
         $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
 
         $em = $this->getDoctrine()->getManager();
@@ -1239,13 +1227,15 @@ class EmployeeBoardController extends AbstractController
      */
     public function processUpdate(EmployeeBoard $board)
     {
-        if ($this->getUser()->getId() === $board->getEmployee()->getId()){
-            return $this->redirectToRoute('kpi_employee_board');
-        }
+        $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1, 'status' => 1, 'name' => ['Values', 'Skill']]);
+        $attributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->checkMarkOrSelfMark($board, $parameters); //get NULL selfMark & mark
 
-        $board->setProcess('in-progress');
-        $this->getDoctrine()->getManager()->flush();
-        
+        if (!$attributes){
+            $board->setProcess('in-progress');
+            $this->getDoctrine()->getManager()->flush();
+        }else{
+            $this->addFlash('warning', 'Sorry! Either you didn\'t put marks in all fields or the employee didn\'t put his self marks. Please fill up all the required fields before Approving.');
+        }
         return $this->redirectToRoute('kpi_employee_board_edit', ['id' => $board->getId()]);
     }
     

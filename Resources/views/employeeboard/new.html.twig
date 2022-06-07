@@ -166,7 +166,7 @@
                                 {% endif %}
                                 </tbody>
                             </table>
-                            <button type="submit" class="btn blue-bg white-font float-right">Process</button>
+                            <button type="submit" class="btn blue-bg white-font float-right">Submit</button>
                         </form>
                     </div>
                 </div>
@@ -245,15 +245,6 @@ select.markDistribution {
 {% block javascriptBlock %}
 {#    <script>#}
     {{ parent() }}
-{#    $(document).on('click',".statusUpdate", function (event) {
-    var url = $(this).attr('data-action');
-    $.get(url, function(data){
-        var redirectUrl = Routing.generate('kpi_employee_board');
-        if(data=='success'){
-            window.location.href = redirectUrl;
-        }
-    });
-    });#}
 
     (function($) {
         $.fn.inputFilter = function(inputFilter) {
@@ -276,7 +267,7 @@ select.markDistribution {
         return /^-?\d*[.,]?\d*$/.test(value);
     });
 
-    $(document).on('click',"#statusUpdate", function (event) {
+{#    $(document).on('click',"#statusUpdate", function (event) {
         event.preventDefault();
         var id = $(this).attr('data-id');
         var url = $(this).attr('data-action');
@@ -287,7 +278,7 @@ select.markDistribution {
         }).done(function(){
             window.location.href = $('#statusUpdate').attr('href');
         });
-    });
+    });#}
 
 
 
