@@ -451,7 +451,7 @@ class EmployeeBoardController extends AbstractController
      * @return Response
      * @Security("is_granted('ROLE_USER')")
      */
-    public function attributeUpdate(EmployeeBoardAttribute $boardAttribute): Response
+/*    public function attributeUpdate(EmployeeBoardAttribute $boardAttribute): Response
     {
         $board = $boardAttribute->getEmployeeBoard();
         $mark = $_REQUEST['mark'];
@@ -473,7 +473,7 @@ class EmployeeBoardController extends AbstractController
         }
         return new Response(0);
 
-    }
+    }*/
 
     /**
      * @Route("/{id}/report-details", methods={"GET"}, name="kpi_details_report")
@@ -1235,17 +1235,39 @@ class EmployeeBoardController extends AbstractController
     /**
      * @Route("/{board}/process-update", name="process_update")
      */
-    public function processUpdate(EmployeeBoard $board)
+    public function processUpdate(EmployeeBoard $board, Request $request)
     {
+        $marksAttribute = $request->request->all();
+
+        foreach ($marksAttribute['marksAttribute'] as $attributeId => $markDistributionId) {
+            $attribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
+            $markDistribution = $this->getDoctrine()->getRepository(MarkChart::class)->find($markDistributionId);
+
+            $boardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $attribute]);
+
+            if ($this->getUser()->getId() === $board->getEmployee()->getId()){
+                $boardAttribute->setSelfMark($markDistribution->getMark());
+            }else{
+                $boardAttribute->setMarkDistribution($markDistribution);
+                $boardAttribute->setMark($markDistribution->getMark());
+            }
+
+            $this->getDoctrine()->getManager()->flush();
+
+        }
+
+        $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->gradeUpdate($board);
+
+
         $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1, 'status' => 1, 'name' => ['Values', 'Skill']]);
         $attributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->checkMarkOrSelfMark($board, $parameters); //get NULL selfMark & mark
 
         if (!$attributes){
             $board->setProcess('in-progress');
             $this->getDoctrine()->getManager()->flush();
-        }else{
-            $this->addFlash('warning', 'Sorry! Either you didn\'t put marks in all fields or the employee didn\'t put his self marks. Please fill up all the required fields before Approving.');
         }
+        $this->addFlash('success', 'Submitted successfully.');
+
         return $this->redirectToRoute('kpi_employee_board_edit', ['id' => $board->getId()]);
     }
     

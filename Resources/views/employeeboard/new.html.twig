@@ -79,7 +79,7 @@
                         </table>
 
                             {# New format END #}
-                        <form action="{{ path('process_update', {board: board.id}) }}">
+                        <form action="{{ path('process_update', {board: board.id}) }}" method="post">
                             <table class="table table-bordered mb-0" id="datatable">
                                 <thead class="thead-dark">
                                 <tr>
@@ -125,26 +125,28 @@
 
                                                                     {% if entity.attribute.children is not empty %}
                                                                         {% if entity.attribute.systemEntry == 1 %}
-                                                                            <select required class="markDistribution" data-id="{{ entity.attribute.id }}" data-action="{{ path('kpi_employee_board_attribute_update',{'id':entity.id}) }}" data-employee-id="{{ board.employee.id }}" data-login-user-id="{{ app.user.id }}" >
+
+{#                                                                            <select required class="markDistribution" name="marksAttribute[{{ entity.attribute.id }}]" data-id="{{ entity.attribute.id }}" data-action="{{ path('kpi_employee_board_attribute_update',{'id':entity.id}) }}" data-employee-id="{{ board.employee.id }}" data-login-user-id="{{ app.user.id }}" >#}
+                                                                            <select required class="markDistribution" name="marksAttribute[{{ entity.attribute.id }}]" data-id="{{ entity.attribute.id }}" data-employee-id="{{ board.employee.id }}" data-login-user-id="{{ app.user.id }}">
                                                                                 <option value="">{{ 'Select mark particular'|trans }}</option>
                                                                                 {% for markDistribution in entity.attribute.children %}
+
                                                                                     {% if markDistribution.status == 1 %}
                                                                                         {% if app.user.id == board.employee.id %}
                                                                                             <option value="{{ markDistribution.id }}" {% if  entity.selfMark is not empty and markDistribution.mark ==  entity.selfMark %} selected="selected" {% endif %}>{{ markDistribution.name }}</option>
                                                                                         {% else %}
                                                                                             <option value="{{ markDistribution.id }}" {% if  entity.mark is not empty and markDistribution.mark ==  entity.mark %} selected="selected" {% endif %}>{{ markDistribution.name }}</option>
                                                                                         {% endif %}
-{#                                                                                        <option  value="{{ markDistribution.id }}">{{ markDistribution.name }}</option>#}
                                                                                     {% endif %}
                                                                                 {% endfor %}
                                                                             </select>
                                                                         {% else %}
 
-                                                                            <ul class="markDistribution">
-                                                                             {#   {% for children in entity.attribute.children %}
+                                                                            {#<ul class="markDistribution">
+                                                                                {% for children in entity.attribute.children %}
                                                                                     <li>{{ children.name }}</li>
-                                                                                {% endfor %}#}
-                                                                            </ul>
+                                                                                {% endfor %}
+                                                                            </ul>#}
                                                                         {% endif %}
                                                                     {% endif %}
                                                                 </td>
@@ -279,6 +281,25 @@ select.markDistribution {
             window.location.href = $('#statusUpdate').attr('href');
         });
     });#}
+
+    {#
+        $(document).on('change',".markDistribution", function (event) {
+        var mark  = $(this).val();
+        var id = $(this).attr('data-id');
+        var url = $(this).attr('data-action');
+        var employeeId = $(this).attr('data-employee-id');
+        var loginUserId = $(this).attr('data-login-user-id');
+
+        $.get(url,{'mark':mark}, function( data ) {
+        if (employeeId === loginUserId){
+        $('#markDistribution-'+id + '-self-mark').html(data);
+        }else {
+        $('#markDistribution-'+id).html(data);
+        }
+        });
+
+        });
+     #}
 
 
 

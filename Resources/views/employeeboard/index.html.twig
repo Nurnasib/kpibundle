@@ -73,6 +73,10 @@
                                         {{ form_label(form.year) }}
                                         {{ form_widget(form.year) }}
                                     </th>
+                                    <th colspan="2">
+                                        {{ form_label(form.process) }}
+                                        {{ form_widget(form.process) }}
+                                    </th>
                                     {% if is_granted('ROLE_KPI_ADMIN') %}
                                         <th colspan="2">
                                             {{ form_label(form.createdBy) }}
@@ -179,7 +183,7 @@
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td class="text-center" colspan="12">{{ 'No record has been found!'|trans }}</td>
+                                <td class="text-center" colspan="13">{{ 'No record has been found!'|trans }}</td>
                             </tr>
                         {% endif %}
                         </tbody>

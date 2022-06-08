@@ -99,6 +99,9 @@ class EmployeeBoardRepository extends EntityRepository
         if ($filterBy['year']){
             $qb->andWhere('s.year = :year')->setParameter('year', $filterBy['year']);
         }
+        if ($filterBy['process']){
+            $qb->andWhere('s.process = :process')->setParameter('process', $filterBy['process']);
+        }
         if (array_key_exists('createdBy', $filterBy) && isset($filterBy['createdBy'])){
             $qb->andWhere('createdBy.id = :createdById')->setParameter('createdById', $filterBy['createdBy']);
         }

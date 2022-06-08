@@ -133,6 +133,15 @@ class KpiBoardSearchFilterFormType extends AbstractType
                 'required' => false,
                 'placeholder' => 'Select a year',
             ])
+            ->add('process', ChoiceType::class, [
+                'choices' => [
+                    'Created' => 'created',
+                    'In-progress' => 'in-progress',
+                    'Approved' => 'approved',
+                ],
+                'required' => false,
+                'placeholder' => 'Select process'
+            ])
             ->setMethod('get')
             ;
     }
