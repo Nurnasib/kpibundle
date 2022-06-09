@@ -103,6 +103,7 @@ class EmployeeBoardController extends AbstractController
 
     public function new(Request $request, $format): Response
     {
+        // prevent unauthorize access for regular & custom
         if (!$this->isGranted('ROLE_DEVELOPER') || !$this->isGranted('ROLE_KPI_ADMIN')){
            if (
                $this->getUser()->getReportMode() && ((
@@ -121,27 +122,31 @@ class EmployeeBoardController extends AbstractController
         $form->handleRequest($request);
         $data = $request->request->all();
         if ($form->isSubmitted() && $form->isValid()) {
-//            dd($form->get('format')->getData());
-//            $employee = $data['employee_board_form']['employee'];
             if (isset($data['self_kpi']) && $data['self_kpi'] === 'on'){
                 $emp = $this->getUser();
             }else{
                 $emp = $form['employee']->getData();
             }
-            $monthYear = explode(',', $data['employee_board_form']['monthYear']);
-            $month = $monthYear[0];
-            $year = $monthYear[1];
+            $monthYear = $data['employee_board_form']['monthYear'];
+            $monthYearArray = explode(',', $data['employee_board_form']['monthYear']);
+            $month = $monthYearArray[0];
+            $year = $monthYearArray[1];
+
+            $joiningMonthYear = date('F,Y', strtotime($emp->getJoiningDate()));
 
             // check previous month KPI
             $previousMonth = date('F', strtotime($month . " last month"));
             $findLastMonthKpi = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findOneBy(['employee' => $emp, 'month' => $previousMonth, 'year' => $year]);
 
-            if ($month != 'January' && !$findLastMonthKpi){
-                $this->addFlash('warning', 'Please generate/approve previous month KPI first!');
-                return $this->redirectToRoute('kpi_board_new',['format' => $format]);
-            }elseif ($findLastMonthKpi && !$findLastMonthKpi->getApprovedBy()){ // check unapproved
-                $this->addFlash('warning', 'Unapproved KPI in previous month!');
-                return $this->redirectToRoute('kpi_board_new',['format' => $format]);
+
+            if ($joiningMonthYear != $monthYear){
+                if ($month != 'January' && !$findLastMonthKpi){
+                    $this->addFlash('warning', 'Please generate previous month KPI first!');
+                    return $this->redirectToRoute('kpi_board_new',['format' => $format]);
+                }elseif ($findLastMonthKpi && !$findLastMonthKpi->getApprovedBy()){ // check unapproved
+                    $this->addFlash('warning', 'Unapproved KPI in previous month!');
+                    return $this->redirectToRoute('kpi_board_new',['format' => $format]);
+                }
             }
 
             // Prevent next month
