@@ -140,6 +140,13 @@ class EmployeeBoard
      */
     private $isReverse = false;
 
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(type="boolean")
+     */
+    private $isInput = true;
+
     public function setId($id)
     {
         $this->id = $id;
@@ -438,6 +445,22 @@ class EmployeeBoard
     public function setIsReverse(bool $isReverse): void
     {
         $this->isReverse = $isReverse;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInput(): bool
+    {
+        return $this->isInput;
+    }
+
+    /**
+     * @param bool $isInput
+     */
+    public function setIsInput(bool $isInput): void
+    {
+        $this->isInput = $isInput;
     }
 
 

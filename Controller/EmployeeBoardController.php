@@ -127,19 +127,20 @@ class EmployeeBoardController extends AbstractController
             }else{
                 $emp = $form['employee']->getData();
             }
-            $monthYear = $data['employee_board_form']['monthYear'];
+//            $monthYear = $data['employee_board_form']['monthYear'];
+            $monthYear = str_replace(',', '-', $data['employee_board_form']['monthYear']);
             $monthYearArray = explode(',', $data['employee_board_form']['monthYear']);
             $month = $monthYearArray[0];
             $year = $monthYearArray[1];
 
-            $joiningMonthYear = date('F,Y', strtotime($emp->getJoiningDate()));
+            $joiningMonthYear = date('F-Y', strtotime($emp->getJoiningDate()));
 
             // check previous month KPI
             $previousMonth = date('F', strtotime($month . " last month"));
             $findLastMonthKpi = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findOneBy(['employee' => $emp, 'month' => $previousMonth, 'year' => $year]);
 
             if ($joiningMonthYear != $monthYear){
-                
+
                 if ((strtotime($monthYear)-strtotime($joiningMonthYear)) < 0){ // prevent to generate joining before KPI
                     $this->addFlash('warning', 'You are not allowed to generate previous month KPI!');
                     return $this->redirectToRoute('kpi_board_new',['format' => $format]);
@@ -202,6 +203,10 @@ class EmployeeBoardController extends AbstractController
                 $board->setDistrict($districts);
                 $board->setCreated(new \DateTime());
                 $board->setUpdated(new \DateTime());
+
+                if ($format == 'custom-format'){
+                    $board->setIsInput(false);
+                }
 
                 $em->persist($board);
                 $em->flush();
@@ -1234,8 +1239,11 @@ class EmployeeBoardController extends AbstractController
 
         if (!$attributes){
             $board->setProcess('in-progress');
-            $em->flush();
         }
+
+        $board->setIsInput(true);
+        $em->flush();
+
 
         return $this->redirectToRoute('kpi_details_report', ['id' => $board->getId()]);
     }

@@ -50,6 +50,7 @@ class EmployeeBoardRepository extends EntityRepository
         }elseif (!in_array('ROLE_LINE_MANAGER', $user->getRoles()) && !in_array('ROLE_KPI_ADMIN', $user->getRoles())){
             $qb->andWhere('s.employee = :user')->setParameter('user', $user);
         }
+        $qb->andWhere('s.isInput = true');
         $qb->orderBy('s.created','DESC');
         $results = $qb->getQuery()->getArrayResult();
 
@@ -112,6 +113,7 @@ class EmployeeBoardRepository extends EntityRepository
             $qb->andWhere('s.employee = :user')->setParameter('user', $user);
         }
 
+        $qb->andWhere('s.isInput = true');
         $qb->orderBy('s.created','DESC');
         $results =  $qb->getQuery()->getArrayResult();
         $data = [];
