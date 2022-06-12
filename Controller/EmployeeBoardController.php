@@ -133,6 +133,11 @@ class EmployeeBoardController extends AbstractController
             $month = $monthYearArray[0];
             $year = $monthYearArray[1];
 
+            if (!$emp->getPermanentDate()){
+                $this->addFlash('warning', "Only permanent employees can generate KPI!");
+                return $this->redirectToRoute('kpi_board_new',['format' => $format]);
+            }
+
             $permanentMonthYear = date('F-Y', strtotime($emp->getPermanentDate()));
 
             // check previous month KPI
