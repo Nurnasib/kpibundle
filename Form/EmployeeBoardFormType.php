@@ -56,6 +56,7 @@ class EmployeeBoardFormType extends AbstractType
                         $qb->where('e.enabled =1');
                         $qb->andWhere("ug.slug =:slug")->setParameter('slug','employee');
                         $qb->andWhere("e.userMode = 'KPI'");
+                        $qb->andWhere("e.isPermanent = true");
                         $qb->orderBy('e.name', 'ASC');
                         if ($format == 'custom-format'){
                             $qb->andWhere('reportMode.slug IN (:reportMode)')->setParameter('reportMode', ['custom-format-poultry', 'custom-format-cattle', 'custom-format-aqua', 'custom-format-spo']);
@@ -69,6 +70,7 @@ class EmployeeBoardFormType extends AbstractType
                             ->leftJoin('e.reportMode','reportMode')
 
                             ->where('e.enabled =1')
+                            ->andWhere("e.isPermanent = true")
                             ->andWhere("lm.id =:lmId")->setParameter('lmId',$userId)
                             ->orderBy('e.name', 'ASC');
                         if ($format == 'custom-format'){

@@ -67,11 +67,13 @@ class KpiBoardSearchFilterFormType extends AbstractType
                             ->where('e.enabled =1')
                             ->andWhere("ug.slug =:slug")->setParameter('slug','employee')
                             ->andWhere("e.userMode = 'KPI'")
+                            ->andWhere("e.isPermanent = true")
                             ->orderBy('e.name', 'ASC');
                     }else{
                         return $er->createQueryBuilder('e')
                             ->join('e.lineManager','lm')
                             ->where('e.enabled =1')
+                            ->andWhere("e.isPermanent = true")
                             ->andWhere("lm.id =:lmId")->setParameter('lmId', $user->getId())
                             ->orderBy('e.name', 'ASC');
                     }

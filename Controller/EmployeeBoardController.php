@@ -133,16 +133,16 @@ class EmployeeBoardController extends AbstractController
             $month = $monthYearArray[0];
             $year = $monthYearArray[1];
 
-            $joiningMonthYear = date('F-Y', strtotime($emp->getJoiningDate()));
+            $permanentMonthYear = date('F-Y', strtotime($emp->getPermanentDate()));
 
             // check previous month KPI
             $previousMonth = date('F', strtotime($month . " last month"));
             $findLastMonthKpi = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findOneBy(['employee' => $emp, 'month' => $previousMonth, 'year' => $year]);
 
-            if ($joiningMonthYear != $monthYear){
+            if ($permanentMonthYear != $monthYear){
 
-                if ((strtotime($monthYear)-strtotime($joiningMonthYear)) < 0){ // prevent to generate joining before KPI
-                    $this->addFlash('warning', 'You are not allowed to generate previous month KPI!');
+                if ((strtotime($monthYear)-strtotime($permanentMonthYear)) < 0){ // prevent to generate joining before KPI
+                    $this->addFlash('warning', "You are not allowed to generate {$monthYear} KPI!");
                     return $this->redirectToRoute('kpi_board_new',['format' => $format]);
                 }
 
@@ -600,7 +600,7 @@ class EmployeeBoardController extends AbstractController
 
         $employee = $board->getEmployee();
 
-        $getEmployeesByLineManager = $this->getDoctrine()->getRepository(User::class)->findBy(['lineManager'=>$employee, 'enabled'=>1]);
+        $getEmployeesByLineManager = $this->getDoctrine()->getRepository(User::class)->findBy(['lineManager'=>$employee, 'enabled'=>1, 'isPermanent' => true]);
 
         $employeeArrs = [];
         foreach ($getEmployeesByLineManager as $childEmployee){
@@ -1241,7 +1241,7 @@ class EmployeeBoardController extends AbstractController
             $board->setProcess('in-progress');
         }
 
-        $board->setIsInput(true);
+        $board->setIsInput(true); //confirm Input
         $em->flush();
 
 

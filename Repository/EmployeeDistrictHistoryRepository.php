@@ -142,6 +142,7 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
             ->andWhere('e.month = :month')->setParameter('month', $month)
             ->andWhere('e.year = :year')->setParameter('year', $year)
             ->andWhere("employee.enabled = 1")
+            ->andWhere("employee.isPermanent = true")
             ->andWhere('e.lineManager = :lineManager')->setParameter('lineManager', $emp)
             ->getQuery()
             ->getResult();

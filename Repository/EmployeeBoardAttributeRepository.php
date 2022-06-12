@@ -145,6 +145,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $this->updateCategoryUpgrade($board, $districtsId);
 
         // Customer Development Report Marks Calculation **Stay for Mr. Murad permission
+        
 //        if ($board->getEmployee()->getReportMode()->getSlug() == 'poultry-service') {
 //            $this->updateCustomerDevelopmentPoultry($board);
 //        } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'aqua-service') {
@@ -758,7 +759,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $em = $this->_em;
         $employee = $board->getEmployee();
 
-        $getEmployeesByLineManager = $this->_em->getRepository(User::class)->findBy(['lineManager' => $employee, 'enabled' => 1]);
+        $getEmployeesByLineManager = $this->_em->getRepository(User::class)->findBy(['lineManager' => $employee, 'enabled' => 1, 'isPermanent' => true]);
         $employeeArrs = array();
         foreach ($getEmployeesByLineManager as $childEmployee) {
             if (!empty($childEmployee)) {
