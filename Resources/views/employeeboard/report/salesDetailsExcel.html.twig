@@ -182,7 +182,13 @@
             <th>{{ 'Total'|trans }}</th>
             <th>{{ totalCollection|number_format(2,'.', ',')|default(0) }}</th>
             <th>{{ totalSales|number_format(2,'.', ',')|default(0) }}</th>
-            <th>{{ ((totalSales * 100) / totalCollection)|number_format(2,'.', ',')|default(0) }} %</th>
+            <th>
+                {% if totalCollection > 0 %}
+                    {{ ((totalSales * 100) / totalCollection)|number_format(2,'.', ',')|default(0) }} %
+                {% else %}
+                    0.00%
+                {% endif %}
+            </th>
             <th>{{ docSale['mark']|default(0) }}</th>
         </tr>
     {% else %}
@@ -221,6 +227,7 @@
             <th scope="col">{{ 'Category'|trans ~ ' (' ~ (board.year-1) ~ ')' }}</th>
             <th scope="col">{{ 'Agent Id'|trans }}</th>
             <th scope="col">{{ 'Agent Name'|trans }}</th>
+            <th scope="col">{{ 'District'|trans }}</th>
             <th scope="col">{{ 'Region'|trans }}</th>
             <th scope="col">{{ 'Zone'|trans }}</th>
             <th scope="col">{{ 'Average'|trans ~ ' (' ~ (board.year-1) ~ ')' }}</th>
@@ -244,6 +251,7 @@
                         <td align="center">{{ row.prevYearGrade|default('') }}</td>
                         <td align="center">{{ row.agentId|default('') }}</td>
                         <td align="left">{{ row.agentName|default('') }}</td>
+                        <td align="left">{{ row.agentDistrictName|default('') }}</td>
                         <td align="left">{{ row.agentRegionName|default('') }}</td>
                         <td align="left">{{ row.agentZoneName|default('') }}</td>
                         <td align="right">{{ row.prevYearAvg|number_format(2)|default('') }}</td>
@@ -288,6 +296,7 @@
             <th scope="col">{{ 'Category'|trans ~ ' (' ~ (board.year-1) ~ ')' }}</th>
             <th scope="col">{{ 'Agent Id'|trans }}</th>
             <th scope="col">{{ 'Agent Name'|trans }}</th>
+            <th scope="col">{{ 'District'|trans }}</th>
             <th scope="col">{{ 'Region'|trans }}</th>
             <th scope="col">{{ 'Zone'|trans }}</th>
             <th scope="col">{{ 'Average'|trans ~ ' (' ~ (board.year-1) ~ ')'  }}</th>
@@ -311,6 +320,7 @@
                         <td align="center">{{ row.prevYearGrade|default('') }}</td>
                         <td align="center">{{ row.agentId|default('') }}</td>
                         <td align="left">{{ row.agentName|default('') }}</td>
+                        <td align="left">{{ row.agentDistrictName|default('') }}</td>
                         <td align="left">{{ row.agentRegionName|default('') }}</td>
                         <td align="left">{{ row.agentZoneName|default('') }}</td>
                         <td align="right">{{ row.prevYearAvg|number_format(2)|default('') }}</td>

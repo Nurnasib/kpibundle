@@ -135,15 +135,20 @@
     <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
     <script>
         $(".import").on("click", function (e) {
+            const element = $(this);
             // e.preventDefault();
             const url = $(this).attr("href");
             const destinationUrl = Routing.generate("kpi_file_upload_index");
+
+            // element.remove();
+            // $("#pageloader").remove();
+
 
             $.ajax({
                 type: "get",
                 url: url,
                 success: function (res) {
-                    $(".import").remove();
+                    element.remove();
                     $("#pageloader").remove();
                 }
             })
