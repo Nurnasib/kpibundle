@@ -162,6 +162,8 @@ class AgentOrderRepository extends EntityRepository
 
         $breedTypes = [$keys[5], $keys[6], $keys[7], $keys[8], $keys[9]]; //Broiler, Sonali, Layer, Fish, Cattle
 
+        $notInsertedData = [];
+
         foreach ($allData as $data) {
 
             //Marge Excel heading and value in one array as key and value
@@ -177,56 +179,64 @@ class AgentOrderRepository extends EntityRepository
             if(!$district){
                 $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'name' => $districtValue]);
             }
-            $upozila = $em->getRepository(Location::class)->findOneBy(['level'=>5,'name' => $upozilaValue]);
+            $upozila = $em->getRepository(Location::class)->findOneBy(['level'=>5,'name' => $upozilaValue, 'parent' => $district]);
 
             //Find agent
             $feedAgentGroup = $em->getRepository(Setting::class)->findOneBy(array('slug' => 'feed'));
 
-            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentGroup'=>$feedAgentGroup,'agentId' =>$agentIdValue]);
-            if (!$findAgent) {
-                $agent = new Agent();
-                $agent->setAgentId($agentIdValue);
-                $agent->setUpozila($upozila?$upozila:null);
-                $agent->setDistrict($district?$district:null);
-                $agent->setName($agentNameValue);
-                $agent->setAgentGroup($feedAgentGroup);
-                $agent->setCreated(new \DateTime());
-                $em->persist($agent);
-                $em->flush();
-                $findAgent = $agent;
-            }
-            foreach ($breedArrays as $breedType => $value) {
+            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentGroup' => $feedAgentGroup,'agentId' =>$agentIdValue, 'district' => $district, 'status' => 1]);
+//
+//            if (!$findAgent) {
+//                $agent = new Agent();
+//                $agent->setAgentId($agentIdValue);
+//                $agent->setUpozila($upozila?$upozila:null);
+//                $agent->setDistrict($district?$district:null);
+//                $agent->setName($agentNameValue);
+//                $agent->setAgentGroup($feedAgentGroup);
+//                $agent->setCreated(new \DateTime());
+//                $em->persist($agent);
+//                $em->flush();
+//                $findAgent = $agent;
+//            }
 
-                $product = $em->getRepository(MarkChart::class)->findOneBy(['salesMode'=>'feed','name' => $breedType]);
-                if ($product) {
-                    $findAgentOrder = $em->getRepository(AgentOrder::class)->findOneBy(array('agent'=>$findAgent,'product'=>$product,'month'=>$month,'year'=>$year));
 
-                    if(!$findAgentOrder){
+            if ($findAgent){
+                foreach ($breedArrays as $breedType => $value) {
 
-                        $agentOrder =  new AgentOrder();
-                        $agentDistrict = $findAgent->getDistrict()?$findAgent->getDistrict():null;
-                        $agentUpozila = $findAgent->getUpozila()?$findAgent->getUpozila():null;
+                    $product = $em->getRepository(MarkChart::class)->findOneBy(['salesMode'=>'feed','name' => $breedType]);
+                    if ($product) {
+                        $findAgentOrder = $em->getRepository(AgentOrder::class)->findOneBy(array('agent'=>$findAgent,'product'=>$product,'month'=>$month,'year'=>$year));
 
-                        $agentOrder->setAgent($findAgent);
-                        $agentOrder->setDistrict($district?$district:$agentDistrict);
-                        $agentOrder->setUpozila($upozila?$upozila:$agentUpozila);
-                        $agentOrder->setProduct($product);
-                        $agentOrder->setQuantity((double)$value);
-                        $agentOrder->setCreated(new \DateTime());
-                        $agentOrder->setUpdated(new \DateTime());
-                        $agentOrder->setMonth($month);
-                        $agentOrder->setYear($year);
-                        $agentOrder->setDocumentUpload($file);
-                        $em->persist($agentOrder);
-                        $em->flush();
+                        if(!$findAgentOrder){
+
+                            $agentOrder =  new AgentOrder();
+                            $agentDistrict = $findAgent->getDistrict()?$findAgent->getDistrict():null;
+                            $agentUpozila = $findAgent->getUpozila()?$findAgent->getUpozila():null;
+
+                            $agentOrder->setAgent($findAgent);
+                            $agentOrder->setDistrict($district?$district:$agentDistrict);
+                            $agentOrder->setUpozila($upozila?$upozila:$agentUpozila);
+                            $agentOrder->setProduct($product);
+                            $agentOrder->setQuantity((double)$value);
+                            $agentOrder->setCreated(new \DateTime());
+                            $agentOrder->setUpdated(new \DateTime());
+                            $agentOrder->setMonth($month);
+                            $agentOrder->setYear($year);
+                            $agentOrder->setDocumentUpload($file);
+                            $em->persist($agentOrder);
+                            $em->flush();
 
 //                        $addedId[] = $agentOrder->getId();
-                        $flashArray['new'][] = $agentOrder->getId();
-                    }else{
+                            $flashArray['new'][] = $agentOrder->getId();
+                        }else{
 //                        $existingId[]=$exitAgentOrder->getId();
-                        $flashArray['update'][] = $findAgentOrder->getId();
+                            $flashArray['update'][] = $findAgentOrder->getId();
+                        }
                     }
                 }
+
+            }else{
+                array_push($notInsertedData, $details);
             }
         }
         $file->setStatus(1);
@@ -234,7 +244,7 @@ class AgentOrderRepository extends EntityRepository
         $em->persist($file);
         $em->flush();
 
-        return $flashArray;
+        return $notInsertedData;
     }
 
     public function getOutstanding()
@@ -274,52 +284,8 @@ class AgentOrderRepository extends EntityRepository
         $qb->groupBy('agent.id');
         $qb->addGroupBy('district.id');
 //        $qb->addGroupBy('e.year');
+        return $qb->getQuery()->getArrayResult();
 
-        $results = $qb->getQuery()->getArrayResult();
-
-        return $results;
-
-
-
-
-
-
-
-//        $years = [$board->getYear()-1, $board->getYear()];
-//        $months = [];
-//        $monthNumber = date('m',strtotime($board->getMonth()));
-//
-//        for ($i = 1; $i <= $monthNumber; $i++){ // make month name array from January to generated KPI month
-//            array_push($months, \DateTime::createFromFormat('!m', $i)->format('F'));
-//        }
-//
-//        $qb = $this->createQueryBuilder('e');
-//        $qb->join('e.agent', 'agent');
-//        $qb->join('e.district', 'district');
-//
-//        $qb->select('SUM(e.quantity) AS totalQuantity', 'e.year');
-//        $qb->addSelect('agent.id AS agentId');
-//
-//        $qb->where('e.month IN (:month)')->setParameter('month', $months);
-//        $qb->andWhere('e.year IN (:years)')->setParameter('years', $years);
-//        $qb->andWhere('district.id IN (:districtId)')->setParameter('districtId', $locationsId);
-//
-//        $qb->groupBy('agent.id');
-//        $qb->addGroupBy('e.year');
-//
-//        $results = $qb->getQuery()->getArrayResult();
-//        $data = [];
-//        foreach ($results as $result){
-//            $data[$result['year']][$result['agentId']] = $result['totalQuantity'] / count($months);
-//        }
-//
-//        if (! array_key_exists($board->getYear()-1, $data)){
-//            $data[$board->getYear()-1] = [];
-//        }
-//        if (! array_key_exists($board->getYear(), $data)){
-//            $data[$board->getYear()] = [];
-//        }
-//        return $data;
     }
 
 }

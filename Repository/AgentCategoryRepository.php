@@ -214,34 +214,37 @@ class AgentCategoryRepository extends EntityRepository
                 }else{ //if previous year january agent sales does exists
                     $districtsSales = $this->_em->getRepository(AgentOrder::class)->getAgentWithSalesQuantity(['January'], $board->getYear(), $districtsId);
 
-                    $findCategory = $this->findOneBy(['agent' => $districtsSale['agentId'], 'month' => 'January', 'year' => $prevYear]);
+                    foreach ($districtsSales as $districtsSale) {
 
-                    $findGrade = $this->getGradeObj(0);
+                        $findCategory = $this->findOneBy(['agent' => $districtsSale['agentId'], 'month' => 'January', 'year' => $prevYear]);
 
-                    if (!$findCategory){
-                        $agentObj = $this->_em->getRepository(Agent::class)->find($districtsSale['agentId']);
+                        $findGrade = $this->getGradeObj(0);
 
-                        if ($agentObj){
-                            $monthYear = 'January,' . $prevYear;
-                            $findDocument = $this->_em->getRepository(DocumentUpload::class)->findOneBy(['monthYear' => $monthYear, 'title' => 'agent sales']);
+                        if (!$findCategory){
+                            $agentObj = $this->_em->getRepository(Agent::class)->find($districtsSale['agentId']);
 
-                            $newCategory = new AgentCategory();
-                            $newCategory->setAgent($agentObj);
-                            $newCategory->setGradeStandard($findGrade);
-                            $newCategory->setQuantity(0);
-                            $newCategory->setMonth('January');
-                            $newCategory->setYear($prevYear);
-                            $newCategory->setCreatedAt(new \DateTimeImmutable('now'));
-                            $newCategory->setUpdatedAt(new \DateTimeImmutable('now'));
-                            $newCategory->setDocumentUpload($findDocument);
-                            $newCategory->setAverage(0);
-                            $newCategory->setCreatedMonth(new \DateTimeImmutable($createdMonth));
-                            $newCategory->setMonthCount(1);
-                            $newCategory->setCumulativeQuantity(0);
+                            if ($agentObj){
+                                $monthYear = 'January,' . $prevYear;
+                                $findDocument = $this->_em->getRepository(DocumentUpload::class)->findOneBy(['monthYear' => $monthYear, 'title' => 'agent sales']);
+
+                                $newCategory = new AgentCategory();
+                                $newCategory->setAgent($agentObj);
+                                $newCategory->setGradeStandard($findGrade);
+                                $newCategory->setQuantity(0);
+                                $newCategory->setMonth('January');
+                                $newCategory->setYear($prevYear);
+                                $newCategory->setCreatedAt(new \DateTimeImmutable('now'));
+                                $newCategory->setUpdatedAt(new \DateTimeImmutable('now'));
+                                $newCategory->setDocumentUpload($findDocument);
+                                $newCategory->setAverage(0);
+                                $newCategory->setCreatedMonth(new \DateTimeImmutable($createdMonth));
+                                $newCategory->setMonthCount(1);
+                                $newCategory->setCumulativeQuantity(0);
 
 
-                            $this->_em->persist($newCategory);
-                            $this->_em->flush();
+                                $this->_em->persist($newCategory);
+                                $this->_em->flush();
+                            }
                         }
                     }
                 }

@@ -4,10 +4,14 @@ namespace Terminalbd\KpiBundle\Controller;
 
 
 use App\Entity\Admin\Location;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Terminalbd\KpiBundle\Entity\AgentDocSaleCollection;
@@ -31,7 +35,7 @@ class FileUploadController extends AbstractController
      * @param Request $request
      * @param TranslatorInterface $translator
      * @return \Symfony\Component\HttpFoundation\Response
-     * @Route("/", name="kpi_file_upload_index")
+     * @Route("/", name="kpi_file_upload_index", options={"expose" = true})
      */
     public function fileUpload(Request $request, TranslatorInterface $translator)
     {
@@ -84,7 +88,7 @@ class FileUploadController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      * @Route("/{id}/insert-data", name="kpi_file_upload_insert_data")
      */
-    public function insertDataFromUploadedFile(DocumentUpload $file)
+    public function insertDataFromUploadedFile(DocumentUpload $file, ParameterBagInterface $parameterBag)
     {
         set_time_limit(0);
         ini_set('memory_limit', '5000M');
@@ -94,6 +98,8 @@ class FileUploadController extends AbstractController
         $year = $monthYear[1];
         //Read uploaded Excel File
         $reader = new Xlsx();
+        $reader->setReadDataOnly(true); // remove empty rows
+        $reader->setReadEmptyCells(false); // remove empty rows
         $spreadSheet = $reader->load($this->get('kernel')->getProjectDir() . '/public/uploads/excel/' . $file->getFileName());
         $excelSheet = $spreadSheet->getActiveSheet();
         $allData = $excelSheet->toArray();
@@ -110,17 +116,57 @@ class FileUploadController extends AbstractController
                     return $this->redirectToRoute('kpi_file_upload_index');
                 } // Find District target
 
+                $notInsertedData = $this->getDoctrine()->getRepository(AgentOrder::class)->insertAgentSales($file, $keys, $allData, $month, $year);
 
-                $flashArray = $this->getDoctrine()->getRepository(AgentOrder::class)->insertAgentSales($file, $keys, $allData, $month, $year);
-//                $this->getDoctrine()->getRepository(AgentOrder::class)->insertAgentSales($file, $keys, $allData, $month, $year);
-                if (isset($flashArray['new']) && sizeof($flashArray['new'])>0) {
-                    $this->addFlash('success', 'Record inserted successfully into Database!');
-                }elseif (isset($flashArray['update']) && sizeof($flashArray['update'])>0){
-                    $this->addFlash('error', 'Record already exit');
+                if($notInsertedData){
+                    $spreadsheet = new Spreadsheet();
+                    $sheet = $spreadsheet->getActiveSheet();
+
+//                    $sheet->setTitle("Problem Agent Sales"); //Sheet name
+                    foreach ($notInsertedData as $key => $data) {
+                        if ($key === array_key_first($notInsertedData)){ //header
+                            $sheet->setCellValue("A1", "AgentId");
+                            $sheet->setCellValue("B1", "Agents Name");
+                            $sheet->setCellValue("C1", "Thana");
+                            $sheet->setCellValue("D1", "DistrictId");
+                            $sheet->setCellValue("E1", "District");
+                            $sheet->setCellValue("F1", "Broiler");
+                            $sheet->setCellValue("G1", "Sonali");
+                            $sheet->setCellValue("H1", "Layer");
+                            $sheet->setCellValue("I1", "Fish");
+                            $sheet->setCellValue("J1", "Cattle");
+                            $sheet->setCellValue("K1", "Month");
+                            $sheet->setCellValue("L1", "Year");
+                        }
+
+                        $cellCoordinate = $key + 2;
+
+                        $sheet->setCellValue("A" . $cellCoordinate, $data['AgentId']);
+                        $sheet->setCellValue("B" . $cellCoordinate, $data['Agents Name']);
+                        $sheet->setCellValue("C" . $cellCoordinate, $data['Thana']);
+                        $sheet->setCellValue("D" . $cellCoordinate, $data['DistrictId']);
+                        $sheet->setCellValue("E" . $cellCoordinate, $data['District']);
+                        $sheet->setCellValue("F" . $cellCoordinate, $data['Broiler'] ?: 0);
+                        $sheet->setCellValue("G" . $cellCoordinate, $data['Sonali'] ?: 0);
+                        $sheet->setCellValue("H" . $cellCoordinate, $data['Layer'] ?: 0);
+                        $sheet->setCellValue("I" . $cellCoordinate, $data['Fish'] ?: 0);
+                        $sheet->setCellValue("J" . $cellCoordinate, $data['Cattle'] ?: 0);
+                        $sheet->setCellValue("K" . $cellCoordinate, $data['Month']);
+                        $sheet->setCellValue("L" . $cellCoordinate, $data['Year']);
+
+                    }
+
+                    // Create xlsx file
+                    $filePath = $parameterBag->get('projectRoot') . '/public/uploads/problem_agent_sales_'.$month . '_' . $year . '_' . date('d-m-Y_H-s-i') .'_.xlsx';
+                    $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+                    $writer->setIncludeCharts(true);
+                    $writer->save($filePath);
+
+                    return $this->file($filePath)->deleteFileAfterSend();
                 }
-                else {
-                    $this->addFlash('error', 'Something wrong!');
-                }
+
+                return $this->redirectToRoute('kpi_file_upload_index');
+
                 break;
             case "agent-outstanding":
                 $findDistrictTarget = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->findBy(['month' => $month, 'year' => $year]);
@@ -129,12 +175,48 @@ class FileUploadController extends AbstractController
                     return $this->redirectToRoute('kpi_file_upload_index');
                 } // Find District target
 
-                $addedId = $this->getDoctrine()->getRepository(AgentOutstanding::class)->insertAgentOutstanding($file, $keys, $allData, $month, $year);
-                if($addedId){
-                    $this->addFlash('success', 'Data inserted successfully!');
-                }else{
-                    $this->addFlash('error', 'Something Wrong!');
+                $notInsertedData = $this->getDoctrine()->getRepository(AgentOutstanding::class)->insertAgentOutstanding($file, $keys, $allData, $month, $year);
+
+                if($notInsertedData){
+                    $spreadsheet = new Spreadsheet();
+                    $sheet = $spreadsheet->getActiveSheet();
+
+//                    $sheet->setTitle("Problem Outstanding"); //Sheet name
+                    foreach ($notInsertedData as $key => $data) {
+
+                        if ($key === array_key_first($notInsertedData)){ //header
+                            $sheet->setCellValue("A1", "AgentId");
+                            $sheet->setCellValue("B1", "Limit");
+                            $sheet->setCellValue("C1", "Net Outstanding");
+                            $sheet->setCellValue("D1", "DistrictId");
+                            $sheet->setCellValue("E1", "District");
+                            $sheet->setCellValue("F1", "Month");
+                            $sheet->setCellValue("G1", "Year");
+                        }
+
+                        $cellCoordinate = $key + 2;
+
+                        $sheet->setCellValue("A" . $cellCoordinate, $data['AgentId']);
+                        $sheet->setCellValue("B" . $cellCoordinate, $data['Limit'] ?: 0);
+                        $sheet->setCellValue("C" . $cellCoordinate, $data['Net Outstanding'] ?: 0);
+                        $sheet->setCellValue("D" . $cellCoordinate, $data['DistrictId']);
+                        $sheet->setCellValue("E" . $cellCoordinate, $data['District']);
+                        $sheet->setCellValue("F" . $cellCoordinate, $data['Month']);
+                        $sheet->setCellValue("G" . $cellCoordinate, $data['Year']);
+
+                    }
+
+                    // Create xlsx file
+                    $filePath = $parameterBag->get('projectRoot') . '/public/uploads/problem_outstanding_' . $month . '_' . $year . '_' . date('d-m-Y_H-s-i') .'_.xlsx';
+                    $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+                    $writer->setIncludeCharts(true);
+                    $writer->save($filePath);
+
+                    return $this->file($filePath)->deleteFileAfterSend();
                 }
+
+                return $this->redirectToRoute('kpi_file_upload_index');
+
                 break;
             case "doc-sales-collection":
                 $findDistrictTarget = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->findBy(['month' => $month, 'year' => $year]);
@@ -143,12 +225,48 @@ class FileUploadController extends AbstractController
                     return $this->redirectToRoute('kpi_file_upload_index');
                 } // Find District target
 
-                $addedId = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->insertDocSalesCollection($file, $keys, $allData, $month, $year);
-                if($addedId){
-                    $this->addFlash('success', 'Data inserted successfully!');
-                }else{
-                    $this->addFlash('error', 'Something Wrong!');
+                $notInsertedData = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->insertDocSalesCollection($file, $keys, $allData, $month, $year);
+
+                if($notInsertedData){
+                    $spreadsheet = new Spreadsheet();
+                    $sheet = $spreadsheet->getActiveSheet();
+
+//                    $sheet->setTitle("Problem Doc Sales Collection"); //Sheet name
+                    foreach ($notInsertedData as $key => $data) {
+                        if ($key === array_key_first($notInsertedData)){ //header
+                                $sheet->setCellValue("A1", "AgentId");
+                                $sheet->setCellValue("B1", "Sales");
+                                $sheet->setCellValue("C1", "Collection");
+                                $sheet->setCellValue("D1", "DistrictId");
+                                $sheet->setCellValue("E1", "District");
+                                $sheet->setCellValue("F1", "Month");
+                                $sheet->setCellValue("G1", "Year");
+                        }
+
+                        $cellCoordinate = $key + 2;
+
+                        $sheet->setCellValue("A" . $cellCoordinate, $data['AgentId']);
+                        $sheet->setCellValue("B" . $cellCoordinate, $data['Sales']);
+                        $sheet->setCellValue("C" . $cellCoordinate, $data['Collection']);
+                        $sheet->setCellValue("D" . $cellCoordinate, $data['DistrictId']);
+                        $sheet->setCellValue("E" . $cellCoordinate, $data['District']);
+                        $sheet->setCellValue("F" . $cellCoordinate, $data['Month']);
+                        $sheet->setCellValue("G" . $cellCoordinate, $data['Year']);
+
+                    }
+                    
+                    // Create xlsx file
+                    $filePath = $parameterBag->get('projectRoot') . '/public/uploads/problem_doc_sales_collection_'.$month . '_' . $year . '_' . date('d-m-Y_H-s-i') .'.xlsx';
+                    $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+                    $writer->setIncludeCharts(true);
+                    $writer->save($filePath);
+
+                    return $this->file($filePath)->deleteFileAfterSend();
+
                 }
+                
+                return $this->redirectToRoute('kpi_file_upload_index');
+
                 break;
             case "district-sales-target":
 

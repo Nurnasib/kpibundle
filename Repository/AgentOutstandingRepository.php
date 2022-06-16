@@ -13,6 +13,7 @@ namespace Terminalbd\KpiBundle\Repository;
 
 use App\Entity\Admin\Location;
 use App\Entity\Core\Agent;
+use App\Entity\Core\Setting;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -43,33 +44,45 @@ class AgentOutstandingRepository extends EntityRepository
 
             $data[] = array_combine($keys,array_slice($value, null, $keysLength));
         }
+
+        $notInsertedData = [];
+        
         foreach ($data as $record){
             $record['ActualAmount'] = (double)str_replace(',', '',$record['Net Outstanding']);
             $record['LimitAmount'] = (double)str_replace(',', '',$record['Limit']);
 
             $district = $em->getRepository(Location::class)->findOneBy(['level' => 4,'code' => $record['DistrictId']]);
+
+            $agentGroup = $em->getRepository(Setting::class)->findOneBy(['slug' => 'feed', 'status' => 1]);
+
             //Find agent
-            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' => $record['AgentId']]);
+            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' => $record['AgentId'], 'district' => $district, 'agentGroup' => $agentGroup, 'status' => 1]);
             if ($findAgent) {
-                $agentOutstanding = new AgentOutstanding();
-                $agentOutstanding->setAgent($findAgent);
-                $agentOutstanding->setDistrict($district);
-                $agentOutstanding->setActualAmount($record['ActualAmount']?:0);
-                $agentOutstanding->setLimitAmount($record['LimitAmount']?:0);
-                $agentOutstanding->setOutstanding($record['ActualAmount'] - $record['LimitAmount']);
-                $agentOutstanding->setCreatedAt(new \DateTime());
-                $agentOutstanding->setMonth($month);
-                $agentOutstanding->setYear($year);
-                $em->persist($agentOutstanding);
-                $em->flush();
-                $addedId = $agentOutstanding->getId();
+
+                $findAgentOutstanding = $this->findOneBy(['agent' => $findAgent, 'district' => $district, 'month' => $month, 'year' => $year]);
+
+                if (!$findAgentOutstanding){
+                    $agentOutstanding = new AgentOutstanding();
+                    $agentOutstanding->setAgent($findAgent);
+                    $agentOutstanding->setDistrict($district);
+                    $agentOutstanding->setActualAmount($record['ActualAmount']?:0);
+                    $agentOutstanding->setLimitAmount($record['LimitAmount']?:0);
+                    $agentOutstanding->setOutstanding($record['ActualAmount'] - $record['LimitAmount']);
+                    $agentOutstanding->setCreatedAt(new \DateTime());
+                    $agentOutstanding->setMonth($month);
+                    $agentOutstanding->setYear($year);
+                    $em->persist($agentOutstanding);
+                    $em->flush();
+                }
+            }else{
+                array_push($notInsertedData, $record);
             }
         }
         $file->setStatus(1);
 
         $em->persist($file);
         $em->flush();
-        return $addedId;
+        return $notInsertedData;
     }
 
     public function getLocationWiseTotalOutstanding($locations, $year, $month)

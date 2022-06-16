@@ -13,6 +13,7 @@ namespace Terminalbd\KpiBundle\Repository;
 
 use App\Entity\Admin\Location;
 use App\Entity\Core\Agent;
+use App\Entity\Core\Setting;
 use Doctrine\ORM\EntityRepository;
 use Terminalbd\KpiBundle\Entity\AgentDocSaleCollection;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
@@ -40,31 +41,44 @@ class AgentDocSaleCollectionRepository extends EntityRepository
             $data[] = array_combine($keys,array_slice($value, null, $keysLength));
         }
 
-        foreach ($data as $record){
+        $notInsertedData = [];
+
+        foreach ($data as $key => $record){
 
             $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'code' => $record['DistrictId']]);
-            //Find agent
-            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' =>$record['AgentId']]);
-            if ($findAgent) {
-                $agentDocSale = new AgentDocSaleCollection();
-                $agentDocSale->setAgent($findAgent);
-                $agentDocSale->setSales((double)str_replace(',', '', $record['Sales']));
-                $agentDocSale->setCollection((double)str_replace(',', '', $record['Collection']));
-                $agentDocSale->setDistrict($district?$district:null);
-                $agentDocSale->setMonth($month);
-                $agentDocSale->setYear($year);
-                $agentDocSale->setCreatedAt(new \DateTime());
-                $em->persist($agentDocSale);
-                $em->flush();
 
-                $addedId = $agentDocSale->getId();
+            $agentGroup = $em->getRepository(Setting::class)->findOneBy(['slug' => 'chick', 'status' => 1]);
+
+            //Find agent
+            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' =>$record['AgentId'], 'agentGroup' => $agentGroup, 'district' => $district, 'status' => 1]);
+
+            if ($findAgent) {
+
+                $findDocSale = $this->findOneBy(['agent' => $findAgent, 'district' => $findAgent->getDistrict(), 'month' => $month, 'year' => $year]);
+
+                if (!$findDocSale){
+                    $agentDocSale = new AgentDocSaleCollection();
+                    $agentDocSale->setAgent($findAgent);
+                    $agentDocSale->setSales((double)str_replace(',', '', $record['Sales']));
+                    $agentDocSale->setCollection((double)str_replace(',', '', $record['Collection']));
+                    $agentDocSale->setDistrict($findAgent->getDistrict());
+                    $agentDocSale->setMonth($month);
+                    $agentDocSale->setYear($year);
+                    $agentDocSale->setCreatedAt(new \DateTime());
+                    $em->persist($agentDocSale);
+                    $em->flush();
+
+                }
+            }else{
+                array_push($notInsertedData, $record);
             }
         }
-        $file->setStatus(1);
 
+        $file->setStatus(1);
         $em->persist($file);
         $em->flush();
-        return $addedId;
+
+        return $notInsertedData;
     }
 
 
