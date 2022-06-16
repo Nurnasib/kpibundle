@@ -144,6 +144,8 @@ class EmployeeBoardController extends AbstractController
             $previousMonth = date('F', strtotime($month . " last month"));
             $findLastMonthKpi = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findOneBy(['employee' => $emp, 'month' => $previousMonth, 'year' => $year]);
 
+
+
             if ($permanentMonthYear != $monthYear){
 
                 if ((strtotime($monthYear)-strtotime($permanentMonthYear)) < 0){ // prevent to generate joining before KPI
@@ -159,7 +161,14 @@ class EmployeeBoardController extends AbstractController
                     return $this->redirectToRoute('kpi_board_new',['format' => $format]);
                 }
             }
-
+            
+            // Prevent to generate previous month KPI if line manager KPI is generated
+            $findLineManagerKpi = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findOneBy(['employee' => $emp->getLineManager(), 'month' => $month, 'year' => $year, 'process' => 'approved']);
+            if ($findLineManagerKpi){
+                $this->addFlash('warning', "Line manager KPI is generated. You can not generate {$monthYear} KPI!");
+                return $this->redirectToRoute('kpi_board_new',['format' => $format]);
+            }
+            
             // Prevent next month
             if ($year > date('Y') || ($year == date('Y') && date('m', strtotime($month)) > date('m'))){
                 $this->addFlash('warning', 'Only allow previous or current month!');
