@@ -54,9 +54,11 @@
                                     <td rowspan="{{ entity|length }}" class="text-center">{{ loop.parent.loop.index }}</td>
                                     <td rowspan="{{ entity|length }}">{{ monthYear }}</td>
                                 {% endif %}
-                                <td style="display: flex; justify-content: space-between;">
-                                    {{ loop.index }}. {{ data.title|capitalize|default('') }}
-                                    <a href="{{ asset('/uploads/excel/' ~ data.fileName) }}" download><i class="fa fa-download"></i></a>
+                                <td>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span>{{ loop.index }}. {{ data.title|capitalize|default('') }}</span>
+                                        <a href="{{ asset('/uploads/excel/' ~ data.fileName) }}" download><i class="fa fa-download"></i></a>
+                                    </div>
 
                                 </td>
                                 {#<td style="display: flex; justify-content: space-between;">
@@ -135,10 +137,10 @@
     <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
     <script>
         $(".import").on("click", function (e) {
-            const element = $(this);
+            // const element = $(this);
             // e.preventDefault();
             const url = $(this).attr("href");
-            const destinationUrl = Routing.generate("kpi_file_upload_index");
+            // const destinationUrl = Routing.generate("kpi_file_upload_index");
 
             // element.remove();
             // $("#pageloader").remove();
@@ -148,8 +150,10 @@
                 type: "get",
                 url: url,
                 success: function (res) {
-                    element.remove();
-                    $("#pageloader").remove();
+                    // element.remove();
+                    setTimeout(function () {
+                        location.reload();
+                    },10000)
                 }
             })
 

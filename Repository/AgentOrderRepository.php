@@ -182,9 +182,9 @@ class AgentOrderRepository extends EntityRepository
             $upozila = $em->getRepository(Location::class)->findOneBy(['level'=>5,'name' => $upozilaValue, 'parent' => $district]);
 
             //Find agent
-            $feedAgentGroup = $em->getRepository(Setting::class)->findOneBy(array('slug' => 'feed'));
+//            $feedAgentGroup = $em->getRepository(Setting::class)->findOneBy(array('slug' => 'feed'));
 
-            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentGroup' => $feedAgentGroup,'agentId' =>$agentIdValue, 'district' => $district, 'status' => 1]);
+            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' =>$agentIdValue, 'district' => $district, 'status' => 1]);
 //
 //            if (!$findAgent) {
 //                $agent = new Agent();
@@ -210,12 +210,12 @@ class AgentOrderRepository extends EntityRepository
                         if(!$findAgentOrder){
 
                             $agentOrder =  new AgentOrder();
-                            $agentDistrict = $findAgent->getDistrict()?$findAgent->getDistrict():null;
-                            $agentUpozila = $findAgent->getUpozila()?$findAgent->getUpozila():null;
+                            $agentDistrict = $findAgent->getDistrict() ? $findAgent->getDistrict() : null;
+                            $agentUpozila = $findAgent->getUpozila() ? $findAgent->getUpozila() : null;
 
                             $agentOrder->setAgent($findAgent);
-                            $agentOrder->setDistrict($district?$district:$agentDistrict);
-                            $agentOrder->setUpozila($upozila?$upozila:$agentUpozila);
+                            $agentOrder->setDistrict($district ? $district : $agentDistrict);
+                            $agentOrder->setUpozila($upozila ? $upozila : $agentUpozila);
                             $agentOrder->setProduct($product);
                             $agentOrder->setQuantity((double)$value);
                             $agentOrder->setCreated(new \DateTime());

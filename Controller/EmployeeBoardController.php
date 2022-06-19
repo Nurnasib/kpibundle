@@ -148,7 +148,7 @@ class EmployeeBoardController extends AbstractController
 
             if ($permanentMonthYear != $monthYear){
 
-                if ((strtotime($monthYear)-strtotime($permanentMonthYear)) < 0){ // prevent to generate joining before KPI
+                if ((strtotime($monthYear)-strtotime($permanentMonthYear)) < 0){ // prevent to generate permanent before KPI
                     $this->addFlash('warning', "You are not allowed to generate {$monthYear} KPI!");
                     return $this->redirectToRoute('kpi_board_new',['format' => $format]);
                 }
@@ -336,8 +336,6 @@ class EmployeeBoardController extends AbstractController
         }
         $outstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->findOneBy(['employeeBoard' => $board]);
         $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->findOneBy(['employeeBoard' => $board]);
-//        $customerDevelopment = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'activity']);
-//        $skills = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findBy(['employeeBoard' => $board]);
 
         $boardAttributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->EmployeeBoardMarks($board);
         $arrayData = [];
@@ -345,19 +343,6 @@ class EmployeeBoardController extends AbstractController
         foreach ($boardAttributes as $boardAttribute){
             $arrayData[$boardAttribute->getParameter()->getId()][$boardAttribute->getActivity()->getId()][]=$boardAttribute;
         }
-/*        $districts = null;
-        foreach ($board->getEmployee()->getDistrict() as $key => $district) {
-            $districts[$district->getId()] = $district->getName();
-        }*/
-
-/*        $employeeDistrictHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
-
-        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
-
-
-        $board->setDistrict($districts);
-        $this->getDoctrine()->getManager()->persist($board);
-        $this->getDoctrine()->getManager()->flush();*/
 
         return $this->render('@TerminalbdKpi/employeeboard/custom-format/new.html.twig', [
             'board' => $board,
@@ -441,66 +426,15 @@ class EmployeeBoardController extends AbstractController
         }
 
         $em = $this->getDoctrine()->getManager();
-        
-        
-        /*$employeeDistrictHistory = $this->_em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
-        $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
-        $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
-
-        $districtsIdString = implode(',', $districtsId);
-        $agentOrderQuery = "DELETE FROM `kpi_agent_category`
-                            JOIN core_agent ON core_agent.id = kpi_agent_category.agent_id
-                            WHERE core_agent.district_id IN ($districtsIdString)";
-        $stmt = $this->_em->getConnection()->prepare($agentOrderQuery);
-      
-        $stmt->execute();*/
-
-
-
-
-
 
         $em->remove($board);
         $em->flush();
-//        $this->addFlash('success', 'post.deleted_successfully');
-//        return $this->redirectToRoute('kpi_employee_board');
         return new JsonResponse([
             'status' => 200,
             'message' => 'success'
         ]);
     }
 
-    /**
-     * Deletes a Setting entity.
-     *
-     * @Route("/{id}/attribute-update", methods={"GET"}, name="kpi_employee_board_attribute_update")
-     * @param EmployeeBoardAttribute $boardAttribute
-     * @return Response
-     * @Security("is_granted('ROLE_USER')")
-     */
-/*    public function attributeUpdate(EmployeeBoardAttribute $boardAttribute): Response
-    {
-        $board = $boardAttribute->getEmployeeBoard();
-        $mark = $_REQUEST['mark'];
-        if($mark){
-            $attribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($mark);
-
-            $em = $this->getDoctrine()->getManager();
-            $boardAttribute->setMarkDistribution($attribute);
-
-            if ($board->getEmployee()->getId() === $this->getUser()->getId()){
-                $boardAttribute->setSelfMark($attribute->getMark());
-            }else{
-                $boardAttribute->setMark($attribute->getMark());
-            }
-
-            $em->flush();
-            $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->gradeUpdate($board);
-            return new Response($attribute->getMark());
-        }
-        return new Response(0);
-
-    }*/
 
     /**
      * @Route("/{id}/report-details", methods={"GET"}, name="kpi_details_report")
@@ -511,13 +445,6 @@ class EmployeeBoardController extends AbstractController
     public function reportDetails($id): Response
     {
         $entity = $this->getDoctrine()->getRepository(EmployeeBoard::class)->find($id);
-/*        $employeeDistricts = $entity->getEmployee()->getDistrict();
-
-        $districtsId = [];
-
-        foreach ($employeeDistricts as $employeeDistrict){
-            $districtsId[]=$employeeDistrict->getId();
-        }*/
 
         $districtHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $entity->getEmployee(), 'month' => $entity->getMonth(), 'year' => $entity->getYear()]);
         $districts = $districtHistory ? $districtHistory->getDistrict() : '';
@@ -1136,22 +1063,8 @@ class EmployeeBoardController extends AbstractController
                                         $mark = 0;
                                     }
                                 }else{
-//                                    $fiftyPercentAgents = $agentNumber['totalAgents'] /  2; //50% agents
                                     if ($agentNumber['totalAgents'] > 0){
                                         $percentage = ($agentNumber['upgradeAgent'] * 100) / $agentNumber['totalAgents'];
-                                        /*if($percentage >= 100){
-                                            $mark = 5;
-                                        }elseif ($percentage < 100 && $percentage >= 80){
-                                            $mark = 4;
-                                        }elseif ($percentage < 80 && $percentage >= 70){
-                                            $mark = 3;
-                                        }elseif ($percentage < 70 && $percentage >= 60){
-                                            $mark = 2;
-                                        }elseif ($percentage < 60 && $percentage > 0){
-                                            $mark = 1;
-                                        }else{
-                                            $mark = 0;
-                                        }*/
 
                                         if($percentage >= 20){
                                             $mark = 5;
@@ -1237,10 +1150,6 @@ class EmployeeBoardController extends AbstractController
                     }
                 }
             }
-//            elseif ($key === 'customerDevelopment'){
-//
-//
-//            }
         }
 
         // Customer development
@@ -1317,137 +1226,26 @@ class EmployeeBoardController extends AbstractController
 
 
     /**
-     * @Route("/{board}/agent-outstandig-for-custom-format", name="agent_outstanding_for_custom_format", options={"expose" = true})
-     * @param Request $request
-     * @param EmployeeBoard $board
-     * @return JsonResponse
-     */
-   /* public function customFormatOutstandingInsert(Request $request, EmployeeBoard $board)
-    {
-        $data = $request->request->all();
-        $findAgent = $this->getDoctrine()->getRepository(Agent::class)->find($data['agentId']);
-        if ($findAgent){
-            $newOutstanding = new AgentOutstandingForCustomFormat();
-            $findOutstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->findOneBy(['employeeBoard' => $board, 'agent' => $findAgent, 'month' => $board->getMonth(), 'year' => $board->getYear()]);
-
-            if ($findOutstanding){
-                $newOutstanding = $findOutstanding;
-            }
-            $newOutstanding->setAgent($findAgent);
-            $newOutstanding->setEmployeeBoard($board);
-            $newOutstanding->setActualAmount($data['actualAmount'] ?: 0);
-            $newOutstanding->setLimitAmount($data['limitAmount'] ?: 0);
-            $newOutstanding->setOutstanding($data['limitAmount'] - $data['actualAmount']);
-            $newOutstanding->setMonth($board->getMonth());
-            $newOutstanding->setYear($board->getYear());
-            $this->getDoctrine()->getManager()->persist($newOutstanding);
-            $this->getDoctrine()->getManager()->flush();
-
-            return new JsonResponse([
-                'status' => 200,
-                'data' => [
-                    'agent' => $findAgent->getName(),
-                    'id' => $newOutstanding->getId(),
-                ]
-            ]);
-        }
-
-        return new JsonResponse([
-            'status' => 500,
-            'message' => 'failed'
-        ]);
-    }*/
-
-    /**
-     * @Route("/{board}/agent-doc-sale-for-custom-format", name="agent_doc_sale_for_custom_format", options={"expose" = true})
-     * @param Request $request
-     * @param EmployeeBoard $board
-     * @return JsonResponse
-     */
- /*   public function customFormatDocSaleInsert(Request $request, EmployeeBoard $board)
-    {
-
-        $data = $request->request->all();
-        $findAgent = $this->getDoctrine()->getRepository(Agent::class)->find($data['agentId']);
-        if ($findAgent){
-            $newDocSale = new AgentDocSaleCollectionForCustomFormat();
-            $findDocSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->findOneBy(['employeeBoard' => $board, 'agent' => $findAgent, 'month' => $board->getMonth(), 'year' => $board->getYear()]);
-
-            if ($findDocSale){
-                $newDocSale = $findDocSale;
-            }
-            $newDocSale->setAgent($findAgent);
-            $newDocSale->setEmployeeBoard($board);
-            $newDocSale->setSales($data['actualAmount'] ?: 0);
-            $newDocSale->setCollection($data['limitAmount'] ?: 0);
-            $newDocSale->setMonth($board->getMonth());
-            $newDocSale->setYear($board->getYear());
-            $this->getDoctrine()->getManager()->persist($newDocSale);
-            $this->getDoctrine()->getManager()->flush();
-
-            return new JsonResponse([
-                'status' => 200,
-                'data' => [
-                    'agent' => $findAgent->getName(),
-                    'id' => $newDocSale->getId(),
-                ]
-            ]);
-        }
-
-        return new JsonResponse([
-            'status' => 500,
-            'message' => 'failed'
-        ]);
-    }*/
-
-    /**
-     * @Route("/{id}/delete-agent-outstanding-for-custom-format", name="delete_agent_outstanding_for_custom_format", options={"expose" = true})
-     * @param AgentOutstandingForCustomFormat $id
-     * @return JsonResponse
-     */
-/*    public function customFormatOutstandingDelete(AgentOutstandingForCustomFormat $id)
-    {
-        $this->getDoctrine()->getManager()->remove($id);
-        $this->getDoctrine()->getManager()->flush();
-
-        return new JsonResponse([
-            'status' => 200,
-            'message' => 'success'
-        ]);
-    }*/
-
-    /**
-     * @Route("/{id}/delete-agent-doc-sale-for-custom-format", name="delete_agent_doc_sale_for_custom_format", options={"expose" = true})
-     * @param AgentDocSaleCollectionForCustomFormat $id
-     * @return JsonResponse
-     */
-/*    public function customFormatDocSaleDelete(AgentDocSaleCollectionForCustomFormat $id)
-    {
-        $this->getDoctrine()->getManager()->remove($id);
-        $this->getDoctrine()->getManager()->flush();
-
-        return new JsonResponse([
-            'status' => 200,
-            'message' => 'success'
-        ]);
-    }*/
-
-
-    /**
-     * @Route("/update/report-format", name="update_report_format")
+     * @Route("/update-all-kpi", name="update_all_kpi")
      * @Security("is_granted('ROLE_DEVELOPER')")
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-//    public function processReportFormat()
-//    {
-//        $records = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findAll();
-//        foreach ($records as $record) {
-//            $record->setReportMode($record->getEmployee()->getReportMode());
-//            $this->getDoctrine()->getManager()->persist($record);
-//            $this->getDoctrine()->getManager()->flush();
-//
-//        }
-//        return $this->redirectToRoute('kpi_employee_board');
-//    }
+    public function updateAllkpi()
+    {
+        set_time_limit(0);
+        ignore_user_abort(true);
+
+        $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
+
+        $boards = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findAll();
+
+        foreach ($boards as $board) {
+            $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($board, $parameters);
+        }
+
+        $this->addFlash('success', 'All KPI are updated!');
+        return $this->redirectToRoute('kpi_employee_board');
+    }
 
 
 }

@@ -47,10 +47,10 @@ class AgentDocSaleCollectionRepository extends EntityRepository
 
             $district = $em->getRepository(Location::class)->findOneBy(['level'=>4,'code' => $record['DistrictId']]);
 
-            $agentGroup = $em->getRepository(Setting::class)->findOneBy(['slug' => 'chick', 'status' => 1]);
+//            $agentGroup = $em->getRepository(Setting::class)->findOneBy(['slug' => 'chick', 'status' => 1]);
 
             //Find agent
-            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' =>$record['AgentId'], 'agentGroup' => $agentGroup, 'district' => $district, 'status' => 1]);
+            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' =>$record['AgentId'], 'district' => $district, 'status' => 1]);
 
             if ($findAgent) {
 
