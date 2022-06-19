@@ -163,7 +163,7 @@ class EmployeeBoardController extends AbstractController
             }
             
             // Prevent to generate previous month KPI if line manager KPI is generated
-            $findLineManagerKpi = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findOneBy(['employee' => $emp->getLineManager(), 'month' => $month, 'year' => $year, 'process' => 'approved']);
+            $findLineManagerKpi = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findOneBy(['employee' => $emp->getLineManager(), 'month' => $month, 'year' => $year]);
             if ($findLineManagerKpi){
                 $this->addFlash('warning', "Line manager KPI is generated. You can not generate {$monthYear} KPI!");
                 return $this->redirectToRoute('kpi_board_new',['format' => $format]);
