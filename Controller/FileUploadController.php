@@ -8,10 +8,14 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Terminalbd\KpiBundle\Entity\AgentDocSaleCollection;
@@ -88,7 +92,7 @@ class FileUploadController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      * @Route("/{id}/insert-data", name="kpi_file_upload_insert_data")
      */
-    public function insertDataFromUploadedFile(DocumentUpload $file, ParameterBagInterface $parameterBag)
+    public function insertDataFromUploadedFile(DocumentUpload $file, ParameterBagInterface $parameterBag, KernelInterface $kernel)
     {
         set_time_limit(0);
         ini_set('memory_limit', '5000M');
@@ -270,13 +274,60 @@ class FileUploadController extends AbstractController
                 break;
             case "district-sales-target":
 
-                $addedId = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->insertTargetAmount($file, $keys, $allData, $month, $year);
-                if(isset($addedId['new']) && sizeof($addedId['new'])>0){
-                    $this->addFlash('success', 'Data inserted successfully!');
-                }elseif (isset($addedId['old']) && sizeof($addedId['old'])>0){
-                    $this->addFlash('success', 'Data updated successfully!');
-                }else{
-                    $this->addFlash('error', 'Something Wrong!');
+                //Update agent
+                $application = new Application($kernel);
+                $application->setAutoExit(false);
+
+                $input = new ArrayInput([
+                    'command' => 'app:update-agent'
+                ]);
+
+                $output = new NullOutput();
+
+                $application->run($input, $output);
+                //Update agent END
+
+                $notInsertedData = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->insertTargetAmount($file, $keys, $allData, $month, $year);
+
+                if($notInsertedData){
+                    $spreadsheet = new Spreadsheet();
+                    $sheet = $spreadsheet->getActiveSheet();
+
+//                    $sheet->setTitle("Problem District Target"); //Sheet name
+                    foreach ($notInsertedData as $key => $data) {
+                        if ($key === array_key_first($notInsertedData)){ //header
+                            $sheet->setCellValue("A1", "DistrictId");
+                            $sheet->setCellValue("B1", "District");
+                            $sheet->setCellValue("C1", "Broiler");
+                            $sheet->setCellValue("D1", "Layer");
+                            $sheet->setCellValue("E1", "Fish");
+                            $sheet->setCellValue("F1", "Cattle");
+                            $sheet->setCellValue("G1", "Sonali");
+                            $sheet->setCellValue("H1", "Month");
+                            $sheet->setCellValue("I1", "Year");
+                        }
+
+                        $cellCoordinate = $key + 2;
+
+                        $sheet->setCellValue("A" . $cellCoordinate, $data['DistrictId']);
+                        $sheet->setCellValue("B" . $cellCoordinate, $data['District']);
+                        $sheet->setCellValue("C" . $cellCoordinate, $data['Broiler'] ?: 0);
+                        $sheet->setCellValue("D" . $cellCoordinate, $data['Layer'] ?: 0);
+                        $sheet->setCellValue("E" . $cellCoordinate, $data['Fish'] ?: 0);
+                        $sheet->setCellValue("F" . $cellCoordinate, $data['Cattle'] ?: 0);
+                        $sheet->setCellValue("G" . $cellCoordinate, $data['Sonali'] ?: 0);
+                        $sheet->setCellValue("H" . $cellCoordinate, $data['Month']);
+                        $sheet->setCellValue("I" . $cellCoordinate, $data['Year']);
+
+                    }
+
+                    // Create xlsx file
+                    $filePath = $parameterBag->get('projectRoot') . '/public/uploads/problem_district_target_'.$month . '_' . $year . '_' . date('d-m-Y_H-s-i') .'_.xlsx';
+                    $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+                    $writer->setIncludeCharts(true);
+                    $writer->save($filePath);
+
+                    return $this->file($filePath)->deleteFileAfterSend();
                 }
                 break;
         }

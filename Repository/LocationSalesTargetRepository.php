@@ -161,11 +161,11 @@ class LocationSalesTargetRepository extends EntityRepository
 
     public function insertTargetAmount($file, $keys, $allData, $month, $year)
     {
-        set_time_limit(0);
         $data = [];
-        $addedId = [];
+//        $addedId = [];
         $em = $this->_em;
         $keysLength = count($keys);
+        $notInsertedData = [];
 
         foreach ($allData as $value){
             $data[] = array_combine($keys,array_slice($value, null, $keysLength));
@@ -173,13 +173,12 @@ class LocationSalesTargetRepository extends EntityRepository
         foreach ($data as $record){
 
             $district = $em->getRepository(Location::class)->findOneBy(['level' => 4,'code' => $record['DistrictId']]);
-
-            unset($record['DistrictId']); //Remove DistrictId From $record
-            unset($record['District']); //Remove District From $record
-
-            array_splice($record, -2);   //Remove Last two item(month, year) from $record
-
             if ($district){
+                unset($record['DistrictId']); //Remove DistrictId From $record
+                unset($record['District']); //Remove District From $record
+
+                array_splice($record, -2);   //Remove Last two item(month, year) from $record
+
                 foreach ($record as $key => $item) {
                     $breedType = $em->getRepository(MarkChart::class)->findOneBy(['name' => $key]);   //Breed Name exists or Not into MarkChart
 
@@ -200,20 +199,22 @@ class LocationSalesTargetRepository extends EntityRepository
                         $em->persist($districSales);
                         $em->flush();
 
-                        if ($exists){
-                            $addedId['old'][] = $exists->getId();
-                        }else{
-                            $addedId['new'][] = $districSales->getId();
-                        }
+//                        if ($exists){
+//                            $addedId['old'][] = $exists->getId();
+//                        }else{
+//                            $addedId['new'][] = $districSales->getId();
+//                        }
                     }
                 }
+            }else{
+                array_push($notInsertedData, $record);
             }
         }
         $file->setStatus(1);
 
         $em->persist($file);
         $em->flush();
-        return $addedId;
+        return $notInsertedData;
     }
 
 
