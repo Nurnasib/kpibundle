@@ -100,6 +100,21 @@ class FileUploadController extends AbstractController
         $monthYear = explode(',', $file->getMonthYear());
         $month = $monthYear[0];
         $year = $monthYear[1];
+
+        //Update agent
+        $application = new Application($kernel);
+        $application->setAutoExit(false);
+
+        $input = new ArrayInput([
+            'command' => 'app:update-agent'
+        ]);
+
+        $output = new NullOutput();
+
+        $application->run($input, $output);
+        //Update agent END
+
+
         //Read uploaded Excel File
         $reader = new Xlsx();
         $reader->setReadDataOnly(true); // remove empty rows
@@ -273,19 +288,6 @@ class FileUploadController extends AbstractController
 
                 break;
             case "district-sales-target":
-
-                //Update agent
-                $application = new Application($kernel);
-                $application->setAutoExit(false);
-
-                $input = new ArrayInput([
-                    'command' => 'app:update-agent'
-                ]);
-
-                $output = new NullOutput();
-
-                $application->run($input, $output);
-                //Update agent END
 
                 $notInsertedData = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->insertTargetAmount($file, $keys, $allData, $month, $year);
 
