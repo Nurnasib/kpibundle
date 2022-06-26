@@ -53,7 +53,12 @@
                             </td>
 
                             <td colspan="1">
-                                <button type="submit" class="btn btn-primary btn-sm" title="Search" value="Search"><i class="fa fa-search" aria-hidden="true"></i></button>
+                                <div class="btn-group">
+                                    <button type="submit" class="btn btn-primary btn-sm" title="Search" value="Search"><i class="fa fa-search" aria-hidden="true"></i></button>
+                                    <a href="{{ path('kpi_outstanding') }}" class="btn purple-bg btn-sm white-font" title="Reset" value="reset"><i class="fa fa-refresh" aria-hidden="true"></i></a>
+                                </div>
+
+
                             </td>
                         </tr>
                         <tr>
@@ -83,7 +88,7 @@
                             {% endfor %}
                         {% else %}
                         <tr>
-                            <td colspan="8" style="text-align: center">{{ 'No has been record found for '|trans }}{{ monthYear|join(', ') }}</td>
+                            <td colspan="8" style="text-align: center">{{ 'No record has been found for '|trans }}{{ monthYear|join(', ') }}</td>
                         </tr>
                         {% endif %}
                         </tbody>
