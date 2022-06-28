@@ -168,12 +168,34 @@ class AgentCategoryRepository extends EntityRepository
     {
         $prevYear = $board->getYear()-1;
 
-        $prevYearRecords = $this->getPreviousCategory($board->getMonth(), $prevYear, $districtsId);
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.agent', 'agent');
+        $qb->join('agent.district', 'district');
 
+        $qb->select('e AS prevYearDetails');
+        $qb->addSelect('district.id AS districtId');
+        $qb->where('district.id IN (:districtId)')->setParameter('districtId', $districtsId);
+        $qb->andWhere('e.month = :month')->setParameter('month', $board->getMonth());
+        $qb->andWhere('e.year = :year')->setParameter('year', $prevYear);
 
-        if (!$prevYearRecords){
+        $results = $qb->getQuery()->getResult();
+
+        $data = [];
+        foreach ($results as $result) {
+            if (!in_array($result['districtId'], $data)){
+                array_push($data, $result['districtId']);
+            }
+        }
+
+        $districtIdNotFoundPrevYear = array_merge(array_diff($districtsId, $data), array_diff($data,$districtsId));
+
+//        $prevYearRecords = $this->getPreviousCategory($board->getMonth(), $prevYear, $districtsId);
+
+//        dd($prevYearRecords);
+
+        if ($districtIdNotFoundPrevYear){
             if ($board->getMonth() == 'January'){
-                $districtsSales = $this->_em->getRepository(AgentOrder::class)->getAgentWithSalesQuantity(['January'], $prevYear, $districtsId);
+                $districtsSales = $this->_em->getRepository(AgentOrder::class)->getAgentWithSalesQuantity(['January'], $prevYear, $districtIdNotFoundPrevYear);
                 $createdMonth = $prevYear . '-01-01';
 
                 if ($districtsSales){ //if previous year january agent sales exists
@@ -212,7 +234,7 @@ class AgentCategoryRepository extends EntityRepository
                     }
 
                 }else{ //if previous year january agent sales does exists
-                    $districtsSales = $this->_em->getRepository(AgentOrder::class)->getAgentWithSalesQuantity(['January'], $board->getYear(), $districtsId);
+                    $districtsSales = $this->_em->getRepository(AgentOrder::class)->getAgentWithSalesQuantity(['January'], $board->getYear(), $districtIdNotFoundPrevYear);
 
                     foreach ($districtsSales as $districtsSale) {
 
