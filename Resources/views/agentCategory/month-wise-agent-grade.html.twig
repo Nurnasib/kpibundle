@@ -51,7 +51,11 @@
                                         </td>
                                         <td width="30%">
                                             <select data-action="{{ path('district_search_select2') }}" name="district" class="districtSearch" id="">
-                                                <option value="">Select District</option>
+                                                {% if selectedDistrict is defined and selectedDistrict is not empty %}
+                                                    <option value="{{ selectedDistrict.id }}">{{ selectedDistrict.name }}</option>
+                                                {% else %}
+                                                    <option value="">Select District</option>
+                                                {% endif %}
                                             </select>
                                         </td>
                                         <td>

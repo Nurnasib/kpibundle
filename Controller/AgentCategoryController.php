@@ -4,6 +4,7 @@
 namespace Terminalbd\KpiBundle\Controller;
 
 
+use App\Entity\Admin\Location;
 use App\Entity\Core\Agent;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -99,9 +100,9 @@ class AgentCategoryController extends AbstractController
         $prevYear = date("Y",strtotime("-1 year"));
 
         $allData = $request->query->all();
-        $requestData = isset($allData['monthYear'])?$allData['monthYear']:'';
+        $requestData = isset($allData['monthYear']) ? $allData['monthYear'] : '';
 //        $requestData = $request->query->get('monthYear');
-        $requestDistrict = isset($allData['district'])?$allData['district']:'';
+        $requestDistrict = isset($allData['district']) ? $allData['district'] : '';
 
         $filterBy = array('month'=>Date('F', strtotime(date('F') . " last month")),'year'=>date('Y'));
         if($requestData){
@@ -113,6 +114,8 @@ class AgentCategoryController extends AbstractController
             $filterBy['district'] = $requestDistrict;
         }
 
+        $selectedDistrict = $this->getDoctrine()->getRepository(Location::class)->find($requestDistrict);
+        
         $entities = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentGradeMonthWise($filterBy);
 
         $data = $this->paginate($request, $entities);
@@ -121,6 +124,7 @@ class AgentCategoryController extends AbstractController
         return $this->render('@TerminalbdKpi/agentCategory/month-wise-agent-grade.html.twig', [
             'entities' => $data,
             'selectedMonthYear' => $requestData,
+            'selectedDistrict' => $selectedDistrict,
             'prevYearGradeAndAverage' => $prevYearGradeAndAverage,
         ]);
     }

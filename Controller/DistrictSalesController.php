@@ -74,15 +74,13 @@ class DistrictSalesController extends AbstractController
         $entities = $this->getDoctrine()->getRepository(DistrictOrder::class)->findDistrictSearch($data);
         $districtSalesQty = $this->getDoctrine()->getRepository(DistrictOrder::class)->findDistrictOrderOty($data);
         $products = $this->getDoctrine()->getRepository(MarkChart::class)->salesProductItems();
-        return $this->render('@TerminalbdKpi/district/sales.html.twig',
-            [
-                'pagination' => $entities,
-                'items'=>$products,
-                'districtSalesQty'=>$districtSalesQty,
-                'selectedMonthYear'=>$requestData,
-                'district'=> $district,
-            ]
-        );
+        return $this->render('@TerminalbdKpi/district/sales.html.twig',[
+            'pagination' => $entities,
+            'items'=>$products,
+            'districtSalesQty'=>$districtSalesQty,
+            'selectedMonthYear'=>$requestData,
+            'district'=> $district,
+        ]);
     }
 
 }
