@@ -133,6 +133,13 @@ class EmployeeBoardController extends AbstractController
             $month = $monthYearArray[0];
             $year = $monthYearArray[1];
 
+            $findAgentSales = $this->getDoctrine()->getRepository(AgentOrder::class)->findBy(['month' => $month, 'year' => $year]);
+
+            if (!$findAgentSales){
+                $this->addFlash('warning', "Please upload data for {$monthYear}!");
+                return $this->redirectToRoute('kpi_board_new',['format' => $format]);
+            }
+
             if (!$emp->getPermanentDate()){
                 $this->addFlash('warning', "Only permanent employees can generate KPI!");
                 return $this->redirectToRoute('kpi_board_new',['format' => $format]);
