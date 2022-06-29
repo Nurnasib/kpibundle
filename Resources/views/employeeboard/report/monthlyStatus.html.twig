@@ -92,6 +92,7 @@
                                 {% endif %}
                                 <th>Employee ID</th>
                                 <th>Name</th>
+                                <th>Employee Status</th>
                                 {% for month in 1..12 %}
                                     {% set date = month ~ "/1/2021" %}
                                     <th>{{ date|date("F") }}</th>
@@ -111,6 +112,13 @@
                                                         {% endif %}
                                                         <td>{{ teamMember.userId }}</td>
                                                         <td>{{ teamMember.employeeName }}</td>
+                                                        <td align="center">
+                                                            {% if teamMember.permanentStatus %}
+                                                                <span class="btn btn-mini blue-bg white-font">Permanent</span>
+                                                            {% else %}
+                                                                <span class="btn btn-mini yellow-bg white-font">Temporary</span>
+                                                            {% endif %}
+                                                        </td>
                                                         {% for month in 1..12 %}
                                                             {% set date = month ~ "/1/2021" %}
                                                             {% set monthName = date|date("F") %}
@@ -119,7 +127,11 @@
                                                                 {% if kpiRecords[lineManagerId].teamMember[teamMember.userId].status[monthName] is defined %}
                                                                     <i class="fa fa-check green-font btn-mini btn-transparent"></i>
                                                                 {% else %}
-                                                                    <i class="fa fa-remove red-font btn-mini btn-transparent"></i>
+                                                                    {% if teamMember.permanentStatus %}
+                                                                        <i class="fa fa-remove red-font btn-mini btn-transparent"></i>
+                                                                    {% else %}
+                                                                        -
+                                                                    {% endif %}
                                                                 {% endif %}
                                                             </td>
                                                         {% endfor %}
