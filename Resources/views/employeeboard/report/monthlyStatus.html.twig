@@ -108,10 +108,25 @@
                                                     <tr>
                                                         {% if loop.first %}
                                                             <td rowspan="{{ employee['teamMember']|length }}">{{ loop.parent.loop.index }}</td>
-                                                            <td rowspan="{{ employee['teamMember']|length }}">{{ employee['lineManager'].name }}</td>
+                                                            <td rowspan="{{ employee['teamMember']|length }}">
+                                                                <div class="d-flex justify-content-between">
+                                                                    {{ employee['lineManager'].name }}
+                                                                    <a href="#" data-toggle="modal" data-action="{{ path('employee_details',{'id':employee['lineManager'].id}) }}" data-target="#detailsModal">
+                                                                        <i class="feather icon-eye" ></i>
+                                                                    </a>
+                                                                </div>
+                                                            </td>
                                                         {% endif %}
                                                         <td>{{ teamMember.userId }}</td>
-                                                        <td>{{ teamMember.employeeName }}</td>
+                                                        <td>
+                                                            <div class="d-flex justify-content-between">
+                                                                {{ teamMember.employeeName }}
+                                                                <a href="" data-toggle="modal" data-action="{{ path('employee_details',{'id':teamMember.id}) }}" data-target="#detailsModal">
+                                                                    <i class="feather icon-eye"></i>
+                                                                </a>
+                                                            </div>
+
+                                                        </td>
                                                         <td align="center">
                                                             {% if teamMember.permanentStatus %}
                                                                 <span class="btn btn-mini blue-bg white-font">Permanent</span>
@@ -182,6 +197,46 @@
             </div>
         <!-- [ Main Content ] end -->
     </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="display: block">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Employee Details</h4>
+                </div>
+
+                <div class="modal-body">
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    <style>
+        .modal-lg {
+            width: 65%;
+            max-width: 65%;
+            /*height: 100%;*/
+            padding: 0;
+        }
+
+        .modal-content {
+            height: auto;
+            min-height: 100%;
+            border-radius: 0;
+        }
+    </style>
+
+
+
+
+
+
+
+
 {% endblock %}
  {% block cssBlock %}
      <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
@@ -200,6 +255,18 @@
 {% endblock %}
 {% block documentready %}
     {{ parent() }}
+
+
+
+    {#    Append Employee details#}
+    jQuery("#detailsModal").on("show.bs.modal", function(e) {
+    var url = jQuery(e.relatedTarget).data('action');
+
+    jQuery.get( url, function( data ) {
+    jQuery(".modal-body").html(data.html);
+    });
+
+    });
 
     $('#datatable').DataTable( {
     pageLength: 25,
