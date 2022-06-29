@@ -148,10 +148,11 @@ class EmployeeBoardController extends AbstractController
             $permanentMonthYear = date('F-Y', strtotime($emp->getPermanentDate()));
 
             // check previous month KPI
-            $previousMonth = date('F', strtotime($month . " last month"));
+            $prevMonthNum  = date('m', strtotime($month)) - 1;
+            $dateObj   = \DateTime::createFromFormat('!m', $prevMonthNum);
+            $previousMonth = $dateObj->format('F'); // March
+//            $previousMonth = date('F', strtotime($month . " last month"));
             $findLastMonthKpi = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findOneBy(['employee' => $emp, 'month' => $previousMonth, 'year' => $year]);
-
-
 
             if ($permanentMonthYear != $monthYear){
 
