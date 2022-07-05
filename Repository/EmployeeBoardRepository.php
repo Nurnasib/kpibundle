@@ -293,4 +293,44 @@ class EmployeeBoardRepository extends EntityRepository
         return $data;
     }
 
+    public function getTopTenPeople($format, $month, $year)
+    {
+
+        $qb = $this->createQueryBuilder('e');
+
+        $qb->join('e.reportMode', 'reportMode');
+        $qb->join('e.employee', 'employee');
+
+        $qb->select('e.id', 'e.month', 'e.year', 'e.grade', 'e.obtainMark');
+        $qb->addSelect('reportMode.id AS reportModeId', 'reportMode.name AS reportModeName');
+        $qb->addSelect('employee.userId', 'employee.name');
+
+        $qb->where('e.process = :process')->setParameter('process', 'approved');
+        $qb->andWhere('e.month = :month')->setParameter('month', $month);
+        $qb->andWhere('e.year = :year')->setParameter('year', $year);
+        $qb->andWhere('reportMode.slug = :slug')->setParameter('slug', $format);
+        $qb->orderBy('e.obtainMark', 'DESC');
+        $qb->setMaxResults(10);
+
+        $results = $qb->getQuery()->getArrayResult();
+
+        $data = [];
+        foreach ($results as $result) {
+            $data[] = [
+                "employeeId" => "ID-" . $result['userId'],
+//                "employeeId" => " ",
+                "value" => $result['obtainMark'],
+            ];
+        }
+
+       return $data ? json_encode($data) : null;
+
+
+
+//        $arrayVar = [
+//            ["employeeId" => "ID-12345", "value" => 25],
+//            ["employeeId" => "ID-12543", "value" => 70],
+//        ];
+    }
+
 }
