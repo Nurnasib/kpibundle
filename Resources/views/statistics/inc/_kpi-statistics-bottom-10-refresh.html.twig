@@ -1,4 +1,4 @@
-<div id="bottom-ten-chart" class="chartdiv" style="height: 250px;"></div>
+<div id="bottom-ten-chart" class="chartdiv" style="height: 550px;"></div>
 <!-- Chart code -->
 <script>
     am5.ready(function () {
@@ -25,6 +25,19 @@
             // pinchZoomX:true
         }));
 
+        // Add Chart Title
+        chart.children.unshift(am5.Label.new(root, {
+            // text: "Top 10 Poultry People",
+            text: $("#bottomTenPeopleFormat option:selected").text(),
+            fontSize: 25,
+            fontWeight: "500",
+            textAlign: "center",
+            x: am5.percent(50),
+            centerX: am5.percent(50),
+            paddingTop: 0,
+            paddingBottom: 0
+        }));
+
         // Add cursor
         // https://www.amcharts.com/docs/v5/charts/xy-chart/cursor/
         var cursor = chart.set("cursor", am5xy.XYCursor.new(root, {}));
@@ -47,6 +60,18 @@
             renderer: xRenderer,
             // tooltip: am5.Tooltip.new(root, {})
         }));
+
+        // Label configuration
+        xAxis.get("renderer").labels.template.setAll({
+            // oversizedBehavior: "wrap",
+            rotation: 80,
+            // textAlign: "center",
+            centerX: 0,
+            fontWeight: "500",
+            fontSize: 18,
+            centerY: am5.percent(50),
+
+        });
 
         var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
             // maxDeviation: 0.3,

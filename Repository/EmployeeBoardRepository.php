@@ -322,8 +322,8 @@ class EmployeeBoardRepository extends EntityRepository
         $data = [];
         foreach ($results as $result) {
             $data[] = [
-                "employeeId" => "ID-" . $result['userId'],
-//                "employeeId" => " ",
+//                "employeeId" => "ID-" . $result['userId'],
+                "employeeId" => "ID-" . $result['userId'] . "\n" . $result['name'],
                 "value" => $result['obtainMark'],
             ];
         }

@@ -1,4 +1,4 @@
-<div id="top-ten-chart" class="chartdiv" style="height: 250px;"></div>
+<div id="top-ten-chart" class="chartdiv" style="min-height: 550px;"></div>
 <!-- Chart code -->
 <script>
     am5.ready(function () {
@@ -15,6 +15,7 @@
         ]);
 
 
+
         // Create chart
         // https://www.amcharts.com/docs/v5/charts/xy-chart/
         var chart = root.container.children.push(am5xy.XYChart.new(root, {
@@ -23,6 +24,19 @@
             // wheelX: "panX",
             // wheelY: "zoomX",
             // pinchZoomX:true
+        }));
+
+        // Add Chart Title
+        chart.children.unshift(am5.Label.new(root, {
+            // text: "Top 10 Poultry People",
+            text: $("#topTenPeopleFormat option:selected").text(),
+            fontSize: 25,
+            fontWeight: "500",
+            textAlign: "center",
+            x: am5.percent(50),
+            centerX: am5.percent(50),
+            paddingTop: 0,
+            paddingBottom: 0
         }));
 
         // Add cursor
@@ -41,12 +55,25 @@
             // paddingRight: 0
         });
 
+
         var xAxis = chart.xAxes.push(am5xy.CategoryAxis.new(root, {
             // maxDeviation: 0.3,
             categoryField: "employeeId",
             renderer: xRenderer,
             // tooltip: am5.Tooltip.new(root, {})
         }));
+
+        // Label configuration
+        xAxis.get("renderer").labels.template.setAll({
+            // oversizedBehavior: "wrap",
+            rotation: 80,
+            // textAlign: "center",
+            centerX: 0,
+            fontWeight: "500",
+            fontSize: 18,
+            centerY: am5.percent(50),
+
+        });
 
         var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
             // maxDeviation: 0.3,
