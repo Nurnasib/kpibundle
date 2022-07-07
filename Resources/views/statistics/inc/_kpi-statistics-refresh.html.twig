@@ -1,0 +1,250 @@
+<div class="col-md-6">
+    <div class="card-body p-0">
+        <table class="table table-striped table-bordered table-hover">
+            <thead class="thead-dark">
+            <tr>
+                <th class="text-center">{{ 'People'|trans }}</th>
+                <th class="text-center">{{ 'A+'|trans }}</th>
+                <th class="text-center">{{ 'A'|trans }}</th>
+                <th class="text-center">{{ 'B+'|trans }}</th>
+                <th class="text-center">{{ 'B'|trans }}</th>
+                <th class="text-center">{{ 'C'|trans }}</th>
+                <th class="text-center">{{ 'D'|trans }}</th>
+                <th class="text-center">{{ 'Total'|trans }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {# Mr. Shafiq's concept #}
+            {% set totalAplus = 0 %}
+            {% set totalA = 0 %}
+            {% set totalBplus = 0 %}
+            {% set totalB = 0 %}
+            {% set totalC = 0 %}
+            {% set totalD = 0 %}
+            {% set total = 0 %}
+            {#                        {% set pieChartData = [] %}#}
+
+            {% for format, row in formatWiseGradeNumberKpi %}
+                {% set total = total + row.total %}
+
+                <tr>
+                    <td>{{ format }}</td>
+                    <td align="right">
+                        {% if row['A+'] is defined %}
+                            {% set totalAplus = totalAplus + row['A+'].count %}
+
+                            {{ row['A+'].count }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </td>
+                    <td align="right">
+                        {% if row['A'] is defined %}
+                            {% set totalA = totalA + row['A'].count %}
+
+                            {{ row['A'].count }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </td>
+                    <td align="right">
+                        {% if row['B+'] is defined %}
+                            {% set totalBplus = totalBplus + row['B+'].count %}
+
+                            {{ row['B+'].count }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </td>
+                    <td align="right">
+                        {% if row['B'] is defined %}
+                            {% set totalB = totalB + row['B'].count %}
+
+                            {{ row['B'].count }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </td>
+                    <td align="right">
+                        {% if row['C'] is defined %}
+                            {% set totalC = totalC + row['C'].count %}
+
+                            {{ row['C'].count }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </td>
+                    <td align="right">
+                        {% if row['D'] is defined %}
+                            {% set totalD = totalD + row['D'].count %}
+
+                            {{ row['D'].count }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </td>
+                    <td align="right">{{ row.total|default(0) }}</td>
+                </tr>
+            {% endfor %}
+
+            {#                        {% set pieChartData = pieChartData|merge([#}
+            {#                            {grade: 'A+', value: (totalAplus)},#}
+            {#                            {grade: 'A', value: (totalA)},#}
+            {#                            {grade: 'B+', value: (totalBplus)},#}
+            {#                            {grade: 'B', value: (totalB)},#}
+            {#                            {grade: 'C', value: (totalC)},#}
+            {#                            {grade: 'D', value: (totalD)}#}
+            {#                        ]) %}#}
+
+            {#                        {% set pieChartData = [{grade: 'A+', value: (totalAplus)},{grade: 'A', value: (totalA)},{grade: 'B+', value: (totalBplus)},{grade: 'B', value: (totalB)},{grade: 'C', value: (totalC)},{grade: 'D', value: (totalD)}] %}#}
+            {#                        {% set pieChartData = "[{grade: A+, value: " ~ totalAplus ~ "}" ~ ",{grade: A, value: " ~ totalA ~ "}]" %}#}
+            {#                        {{ dump(pieChartData) }}#}
+
+
+            <tr>
+                <td align="center">Total</td>
+                <td align="right">{{ totalAplus }}</td>
+                <td align="right">{{ totalA }}</td>
+                <td align="right">{{ totalBplus }}</td>
+                <td align="right">{{ totalB }}</td>
+                <td align="right">{{ totalC }}</td>
+                <td align="right">{{ totalD }}</td>
+                <td align="right">{{ total }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+
+        <table class="table table-striped table-bordered table-hover">
+            <thead class="thead-dark">
+            <tr>
+                <th class="text-center">{{ 'People'|trans }}</th>
+                <th class="text-center">{{ 'A+'|trans }}</th>
+                <th class="text-center">{{ 'A'|trans }}</th>
+                <th class="text-center">{{ 'B+'|trans }}</th>
+                <th class="text-center">{{ 'B'|trans }}</th>
+                <th class="text-center">{{ 'C'|trans }}</th>
+                <th class="text-center">{{ 'D'|trans }}</th>
+                <th class="text-center">{{ 'Total'|trans }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for format, row in formatWiseGradeNumberKpi %}
+                <tr>
+                    <td>{{ format }}</td>
+                    <td align="right">{{ (row['A+'] is defined and row.total > 0) ? (((row['A+'].count * 100) / row.total)|number_format(0) ~ '%') : '0%' }}</td>
+                    <td align="right">{{ (row['A'] is defined and row.total > 0) ? (((row['A'].count * 100) / row.total)|number_format(0) ~ '%' ): '0%' }}</td>
+                    <td align="right">{{ (row['B+'] is defined and row.total > 0) ? (((row['B+'].count * 100) / row.total)|number_format(0) ~ '%') : '0%' }}</td>
+                    <td align="right">{{ (row['B'] is defined and row.total > 0) ? (((row['B'].count * 100) / row.total)|number_format(0) ~ '%') : '0%' }}</td>
+                    <td align="right">{{ (row['C'] is defined and row.total > 0) ? (((row['C'].count * 100) / row.total)|number_format(0) ~ '%') : '0%' }}</td>
+                    <td align="right">{{ (row['D'] is defined and row.total > 0) ? (((row['D'].count * 100) / row.total)|number_format(0) ~ '%') : '0%' }}</td>
+
+                    <td align="right">100%</td>
+                </tr>
+
+            {% endfor %}
+            {% if total > 0 %}
+                <tr>
+                    <td align="center">Total</td>
+                    <td align="right">{{ ((totalAplus * 100) / total)|number_format(0) ~ '%' }}</td>
+                    <td align="right">{{ ((totalA * 100) / total)|number_format(0) ~ '%' }}</td>
+                    <td align="right">{{ ((totalBplus * 100) / total)|number_format(0) ~ '%' }}</td>
+                    <td align="right">{{ ((totalB * 100) / total)|number_format(0) ~ '%' }}</td>
+                    <td align="right">{{ ((totalC * 100) / total)|number_format(0) ~ '%' }}</td>
+                    <td align="right">{{ ((totalD * 100) / total)|number_format(0) ~ '%' }}</td>
+                    <td align="right">{{ ((total * 100) / total)|number_format(0) ~ '%' }}</td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+
+
+    </div>
+</div>
+<div class="col-md-6">
+{#    <div id="kpi-statistics-chart" style="height: 370px; width: 100%;"></div>#}
+    <div id="kpi-statistics-chart" class="chartdiv"  style="height: 450px;"></div>
+
+    {% if totalAplus > 0 or totalA > 0 or totalBplus > 0 or totalB > 0 or totalC > 0 or totalD > 0 %}
+        <!-- Chart code -->
+        <script>
+            am5.ready(function () {
+                // Create root element
+                // https://www.amcharts.com/docs/v5/getting-started/#Root_element
+                var rootForStatisticsChart = am5.Root.new("kpi-statistics-chart");
+                rootForStatisticsChart._logo.dispose(); // hide logo
+
+                // Set themes
+                // https://www.amcharts.com/docs/v5/concepts/themes/
+                rootForStatisticsChart.setThemes([
+                    am5themes_Animated.new(rootForStatisticsChart),
+                    // am5themes_Micro.new(root),
+                    // am5themes_Dataviz.new(root),
+                    // am5themes_Dark.new(root),
+                    am5themes_Frozen.new(rootForStatisticsChart),
+                    // am5themes_Kelly.new(root),
+                    // am5themes_Material.new(root),
+                    // am5themes_Moonrise.new(root),
+                    // am5themes_Responsive.new(root),
+                    // am5themes_Spirited.new(root),
+                ]);
+
+
+                // Create chart
+                // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/
+                var chart = rootForStatisticsChart.container.children.push(
+                    am5percent.PieChart.new(rootForStatisticsChart, {
+                        endAngle: 200
+                    })
+                );
+
+                // Create series
+                // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/#Series
+                var series = chart.series.push(
+                    am5percent.PieSeries.new(rootForStatisticsChart, {
+                        valueField: "value",
+                        categoryField: "grade",
+                        endAngle: 270
+                    })
+                );
+
+                series.states.create("hidden", {
+                    endAngle: -90
+                });
+
+
+                // Set data
+                // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/#Setting_data
+                const pieChartData = [{
+                    grade: "A+",
+                    value: {{ total > 0 ? ((totalAplus * 100) / total)|number_format(0) : 0 }}
+                }, {
+                    grade: "A",
+                    value: {{ total > 0 ? ((totalA * 100) / total)|number_format(0) : 0 }}
+                }, {
+                    grade: "B+",
+                    value: {{ total > 0 ? ((totalBplus * 100) / total)|number_format(0) : 0 }}
+                }, {
+                    grade: "B",
+                    value: {{ total > 0 ? ((totalB * 100) / total)|number_format(0) : 0 }}
+                }, {
+                    grade: "C",
+                    value: {{ total > 0 ? ((totalC * 100) / total)|number_format(0) : 0 }}
+                }, {
+                    grade: "D",
+                    value: {{ total > 0 ? ((totalD * 100) / total)|number_format(0) : 0 }}
+                }];
+
+                series.data.setAll(pieChartData);
+
+                series.appear(1000, 100);
+
+            }); // end am5.ready()
+        </script>
+    {% endif %}
+
+</div>
+
+
+
+

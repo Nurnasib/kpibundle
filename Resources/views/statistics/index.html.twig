@@ -1,0 +1,406 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <!-- Amcharts Resources -->
+    {#            <script src="https://cdn.amcharts.com/lib/5/index.js"></script>#}
+    <script src="{{ asset('assets/plugins/amchart/am5/index.js') }}"></script>
+    <script src="{{ asset('assets/plugins/amchart/am5/xy.js') }}"></script>
+    <script src="{{ asset('assets/plugins/amchart/js/percent.js') }}"></script>
+    <script src="{{ asset('assets/plugins/amchart/themes/Animated.js') }}"></script>
+    <script src="{{ asset('assets/plugins/amchart/themes/Frozen.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+    <div class="pcoded-inner-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                        <li class="breadcrumb-item">{{ 'KPI Statistics'|trans }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+
+        <div class="row">
+            <div class="card">
+                <div class="card-header">
+                    <h5>KPI Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <h6 class="mb-0">{{ 'Top 10 People'|trans|upper }}</h6>
+                                    <form action="{{ path('kpi_statistics_top_ten_refresh') }}"
+                                          id="kpiStatisticsTopTenFilterForm" method="post">
+                                        <table width="100%">
+                                            <thead>
+                                            <tr>
+                                                <th width="40%">
+                                                    <select name="topTenPeopleFormat" id="topTenPeopleFormat"
+                                                            class="form-control" style="height: 31px !important;">
+                                                        <option value="">- People -</option>
+                                                        <option value="poultry-service">{{ 'Top 10 Poultry People'|trans }}</option>
+                                                        <option value="aqua-service">{{ 'Top 10 Fish People'|trans }}</option>
+                                                        <option value="cattle-service">{{ 'Top 10 Cattle People'|trans }}</option>
+                                                        <option value="spo-format">{{ 'Top 10 Sales People'|trans }}</option>
+                                                    </select>
+                                                </th>
+                                                <th width="40%">
+                                                    <input type="text" name="monthYear" id="monthYearTopTenFilter"
+                                                           value=""
+                                                           placeholder="Month,Year" class="inputMonth form-control"
+                                                           autocomplete="off">
+                                                </th>
+                                                <th width="10%">
+                                                    <div class="btn-group">
+                                                        <button type="submit" class="btn btn-primary btn-sm"><i
+                                                                    class="fa fa-search"></i></button>
+                                                        {#                                                        <a href="{{ path('kpi_statistics_index') }}"#}
+                                                        {#                                                           class="btn purple-bg btn-sm white-font" title="Reset"#}
+                                                        {#                                                           value="reset"><i class="fa fa-refresh" aria-hidden="true"></i></a>#}
+                                                        <button type="reset" id="kpi-statistics-top-ten-reset"
+                                                                class="btn purple-bg btn-sm white-font reset"
+                                                                title="Reset"
+                                                                value="reset"><i class="fa fa-refresh"
+                                                                                 aria-hidden="true"></i></button>
+                                                    </div>
+
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                        </table>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="row mb-3" id="kpi-statistics-top-ten-refresh-area">
+                                <div class="col">
+                                    {% if topTenPeople %}
+                                        {% include '@TerminalbdKpi/statistics/inc/_kpi-statistics-top-10-refresh.html.twig' %}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-7 offset-5">
+                                    <h6 class="mb-0">{{ 'Bottom 10 People'|trans|upper }}</h6>
+                                    <form action="{{ path('kpi_statistics_bottom_ten_refresh') }}"
+                                          id="kpiStatisticsBottomTenFilterForm" method="post">
+                                        <table width="100%">
+                                            <thead>
+                                            <tr>
+                                                <th width="40%">
+                                                    <select name="bottomTenPeopleFormat" id="bottomTenPeopleFormat"
+                                                            class="form-control" style="height: 31px !important;">
+                                                        <option value="">- People -</option>
+                                                        <option value="poultry-service">{{ 'Bottom 10 Poultry People'|trans }}</option>
+                                                        <option value="aqua-service">{{ 'Bottom 10 Fish People'|trans }}</option>
+                                                        <option value="cattle-service">{{ 'Bottom 10 Cattle People'|trans }}</option>
+                                                        <option value="spo-format">{{ 'Bottom 10 Sales People'|trans }}</option>
+                                                    </select>
+                                                </th>
+                                                <th width="40%">
+                                                    <input type="text" name="monthYear" id="monthYearBottomTenFilter"
+                                                           value=""
+                                                           placeholder="Month,Year" class="inputMonth form-control"
+                                                           autocomplete="off">
+                                                </th>
+                                                <th width="10%">
+                                                    <div class="btn-group">
+                                                        <button type="submit" class="btn btn-primary btn-sm"><i
+                                                                    class="fa fa-search"></i></button>
+                                                        <button type="reset" id="kpi-statistics-bottom-ten-reset"
+                                                                class="btn purple-bg btn-sm white-font reset"
+                                                                title="Reset"
+                                                                value="reset"><i class="fa fa-refresh"
+                                                                                 aria-hidden="true"></i></button>
+                                                    </div>
+
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                        </table>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="row mb-3" id="kpi-statistics-bottom-ten-refresh-area">
+                                <div class="col">
+                                    {% if bottomTenPeople %}
+                                        {% include '@TerminalbdKpi/statistics/inc/_kpi-statistics-bottom-10-refresh.html.twig' %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {#<div id="data-loader-kpi-statistics-top-ten-area">#}
+                    {#    <img src="{{ asset('/assets/images/loader-hen.gif') }}" alt="processing..."/>#}
+                    {#    <p>Please Wait...</p>#}
+                    {#</div>#}
+
+
+                    <div class="row">
+                        <div class="col-md-6"></div>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-7 offset-5">
+                                    <h6 class="mb-0">{{ 'KPI Status'|trans|upper }}</h6>
+                                    <form action="{{ path('kpi_statistics_refresh') }}" id="kpiStatisticsFilterForm"
+                                          method="post">
+                                        <table width="100%">
+                                            <thead>
+                                            <tr>
+                                                <th width="40%">
+                                                    <select name="reportFormat" id="reportFormat" class="form-control"
+                                                            style="height: 31px !important;">
+                                                        <option value="">- All Format -</option>
+                                                        {% for format in reportFormat %}
+                                                            <option value="{{ format.id }}">{{ format.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </th>
+                                                <th width="40%">
+                                                    <input type="text" name="monthYear"
+                                                           id="monthYearKpiStatisticsFilter"
+                                                           value="{{ month ~','~ year }}"
+                                                           placeholder="Month,Year" class="inputMonth form-control"
+                                                           autocomplete="off">
+                                                </th>
+                                                <th width="10%">
+                                                    <div class="btn-group">
+                                                        <button type="submit" class="btn btn-primary btn-sm"><i
+                                                                    class="fa fa-search"></i></button>
+                                                        <button type="reset" id="kpi-statistics-reset"
+                                                                class="btn purple-bg btn-sm white-font" title="Reset"
+                                                                value="reset"><i class="fa fa-refresh"
+                                                                                 aria-hidden="true"></i></button>
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                        </table>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" id="kpi-statistics-refresh-area">
+                        {% if formatWiseGradeNumberKpi %}
+                            {% include '@TerminalbdKpi/statistics/inc/_kpi-statistics-refresh.html.twig' %}
+                        {% endif %}
+
+                    </div>
+
+                    {#<div id="data-loader-kpi-statistics-area">#}
+                    {#    <img src="{{ asset('/assets/images/loader-hen.gif') }}" alt="processing..."/>#}
+                    {#    <p>Please Wait...</p>#}
+                    {#</div>#}
+                </div>
+            </div>
+        </div>
+
+        <!-- [ Main Content ] end -->
+    </div>
+{% endblock %}
+{% block cssBlock %}
+    <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+    <style>
+        .ui-datepicker-calendar {
+            display: none
+        }
+
+        .nav li a.active {
+            background-color: #007bff;
+        }
+
+        #data-loader {
+            /*background: rgba(175, 175, 175, 0.8);*/
+            background: transparent;
+            display: none;
+            height: 10%;
+            position: absolute;
+            width: 96.7%;
+            z-index: 9999;
+            top: 108px;
+        }
+
+        #data-loader img {
+            left: 50%;
+            /* margin-left: -32px; */
+            margin-top: -32px;
+            position: absolute;
+            top: 50%;
+            border-bottom: 3px solid #fff;
+            width: 5vh;
+        }
+
+        #data-loader p {
+            left: 50%;
+            margin-left: -18px;
+            /*margin-top: -32px;*/
+            position: absolute;
+            top: 54%;
+            color: #ff5300;
+            /*font-size: 16px;*/
+            margin-bottom: 0px;
+            font-weight: 700;
+        }
+
+        #data-loader-kpi-statistics-area {
+            /*background: rgba(175, 175, 175, 0.8);*/
+            background: transparent;
+            display: none;
+            height: 10%;
+            /*position: absolute;*/
+            width: 96.7%;
+            z-index: 9999;
+            top: 108px;
+        }
+
+        #data-loader-kpi-statistics-area img {
+            left: 50%;
+            /* margin-left: -32px; */
+            margin-top: -17px;
+            position: absolute;
+            top: 65%;
+            border-bottom: 3px solid #fff;
+            width: 5vh;
+        }
+
+        #data-loader-kpi-statistics-area p {
+            left: 50%;
+            margin-left: -18px;
+            /*margin-top: -32px;*/
+            position: absolute;
+            top: 69%;
+            color: #ff5300;
+            /*font-size: 16px;*/
+            margin-bottom: 0px;
+            font-weight: 700;
+        }
+
+        .chartdiv {
+            width: 100%;
+        }
+    </style>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+    <script>
+
+        //KPI statistics Filter
+        $("#kpiStatisticsFilterForm").submit(function (e) {
+            e.preventDefault();
+            $("#data-loader-kpi-statistics-area").fadeIn();
+
+            const reportFormatId = $("#reportFormat").val();
+            const monthYear = $("#monthYearKpiStatisticsFilter").val();
+            const action = $("#kpiStatisticsFilterForm").attr("action");
+
+            if (monthYear) {
+                $.ajax({
+                    type: "POST",
+                    url: action,
+                    data: {reportFormatId: reportFormatId, monthYear: monthYear},
+                    success: function (res) {
+                        $("#data-loader-kpi-statistics-area").fadeOut();
+                        $("#kpi-statistics-refresh-area").html(res.html);
+
+                    }
+                })
+            }
+        });
+
+        //KPI statistics top ten Filter
+        $("#kpiStatisticsTopTenFilterForm").submit(function (e) {
+            e.preventDefault();
+            const topTenPeopleFormatSlug = $("#topTenPeopleFormat").val();
+            const monthYear = $("#monthYearTopTenFilter").val();
+            const action = $("#kpiStatisticsTopTenFilterForm").attr("action");
+
+            if (monthYear && topTenPeopleFormatSlug) {
+                $.ajax({
+                    type: "POST",
+                    url: action,
+                    data: {topTenPeopleFormatSlug: topTenPeopleFormatSlug, monthYear: monthYear},
+                    success: function (res) {
+                        $("#kpi-statistics-top-ten-refresh-area").html(res.html);
+
+                    }
+                })
+            }
+        });
+
+        //KPI statistics bottom ten Filter
+        $("#kpiStatisticsBottomTenFilterForm").submit(function (e) {
+            e.preventDefault();
+            const bottomTenPeopleFormatSlug = $("#bottomTenPeopleFormat").val();
+            const monthYear = $("#monthYearBottomTenFilter").val();
+            const action = $("#kpiStatisticsBottomTenFilterForm").attr("action");
+
+            if (monthYear && bottomTenPeopleFormatSlug) {
+                $.ajax({
+                    type: "POST",
+                    url: action,
+                    data: {bottomTenPeopleFormatSlug: bottomTenPeopleFormatSlug, monthYear: monthYear},
+                    success: function (res) {
+                        $("#kpi-statistics-bottom-ten-refresh-area").html(res.html);
+
+                    }
+                })
+            }
+        });
+
+        // Top ten reset
+        $("button#kpi-statistics-top-ten-reset").on("click", function () {
+            $("#kpi-statistics-top-ten-refresh-area").html('');
+        });
+
+        // Bottom ten reset
+        $("button#kpi-statistics-bottom-ten-reset").on("click", function () {
+            $("#kpi-statistics-bottom-ten-refresh-area").html('');
+        });
+
+        // KPI statistics reset
+        $("button#kpi-statistics-reset").on("click", function () {
+            $("#kpi-statistics-refresh-area").html('');
+        });
+
+
+        // Month Year Picker
+        $('.inputMonth').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: 'MM,yy',
+            yearRange: "2020:" + new Date().getFullYear(),
+
+            onClose: function () {
+                var iMonth = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+                var iYear = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+                $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
+            },
+
+            beforeShow: function () {
+                if ((selDate = $(this).val()).length > 0) {
+                    iYear = selDate.substring(selDate.length - 4, selDate.length);
+                    iMonth = jQuery.inArray(selDate.substring(0, selDate.length - 5), $(this).datepicker('option', 'monthNames'));
+                    $(this).datepicker('option', 'defaultDate', new Date(iYear, iMonth, 1));
+                    $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
+                }
+            }
+        });
+
+
+    </script>
+{% endblock %}

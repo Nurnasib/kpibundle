@@ -1,7 +1,10 @@
 <ul class="" aria-labelledby="navbarDropdownMenuLink">
     <li><a class="dropdown-item" href="{{ path('kpi_employee_board') }}">{{ 'KPI Board'|trans }}</a></li>
+    {% if is_granted("ROLE_KPI_ADMIN") or is_granted("ROLE_DEVELOPER") %}
+        <li><a class="dropdown-item" href="{{ path('kpi_statistics_index') }}">{{ 'KPI Statistics'|trans }}</a></li>
+    {% endif %}
 
-    {% if is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_LINE_MANAGER') or is_granted("ROLE_DEVELOPER") %}
+    {% if is_granted("ROLE_KPI_ADMIN") or is_granted("ROLE_LINE_MANAGER") or is_granted("ROLE_DEVELOPER") %}
         <li><a class="dropdown-item" href="javascript:">{{ 'Report'|trans }}</a>
             <ul>
                 <li><a class="dropdown-item" href="{{ path('all_team_member_summary') }}">{{ 'All Employee KPI'|trans }}</a></li>

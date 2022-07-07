@@ -293,7 +293,7 @@ class EmployeeBoardRepository extends EntityRepository
         return $data;
     }
 
-    public function getTopTenPeople($format, $month, $year)
+    public function getRankingPeople($format, $month, $year, $flag)
     {
 
         $qb = $this->createQueryBuilder('e');
@@ -309,7 +309,12 @@ class EmployeeBoardRepository extends EntityRepository
         $qb->andWhere('e.month = :month')->setParameter('month', $month);
         $qb->andWhere('e.year = :year')->setParameter('year', $year);
         $qb->andWhere('reportMode.slug = :slug')->setParameter('slug', $format);
-        $qb->orderBy('e.obtainMark', 'DESC');
+        
+        if ($flag === 'top'){
+            $qb->orderBy('e.obtainMark', 'DESC');
+        }elseif ($flag === 'bottom'){
+            $qb->orderBy('e.obtainMark', 'ASC');
+        }
         $qb->setMaxResults(10);
 
         $results = $qb->getQuery()->getArrayResult();
