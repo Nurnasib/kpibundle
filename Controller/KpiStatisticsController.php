@@ -50,10 +50,7 @@ class KpiStatisticsController extends AbstractController
         $settingType = $this->getDoctrine()->getRepository(SettingType::class)->findOneBy(['slug' => 'report-mode', 'status' => 1]);
         $reportFormat = $this->getDoctrine()->getRepository(Setting::class)->findBy(['settingType' => $settingType, 'status' => 1]);
         
-        $formatWiseGradeNumberKpi = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getFormatWiseGradeNumberKpi($selectedFormat, $previousMonth, $year);
-
         return $this->render('@TerminalbdKpi/statistics/index.html.twig',[
-            'formatWiseGradeNumberKpi' => $formatWiseGradeNumberKpi,
             'reportFormat' => $reportFormat,
             'month' => $previousMonth,
             'year' => $year,
@@ -68,10 +65,36 @@ class KpiStatisticsController extends AbstractController
      */
     public function kpiStatisticsRefresh(Request $request)
     {
-        $reportFormatId = $request->request->get('reportFormatId');
-        $monthYear = explode(',', $request->request->get('monthYear'));
+        $selectedFormat = $request->request->get('reportFormatId');
+//        $monthYear = explode(',', $request->request->get('monthYear'));
+        $startMonthYear = explode(',', $request->request->get('startMonthYear'));
+        $endMonthYear = explode(',', $request->request->get('endMonthYear'));
 
-        $formatWiseGradeNumberKpi = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getFormatWiseGradeNumberKpi($reportFormatId, $monthYear[0], $monthYear[1]);
+        $startMonth = $startMonthYear[0];
+        $startYear = $startMonthYear[1];
+
+        $endMonth = $endMonthYear[0];
+        $endYear = $endMonthYear[1];
+
+        $start    = (new \DateTime($startMonth.'-'.$startYear))->modify('first day of this month');
+        $end      = (new \DateTime($endMonth.'-'.$endYear))->modify('first day of next month');
+        $interval = \DateInterval::createFromDateString('1 month');
+        $period   = new \DatePeriod($start, $interval, $end);
+
+        $months = [];
+        foreach ($period as $dt) {
+            array_push($months, $dt->format("F"));
+        }
+        $months = array_unique($months);
+
+        $years = [];
+
+        for ($startYear; $startYear <= $endYear; $startYear++){
+            array_push($years, $startYear);
+        }
+
+        $formatWiseGradeNumberKpi = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getFormatWiseGradeNumberKpi($selectedFormat, $months, $years);
+//        $formatWiseGradeNumberKpi = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getFormatWiseGradeNumberKpi($reportFormatId, $monthYear[0], $monthYear[1]);
 
         if ($formatWiseGradeNumberKpi){
             $html = $this->renderView('@TerminalbdKpi/statistics/inc/_kpi-statistics-refresh.html.twig',[

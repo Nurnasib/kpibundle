@@ -159,14 +159,15 @@
                         <div class="col-md-6"></div>
                         <div class="col-md-6">
                             <div class="row">
-                                <div class="col-md-7 offset-5">
-                                    <h6 class="mb-0">{{ 'KPI Status'|trans|upper }}</h6>
+                                <div class="col">
+{#                                    <h6 class="mb-0">{{ 'KPI Status'|trans|upper }}</h6>#}
                                     <form action="{{ path('kpi_statistics_refresh') }}" id="kpiStatisticsFilterForm"
                                           method="post">
                                         <table width="100%">
                                             <thead>
                                             <tr>
-                                                <th width="40%">
+                                                <th width="30%">
+                                                    <h6 class="mb-0">{{ 'KPI Status'|trans|upper }}</h6>
                                                     <select name="reportFormat" id="reportFormat" class="form-control"
                                                             style="height: 31px !important;">
                                                         <option value="">- All Format -</option>
@@ -175,15 +176,29 @@
                                                         {% endfor %}
                                                     </select>
                                                 </th>
-                                                <th width="40%">
-                                                    <input type="text" name="monthYear"
-                                                           id="monthYearKpiStatisticsFilter"
-                                                           value="{{ month ~','~ year }}"
+{#                                                <th width="40%">#}
+{#                                                    <input type="text" name="monthYear"#}
+{#                                                           id="monthYearKpiStatisticsFilter"#}
+{#                                                           value="{{ month ~','~ year }}"#}
+{#                                                           placeholder="Month,Year" class="inputMonth form-control"#}
+{#                                                           autocomplete="off">#}
+{#                                                </th>#}
+                                                <th width="30%">
+                                                    <h6 class="mb-0">{{ 'Start'|trans|upper }}</h6>
+                                                    <input type="text" name="startMonthYear" id="startMonthYearKpiStatisticsFilter"
+                                                           value=""
+                                                           placeholder="Month,Year" class="inputMonth form-control"
+                                                           autocomplete="off">
+                                                </th>
+                                                <th width="30%">
+                                                    <h6 class="mb-0">{{ 'End'|trans|upper }}</h6>
+                                                    <input type="text" name="endMonthYear" id="endMonthYearKpiStatisticsFilter"
+                                                           value=""
                                                            placeholder="Month,Year" class="inputMonth form-control"
                                                            autocomplete="off">
                                                 </th>
                                                 <th width="10%">
-                                                    <div class="btn-group">
+                                                    <div class="btn-group" style="margin-top: 17px">
                                                         <button type="submit" class="btn btn-primary btn-sm"><i
                                                                     class="fa fa-search"></i></button>
                                                         <button type="reset" id="kpi-statistics-reset"
@@ -200,13 +215,7 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="row" id="kpi-statistics-refresh-area">
-                        {% if formatWiseGradeNumberKpi %}
-                            {% include '@TerminalbdKpi/statistics/inc/_kpi-statistics-refresh.html.twig' %}
-                        {% endif %}
-
-                    </div>
+                    <div class="row" id="kpi-statistics-refresh-area"></div>
 
                     {#<div id="data-loader-kpi-statistics-area">#}
                     {#    <img src="{{ asset('/assets/images/loader-hen.gif') }}" alt="processing..."/>#}
@@ -312,14 +321,15 @@
             $("#data-loader-kpi-statistics-area").fadeIn();
 
             const reportFormatId = $("#reportFormat").val();
-            const monthYear = $("#monthYearKpiStatisticsFilter").val();
+            const startMonthYear = $("#startMonthYearKpiStatisticsFilter").val();
+            const endMonthYear = $("#endMonthYearKpiStatisticsFilter").val();
             const action = $("#kpiStatisticsFilterForm").attr("action");
 
-            if (monthYear) {
+            if (startMonthYear && endMonthYear) {
                 $.ajax({
                     type: "POST",
                     url: action,
-                    data: {reportFormatId: reportFormatId, monthYear: monthYear},
+                    data: {reportFormatId: reportFormatId, startMonthYear: startMonthYear, endMonthYear: endMonthYear},
                     success: function (res) {
                         $("#data-loader-kpi-statistics-area").fadeOut();
                         $("#kpi-statistics-refresh-area").html(res.html);

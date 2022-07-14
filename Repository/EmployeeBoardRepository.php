@@ -256,10 +256,8 @@ class EmployeeBoardRepository extends EntityRepository
         ksort($data);
         return $data;
     }
-
-
-
-    public function getFormatWiseGradeNumberKpi($selectedFormat, $month, $year)
+    
+    public function getFormatWiseGradeNumberKpi($selectedFormat, $months, $years)
     {
         $qb = $this->createQueryBuilder('e');
 
@@ -269,8 +267,8 @@ class EmployeeBoardRepository extends EntityRepository
         $qb->addSelect('reportMode.id AS reportModeId', 'reportMode.name AS reportModeName');
 
         $qb->where('e.process = :process')->setParameter('process', 'approved');
-        $qb->andWhere('e.month = :month')->setParameter('month', $month);
-        $qb->andWhere('e.year = :year')->setParameter('year', $year);
+        $qb->andWhere('e.month IN (:months)')->setParameter('months', $months);
+        $qb->andWhere('e.year IN (:years)')->setParameter('years', $years);
         if ($selectedFormat){
             $qb->andWhere('reportMode.id = :reportModeId')->setParameter('reportModeId', $selectedFormat);
         }
@@ -284,7 +282,6 @@ class EmployeeBoardRepository extends EntityRepository
             $data[$result['reportModeName']][$result['grade']]['count'] = count($data[$result['reportModeName']][$result['grade']]['details']);
 
             $data[$result['reportModeName']]['total'] = array_sum(array_column($data[$result['reportModeName']], 'count'));
-
 
         }
         unset($data['gradeWiseTotal']);
