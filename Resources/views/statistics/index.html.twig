@@ -36,14 +36,15 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="row">
-                                <div class="col-md-7">
-                                    <h6 class="mb-0">{{ 'Top 10 People'|trans|upper }}</h6>
+                                <div class="col">
+{#                                    <h6 class="mb-0">{{ 'Top 10 People'|trans|upper }}</h6>#}
                                     <form action="{{ path('kpi_statistics_top_ten_refresh') }}"
                                           id="kpiStatisticsTopTenFilterForm" method="post">
                                         <table width="100%">
                                             <thead>
                                             <tr>
-                                                <th width="40%">
+                                                <th width="30%">
+                                                    <h6 class="mb-0">{{ 'Top 10 People'|trans|upper }}</h6>
                                                     <select name="topTenPeopleFormat" id="topTenPeopleFormat"
                                                             class="form-control" style="height: 31px !important;">
                                                         <option value="">- People -</option>
@@ -53,19 +54,27 @@
                                                         <option value="spo-format">{{ 'Top 10 Sales People'|trans }}</option>
                                                     </select>
                                                 </th>
-                                                <th width="40%">
-                                                    <input type="text" name="monthYear" id="monthYearTopTenFilter"
+                                                <th width="30%">
+                                                    <h6 class="mb-0">{{ 'Start'|trans|upper }}</h6>
+                                                    <input type="text" name="startMonthYear" id="startMonthYearTopTenFilter"
+                                                           value=""
+                                                           placeholder="Month,Year" class="inputMonth form-control"
+                                                           autocomplete="off">
+                                                </th>
+                                                <th width="30%">
+                                                    <h6 class="mb-0">{{ 'End'|trans|upper }}</h6>
+                                                    <input type="text" name="endMonthYear" id="endMonthYearTopTenFilter"
                                                            value=""
                                                            placeholder="Month,Year" class="inputMonth form-control"
                                                            autocomplete="off">
                                                 </th>
                                                 <th width="10%">
-                                                    <div class="btn-group">
+                                                    <div class="btn-group" style="margin-top: 17px">
                                                         <button type="submit" class="btn btn-primary btn-sm"><i
                                                                     class="fa fa-search"></i></button>
-                                                        {#                                                        <a href="{{ path('kpi_statistics_index') }}"#}
-                                                        {#                                                           class="btn purple-bg btn-sm white-font" title="Reset"#}
-                                                        {#                                                           value="reset"><i class="fa fa-refresh" aria-hidden="true"></i></a>#}
+{#                                                        <a href="{{ path('kpi_statistics_index') }}"#}
+{#                                                           class="btn purple-bg btn-sm white-font" title="Reset"#}
+{#                                                           value="reset"><i class="fa fa-refresh" aria-hidden="true"></i></a>#}
                                                         <button type="reset" id="kpi-statistics-top-ten-reset"
                                                                 class="btn purple-bg btn-sm white-font reset"
                                                                 title="Reset"
@@ -80,25 +89,21 @@
                                     </form>
                                 </div>
                             </div>
-                            <div class="row mb-3" id="kpi-statistics-top-ten-refresh-area">
-                                <div class="col">
-                                    {% if topTenPeople %}
-                                        {% include '@TerminalbdKpi/statistics/inc/_kpi-statistics-top-10-refresh.html.twig' %}
-                                    {% endif %}
-                                </div>
-                            </div>
-
+                            <div class="row mb-3" id="kpi-statistics-top-ten-refresh-area"></div>
                         </div>
+
+
                         <div class="col-md-6">
                             <div class="row">
-                                <div class="col-md-7 offset-5">
-                                    <h6 class="mb-0">{{ 'Bottom 10 People'|trans|upper }}</h6>
+                                <div class="col">
+{#                                    <h6 class="mb-0">{{ 'Bottom 10 People'|trans|upper }}</h6>#}
                                     <form action="{{ path('kpi_statistics_bottom_ten_refresh') }}"
                                           id="kpiStatisticsBottomTenFilterForm" method="post">
                                         <table width="100%">
                                             <thead>
                                             <tr>
-                                                <th width="40%">
+                                                <th width="30%">
+                                                    <h6 class="mb-0">{{ 'Bottom 10 People'|trans|upper }}</h6>
                                                     <select name="bottomTenPeopleFormat" id="bottomTenPeopleFormat"
                                                             class="form-control" style="height: 31px !important;">
                                                         <option value="">- People -</option>
@@ -108,14 +113,22 @@
                                                         <option value="spo-format">{{ 'Bottom 10 Sales People'|trans }}</option>
                                                     </select>
                                                 </th>
-                                                <th width="40%">
-                                                    <input type="text" name="monthYear" id="monthYearBottomTenFilter"
+                                                <th width="30%">
+                                                    <h6 class="mb-0">{{ 'Start'|trans|upper }}</h6>
+                                                    <input type="text" name="startMonthYear" id="startMonthYearBottomTenFilter"
+                                                           value=""
+                                                           placeholder="Month,Year" class="inputMonth form-control"
+                                                           autocomplete="off">
+                                                </th>
+                                                <th width="30%">
+                                                    <h6 class="mb-0">{{ 'End'|trans|upper }}</h6>
+                                                    <input type="text" name="endMonthYear" id="endMonthYearBottomTenFilter"
                                                            value=""
                                                            placeholder="Month,Year" class="inputMonth form-control"
                                                            autocomplete="off">
                                                 </th>
                                                 <th width="10%">
-                                                    <div class="btn-group">
+                                                    <div class="btn-group" style="margin-top: 17px">
                                                         <button type="submit" class="btn btn-primary btn-sm"><i
                                                                     class="fa fa-search"></i></button>
                                                         <button type="reset" id="kpi-statistics-bottom-ten-reset"
@@ -132,13 +145,7 @@
                                     </form>
                                 </div>
                             </div>
-                            <div class="row mb-3" id="kpi-statistics-bottom-ten-refresh-area">
-                                <div class="col">
-                                    {% if bottomTenPeople %}
-                                        {% include '@TerminalbdKpi/statistics/inc/_kpi-statistics-bottom-10-refresh.html.twig' %}
-                                    {% endif %}
-                                </div>
-                            </div>
+                            <div class="row mb-3" id="kpi-statistics-bottom-ten-refresh-area"></div>
                         </div>
                     </div>
 
@@ -326,14 +333,16 @@
         $("#kpiStatisticsTopTenFilterForm").submit(function (e) {
             e.preventDefault();
             const topTenPeopleFormatSlug = $("#topTenPeopleFormat").val();
-            const monthYear = $("#monthYearTopTenFilter").val();
+            const startMonthYear = $("#startMonthYearTopTenFilter").val();
+            const endMonthYear = $("#endMonthYearTopTenFilter").val();
             const action = $("#kpiStatisticsTopTenFilterForm").attr("action");
 
-            if (monthYear && topTenPeopleFormatSlug) {
+
+            if (startMonthYear && endMonthYear && topTenPeopleFormatSlug) {
                 $.ajax({
                     type: "POST",
                     url: action,
-                    data: {topTenPeopleFormatSlug: topTenPeopleFormatSlug, monthYear: monthYear},
+                    data: {topTenPeopleFormatSlug: topTenPeopleFormatSlug, startMonthYear: startMonthYear, endMonthYear: endMonthYear},
                     success: function (res) {
                         $("#kpi-statistics-top-ten-refresh-area").html(res.html);
 
@@ -346,14 +355,15 @@
         $("#kpiStatisticsBottomTenFilterForm").submit(function (e) {
             e.preventDefault();
             const bottomTenPeopleFormatSlug = $("#bottomTenPeopleFormat").val();
-            const monthYear = $("#monthYearBottomTenFilter").val();
+            const startMonthYear = $("#startMonthYearBottomTenFilter").val();
+            const endMonthYear = $("#endMonthYearBottomTenFilter").val();
             const action = $("#kpiStatisticsBottomTenFilterForm").attr("action");
 
-            if (monthYear && bottomTenPeopleFormatSlug) {
+            if (startMonthYear && endMonthYear && bottomTenPeopleFormatSlug) {
                 $.ajax({
                     type: "POST",
                     url: action,
-                    data: {bottomTenPeopleFormatSlug: bottomTenPeopleFormatSlug, monthYear: monthYear},
+                    data: {bottomTenPeopleFormatSlug: bottomTenPeopleFormatSlug, startMonthYear: startMonthYear, endMonthYear: endMonthYear},
                     success: function (res) {
                         $("#kpi-statistics-bottom-ten-refresh-area").html(res.html);
 

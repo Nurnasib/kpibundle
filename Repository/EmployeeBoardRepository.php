@@ -293,7 +293,7 @@ class EmployeeBoardRepository extends EntityRepository
         return $data;
     }
 
-    public function getRankingPeople($format, $month, $year, $flag)
+    public function getRankingPeople($format, $months, $years, $flag)
     {
 
         $qb = $this->createQueryBuilder('e');
@@ -301,26 +301,87 @@ class EmployeeBoardRepository extends EntityRepository
         $qb->join('e.reportMode', 'reportMode');
         $qb->join('e.employee', 'employee');
 
-        $qb->select('e.id', 'e.month', 'e.year', 'e.grade', 'e.obtainMark');
-        $qb->addSelect('reportMode.id AS reportModeId', 'reportMode.name AS reportModeName');
+//        $qb->select('e.id', 'e.month', 'e.year', 'e.grade', 'e.obtainMark');
+        $qb->select('SUM(e.obtainMark) AS obtainMarkSum');
+//        $qb->addSelect('reportMode.id AS reportModeId', 'reportMode.name AS reportModeName');
         $qb->addSelect('employee.userId', 'employee.name');
 
         $qb->where('e.process = :process')->setParameter('process', 'approved');
-        $qb->andWhere('e.month = :month')->setParameter('month', $month);
-        $qb->andWhere('e.year = :year')->setParameter('year', $year);
+        $qb->andWhere('e.month IN (:months)')->setParameter('months', $months);
+        $qb->andWhere('e.year IN (:years)')->setParameter('years', $years);
         $qb->andWhere('reportMode.slug = :slug')->setParameter('slug', $format);
-        
-        if ($flag === 'top'){
-            $qb->orderBy('e.obtainMark', 'DESC');
-        }elseif ($flag === 'bottom'){
-            $qb->orderBy('e.obtainMark', 'ASC');
-        }
-        $qb->setMaxResults(10);
+//        $qb->andWhere('employee.userId = 36002');
+        $qb->groupBy('employee.id');
 
         $results = $qb->getQuery()->getArrayResult();
 
+//        $data = [];
+//        foreach ($results as $result) {
+//            $data[$result['userId']][] = $result;
+//        }
+
+
+        if ($flag === 'top') {
+            usort($results, function($a, $b) {  //sort descending order by obtainMarkSum
+                return $b['obtainMarkSum'] <=> $a['obtainMarkSum'];
+            });
+        } elseif ($flag === 'bottom') {
+            usort($results, function($a, $b) {  //sort ascending order by obtainMarkSum
+                return $a['obtainMarkSum'] <=> $b['obtainMarkSum'];
+            });
+        }
+
+        array_splice($results, 10); // get ten people
+
         $data = [];
         foreach ($results as $result) {
+            $data[] = [
+                "employeeId" => "ID-" . $result['userId'] . "\n" . $result['name'],
+                "value" => round($result['obtainMarkSum'], 0)
+            ];
+        }
+
+        if ($flag === 'bottom') {
+            $data = array_reverse($data);
+        }
+
+        return $data ? json_encode($data) : null;
+
+/*
+ *
+        $formatData = [];
+        foreach ($data as $id => $item) {
+            $formatData[] = [
+                "employeeId" => "ID-" . $id . "\n" . $item[0]['name'],
+//                "value" => array_sum(array_column($item, 'obtainMark')) / count($data[$id]), // average
+                "value" => array_sum(array_column($item, 'obtainMark')), //cumulative
+            ];
+        }
+
+        if ($flag === 'top') {
+            usort($formatData, function($a, $b) {  //sort descending order by value
+            return $b['value'] <=> $a['value'];
+            });
+        } elseif ($flag === 'bottom') {
+            usort($formatData, function($a, $b) {  //sort ascending order by value
+                return $a['value'] <=> $b['value'];
+            });
+        }
+
+        array_splice($formatData, 10); // get ten people
+
+        return $formatData ? json_encode($formatData) : null;
+
+*/
+
+
+
+
+
+
+
+
+            foreach ($results as $result) {
             $data[] = [
 //                "employeeId" => "ID-" . $result['userId'],
                 "employeeId" => "ID-" . $result['userId'] . "\n" . $result['name'],

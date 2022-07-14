@@ -35,6 +35,7 @@ class KpiStatisticsController extends AbstractController
      */
     public function index()
     {
+
         $month = date('m');
 //        $month = 2;
         $year = $month === 1 ? date('Y')-1 : date('Y');
@@ -45,26 +46,15 @@ class KpiStatisticsController extends AbstractController
 
         $formatWiseGradeNumberKpi = [];
         $selectedFormat = null;
-        $format = null;
-        $topTenPeople = null;
-        $bottomTenPeople = null;
 
         $settingType = $this->getDoctrine()->getRepository(SettingType::class)->findOneBy(['slug' => 'report-mode', 'status' => 1]);
         $reportFormat = $this->getDoctrine()->getRepository(Setting::class)->findBy(['settingType' => $settingType, 'status' => 1]);
         
-        if ($this->isGranted("ROLE_KPI_ADMIN") || $this->isGranted("ROLE_DEVELOPER")){
-            $formatWiseGradeNumberKpi = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getFormatWiseGradeNumberKpi($selectedFormat, $previousMonth, $year);
+        $formatWiseGradeNumberKpi = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getFormatWiseGradeNumberKpi($selectedFormat, $previousMonth, $year);
 
-            if ($format){
-                $topTenPeople = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getRankingPeople($format, $previousMonth, $year, 'top');
-                $bottomTenPeople = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getRankingPeople($format, $previousMonth, $year, 'bottom');
-            }
-        }
         return $this->render('@TerminalbdKpi/statistics/index.html.twig',[
             'formatWiseGradeNumberKpi' => $formatWiseGradeNumberKpi,
             'reportFormat' => $reportFormat,
-            'topTenPeople' => $topTenPeople,
-            'bottomTenPeople' => $bottomTenPeople,
             'month' => $previousMonth,
             'year' => $year,
         ]);
@@ -100,11 +90,34 @@ class KpiStatisticsController extends AbstractController
      */
     public function kpiStatisticsTopTenRefresh(Request $request)
     {
-
         $topTenPeopleFormatSlug = $request->request->get('topTenPeopleFormatSlug');
-        $monthYear = explode(',', $request->request->get('monthYear'));
+        $startMonthYear = explode(',', $request->request->get('startMonthYear'));
+        $endMonthYear = explode(',', $request->request->get('endMonthYear'));
 
-        $topTenPeople = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getRankingPeople($topTenPeopleFormatSlug, $monthYear[0], $monthYear[1], 'top');
+        $startMonth = $startMonthYear[0];
+        $startYear = $startMonthYear[1];
+
+        $endMonth = $endMonthYear[0];
+        $endYear = $endMonthYear[1];
+
+        $start    = (new \DateTime($startMonth.'-'.$startYear))->modify('first day of this month');
+        $end      = (new \DateTime($endMonth.'-'.$endYear))->modify('first day of next month');
+        $interval = \DateInterval::createFromDateString('1 month');
+        $period   = new \DatePeriod($start, $interval, $end);
+
+        $months = [];
+        foreach ($period as $dt) {
+            array_push($months, $dt->format("F"));
+        }
+        $months = array_unique($months);
+
+        $years = [];
+
+        for ($startYear; $startYear <= $endYear; $startYear++){
+            array_push($years, $startYear);
+        }
+
+        $topTenPeople = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getRankingPeople($topTenPeopleFormatSlug, $months, $years, 'top');
 
         if ($topTenPeople){
             $html = $this->renderView('@TerminalbdKpi/statistics/inc/_kpi-statistics-top-10-refresh.html.twig',[
@@ -125,9 +138,34 @@ class KpiStatisticsController extends AbstractController
     public function kpiStatisticsBottomTenRefresh(Request $request)
     {
         $bottomTenPeopleFormatSlug = $request->request->get('bottomTenPeopleFormatSlug');
-        $monthYear = explode(',', $request->request->get('monthYear'));
+        $startMonthYear = explode(',', $request->request->get('startMonthYear'));
+        $endMonthYear = explode(',', $request->request->get('endMonthYear'));
 
-        $bottomTenPeople = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getRankingPeople($bottomTenPeopleFormatSlug, $monthYear[0], $monthYear[1], 'bottom');
+        $startMonth = $startMonthYear[0];
+        $startYear = $startMonthYear[1];
+
+        $endMonth = $endMonthYear[0];
+        $endYear = $endMonthYear[1];
+
+
+        $start    = (new \DateTime($startMonth.'-'.$startYear))->modify('first day of this month');
+        $end      = (new \DateTime($endMonth.'-'.$endYear))->modify('first day of next month');
+        $interval = \DateInterval::createFromDateString('1 month');
+        $period   = new \DatePeriod($start, $interval, $end);
+
+        $months = [];
+        foreach ($period as $dt) {
+            array_push($months, $dt->format("F"));
+        }
+        $months = array_unique($months);
+
+        $years = [];
+
+        for ($startYear; $startYear <= $endYear; $startYear++){
+            array_push($years, $startYear);
+        }
+
+        $bottomTenPeople = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getRankingPeople($bottomTenPeopleFormatSlug, $months, $years, 'bottom');
 
         if ($bottomTenPeople){
             $html = $this->renderView('@TerminalbdKpi/statistics/inc/_kpi-statistics-bottom-10-refresh.html.twig',[
