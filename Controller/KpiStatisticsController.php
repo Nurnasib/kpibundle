@@ -140,7 +140,7 @@ class KpiStatisticsController extends AbstractController
             array_push($years, $startYear);
         }
 
-        $topTenPeople = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getRankingPeople($topTenPeopleFormatSlug, $months, $years, 'top');
+        $topTenPeople = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getRankingPeople($topTenPeopleFormatSlug, $months, $years, 'top', 10);
 
         if ($topTenPeople){
             $html = $this->renderView('@TerminalbdKpi/statistics/inc/_kpi-statistics-top-10-refresh.html.twig',[
@@ -188,7 +188,7 @@ class KpiStatisticsController extends AbstractController
             array_push($years, $startYear);
         }
 
-        $bottomTenPeople = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getRankingPeople($bottomTenPeopleFormatSlug, $months, $years, 'bottom');
+        $bottomTenPeople = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getRankingPeople($bottomTenPeopleFormatSlug, $months, $years, 'bottom', 10);
 
         if ($bottomTenPeople){
             $html = $this->renderView('@TerminalbdKpi/statistics/inc/_kpi-statistics-bottom-10-refresh.html.twig',[

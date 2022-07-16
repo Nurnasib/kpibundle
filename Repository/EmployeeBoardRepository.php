@@ -290,7 +290,7 @@ class EmployeeBoardRepository extends EntityRepository
         return $data;
     }
 
-    public function getRankingPeople($format, $months, $years, $flag)
+    public function getRankingPeople($format, $months, $years, $flag, $limit)
     {
 
         $qb = $this->createQueryBuilder('e');
@@ -309,6 +309,12 @@ class EmployeeBoardRepository extends EntityRepository
         $qb->andWhere('reportMode.slug = :slug')->setParameter('slug', $format);
 //        $qb->andWhere('employee.userId = 36002');
         $qb->groupBy('employee.id');
+        if ($flag === 'top') {
+            $qb->orderBy('SUM(e.obtainMark)', 'DESC');
+        }elseif ($flag === 'bottom'){
+            $qb->orderBy('SUM(e.obtainMark)', 'ASC');
+        }
+        $qb->setMaxResults($limit);
 
         $results = $qb->getQuery()->getArrayResult();
 
@@ -328,7 +334,7 @@ class EmployeeBoardRepository extends EntityRepository
             });
         }
 
-        array_splice($results, 10); // get ten people
+//        array_splice($results, 10); // get ten people
 
         $data = [];
         foreach ($results as $result) {
@@ -343,51 +349,6 @@ class EmployeeBoardRepository extends EntityRepository
         }
 
         return $data ? json_encode($data) : null;
-
-/*
- *
-        $formatData = [];
-        foreach ($data as $id => $item) {
-            $formatData[] = [
-                "employeeId" => "ID-" . $id . "\n" . $item[0]['name'],
-//                "value" => array_sum(array_column($item, 'obtainMark')) / count($data[$id]), // average
-                "value" => array_sum(array_column($item, 'obtainMark')), //cumulative
-            ];
-        }
-
-        if ($flag === 'top') {
-            usort($formatData, function($a, $b) {  //sort descending order by value
-            return $b['value'] <=> $a['value'];
-            });
-        } elseif ($flag === 'bottom') {
-            usort($formatData, function($a, $b) {  //sort ascending order by value
-                return $a['value'] <=> $b['value'];
-            });
-        }
-
-        array_splice($formatData, 10); // get ten people
-
-        return $formatData ? json_encode($formatData) : null;
-
-*/
-
-
-
-
-
-
-
-
-            foreach ($results as $result) {
-            $data[] = [
-//                "employeeId" => "ID-" . $result['userId'],
-                "employeeId" => "ID-" . $result['userId'] . "\n" . $result['name'],
-                "value" => $result['obtainMark'],
-            ];
-        }
-
-       return $data ? json_encode($data) : null;
-
 
 
 //        $arrayVar = [
