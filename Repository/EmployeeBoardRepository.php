@@ -342,7 +342,7 @@ class EmployeeBoardRepository extends EntityRepository
         foreach ($results as $result) {
             $data[] = [
                 "employeeId" => "ID-" . $result['userId'] . "\n" . $result['name'],
-                "value" => round($result['obtainMarkAVG'], 0)
+                "value" => round($result['obtainMarkAVG'], 2) // two decimal
             ];
         }
 
