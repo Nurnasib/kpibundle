@@ -20,11 +20,8 @@
         // Create chart
         // https://www.amcharts.com/docs/v5/charts/xy-chart/
         var chart = root.container.children.push(am5xy.XYChart.new(root, {
-            panX: true,
-            panY: true,
-            // wheelX: "panX",
-            // wheelY: "zoomX",
-            // pinchZoomX:true
+            panX: false, //disable drag feature
+            panY: false, //disable drag feature
         }));
 
         // Add Chart Title
