@@ -96,17 +96,19 @@
             categoryXField: "employeeId",
             tooltip: am5.Tooltip.new(root, {
                 labelText: "{valueY}"
-            })
+            }),
         }));
 
-        series.columns.template.setAll({cornerRadiusTL: 0, cornerRadiusTR: 0});
+        series.columns.template.setAll({
+            cornerRadiusTL: 0,
+            cornerRadiusTR: 0,
+            // strokeWidth: 0,  //column border
+            // fillOpacity: 0.8, //column opacity
+            // width: am5.percent(80) //column width
+        });
         series.columns.template.adapters.add("fill", function (fill, target) {
             return chart.get("colors").getIndex(series.columns.indexOf(target));
         });
-
-        // series.columns.template.adapters.add("stroke", function(stroke, target) {
-        //     return chart.get("colors").getIndex(series.columns.indexOf(target));
-        // });
 
         // Set data
         var data = {{ topTenPeople|raw }};
