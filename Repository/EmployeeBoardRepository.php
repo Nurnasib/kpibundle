@@ -273,6 +273,8 @@ class EmployeeBoardRepository extends EntityRepository
             $qb->andWhere('reportMode.id = :reportModeId')->setParameter('reportModeId', $selectedFormat);
         }
 
+        $qb->orderBy('reportMode.id', 'ASC');
+
         $results = $qb->getQuery()->getArrayResult();
 
         $data = [];
@@ -285,7 +287,7 @@ class EmployeeBoardRepository extends EntityRepository
 
         }
         unset($data['gradeWiseTotal']);
-        ksort($data);
+//        ksort($data);
 
         return $data;
     }
@@ -299,7 +301,7 @@ class EmployeeBoardRepository extends EntityRepository
         $qb->join('e.employee', 'employee');
 
 //        $qb->select('e.id', 'e.month', 'e.year', 'e.grade', 'e.obtainMark');
-        $qb->select('SUM(e.obtainMark) AS obtainMarkSum');
+        $qb->select('AVG(e.obtainMark) AS obtainMarkAVG');
 //        $qb->addSelect('reportMode.id AS reportModeId', 'reportMode.name AS reportModeName');
         $qb->addSelect('employee.userId', 'employee.name');
 
@@ -310,9 +312,9 @@ class EmployeeBoardRepository extends EntityRepository
 //        $qb->andWhere('employee.userId = 36002');
         $qb->groupBy('employee.id');
         if ($flag === 'top') {
-            $qb->orderBy('SUM(e.obtainMark)', 'DESC');
+            $qb->orderBy('AVG(e.obtainMark)', 'DESC');
         }elseif ($flag === 'bottom'){
-            $qb->orderBy('SUM(e.obtainMark)', 'ASC');
+            $qb->orderBy('AVG(e.obtainMark)', 'ASC');
         }
         $qb->setMaxResults($limit);
 
@@ -326,11 +328,11 @@ class EmployeeBoardRepository extends EntityRepository
 
         if ($flag === 'top') {
             usort($results, function($a, $b) {  //sort descending order by obtainMarkSum
-                return $b['obtainMarkSum'] <=> $a['obtainMarkSum'];
+                return $b['obtainMarkAVG'] <=> $a['obtainMarkAVG'];
             });
         } elseif ($flag === 'bottom') {
             usort($results, function($a, $b) {  //sort ascending order by obtainMarkSum
-                return $a['obtainMarkSum'] <=> $b['obtainMarkSum'];
+                return $a['obtainMarkAVG'] <=> $b['obtainMarkAVG'];
             });
         }
 
@@ -340,7 +342,7 @@ class EmployeeBoardRepository extends EntityRepository
         foreach ($results as $result) {
             $data[] = [
                 "employeeId" => "ID-" . $result['userId'] . "\n" . $result['name'],
-                "value" => round($result['obtainMarkSum'], 0)
+                "value" => round($result['obtainMarkAVG'], 0)
             ];
         }
 

@@ -48,7 +48,7 @@ class KpiStatisticsController extends AbstractController
         $selectedFormat = null;
 
         $settingType = $this->getDoctrine()->getRepository(SettingType::class)->findOneBy(['slug' => 'report-mode', 'status' => 1]);
-        $reportFormat = $this->getDoctrine()->getRepository(Setting::class)->findBy(['settingType' => $settingType, 'status' => 1]);
+        $reportFormat = $this->getDoctrine()->getRepository(Setting::class)->findBy(['settingType' => $settingType, 'status' => 1], ['id' => 'ASC']);
         
         return $this->render('@TerminalbdKpi/statistics/index.html.twig',[
             'reportFormat' => $reportFormat,
