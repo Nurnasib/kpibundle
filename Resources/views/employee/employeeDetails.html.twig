@@ -47,7 +47,7 @@ table.district-history thead {
                 <td>Email: </td>
                 <td>{{ employee.email|default('') }}</td>
                 <td>Permanent Date: </td>
-                <td>{{ employee.permanentDate|default('') }}</td>
+                <td>{{ employee.permanentDate ? employee.permanentDate|date('d-m-Y') : '' }}</td>
             </tr>
 
 {#            <tr>

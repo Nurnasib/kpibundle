@@ -145,7 +145,8 @@ class EmployeeBoardController extends AbstractController
                 return $this->redirectToRoute('kpi_board_new',['format' => $format]);
             }
 
-            $permanentMonthYear = date('F-Y', strtotime($emp->getPermanentDate()));
+//            $permanentMonthYear = date('F-Y', strtotime($emp->getPermanentDate()));
+            $permanentMonthYear = $emp->getPermanentDate()->format('F-Y');
 
             // check previous month KPI
             $prevMonthNum  = date('m', strtotime($month)) - 1;

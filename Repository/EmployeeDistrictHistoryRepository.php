@@ -137,14 +137,17 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
 
     public function getActiveTeamMembers($emp, $month, $year)
     {
-        return $this->createQueryBuilder('e')
-            ->join('e.employee', 'employee')
-            ->andWhere('e.month = :month')->setParameter('month', $month)
-            ->andWhere('e.year = :year')->setParameter('year', $year)
-            ->andWhere("employee.enabled = 1")
-            ->andWhere("employee.isPermanent = true")
-            ->andWhere('e.lineManager = :lineManager')->setParameter('lineManager', $emp)
-            ->getQuery()
-            ->getResult();
+        $qb = $this->createQueryBuilder('e');
+
+        $qb->join('e.employee', 'employee');
+
+        $qb->andWhere('e.month = :month')->setParameter('month', $month);
+        $qb->andWhere('e.year = :year')->setParameter('year', $year);
+        $qb->andWhere("employee.enabled = 1");
+        $qb->andWhere("employee.isPermanent = true");
+        $qb->andWhere('e.lineManager = :lineManager')->setParameter('lineManager', $emp);
+        $qb->andWhere('employee.permanentDate < :date')->setParameter('date', date('Y-m-d', strtotime("01-$month-$year")));
+
+        return $qb->getQuery()->getResult();
     }
 }
