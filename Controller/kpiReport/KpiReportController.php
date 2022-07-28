@@ -293,8 +293,7 @@ class KpiReportController extends AbstractController
                 }
             }
 
-            $employees = $this->getDoctrine()->getRepository(User::class)->getKpiLineManagerTeamMember($lineManagersId);
-
+            $employees = $this->getDoctrine()->getRepository(User::class)->getLineManagerTeamMember($lineManagersId);
         }
 
 
