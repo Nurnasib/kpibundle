@@ -283,7 +283,7 @@ class KpiReportController extends AbstractController
 
         if (in_array('ROLE_KPI_ADMIN', $user->getRoles())){
 
-            $lineManagers = $this->getDoctrine()->getRepository(User::class)->getKpiLineManagers();
+            $lineManagers = $this->getDoctrine()->getRepository(User::class)->getLineManagers();
             $lineManagersId = [];
             if ($selectedLineManager){
                 $lineManagersId[] = $selectedLineManager;
