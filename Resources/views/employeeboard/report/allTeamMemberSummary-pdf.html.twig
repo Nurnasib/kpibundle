@@ -34,15 +34,9 @@
                     <th>{{ 'Designation'|trans }}</th>
                     <th>{{ 'Format'|trans }}</th>
                     <th>{{ 'Month'|trans }}</th>
-                    {% if teamMemberSummary is not empty %}
-                        {% for employeeId, details in teamMemberSummary %}
-                            {% if loop.first %}
-                                {% if details['activityName'] is not empty %}
-                                    {% for activityName in details['activityName'] %}
-                                        <th>{{ activityName|default(0) }}</th>
-                                    {% endfor %}
-                                {% endif %}
-                            {% endif %}
+                    {% if activitiesName is defined and activitiesName is not empty %}
+                        {% for name in activitiesName %}
+                            <th>{{ name|default('') }}</th>
                         {% endfor %}
                     {% endif %}
                     <th>{{ 'Mark'|trans }}</th>
@@ -59,9 +53,9 @@
                                 <td>{{ details['data']['designation'] }}</td>
                                 <td>{{ details['data'][month]['reportMode'] }}</td>
                                 <td>{{ month }}</td>
-                                {% if details['activityName'] is not empty %}
-                                    {% for activityName in details['activityName'] %}
-                                        <td align="center">{{ teamMemberSummary[employeeId]['mark'][month][activityName]|default(0) }}</td>
+                                {% if activitiesName is defined and activitiesName is not empty %}
+                                    {% for name in activitiesName %}
+                                        <td align="center">{{ teamMemberSummary[employeeId]['mark'][month][name]|default(0) }}</td>
                                     {% endfor %}
                                 {% endif %}
                                 <td align="center">{{ details['data'][month]['obtainMark']|default(0) }}</td>

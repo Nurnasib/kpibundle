@@ -46,7 +46,11 @@ class KpiReportController extends AbstractController
         $StartDate = @strtotime(date('F') . ' ' . (int)date('Y'));
         $StopDate = @strtotime(date('F') . ' ' . (int)date('Y'));
 
-        $user = $this->getUser();
+        $months = $this->monthRange( $StartDate, $StopDate );
+
+        $activitiesName = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getActivities();
+        $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $this->getUser());
+
         $filterForm = $this->createForm(TeamMemberSummaryFilterFormType::class,null , ['user' => $this->getUser(), 'lineManagers' => $lineManagers])->remove('kpiFormat');
         $filterForm->handleRequest($request);
         if ($filterForm->isSubmitted()){
@@ -54,7 +58,7 @@ class KpiReportController extends AbstractController
             $StartDate = @strtotime($filterBy['startMonth'] . ' ' . $filterBy['year']);
             $StopDate = @strtotime($filterBy['endMonth'] . ' ' . $filterBy['year']);
             $months = $this->monthRange( $StartDate, $StopDate );
-            $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $user);
+            $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $this->getUser());
 
             if ($request->query->has('pdf')){
                 
@@ -69,6 +73,7 @@ class KpiReportController extends AbstractController
                 $html = $this->renderView('@TerminalbdKpi/employeeboard/report/teamMemberSummary-pdf.html.twig', [
                     'filterBy' => $filterBy,
                     'teamMemberSummary' => $teamMemberSummary,
+                    'activitiesName' => $activitiesName,
                 ]);
 
                 // Load HTML to Dompdf
@@ -92,6 +97,7 @@ class KpiReportController extends AbstractController
                 $html = $this->renderView('@TerminalbdKpi/employeeboard/report/teamMemberSummary-excel.html.twig', [
                     'filterBy' => $filterBy,
                     'teamMemberSummary' => $teamMemberSummary,
+                    'activitiesName' => $activitiesName,
                 ]);
                 $fileName = $request->get('_route').'_'.time().'.xls';
                 header("Content-Type: application/vnd.ms-excel; charset=utf-8");
@@ -101,14 +107,12 @@ class KpiReportController extends AbstractController
             }
         }
 
-        $months = $this->monthRange( $StartDate, $StopDate );
-        $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $user);
-
         return $this->render('@TerminalbdKpi/employeeboard/report/teamMemberSummary.html.twig', [
             'filterBy' => $filterBy,
             'form' => $filterForm->createView(),
             'months' => $months,
             'teamMemberSummary' => $teamMemberSummary,
+            'activitiesName' => $activitiesName,
         ]);
 
     }
@@ -133,7 +137,11 @@ class KpiReportController extends AbstractController
         $StartDate = @strtotime(date('F') . ' ' . (int)date('Y'));
         $StopDate = @strtotime(date('F') . ' ' . (int)date('Y'));
 
-        $user = $this->getUser();
+        $months = $this->monthRange( $StartDate, $StopDate );
+
+        $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $this->getUser());
+        $activitiesName = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getActivities();
+        
         $filterForm = $this->createForm(TeamMemberSummaryFilterFormType::class,null , ['user' => $this->getUser(), 'lineManagers' => $lineManagers])->remove('lineManager')->remove('employee');
         $filterForm->handleRequest($request);
         if ($filterForm->isSubmitted()){
@@ -144,7 +152,7 @@ class KpiReportController extends AbstractController
             $StopDate = @strtotime($filterBy['endMonth'] . ' ' . $filterBy['year']);
 
             $months = $this->monthRange( $StartDate, $StopDate );
-            $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $user);
+            $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $this->getUser());
 
             if ($request->query->has('pdf')){
                 
@@ -159,6 +167,7 @@ class KpiReportController extends AbstractController
                 $html = $this->renderView('@TerminalbdKpi/employeeboard/report/allTeamMemberSummary-pdf.html.twig', [
                     'filterBy' => $filterBy,
                     'teamMemberSummary' => $teamMemberSummary,
+                    'activitiesName' => $activitiesName,
                 ]);
 
                 // Load HTML to Dompdf
@@ -181,6 +190,7 @@ class KpiReportController extends AbstractController
                 $html = $this->renderView('@TerminalbdKpi/employeeboard/report/allTeamMemberSummary-excel.html.twig', [
                     'filterBy' => $filterBy,
                     'teamMemberSummary' => $teamMemberSummary,
+                    'activitiesName' => $activitiesName,
                 ]);
                 $fileName = $request->get('_route').'_'.time().'.xls';
                 header("Content-Type: application/vnd.ms-excel; charset=utf-8");
@@ -190,10 +200,7 @@ class KpiReportController extends AbstractController
 
             }
         }
-        $months = $this->monthRange( $StartDate, $StopDate );
 
-        $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $user);
-        $activitiesName = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getActivities();
 
         return $this->render('@TerminalbdKpi/employeeboard/report/allTeamMemberSummary.html.twig', [
             'filterBy' => $filterBy,
