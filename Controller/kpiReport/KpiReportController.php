@@ -121,7 +121,7 @@ class KpiReportController extends AbstractController
      */
     public function allTeamMemberSummary(Request $request, UserRepository $userRepository)
     {
-        
+        set_time_limit(0);
         $lineManagers = $userRepository->getLineManager();
 
         $filterBy = [
@@ -193,11 +193,14 @@ class KpiReportController extends AbstractController
         $months = $this->monthRange( $StartDate, $StopDate );
 
         $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $user);
+        $activitiesName = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getActivities();
+
         return $this->render('@TerminalbdKpi/employeeboard/report/allTeamMemberSummary.html.twig', [
             'filterBy' => $filterBy,
             'form' => $filterForm->createView(),
             'teamMemberSummary' => $teamMemberSummary,
             'months' => $months,
+            'activitiesName' => $activitiesName,
         ]);
     }
 

@@ -89,16 +89,9 @@
                                 <th>{{ 'Designation'|trans }}</th>
                                 <th>{{ 'Format'|trans }}</th>
                                 <th>{{ 'Month'|trans }}</th>
-                                {% if teamMemberSummary is not empty %}
-                                    {% for employeeId, details in teamMemberSummary %}
-                                        {% if loop.first %}
-                                            {% if details['activityName'] is not empty %}
-                                                {% for activityName in details['activityName'] %}
-{#                                                    <th class="d-none">{{ activityName|default(0) }}</th>#}
-                                                    <th>{{ activityName|default(0) }}</th>
-                                                {% endfor %}
-                                            {% endif %}
-                                        {% endif %}
+                                {% if activitiesName is defined and activitiesName is not empty %}
+                                    {% for name in activitiesName %}
+                                        <th>{{ name|default('') }}</th>
                                     {% endfor %}
                                 {% endif %}
                                 <th>{{ 'Mark'|trans }}</th>
@@ -118,10 +111,9 @@
                                                 <td rowspan="{{ details['mark']|length }}">{{ details['data'][month]['reportMode'] }}</td>
                                             {% endif %}
                                             <td>{{ month }}</td>
-                                            {% if details['activityName'] is not empty %}
-                                                {% for activityName in details['activityName'] %}
-{#                                                    <td class="d-none">{{ teamMemberSummary[employeeId]['mark'][month][activityName]|default(0) }}</td>#}
-                                                    <td>{{ teamMemberSummary[employeeId]['mark'][month][activityName]|default(0) }}</td>
+                                            {% if activitiesName is defined and activitiesName is not empty %}
+                                                {% for name in activitiesName %}
+                                                    <td>{{ teamMemberSummary[employeeId]['mark'][month][name]|default(0) }}</td>
                                                 {% endfor %}
                                             {% endif %}
                                             <td>{{ teamMemberSummary[employeeId]['data'][month]['obtainMark']|default(0) }}</td>

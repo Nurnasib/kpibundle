@@ -1664,7 +1664,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     }
 
 
-    private function getActivities()
+    public function getActivities()
     {
         $qb = $this->createQueryBuilder('e');
         $qb->join('e.activity', 'activity');
@@ -1717,6 +1717,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $qb->orderBy('e.id', 'ASC');
         $results = $qb->getQuery()->getArrayResult();
 
+
         $data = [];
         foreach ($results as $result) {
             $data[$result['userId']]['data']['employeeName'] = $result['employeeName'];
@@ -1725,10 +1726,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $data[$result['userId']]['data'][$result['month']]['obtainMark'] = $result['obtainMark'];
             $data[$result['userId']]['data'][$result['month']]['grade'] = $result['grade'];
             $data[$result['userId']]['data'][$result['month']]['boardId'] = $result['boardId'];
-            $data[$result['userId']]['activityName'] = $this->getActivities();
+//            $data[$result['userId']]['activityName'] = $this->getActivities();
 //            $data[$result['userId']]['activityName'][$result['activityName']]= $result['activityName'];
             $data[$result['userId']]['mark'][$result['month']][$result['activityName']]= $result['mark'];
         }
+
         return $data;
     }
 
