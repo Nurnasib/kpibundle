@@ -149,7 +149,8 @@ class EmployeeBoardController extends AbstractController
             $permanentMonthYear = $emp->getPermanentDate()->format('F-Y');
 
             // check previous month KPI
-            $prevMonthNum  = date('m', strtotime($month)) - 1;
+            $monthNum  = date('m', strtotime("01-".$month."-".$year));
+            $prevMonthNum  = date('m', strtotime("01-".$monthNum."-".$year)) - 1;
             $dateObj   = \DateTime::createFromFormat('!m', $prevMonthNum);
             $previousMonth = $dateObj->format('F'); // March
 //            $previousMonth = date('F', strtotime($month . " last month"));
