@@ -1,4 +1,5 @@
 <?php
+
 namespace Terminalbd\KpiBundle\Controller\kpiReport;
 
 use App\Entity\User;
@@ -46,22 +47,22 @@ class KpiReportController extends AbstractController
         $StartDate = @strtotime(date('F') . ' ' . (int)date('Y'));
         $StopDate = @strtotime(date('F') . ' ' . (int)date('Y'));
 
-        $months = $this->monthRange( $StartDate, $StopDate );
+        $months = $this->monthRange($StartDate, $StopDate);
 
         $activitiesName = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getActivities();
         $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $this->getUser());
 
-        $filterForm = $this->createForm(TeamMemberSummaryFilterFormType::class,null , ['user' => $this->getUser(), 'lineManagers' => $lineManagers])->remove('kpiFormat');
+        $filterForm = $this->createForm(TeamMemberSummaryFilterFormType::class, null, ['user' => $this->getUser(), 'lineManagers' => $lineManagers])->remove('kpiFormat');
         $filterForm->handleRequest($request);
-        if ($filterForm->isSubmitted()){
+        if ($filterForm->isSubmitted()) {
             $filterBy = $filterForm->getData();
             $StartDate = @strtotime($filterBy['startMonth'] . ' ' . $filterBy['year']);
             $StopDate = @strtotime($filterBy['endMonth'] . ' ' . $filterBy['year']);
-            $months = $this->monthRange( $StartDate, $StopDate );
+            $months = $this->monthRange($StartDate, $StopDate);
             $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $this->getUser());
 
-            if ($request->query->has('pdf')){
-                
+            if ($request->query->has('pdf')) {
+
                 // Configure Dompdf according to your needs
                 $pdfOptions = new Options();
                 $pdfOptions->set('defaultFont', 'Arial, sans-serif');
@@ -87,25 +88,25 @@ class KpiReportController extends AbstractController
 
                 // Output the generated PDF to Browser (force download)
                 $fileName = $request->get('_route') . '-' . time();
-                $dompdf->stream( $fileName .  ".pdf", [
+                $dompdf->stream($fileName . ".pdf", [
                     "Attachment" => true
                 ]);
                 die();
 
             }
-/*            elseif ($request->query->has('excel')){
-
-                $html = $this->renderView('@TerminalbdKpi/employeeboard/report/teamMemberSummary-excel.html.twig', [
-                    'filterBy' => $filterBy,
-                    'teamMemberSummary' => $teamMemberSummary,
-                    'activitiesName' => $activitiesName,
-                ]);
-                $fileName = $request->get('_route').'_'.time().'.xls';
-                header("Content-Type: application/vnd.ms-excel; charset=utf-8");
-                header("Content-Disposition: attachement; filename=$fileName");
-                echo $html;
-                die();
-            }*/
+            /*            elseif ($request->query->has('excel')){
+            
+                            $html = $this->renderView('@TerminalbdKpi/employeeboard/report/teamMemberSummary-excel.html.twig', [
+                                'filterBy' => $filterBy,
+                                'teamMemberSummary' => $teamMemberSummary,
+                                'activitiesName' => $activitiesName,
+                            ]);
+                            $fileName = $request->get('_route').'_'.time().'.xls';
+                            header("Content-Type: application/vnd.ms-excel; charset=utf-8");
+                            header("Content-Disposition: attachement; filename=$fileName");
+                            echo $html;
+                            die();
+                        }*/
         }
 
         return $this->render('@TerminalbdKpi/employeeboard/report/teamMemberSummary.html.twig', [
@@ -138,24 +139,24 @@ class KpiReportController extends AbstractController
         $StartDate = @strtotime(date('F') . ' ' . (int)date('Y'));
         $StopDate = @strtotime(date('F') . ' ' . (int)date('Y'));
 
-        $months = $this->monthRange( $StartDate, $StopDate );
+        $months = $this->monthRange($StartDate, $StopDate);
 
         $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $this->getUser());
         $activitiesName = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getActivities();
-        
-        $filterForm = $this->createForm(TeamMemberSummaryFilterFormType::class,null , ['user' => $this->getUser(), 'lineManagers' => $lineManagers])->remove('lineManager')->remove('employee');
+
+        $filterForm = $this->createForm(TeamMemberSummaryFilterFormType::class, null, ['user' => $this->getUser(), 'lineManagers' => $lineManagers])->remove('lineManager')->remove('employee');
         $filterForm->handleRequest($request);
-        if ($filterForm->isSubmitted()){
+        if ($filterForm->isSubmitted()) {
             $filterBy = $filterForm->getData();
 
-            $filterBy['kpiFormat'] = $filterBy['kpiFormat'] ? $filterBy['kpiFormat']->getId(): null;
+            $filterBy['kpiFormat'] = $filterBy['kpiFormat'] ? $filterBy['kpiFormat']->getId() : null;
             $StartDate = @strtotime($filterBy['startMonth'] . ' ' . $filterBy['year']);
             $StopDate = @strtotime($filterBy['endMonth'] . ' ' . $filterBy['year']);
 
-            $months = $this->monthRange( $StartDate, $StopDate );
+            $months = $this->monthRange($StartDate, $StopDate);
             $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $this->getUser());
-            if ($request->query->has('pdf')){
-                
+            if ($request->query->has('pdf')) {
+
                 // Configure Dompdf according to your needs
                 $pdfOptions = new Options();
                 $pdfOptions->set('defaultFont', 'Arial, sans-serif');
@@ -181,25 +182,25 @@ class KpiReportController extends AbstractController
 
                 // Output the generated PDF to Browser (force download)
                 $fileName = $request->get('_route') . '-' . time();
-                $dompdf->stream( $fileName .  ".pdf", [
+                $dompdf->stream($fileName . ".pdf", [
                     "Attachment" => true
                 ]);
                 die();
             }
-/*            elseif ($request->query->has('excel')){
-                
-                $html = $this->renderView('@TerminalbdKpi/employeeboard/report/allTeamMemberSummary-excel.html.twig', [
-                    'filterBy' => $filterBy,
-                    'teamMemberSummary' => $teamMemberSummary,
-                    'activitiesName' => $activitiesName,
-                ]);
-                $fileName = $request->get('_route').'_'.time().'.xls';
-                header("Content-Type: application/vnd.ms-excel; charset=utf-8");
-                header("Content-Disposition: attachment; filename=$fileName");
-                echo $html;
-                die();
-
-            }*/
+            /*            elseif ($request->query->has('excel')){
+                            
+                            $html = $this->renderView('@TerminalbdKpi/employeeboard/report/allTeamMemberSummary-excel.html.twig', [
+                                'filterBy' => $filterBy,
+                                'teamMemberSummary' => $teamMemberSummary,
+                                'activitiesName' => $activitiesName,
+                            ]);
+                            $fileName = $request->get('_route').'_'.time().'.xls';
+                            header("Content-Type: application/vnd.ms-excel; charset=utf-8");
+                            header("Content-Disposition: attachment; filename=$fileName");
+                            echo $html;
+                            die();
+            
+                        }*/
         }
 
 
@@ -229,12 +230,12 @@ class KpiReportController extends AbstractController
 //        $form = $this->createForm(DistrictHistorySearchFilterFormType::class, null, ['user' => $this->getUser()]);
         $form = $this->createForm(DistrictHistorySearchFilterFormType::class);
         $form->handleRequest($request);
-        if ($form->isSubmitted()){
+        if ($form->isSubmitted()) {
             $filterBy = $form->getData();
             $filterBy['user'] = $this->getUser();
 
             $data = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->getDistrictHistory($filterBy);
-            if ($request->query->has('pdf')){
+            if ($request->query->has('pdf')) {
 
                 // Configure Dompdf according to your needs
                 $pdfOptions = new Options();
@@ -260,14 +261,14 @@ class KpiReportController extends AbstractController
 
                 // Output the generated PDF to Browser (force download)
                 $fileName = $request->get('_route') . '-' . time();
-                $dompdf->stream( $fileName .  ".pdf", [
+                $dompdf->stream($fileName . ".pdf", [
                     "Attachment" => true
                 ]);
                 die();
             }
         }
         $data = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->getDistrictHistory($filterBy);
-        return $this->render('@TerminalbdKpi/employeeboard/report/districtHistory.html.twig',[
+        return $this->render('@TerminalbdKpi/employeeboard/report/districtHistory.html.twig', [
             'form' => $form->createView(),
             'data' => $data
         ]);
@@ -288,29 +289,44 @@ class KpiReportController extends AbstractController
         $selectedYear = $request->query->get('year');
         $selectedLineManager = $request->query->get('lineManager');
 
-        if(!$selectedYear){
+        if (!$selectedYear) {
             $selectedYear = date('Y');
         }
 
-        if (in_array('ROLE_KPI_ADMIN', $user->getRoles())){
+        if (in_array('ROLE_KPI_ADMIN', $user->getRoles())) {
 
             $lineManagers = $this->getDoctrine()->getRepository(User::class)->getLineManagers();
             $lineManagersId = [];
-            if ($selectedLineManager){
+            if ($selectedLineManager) {
                 $lineManagersId[] = $selectedLineManager;
-            }else{
-                foreach ($lineManagers as $lineManager){
+            } else {
+                foreach ($lineManagers as $lineManager) {
                     $lineManagersId[] = $lineManager['userId'];
                 }
             }
 
-            $employees = $this->getDoctrine()->getRepository(User::class)->getLineManagerTeamMember($lineManagersId);
+            $userRoles = [];
+            if (in_array('ROLE_CRM_POULTRY_ADMIN', $this->getUser()->getRoles())) {
+                array_push($userRoles, 'ROLE_CRM_POULTRY_USER');
+            }
+            if (in_array('ROLE_CRM_CATTLE_ADMIN', $this->getUser()->getRoles())) {
+                array_push($userRoles, 'ROLE_CRM_CATTLE_USER');
+            }
+            if (in_array('ROLE_CRM_AQUA_ADMIN', $this->getUser()->getRoles())) {
+                array_push($userRoles, 'ROLE_CRM_AQUA_USER');
+            }
+            if (in_array('ROLE_CRM_SALES_MARKETING_ADMIN', $this->getUser()->getRoles())) {
+                array_push($userRoles, 'ROLE_CRM_SALES_MARKETING_USER');
+            }
+
+
+            $employees = $this->getDoctrine()->getRepository(User::class)->getLineManagerTeamMember($lineManagersId, $userRoles);
         }
 
 
         $kpiRecords = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getMonthlyStatus($selectedYear, $selectedLineManager, $user);
 
-        return $this->render('@TerminalbdKpi/employeeboard/report/monthlyStatus.html.twig',[
+        return $this->render('@TerminalbdKpi/employeeboard/report/monthlyStatus.html.twig', [
             'kpiRecords' => $kpiRecords,
             'year' => $selectedYear,
             'lineManagers' => $lineManagers,
@@ -320,23 +336,18 @@ class KpiReportController extends AbstractController
     }
 
 
-
-
-
-
-
-    
     /**
      * Gets list of months between two dates
-     * @param  int $start Unix timestamp
-     * @param  int $end Unix timestamp
+     * @param int $start Unix timestamp
+     * @param int $end Unix timestamp
      * @return array
      */
-    private function monthRange( $start, $end ){
+    private function monthRange($start, $end)
+    {
 
         $current = $start;
         $data = [];
-        while( $current <= $end ){
+        while ($current <= $end) {
 
 //            $next = @date('Y-M-01', $current) . "+1 month";
             $next = @date('Y-M-01', $current);
@@ -349,32 +360,26 @@ class KpiReportController extends AbstractController
         }
         return $data;
     }
-    
-    
-    
-    
-    
-    
-    
-    
+
+
     /**
      * @Route("kpi/kpi-report", name="kpi_report")
      */
     public function generateKpiReport()
     {
         return false;
-/*        $marksDistributions = [];
-        $user = $this->getUser();
-        $employee = $this->getDoctrine()->getRepository(EmployeeSetup::class)->getEmployeeList($user);
-        $products = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->getProductTarget();
-        $attributesAndMarks = $this->getDoctrine()->getRepository(MarkChart::class)->getAttributes();
-
-        dd($products);
-        foreach ($products as $key => $product){
-            dd($product);
-            $agentOrder = $this->getDoctrine()->getRepository(AgentOrder::class)->getCompletedAmount($key);
-
-        }*/
+        /*        $marksDistributions = [];
+                $user = $this->getUser();
+                $employee = $this->getDoctrine()->getRepository(EmployeeSetup::class)->getEmployeeList($user);
+                $products = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->getProductTarget();
+                $attributesAndMarks = $this->getDoctrine()->getRepository(MarkChart::class)->getAttributes();
+        
+                dd($products);
+                foreach ($products as $key => $product){
+                    dd($product);
+                    $agentOrder = $this->getDoctrine()->getRepository(AgentOrder::class)->getCompletedAmount($key);
+        
+                }*/
 
         /*        foreach ($attributesAndMarks as $attributesAndMark) {
         //            echo $attributesAndMark['attributesName'] . '<br>';
@@ -386,8 +391,8 @@ class KpiReportController extends AbstractController
                 $marksDistributions = $this->getDoctrine()->getRepository(MarkChart::class)->getMarkDistribution('Poultry');
         //        dd($attributesAndMarks);*/
 
-/*        return $this->render('@TerminalbdKpi/kpiReport/bank-satement.html.twig',[
-            'attributesAndMarks'  => $attributesAndMarks
-        ]);*/
+        /*        return $this->render('@TerminalbdKpi/kpiReport/bank-satement.html.twig',[
+                    'attributesAndMarks'  => $attributesAndMarks
+                ]);*/
     }
 }
