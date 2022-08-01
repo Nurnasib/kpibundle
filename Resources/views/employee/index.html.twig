@@ -3,7 +3,7 @@
 {% block body %}
     <div class="pcoded-inner-content">
         <!-- [ breadcrumb ] start -->
-        <div class="page-header">
+{#        <div class="page-header">
             <div class="page-block">
                 <div class="row align-items-center">
                     <ul class="breadcrumb">
@@ -13,11 +13,11 @@
                     </ul>
                 </div>
             </div>
-        </div>
+        </div>#}
         <!-- [ breadcrumb ] end -->
         <!-- [ Main Content ] start -->
         <div class="row">
-            <div class="card">
+            <div class="card mb-1">
                 <div class="card-header">
                     <h5>{{ 'KPI Employee'|trans }}</h5>
                     <div class="card-header-right">
@@ -44,8 +44,8 @@
             </div>
         </div>
         <div class="row">
-            <div class="card">
-                <div class="card-body">
+            <div class="card mb-3">
+                <div class="card-body p-2">
                     <div class="col-md-12">
                         {{ form_start(form) }}
                         <table class="table table-bordered ">

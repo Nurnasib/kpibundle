@@ -34,8 +34,6 @@ use Terminalbd\KpiBundle\Service\Api;
 
 class AgentSalesController extends AbstractController
 {
-
-
     public function paginate(Request $request ,$entities)
     {
         $paginator  = $this->get('knp_paginator');
