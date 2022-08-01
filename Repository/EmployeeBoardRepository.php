@@ -182,7 +182,7 @@ class EmployeeBoardRepository extends EntityRepository
         $qb->join('e.employee', 'employee');
         $qb->join('employee.lineManager', 'lineManager');
         $qb->select('e.month');
-        $qb->addSelect('employee.userId', 'employee.name');
+        $qb->addSelect('employee.userId', 'employee.name', 'employee.isPermanent');
         $qb->addSelect('lineManager.userId AS lineManagerUserId', 'lineManager.name AS lineManagerName');
         $qb->where('e.year = :year')->setParameter('year', $year);
         $qb->andWhere('e.process = :process')->setParameter('process', 'approved');
@@ -209,6 +209,8 @@ class EmployeeBoardRepository extends EntityRepository
                 $data[$result['userId']]['name'] = $result['name'];
                 $data[$result['userId']]['userId'] = $result['userId'];
                 $data[$result['userId']]['status'][$result['month']] = true;
+                $data[$result['userId']]['permanentStatus'] = $result['isPermanent'];
+
             }
         }
         return $data;

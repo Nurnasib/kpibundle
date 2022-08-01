@@ -26,11 +26,34 @@
         <th>Employee ID</th>
         <th>Employee</th>
         <th>Districts</th>
+        <th>Line Manager</th>
+
     </tr>
     </thead>
     <tbody>
     {% if data is defined and data is not empty %}
-        {% for employeeId,record in data['allEmployee'] %}
+        {% set count = 1 %}
+        {% for employeeId,record in data['history'] %}
+            {% if data['allEmployee'][employeeId] is defined %}
+
+                <tr>
+                    <td>
+                        {{ count }}
+                        {% set count = count + 1 %}
+                    </td>
+                    <td>{{ employeeId|default('') }}</td>
+                    <td>{{ data['allEmployee'][employeeId].employeeName|default('') }}</td>
+                    <td>{{ record['districts'] }}</td>
+                    <td>{{ record['line_manager'] is defined ? data['history'][employeeId]['line_manager'] : '' }}</td>
+                </tr>
+
+            {% endif %}
+        {% endfor %}
+
+
+
+
+{#        {% for employeeId,record in data['allEmployee'] %}
             <tr>
                 <td align="center">{{ loop.index }}</td>
                 <td>{{ employeeId|default('') }}</td>
@@ -43,7 +66,7 @@
                     {% endif %}
                 </td>
             </tr>
-        {% endfor %}
+        {% endfor %}#}
     {% else %}
         <tr>
             <td colspan="4">{{ 'No record has been found!'|trans }}</td>

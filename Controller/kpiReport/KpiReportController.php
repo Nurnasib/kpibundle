@@ -92,7 +92,8 @@ class KpiReportController extends AbstractController
                 ]);
                 die();
 
-            }elseif ($request->query->has('excel')){
+            }
+/*            elseif ($request->query->has('excel')){
 
                 $html = $this->renderView('@TerminalbdKpi/employeeboard/report/teamMemberSummary-excel.html.twig', [
                     'filterBy' => $filterBy,
@@ -104,7 +105,7 @@ class KpiReportController extends AbstractController
                 header("Content-Disposition: attachement; filename=$fileName");
                 echo $html;
                 die();
-            }
+            }*/
         }
 
         return $this->render('@TerminalbdKpi/employeeboard/report/teamMemberSummary.html.twig', [
@@ -184,7 +185,8 @@ class KpiReportController extends AbstractController
                     "Attachment" => true
                 ]);
                 die();
-            }elseif ($request->query->has('excel')){
+            }
+/*            elseif ($request->query->has('excel')){
                 
                 $html = $this->renderView('@TerminalbdKpi/employeeboard/report/allTeamMemberSummary-excel.html.twig', [
                     'filterBy' => $filterBy,
@@ -197,7 +199,7 @@ class KpiReportController extends AbstractController
                 echo $html;
                 die();
 
-            }
+            }*/
         }
 
 

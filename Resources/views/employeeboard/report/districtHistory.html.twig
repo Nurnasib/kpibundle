@@ -3,7 +3,7 @@
 {% block body %}
     <div class="pcoded-inner-content">
         <!-- [ breadcrumb ] start -->
-        <div class="page-header">
+{#        <div class="page-header">
             <div class="page-block">
                 <div class="row align-items-center">
                     <ul class="breadcrumb">
@@ -14,19 +14,19 @@
                     </ul>
                 </div>
             </div>
-        </div>
+        </div>#}
         <!-- [ breadcrumb ] end -->
         <!-- [ Main Content ] start -->
         <div class="row">
-            <div class="card">
-                <div class="card-header">
+            <div class="card mb-1">
+                <div class="card-header p-2">
                     <h5>{{ 'District Histroy '|trans }}</h5>
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="card">
-                <div class="card-body">
+            <div class="card mb-3">
+                <div class="card-body p-2">
                     <div class="col-md-6 offset-3">
                         {{ form_start(form, {'attr':{'id': 'teamMemberSummerySearchForm'}}) }}
                         <table class="table table-striped table-bordered table-hover dataTable">
@@ -96,30 +96,7 @@
 
                                 {% endif %}
                             {% endfor %}
-
-
-
-
-                            {#{% for employeeId,record in data['allEmployee'] %}
-                                {% if data['history'][employeeId] is defined %}
-
-                                    <tr>
-                                        <td>
-                                            {{ count }}
-                                            {% set count = count + 1 %}
-                                        </td>
-                                        <td>{{ employeeId|default('') }}</td>
-                                        <td>{{ record.employeeName|default('') }}</td>
-                                        <td>
-                                            {{ data['history'][employeeId]['districts'] }}
-                                        </td>
-                                        <td>{{ data['history'][employeeId]['line_manager'] is defined ? data['history'][employeeId]['line_manager'] : '' }}</td>
-                                    </tr>
-
-                                {% endif %}
-                            {% endfor %}#}
                             </tbody>
-                            <tfoot>
                         </table>
                     </div>
                 </div>
