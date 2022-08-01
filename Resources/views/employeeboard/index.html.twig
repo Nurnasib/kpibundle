@@ -77,6 +77,10 @@
                                         {{ form_label(form.process) }}
                                         {{ form_widget(form.process) }}
                                     </th>
+                                    <th colspan="2">
+                                        {{ form_label(form.grade) }}
+                                        {{ form_widget(form.grade) }}
+                                    </th>
                                     {% if is_granted('ROLE_KPI_ADMIN') %}
                                         <th colspan="2">
                                             {{ form_label(form.createdBy) }}
@@ -113,6 +117,7 @@
                             <th scope="col">{{ 'Format'|trans }}</th>
                             <th scope="col">{{ 'Line Manager'|trans }}</th>
                             <th scope="col">{{ 'Districts'|trans }}</th>
+                            <th scope="col">{{ 'Grade'|trans }}</th>
                             <th scope="col">{{ 'Month Year'|trans }}</th>
 {#                            <th scope="col">{{ 'Year'|trans }}</th>#}
                             <th scope="col">{{ 'Created By'|trans }}</th>
@@ -135,6 +140,7 @@
                                     <td>{{ entity.reportFormat|default('') }}</td>
                                     <td>{{ entity.lineManager|default('') }}</td>
                                     <td>{{ entity.district|default('') }}</td>
+                                    <td>{{ entity.grade }}</td>
                                     <td>{{ entity.month ~ ',' ~ entity.year }}</td>
 {#                                    <td>{{ entity.year|default('') }}</td>#}
                                     <td>{{ entity.createdByName|default('') }}</td>

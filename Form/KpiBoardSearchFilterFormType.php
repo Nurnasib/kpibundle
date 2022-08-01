@@ -41,7 +41,7 @@ class KpiBoardSearchFilterFormType extends AbstractType
                     'attr' => [
                         'class' => 'select2',
                     ],
-                    'placeholder' => 'Select created by',
+                    'placeholder' => '- Select created by -',
                     'required' => false,
                 ])
                 ->add('lineManager', ChoiceType::class,[
@@ -49,7 +49,7 @@ class KpiBoardSearchFilterFormType extends AbstractType
                     'attr' => [
                         'class' => 'select2',
                     ],
-                    'placeholder' => 'Select line manager',
+                    'placeholder' => '- Select line manager -',
                     'required' => false,
                 ])
             ;
@@ -81,13 +81,13 @@ class KpiBoardSearchFilterFormType extends AbstractType
                 'attr'=>[
                     'class'=>'select2'
                 ],
-                'placeholder' => 'Choose a employee',
+                'placeholder' => '- Select employee -',
                 'required' => false,
 
             ])
             ->add('designation', EntityType::class,[
                 'class' => Setting::class,
-                'placeholder' => 'Select designation',
+                'placeholder' => '- Select designation -',
                 'choice_label' => 'name',
                 'query_builder' => function(EntityRepository $repository){
                     return $repository->createQueryBuilder('e')
@@ -102,7 +102,7 @@ class KpiBoardSearchFilterFormType extends AbstractType
             ->add('kpiFormat', EntityType::class, [
                 'class' => Setting::class,
                 'choice_label' => 'name',
-                'placeholder' => 'All Formats',
+                'placeholder' => '- All Formats -',
                 'query_builder' => function(EntityRepository $repository){
                     return $repository->createQueryBuilder('e')
                         ->join('e.settingType', 'settingType')
@@ -128,12 +128,12 @@ class KpiBoardSearchFilterFormType extends AbstractType
                     'December' => 'December',
                 ],
                 'required' => false,
-                'placeholder' => 'Select a month',
+                'placeholder' => '- Select month -',
             ])
             ->add('year', ChoiceType::class,[
                 'choices' => $this->getYears(2020),
                 'required' => false,
-                'placeholder' => 'Select a year',
+                'placeholder' => '- Select year -',
             ])
             ->add('process', ChoiceType::class, [
                 'choices' => [
@@ -142,7 +142,18 @@ class KpiBoardSearchFilterFormType extends AbstractType
                     'Approved' => 'approved',
                 ],
                 'required' => false,
-                'placeholder' => 'Select process'
+                'placeholder' => '- Select process -'
+            ])
+            ->add('grade', ChoiceType::class, [
+                'choices' => [
+                    'A' => 'A',
+                    'B+' => 'B+',
+                    'B' => 'B',
+                    'C' => 'C',
+                    'D' => 'D',
+                ],
+                'required' => false,
+                'placeholder' => '- Select grade -'
             ])
             ->setMethod('get')
             ;
