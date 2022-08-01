@@ -167,7 +167,7 @@
                                                     {% endif %}
                                                 {% endif %}
                                                 <a class="dropdown-item" href="{{ path('kpi_details_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Details</a>
-                                                <a class="dropdown-item" href="{% if entity.reportFormatSlug == 'custom-format' %} {{ path('kpi_report_sales_achievement_custom_format',{'id':entity.id}) }} {% else %} {{ path('kpi_report_sales_achievement',{'id':entity.id}) }} {% endif %}"><i class="feather icon-file"></i> Achieve</a>
+                                                <a class="dropdown-item" href="{% if 'custom' in entity.reportFormatSlug %} {{ path('kpi_report_sales_achievement_custom_format',{'id':entity.id}) }} {% else %} {{ path('kpi_report_sales_achievement',{'id':entity.id}) }} {% endif %}"><i class="feather icon-file"></i> Achieve</a>
                                                 <a class="dropdown-item" href="{{ path('kpi_summary_report',{'id':entity.id}) }}"><i class="feather icon-file"></i> Summary</a>
                                                 {% if is_granted("ROLE_DEVELOPER") or is_granted("ROLE_KPI_ADMIN") %}
                                                     {% if entity.approvedByName %}

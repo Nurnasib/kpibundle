@@ -153,7 +153,6 @@ class KpiReportController extends AbstractController
 
             $months = $this->monthRange( $StartDate, $StopDate );
             $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $this->getUser());
-
             if ($request->query->has('pdf')){
                 
                 // Configure Dompdf according to your needs

@@ -180,7 +180,7 @@
                                         {{ 'Category Upgrade Agents: '|trans }} {% if dToUpgrade is defined and dToUpgrade is not empty %}{{ dToUpgrade.targetAchievement|default(0) }}{% endif %}
                                     </th>
                                     <th>
-                                        {{ 'Category Upgrade Percentage: '|trans }} {% if dToUpgrade is defined and dToUpgrade is not empty %}{{ ((dToUpgrade.targetAchievement * 100) / (dToUpgrade.targetAmount / 2))|number_format(2)|default(0) }} % {% endif %}
+                                        {{ 'Category Upgrade Percentage: '|trans }} {% if dToUpgrade is defined and dToUpgrade is not empty and dToUpgrade.targetAmount > 0 %}{{ ((dToUpgrade.targetAchievement * 100) / (dToUpgrade.targetAmount / 2))|number_format(2)|default(0) }} % {% endif %}
                                     </th>
                                 </tr>
                                 </thead>
@@ -201,7 +201,7 @@
                                         {{ 'Category Upgrade Agents: '|trans }} {% if cToUpgrade is defined and cToUpgrade is not empty %}{{ cToUpgrade.targetAchievement|default(0) }}{% endif %}
                                     </th>
                                     <th>
-                                        {{ 'Category Upgrade Percentage: '|trans }} {% if cToUpgrade is defined and cToUpgrade is not empty %}{{ ((cToUpgrade.targetAchievement * 100) / (cToUpgrade.targetAmount / 2))|number_format(2)|default(0) }} % {% endif %}
+                                        {{ 'Category Upgrade Percentage: '|trans }} {% if cToUpgrade is defined and cToUpgrade is not empty and cToUpgrade.targetAmount > 0 %}{{ ((cToUpgrade.targetAchievement * 100) / (cToUpgrade.targetAmount / 2))|number_format(2)|default(0) }} % {% endif %}
                                     </th>
                                 </tr>
                                 </thead>
@@ -220,7 +220,7 @@
                                     </th>
                                     <th>
                                         {{ 'Growth Agent percentage:' }}
-                                        {% if agentUpgradation is defined and agentUpgradation is not empty %}{{ ((agentUpgradation.targetAchievement * 100) / agentUpgradation.targetAmount)|number_format(2)|default(0) }} % {% endif %}
+                                        {% if agentUpgradation is defined and agentUpgradation is not empty and agentUpgradation.targetAmount > 0 %}{{ ((agentUpgradation.targetAchievement * 100) / agentUpgradation.targetAmount)|number_format(2)|default(0) }} % {% endif %}
                                     </th>
                                 </tr>
                                 </thead>

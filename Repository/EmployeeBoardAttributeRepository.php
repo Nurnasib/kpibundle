@@ -1694,7 +1694,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $qb->addSelect('employee.name AS employeeName','employee.id AS employeeId', 'employee.userId');
         $qb->addSelect('activity.name AS activityName','activity.id AS activityId');
         $qb->addSelect('designation.name AS employeeDesignation');
-        $qb->addSelect('board.month','boardReportMode.name AS boardReportFormat', 'board.obtainMark', 'board.grade', 'board.id AS boardId');
+        $qb->addSelect('board.month','boardReportMode.name AS boardReportFormat','boardReportMode.slug AS boardReportFormatSlug', 'board.obtainMark', 'board.grade', 'board.id AS boardId');
 
         $qb->where('board.year =:year')->setParameter('year', $filterBy['year']);
         if (isset($filterBy['kpiFormat'])){
@@ -1723,6 +1723,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $data[$result['userId']]['data']['employeeName'] = $result['employeeName'];
             $data[$result['userId']]['data']['designation'] = $result['employeeDesignation'];
             $data[$result['userId']]['data'][$result['month']]['reportMode'] = $result['boardReportFormat'];
+            $data[$result['userId']]['data'][$result['month']]['boardReportFormatSlug'] = $result['boardReportFormatSlug'];
             $data[$result['userId']]['data'][$result['month']]['obtainMark'] = $result['obtainMark'];
             $data[$result['userId']]['data'][$result['month']]['grade'] = $result['grade'];
             $data[$result['userId']]['data'][$result['month']]['boardId'] = $result['boardId'];
