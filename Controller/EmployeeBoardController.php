@@ -135,7 +135,7 @@ class EmployeeBoardController extends AbstractController
 
             $findAgentSales = $this->getDoctrine()->getRepository(AgentOrder::class)->findBy(['month' => $month, 'year' => $year]);
 
-            if (!$findAgentSales){
+            if (!$findAgentSales && $format != 'custom-format'){
                 $this->addFlash('warning', "Please upload data for {$monthYear}!");
                 return $this->redirectToRoute('kpi_board_new',['format' => $format]);
             }
@@ -204,7 +204,7 @@ class EmployeeBoardController extends AbstractController
 
             // Check if kpi exists
             $exist = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findOneBy(
-                array('employee' => $emp,'month'=>$month, 'year'=>$year, 'reportMode'=>$emp->getReportMode())
+                array('employee' => $emp,'month'=>$month, 'year'=>$year)
             );
 
             // Generate new
@@ -299,6 +299,7 @@ class EmployeeBoardController extends AbstractController
     public function edit(EmployeeBoard $entity): Response
     {
         if ($entity->getApprovedBy()){
+            $this->addFlash('warning', 'Already generated and approved!');
             return $this->redirectToRoute('kpi_employee_board');
         }
         $em = $this->getDoctrine()->getManager();
@@ -336,6 +337,7 @@ class EmployeeBoardController extends AbstractController
     public function editCustomFormat(EmployeeBoard $board): Response
     {
         if ($board->getApprovedBy()){
+            $this->addFlash('warning', 'Already generated and approved!');
             return $this->redirectToRoute('kpi_employee_board');
         }
         $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->findBy(['employeeBoard' => $board]);

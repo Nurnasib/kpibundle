@@ -41,14 +41,18 @@
                             <td><b>{{ 'Designation:'|trans }}</b></td>
                             <td>{{ board.employee.designation.name }}</td>
                             <td><b>{{ 'Format:'|trans }}</b></td>
-                            <td>{{ board.employee.reportMode.name|default('') }}</td>
+                            <td>{{ board.reportMode.name|default('') }}</td>
 
                         </tr>
                         <tr>
                             <td><b>{{ 'Employee Id:'|trans }}</b></td>
                             <td>{{ board.employee.userId }}</td>
                             <td><b>{{ 'Working Area:'|trans }}</b></td>
-                            <td>{% for district in board.employee.district %}{{ district.name }}{% if not loop.last %},{% endif %} {% endfor %}</td>
+                            <td>
+{#                                {% for district in board.employee.district %}{{ district.name }}{% if not loop.last %},{% endif %} {% endfor %}#}
+                                {% for districtName in board.district|json_decode %}{{ districtName }}{% if not loop.last %},{% endif %} {% endfor %}
+
+                            </td>
                             <td><b>{{ 'Month & Year:'|trans }}</b></td>
                             <td>{{ board.month }},{{ board.year }}</td>
 
@@ -106,21 +110,6 @@
                             {% set totalActual = 0 %}
                             {% set totalLimit = 0 %}
                             {% set totalOutstanding = 0 %}
-                            {% if board.reportMode.slug in ['custom-format-spo', 'custom-format-poultry', 'custom-format-cattle', 'custom-format-aqua'] %}
-
-                                {% set totalActual = totalActual + outstanding['actualAmount'] %}
-                                {% set totalLimit = totalLimit + outstanding['limitAmount'] %}
-                                {% set totalOutstanding = totalOutstanding + outstanding['outstanding'] %}
-                                <tr>
-                                    <td></td>
-                                    <td>{{ outstanding['actualAmount']|number_format(2,'.',',')|default() }}</td>
-                                    <td>{{ outstanding['limitAmount']|number_format(2,'.',',')|default() }}</td>
-                                    <td>{{ outstanding['outstanding']|number_format(2,'.')|default() }}</td>
-                                    <td></td>
-                                </tr>
-
-                            {% else %}
-
                                 {% for key, amount in outstanding %}
                                     {% if key != 'mark' %}
                                         {% set totalActual = totalActual + amount.actualAmount %}
@@ -135,8 +124,6 @@
                                         </tr>
                                     {% endif %}
                                 {% endfor %}
-
-                            {% endif %}
                             <tr>
                                 <th>{{ 'Total'|trans }}</th>
                                 <th>{{ totalActual|number_format(2,'.', ',')|default() }}</th>
@@ -167,17 +154,6 @@
                         {% if docSale is not empty %}
                             {% set totalCollection = 0 %}
                             {% set totalSales = 0 %}
-                            {% if board.reportMode.slug in ['custom-format-spo', 'custom-format-poultry', 'custom-format-cattle', 'custom-format-aqua'] %}
-                                {% set totalCollection = totalCollection + docSale['salesAmount'] %}
-                                {% set totalSales = totalSales + docSale['collectionAmount'] %}
-                                <tr>
-                                    <td></td>
-                                    <td>{{ docSale['salesAmount']|number_format(2,'.', ',')|default() }}</td>
-                                    <td>{{ docSale['collectionAmount']|number_format(2,'.',',')|default() }}</td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                            {% else %}
                                 {% for key, amount in docSale %}
                                     {% if key != 'mark' %}
                                         {% set totalCollection = totalCollection + amount.salesAmount %}
@@ -191,7 +167,6 @@
                                         </tr>
                                     {% endif %}
                                 {% endfor %}
-                            {% endif %}
                             <tr>
                                 <th>{{ 'Total'|trans }}</th>
                                 <th>{{ totalCollection|number_format(2,'.', ',')|default(0) }}</th>
@@ -212,7 +187,7 @@
                         {% endif %}
                         </tbody>
                     </table>
-                    {% if board.employee.reportMode.slug == 'spo-format' %}
+                    {% if board.reportMode.slug is same as 'spo-format' %}
                         <h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ '"D" Category Agent Upgradation'|trans }}</h5>
                         <table width="100%" border="1" cellpadding="5" cellspacing="0">
                             <thead>
@@ -276,7 +251,7 @@
                         </table>
                     {% endif %}
 
-                    {% if board.employee.reportMode.slug == 'spo-format' %}
+                    {% if board.reportMode.slug is same as 'spo-format' %}
                         <h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ '"C" Category Agent Upgradation  '|trans }}</h5>
                         <table width="100%" cellpadding="5" cellspacing="0" border="1">
                             <thead>
@@ -339,7 +314,7 @@
                             </tbody>
                         </table>
                     {% endif %}
-                    {% if (board.employee.reportMode.slug == 'agm-kpi' or board.employee.reportMode.slug == 'rsm-arsm-kpi') %}
+                    {% if (board.reportMode.slug is same as 'agm-kpi' or board.reportMode.slug is same as 'rsm-arsm-kpi') %}
                         <h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ 'Team members ach(=100%) mark on core activities'|trans }}</h5>
                         <table width="100%" cellpadding="5", cellspacing="0" border="1">
                             <thead>
@@ -372,7 +347,7 @@
                                     <th>{{ "Total"|trans }}</th>
                                     <th>{{ totalActualMark|default('0') }}</th>
                                     <th>{{ totalMark|default('0') }}</th>
-                                    <th>{{ ((totalMark * 100) / totalActualMark)|number_format(2)|default(0) }} %</th>
+                                    <th>{{ totalActualMark > 0 ? (((totalMark * 100) / totalActualMark)|number_format(2)) : 0 }} %</th>
                                     <th>{{ individualTeamMemberMarks['obtainMark']|default('0') }}</th>
                                 </tr>
                             {% else %}
@@ -384,7 +359,7 @@
                         </table>
                     {% endif %}
 
-                    {% if (board.employee.reportMode.slug == 'spo-format' or board.employee.reportMode.slug == 'aqua-service' or board.employee.reportMode.slug == 'cattle-service') %}
+                    {% if (board.reportMode.slug is same as 'spo-format' or board.reportMode.slug is same as 'aqua-service' or board.reportMode.slug is same as 'cattle-service') %}
                         <h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ 'Agent Upgradation'|trans }}</h5>
                         <table width="100%" cellpadding="5", cellspacing="0" border="1">
                             <thead>
