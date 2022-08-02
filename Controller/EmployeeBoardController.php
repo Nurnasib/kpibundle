@@ -695,12 +695,12 @@ class EmployeeBoardController extends AbstractController
         }
 
 
-        $findDtoUpgradetAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['slug' => 'minimum-50-d-category-agents-converts-to-c']);
-        $findCtoUpgradetAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['slug' => 'minimum-50-c-category-agents-converts-to-b']);
+//        $findDtoUpgradetAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['slug' => 'minimum-50-d-category-agents-converts-to-c']);
+//        $findCtoUpgradetAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['slug' => 'minimum-50-c-category-agents-converts-to-b']);
         $findAgentUpgradeAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['slug' => 'agent-upgradation']);
 
-        $dToUpgrade = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board,'attribute' => $findDtoUpgradetAttribute]);
-        $cToUpgrade = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board,'attribute' => $findCtoUpgradetAttribute]);
+//        $dToUpgrade = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board,'attribute' => $findDtoUpgradetAttribute]);
+//        $cToUpgrade = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board,'attribute' => $findCtoUpgradetAttribute]);
         $agentUpgradation = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board,'attribute' => $findAgentUpgradeAttribute]);
 
         if ($mode == 'pdf'){
@@ -720,8 +720,8 @@ class EmployeeBoardController extends AbstractController
                 'outstandingMark' => $outstandingMark,
                 'docSale' => $docSale,
                 'docSaleMark' => $docSaleMark,
-                'dToUpgrade' => $dToUpgrade,
-                'cToUpgrade' => $cToUpgrade,
+//                'dToUpgrade' => $dToUpgrade,
+//                'cToUpgrade' => $cToUpgrade,
                 'agentUpgradation' => $agentUpgradation,
             ]);
 
@@ -747,8 +747,8 @@ class EmployeeBoardController extends AbstractController
                 'outstanding' => $outstanding,
                 'docSale' => $docSale,
                 'docSaleMark' => $docSaleMark,
-                'dToUpgrade' => $dToUpgrade,
-                'cToUpgrade' => $cToUpgrade,
+//                'dToUpgrade' => $dToUpgrade,
+//                'cToUpgrade' => $cToUpgrade,
                 'agentUpgradation' => $agentUpgradation,
             ]);
 
@@ -771,8 +771,8 @@ class EmployeeBoardController extends AbstractController
             'outstandingMark' => $outstandingMark,
             'docSale' => $docSale,
             'docSaleMark' => $docSaleMark,
-            'dToUpgrade' => $dToUpgrade,
-            'cToUpgrade' => $cToUpgrade,
+//            'dToUpgrade' => $dToUpgrade,
+//            'cToUpgrade' => $cToUpgrade,
             'agentUpgradation' => $agentUpgradation,
         ]);
 
