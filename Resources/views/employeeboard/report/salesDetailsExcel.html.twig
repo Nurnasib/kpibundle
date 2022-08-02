@@ -1,4 +1,3 @@
-
 <table>
     <thead>
     <tr>
@@ -7,14 +6,18 @@
         <td><b>{{ 'Designation:'|trans }}</b></td>
         <td>{{ board.employee.designation.name }}</td>
         <td><b>{{ 'Format:'|trans }}</b></td>
-        <td>{{ board.employee.reportMode.name|default('') }}</td>
+        <td>{{ board.reportMode.name|default('') }}</td>
 
     </tr>
     <tr>
         <td><b>{{ 'Employee Id:'|trans }}</b></td>
         <td>{{ board.employee.userId }}</td>
         <td><b>{{ 'Working Area:'|trans }}</b></td>
-        <td>{% for district in board.employee.district %}{{ district.name }}{% if not loop.last %},{% endif %} {% endfor %}</td>
+        <td>
+            {#            {% for district in board.employee.district %}{{ district.name }}{% if not loop.last %},{% endif %} {% endfor %}#}
+            {% for districtName in board.district|json_decode %}{{ districtName }}{% if not loop.last %},{% endif %} {% endfor %}
+
+        </td>
         <td><b>{{ 'Month & Year:'|trans }}</b></td>
         <td>{{ board.month }},{{ board.year }}</td>
 
@@ -30,12 +33,14 @@
                 <th></th>
             </tr>
             <tr>
-                <th colspan="5"><h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ key == 'feed' ? 'Sales Feed Achivement' : 'Product Sales Growth' }}</h5>
+                <th colspan="5"><h5
+                            style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ key == 'feed' ? 'Sales Feed Achivement' : 'Product Sales Growth' }}</h5>
                 </th>
             </tr>
             <tr>
                 <th scope="col">{{ 'Mark Parameter'|trans }}</th>
-                <th scope="col" width="20%">{{ key == 'feed' ? 'Target Quantity' : 'Previous Year Sales Quantity' }}</th>
+                <th scope="col"
+                    width="20%">{{ key == 'feed' ? 'Target Quantity' : 'Previous Year Sales Quantity' }}</th>
                 <th scope="col" width="20%">{{ 'Current Year Sales Quantity'|trans }}</th>
                 <th scope="col" width="20%">{{ 'Percentage'|trans }}</th>
                 <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
@@ -84,37 +89,20 @@
         {% set totalActual = 0 %}
         {% set totalLimit = 0 %}
         {% set totalOutstanding = 0 %}
-        {% if board.reportMode.slug in ['custom-format-spo', 'custom-format-poultry', 'custom-format-cattle', 'custom-format-aqua'] %}
-
-            {% set totalActual = totalActual + outstanding['actualAmount'] %}
-            {% set totalLimit = totalLimit + outstanding['limitAmount'] %}
-            {% set totalOutstanding = totalOutstanding + outstanding['outstanding'] %}
-            <tr>
-                <td></td>
-                <td>{{ outstanding['actualAmount']|number_format(2,'.',',')|default() }}</td>
-                <td>{{ outstanding['limitAmount']|number_format(2,'.',',')|default() }}</td>
-                <td>{{ outstanding['outstanding']|number_format(2,'.')|default() }}</td>
-                <td></td>
-            </tr>
-
-        {% else %}
-
-            {% for key, amount in outstanding %}
-                {% if key != 'mark' %}
-                    {% set totalActual = totalActual + amount.actualAmount %}
-                    {% set totalLimit = totalLimit + amount.limitAmount %}
-                    {% set totalOutstanding = totalOutstanding + amount.outstanding %}
-                    <tr>
-                        <td>{{ key|default() }}</td>
-                        <td>{{ amount.actualAmount|number_format(2,'.',',')|default() }}</td>
-                        <td>{{ amount.limitAmount|number_format(2,'.',',')|default() }}</td>
-                        <td>{{ amount.outstanding|number_format(2,'.')|default() }}</td>
-                        <td>{{ amount.mark|default() }}</td>
-                    </tr>
-                {% endif %}
-            {% endfor %}
-
-        {% endif %}
+        {% for key, amount in outstanding %}
+            {% if key != 'mark' %}
+                {% set totalActual = totalActual + amount.actualAmount %}
+                {% set totalLimit = totalLimit + amount.limitAmount %}
+                {% set totalOutstanding = totalOutstanding + amount.outstanding %}
+                <tr>
+                    <td>{{ key|default() }}</td>
+                    <td>{{ amount.actualAmount|number_format(2,'.',',')|default() }}</td>
+                    <td>{{ amount.limitAmount|number_format(2,'.',',')|default() }}</td>
+                    <td>{{ amount.outstanding|number_format(2,'.')|default() }}</td>
+                    <td>{{ amount.mark|default() }}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
         <tr>
             <th>{{ 'Total'|trans }}</th>
             <th>{{ totalActual|number_format(2,'.', ',')|default() }}</th>
@@ -153,31 +141,19 @@
     {% if docSale is defined and docSale is not empty %}
         {% set totalCollection = 0 %}
         {% set totalSales = 0 %}
-        {% if board.reportMode.slug in ['custom-format-spo', 'custom-format-poultry', 'custom-format-cattle', 'custom-format-aqua'] %}
-            {% set totalCollection = totalCollection + docSale['salesAmount'] %}
-            {% set totalSales = totalSales + docSale['collectionAmount'] %}
-            <tr>
-                <td></td>
-                <td>{{ docSale['salesAmount']|number_format(2,'.', ',')|default() }}</td>
-                <td>{{ docSale['collectionAmount']|number_format(2,'.',',')|default() }}</td>
-                <td></td>
-                <td></td>
-            </tr>
-        {% else %}
-            {% for key, amount in docSale %}
-                {% if key != 'mark' %}
-                    {% set totalCollection = totalCollection + amount.salesAmount %}
-                    {% set totalSales = totalSales + amount.collectionAmount %}
-                    <tr>
-                        <td>{{ key|default() }}</td>
-                        <td>{{ amount.salesAmount|number_format(2,'.', ',')|default() }}</td>
-                        <td>{{ amount.collectionAmount|number_format(2,'.',',')|default() }}</td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                {% endif %}
-            {% endfor %}
-        {% endif %}
+        {% for key, amount in docSale %}
+            {% if key != 'mark' %}
+                {% set totalCollection = totalCollection + amount.salesAmount %}
+                {% set totalSales = totalSales + amount.collectionAmount %}
+                <tr>
+                    <td>{{ key|default() }}</td>
+                    <td>{{ amount.salesAmount|number_format(2,'.', ',')|default() }}</td>
+                    <td>{{ amount.collectionAmount|number_format(2,'.',',')|default() }}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            {% endif %}
+        {% endfor %}
         <tr>
             <th>{{ 'Total'|trans }}</th>
             <th>{{ totalCollection|number_format(2,'.', ',')|default(0) }}</th>
@@ -198,7 +174,7 @@
     {% endif %}
     </tbody>
 </table>
-{% if board.employee.reportMode.slug == 'spo-format' %}
+{% if board.reportMode.slug is same as 'spo-format' %}
     <table>
         <thead>
         <tr>
@@ -211,7 +187,7 @@
         </tr>
         <tr>
             <td scope="col">{{ 'Previous "D" Category Agents: '|trans }} {{ dCategoryUpgrade.totalAgent|default(0) }}</td>
-{#            <td scope="col">{{ '50% "D" Category Agents: '|trans }} {{ (dCategoryUpgrade.totalAgent / 2)|round }}</td>#}
+            {#            <td scope="col">{{ '50% "D" Category Agents: '|trans }} {{ (dCategoryUpgrade.totalAgent / 2)|round }}</td>#}
             <td scope="col">{{ 'Category Upgrade Agents: '|trans }} {{ dCategoryUpgrade.totalUpgradeAgent|default(0) }}</td>
             <td scope="col">{{ 'Category Upgrade Percentage: '|trans }}
                 {% if dCategoryUpgrade.totalAgent > 0 %}
@@ -280,7 +256,7 @@
         </tr>
         <tr>
             <td scope="col">{{ 'Previous "C" Category Agents: '|trans }} {{ cCategoryUpgrade.totalAgent|default(0) }}</td>
-{#            <td scope="col">{{ '50% "C" Category Agents: '|trans }} {{ (cCategoryUpgrade.totalAgent / 2)|round }}</td>#}
+            {#            <td scope="col">{{ '50% "C" Category Agents: '|trans }} {{ (cCategoryUpgrade.totalAgent / 2)|round }}</td>#}
             <td scope="col">{{ 'Category Upgrade Agents: '|trans }} {{ cCategoryUpgrade.totalUpgradeAgent|default(0) }}</td>
             <td scope="col">{{ 'Category Upgrade Percentage: '|trans }}
                 {% if cCategoryUpgrade.totalAgent > 0 %}
@@ -299,7 +275,7 @@
             <th scope="col">{{ 'District'|trans }}</th>
             <th scope="col">{{ 'Region'|trans }}</th>
             <th scope="col">{{ 'Zone'|trans }}</th>
-            <th scope="col">{{ 'Average'|trans ~ ' (' ~ (board.year-1) ~ ')'  }}</th>
+            <th scope="col">{{ 'Average'|trans ~ ' (' ~ (board.year-1) ~ ')' }}</th>
             {% if cCategoryUpgrade is not empty %}
                 {% for board in cCategoryUpgrade %}
                     {% if board is iterable and loop.index == 1 %}
@@ -338,14 +314,16 @@
     </table>
 {% endif %}
 
-{% if (board.employee.reportMode.slug == 'agm-kpi' or board.employee.reportMode.slug == 'rsm-arsm-kpi') %}
+{% if (board.reportMode.slug is same as 'agm-kpi' or board.reportMode.slug is same as 'rsm-arsm-kpi') %}
     <table>
         <thead>
         <tr>
             <th></th>
         </tr>
         <tr>
-            <th colspan="3"><h5 style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ 'Team members ach(=100%) mark on core activities'|trans }}</h5></th>
+            <th colspan="3"><h5
+                        style="width: 100%; background: gray; padding: 5px; margin-bottom: 2px">{{ 'Team members ach(=100%) mark on core activities'|trans }}</h5>
+            </th>
         </tr>
         <tr>
             <th scope="col">{{ 'Employee'|trans }}</th>
@@ -376,7 +354,7 @@
                 <th>{{ "Total"|trans }}</th>
                 <th>{{ totalActualMark|default('0') }}</th>
                 <th>{{ totalMark|default('0') }}</th>
-                <th>{{ ((totalMark * 100) / totalActualMark)|number_format(2)|default(0) }} %</th>
+                <th>{{ totalActualMark > 0 ? (((totalMark * 100) / totalActualMark)|number_format(2)) : 0 }} %</th>
                 <th>{{ individualTeamMemberMarks['obtainMark']|default('0') }}</th>
             </tr>
         {% else %}
@@ -388,7 +366,7 @@
     </table>
 {% endif %}
 
-{% if (board.employee.reportMode.slug == 'spo-format' or board.employee.reportMode.slug == 'aqua-service' or board.employee.reportMode.slug == 'cattle-service') %}
+{% if (board.reportMode.slug is same as 'spo-format' or board.reportMode.slug is same as 'aqua-service' or board.reportMode.slug is same as 'cattle-service') %}
 
     <table>
         <thead>
