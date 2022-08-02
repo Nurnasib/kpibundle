@@ -36,6 +36,9 @@ class KpiReportController extends AbstractController
      */
     public function teamMemberSummary(Request $request, UserRepository $userRepository)
     {
+        set_time_limit(0);
+        ini_set('memory_limit', '5000M');
+        
         $lineManagers = $userRepository->getLineManager();
         $teamMemberSummary = [];
         $filterBy = [
@@ -128,6 +131,8 @@ class KpiReportController extends AbstractController
     public function allTeamMemberSummary(Request $request, UserRepository $userRepository)
     {
         set_time_limit(0);
+        ini_set('memory_limit', '5000M');
+
         $lineManagers = $userRepository->getLineManager();
 
         $filterBy = [
@@ -220,6 +225,8 @@ class KpiReportController extends AbstractController
      */
     public function districtHistory(Request $request)
     {
+        set_time_limit(0);
+        ini_set('memory_limit', '5000M');
         $filterBy = [
             'month' => date('F'),
             'year' => date('Y'),
@@ -281,6 +288,9 @@ class KpiReportController extends AbstractController
      */
     public function monthlyGeneratedKpiStatus(Request $request)
     {
+        set_time_limit(0);
+        ini_set('memory_limit', '5000M');
+        
         $user = $this->getUser();
 
         $employees = [];
