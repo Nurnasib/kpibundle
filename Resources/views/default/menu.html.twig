@@ -7,10 +7,10 @@
     {% if is_granted("ROLE_KPI_ADMIN") or is_granted("ROLE_LINE_MANAGER") or is_granted("ROLE_DEVELOPER") %}
         <li><a class="dropdown-item" href="javascript:">{{ 'Report'|trans }}</a>
             <ul>
+                <li><a class="dropdown-item" href="{{ path('monthly_generated_kpi_status') }}">{{ 'KPI Status'|trans }}</a></li>
                 <li><a class="dropdown-item" href="{{ path('all_team_member_summary') }}">{{ 'All Employee KPI'|trans }}</a></li>
                 <li><a class="dropdown-item" href="{{ path('team_member_summary') }}">{{ 'Employee Monthly KPI'|trans }}</a></li>
                 <li><a class="dropdown-item" href="{{ path('district_history') }}">{{ 'Employee District'|trans }}</a></li>
-                <li><a class="dropdown-item" href="{{ path('monthly_generated_kpi_status') }}">{{ 'KPI Status'|trans }}</a></li>
             </ul>
         </li>
     {% endif %}

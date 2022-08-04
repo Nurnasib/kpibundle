@@ -314,26 +314,9 @@ class KpiReportController extends AbstractController
                     $lineManagersId[] = $lineManager['userId'];
                 }
             }
-
-            $userRoles = [];
-            if (in_array('ROLE_CRM_POULTRY_ADMIN', $this->getUser()->getRoles())) {
-                array_push($userRoles, 'ROLE_CRM_POULTRY_USER');
-            }
-            if (in_array('ROLE_CRM_CATTLE_ADMIN', $this->getUser()->getRoles())) {
-                array_push($userRoles, 'ROLE_CRM_CATTLE_USER');
-            }
-            if (in_array('ROLE_CRM_AQUA_ADMIN', $this->getUser()->getRoles())) {
-                array_push($userRoles, 'ROLE_CRM_AQUA_USER');
-            }
-            if (in_array('ROLE_CRM_SALES_MARKETING_ADMIN', $this->getUser()->getRoles())) {
-                array_push($userRoles, 'ROLE_CRM_SALES_MARKETING_USER');
-            }
-
-
-            $employees = $this->getDoctrine()->getRepository(User::class)->getLineManagerTeamMember($lineManagersId, $userRoles);
+            $employees = $this->getDoctrine()->getRepository(User::class)->getLineManagerTeamMember($lineManagersId, []);
         }
-
-
+        
         $kpiRecords = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getMonthlyStatus($selectedYear, $selectedLineManager, $user);
 
         return $this->render('@TerminalbdKpi/employeeboard/report/monthlyStatus.html.twig', [
@@ -344,8 +327,7 @@ class KpiReportController extends AbstractController
             'selectedLineManager' => $selectedLineManager,
         ]);
     }
-
-
+    
     /**
      * Gets list of months between two dates
      * @param int $start Unix timestamp
