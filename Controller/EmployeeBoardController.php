@@ -1252,7 +1252,9 @@ class EmployeeBoardController extends AbstractController
         $boards = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findAll();
 
         foreach ($boards as $board) {
-            $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($board, $parameters);
+            if(!str_contains($board->getReportMode()->getSlug(), 'custom')){
+                $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($board, $parameters);
+            }
         }
 
         $this->addFlash('success', 'All KPI are updated!');

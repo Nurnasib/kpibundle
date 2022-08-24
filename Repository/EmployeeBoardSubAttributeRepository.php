@@ -67,6 +67,7 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
 
             }
             $data[$result['salesMode']][] = [
+                'attributeId' => $result['attributeId'],
                 'markParameter' => $result['attributeName'],
                 'targetQuantity' => $result['targetQuantity'],
                 'salesQuantity' => $result['salesQuantity'],
