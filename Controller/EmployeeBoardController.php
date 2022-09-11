@@ -224,6 +224,7 @@ class EmployeeBoardController extends AbstractController
                 $board->setReportMode($emp->getReportMode());
                 $board->setEmployee($emp);
                 $board->setCreatedBy($this->getUser());
+                $board->setLineManager($emp->getLineManager());
                 $board->setDistrict($districts);
                 $board->setCreated(new \DateTime());
                 $board->setUpdated(new \DateTime());

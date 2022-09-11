@@ -31,7 +31,8 @@ class EmployeeBoardRepository extends EntityRepository
     {
         $qb = $this->createQueryBuilder('s');
         $qb->join('s.employee','u');
-        $qb->leftJoin('u.lineManager','lm');
+//        $qb->leftJoin('u.lineManager','lm');
+        $qb->leftJoin('s.lineManager','lm');
         $qb->leftJoin('u.designation','d');
         $qb->leftJoin('s.createdBy', 'createdBy');
         $qb->leftJoin('s.approvedBy', 'approvedBy');
@@ -46,7 +47,7 @@ class EmployeeBoardRepository extends EntityRepository
         $qb->addSelect('reportMode.slug AS reportFormatSlug');
 
         if (in_array('ROLE_LINE_MANAGER', $user->getRoles())){
-            $qb->andWhere('u.lineManager = :user')->setParameter('user', $user);
+            $qb->andWhere('lm = :user')->setParameter('user', $user);
         }elseif (!in_array('ROLE_LINE_MANAGER', $user->getRoles()) && !in_array('ROLE_KPI_ADMIN', $user->getRoles())){
             $qb->andWhere('s.employee = :user')->setParameter('user', $user);
         }
@@ -70,11 +71,13 @@ class EmployeeBoardRepository extends EntityRepository
         $qb = $this->createQueryBuilder('s');
         $qb->join('s.employee','u');
         $qb->leftJoin('s.reportMode','boardReportMode');
-        $qb->leftJoin('u.lineManager','lm');
+//        $qb->leftJoin('u.lineManager','lm');
+        $qb->leftJoin('s.lineManager','lm');
         $qb->leftJoin('u.designation','d');
         $qb->leftJoin('s.createdBy', 'createdBy');
         $qb->leftJoin('s.approvedBy', 'approvedBy');
-        $qb->leftJoin('u.reportMode', 'reportMode');
+//        $qb->leftJoin('u.reportMode', 'reportMode');
+        $qb->leftJoin('s.reportMode', 'reportMode');
         $qb->select('s.id as id','s.month as month','s.year as year','s.status','s.created','s.district','s.process','s.isReverse','s.grade');
         $qb->addSelect('u.name as name','u.userId','d.name as designation');
         $qb->addSelect('lm.name as lineManager');
@@ -111,7 +114,7 @@ class EmployeeBoardRepository extends EntityRepository
         }
 
         if (in_array('ROLE_LINE_MANAGER', $user->getRoles())){
-            $qb->andWhere('u.lineManager = :user')->setParameter('user', $user);
+            $qb->andWhere('lm = :user')->setParameter('user', $user);
         }elseif (!in_array('ROLE_LINE_MANAGER', $user->getRoles()) && !in_array('ROLE_KPI_ADMIN', $user->getRoles())){
             $qb->andWhere('s.employee = :user')->setParameter('user', $user);
         }

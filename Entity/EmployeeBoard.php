@@ -147,6 +147,12 @@ class EmployeeBoard
      */
     private $isInput = true;
 
+    /**
+     * @var User
+     * @ORM\ManyToOne(targetEntity="App\Entity\User" , inversedBy="employeeBoard")
+     */
+    private $lineManager;
+
     public function setId($id)
     {
         $this->id = $id;
@@ -463,5 +469,22 @@ class EmployeeBoard
         $this->isInput = $isInput;
     }
 
+    /**
+     * @return User
+     */
+    public function getLineManager(): User
+    {
+        return $this->lineManager;
+    }
+
+    /**
+     * @param User $lineManager
+     */
+    public function setLineManager(User $lineManager): void
+    {
+        $this->lineManager = $lineManager;
+    }
+
+    
 
 }
