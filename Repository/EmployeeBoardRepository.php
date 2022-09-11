@@ -227,7 +227,7 @@ class EmployeeBoardRepository extends EntityRepository
         }
         $qb = $this->createQueryBuilder('board');
         $qb->join('board.employee', 'employee');
-        $qb->leftJoin('employee.lineManager', 'lineManager');
+        $qb->leftJoin('board.lineManager', 'lineManager');
         $qb->leftJoin('employee.designation', 'designation');
         $qb->select('board.id AS boardId', 'AVG(board.selfMark) AS selfMarkAvg', 'AVG(board.obtainMark) AS lineManagerMarkAvg');
         $qb->addSelect('employee.id AS employeeId', 'employee.userId', 'employee.name AS employeeName', 'employee.joiningDate');
@@ -235,7 +235,7 @@ class EmployeeBoardRepository extends EntityRepository
         $qb->addSelect('designation.name AS designationName');
         $qb->where('board.approvedBy IS NOT NULL');
         if (!in_array('ROLE_KPI_ADMIN', $user->getRoles())){
-            $qb->andWhere('employee.lineManager = :lineManager')->setParameter('lineManager', $user);
+            $qb->andWhere('lineManager = :lineManager')->setParameter('lineManager', $user);
         }
         $qb->andWhere('board.year = :year')->setParameter('year', $year);
         $qb->groupBy('employee.id');

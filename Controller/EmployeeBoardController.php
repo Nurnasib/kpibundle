@@ -554,12 +554,13 @@ class EmployeeBoardController extends AbstractController
 
         $employee = $board->getEmployee();
 
-        $getEmployeesByLineManager = $this->getDoctrine()->getRepository(User::class)->findBy(['lineManager'=>$employee, 'enabled'=>1, 'isPermanent' => true]);
+//        $getEmployeesByLineManager = $this->getDoctrine()->getRepository(User::class)->findBy(['lineManager'=>$employee, 'enabled'=>1, 'isPermanent' => true]);
+        $getEmployeesByLineManager = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->getTeamMembers($employee, $board->getMonth(), $board->getYear());
 
         $employeeArrs = [];
         foreach ($getEmployeesByLineManager as $childEmployee){
             if(!empty($childEmployee)){
-                $employeeArrs[] = $childEmployee->getId();
+                $employeeArrs[] = $childEmployee->getEmployee()->getId();
             }
         }
         $parameter = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(array('slug'=>'core-responsibilities','status'=>1));

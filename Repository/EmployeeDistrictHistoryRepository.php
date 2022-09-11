@@ -150,4 +150,19 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function getTeamMembers($emp, $month, $year)
+    {
+        $qb = $this->createQueryBuilder('e');
+
+        $qb->join('e.employee', 'employee');
+
+        $qb->andWhere('e.month = :month')->setParameter('month', $month);
+        $qb->andWhere('e.year = :year')->setParameter('year', $year);
+        $qb->andWhere("employee.enabled = 1");
+        $qb->andWhere("employee.isPermanent = true");
+        $qb->andWhere('e.lineManager = :lineManager')->setParameter('lineManager', $emp);
+
+        return $qb->getQuery()->getResult();
+    }
 }
