@@ -3,39 +3,29 @@
 {% block stylesheets %}
     {{ parent() }}
     <!-- Amcharts Resources -->
-    {#            <script src="https://cdn.amcharts.com/lib/5/index.js"></script>#}
+{#    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>#}
     <script src="{{ asset('assets/plugins/amchart/am5/index.js') }}"></script>
     <script src="{{ asset('assets/plugins/amchart/am5/xy.js') }}"></script>
+    <script src="{{ asset('assets/plugins/amchart/am5/deps/pdfmake.js') }}"></script>
     <script src="{{ asset('assets/plugins/amchart/js/percent.js') }}"></script>
     <script src="{{ asset('assets/plugins/amchart/themes/Animated.js') }}"></script>
     <script src="{{ asset('assets/plugins/amchart/themes/Frozen.js') }}"></script>
+    <script src="https://cdn.amcharts.com/lib/5/plugins/exporting.js"></script>
+
 {% endblock %}
 
 {% block body %}
     <div class="pcoded-inner-content">
-        <!-- [ breadcrumb ] start -->
-{#        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
-                        <li class="breadcrumb-item">{{ 'KPI Statistics'|trans }}</li>
-                    </ul>
-                </div>
-            </div>
-        </div>#}
-        <!-- [ breadcrumb ] end -->
-        <!-- [ Main Content ] start -->
-
         <div class="row">
             <div class="card mb-1">
                 <div class="card-header p-2">
                     <h5>KPI Statistics</h5>
+{#                    <button class="btn btn-sm btn-warning float-right print"><i class="fa fa-print"></i> Print</button>#}
                 </div>
-                <div class="card-body">
+                <div class="card-body" id="print-area">
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="row">
+                            <div class="row" id="top-ten-filter">
                                 <div class="col">
 {#                                    <h6 class="mb-0">{{ 'Top 10 People'|trans|upper }}</h6>#}
                                     <form action="{{ path('kpi_statistics_top_ten_refresh') }}"
@@ -313,6 +303,7 @@
 {% block javascripts %}
     {{ parent() }}
     <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+    <script type="application/javascript" src="{{ asset('bundles/terminalbdkpi/js/kinzi.print.min.js') }}"></script>
     <script>
 
         //KPI statistics Filter
@@ -396,6 +387,15 @@
         $("button#kpi-statistics-reset").on("click", function () {
             $("#kpi-statistics-refresh-area").html('');
         });
+
+        // Print Page
+/*        $("button.print").click(function () {
+            $('#print-area').kinziPrint({
+                importCSS: true,
+                // header: $('.print-header-content').html(),
+                // footer: $('.print-footer-content').html()
+            });
+        });*/
 
 
         // Month Year Picker

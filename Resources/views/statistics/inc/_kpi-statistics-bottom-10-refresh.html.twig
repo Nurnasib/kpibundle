@@ -24,11 +24,13 @@
             panY: false, //disable drag feature
         }));
 
+        var title = $("#bottomTenPeopleFormat option:selected").text() + " (" + $("#startMonthYearBottomTenFilter").val() + " - " + $("#endMonthYearBottomTenFilter").val() + ")";
+
         // Add Chart Title
         chart.children.unshift(am5.Label.new(root, {
-            // text: "Top 10 Poultry People",
-            text: $("#bottomTenPeopleFormat option:selected").text(),
-            fontSize: 25,
+            // text: $("#bottomTenPeopleFormat option:selected").text(),
+            text: title,
+            fontSize: 15,
             fontWeight: "500",
             textAlign: "center",
             x: am5.percent(50),
@@ -114,6 +116,33 @@
 
         xAxis.data.setAll(data);
         series.data.setAll(data);
+
+
+        // Export PDF
+        var exporting = am5plugins_exporting.Exporting.new(root, {
+            menu: am5plugins_exporting.ExportingMenu.new(root, {}),
+            // data: data,
+            // dataSource: data,
+            filePrefix: title,
+            title: '',
+            pdfOptions: {
+                pageSize: "A4",
+                pageOrientation: "landscape",
+                pageMargins: [20, 20, 20, 40]
+            },
+            jpgOptions: {
+                disabled: true
+            },
+            pngOptions: {
+                disabled: true
+            },
+            htmlOptions: {
+                disabled: true
+            },
+            printOptions: {
+                disabled: true
+            }
+        });
 
 
         // Make stuff animate on load

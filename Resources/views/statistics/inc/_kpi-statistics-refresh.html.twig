@@ -169,6 +169,7 @@
         <!-- Chart code -->
         <script>
             am5.ready(function () {
+
                 // Create root element
                 // https://www.amcharts.com/docs/v5/getting-started/#Root_element
                 var rootForStatisticsChart = am5.Root.new("kpi-statistics-chart");
@@ -238,6 +239,38 @@
                 series.data.setAll(pieChartData);
 
                 series.appear(1000, 100);
+
+
+
+                var reportFormat = $("#reportFormat option:selected").text();
+                var startMonth = $("#startMonthYearKpiStatisticsFilter").val();
+                var endMonth = $("#endMonthYearKpiStatisticsFilter").val();
+
+                // Export PDF
+                var exporting = am5plugins_exporting.Exporting.new(rootForStatisticsChart, {
+                    menu: am5plugins_exporting.ExportingMenu.new(rootForStatisticsChart, {}),
+                    // data: data,
+                    // dataSource: data,
+                    filePrefix: "KPI Status_" + reportFormat  + " (" + startMonth + " - " + endMonth + ")",
+                    title: '# KPI Status: ' + reportFormat  + " (" + startMonth + " - " + endMonth + ")",
+                    pdfOptions: {
+                        pageSize: "A4",
+                        pageOrientation: "landscape",
+                        pageMargins: [20, 20, 20, 40]
+                    },
+                    jpgOptions: {
+                        disabled: true
+                    },
+                    pngOptions: {
+                        disabled: true
+                    },
+                    htmlOptions: {
+                        disabled: true
+                    },
+                    printOptions: {
+                        disabled: true
+                    }
+                });
 
             }); // end am5.ready()
         </script>
