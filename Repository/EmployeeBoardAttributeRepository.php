@@ -925,7 +925,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $qb->join('ed.employee', 'em');
         $qb->join('e.parameter', 'parameter');
         $qb->select('SUM(e.mark) as mark', 'SUM(e.actualMark) as actualMark', 'SUM(e.targetAmount) AS targetAmount', 'SUM(e.targetAchievement) AS targetAchievement');
-        $qb->addSelect('em.name AS employeeName');
+        $qb->addSelect('em.name AS employeeName', 'em.userId AS userId');
         $qb->where('em.id IN (:employee)')->setParameter('employee', $employees);
         $qb->andWhere('parameter.id = :parameter')->setParameter('parameter', $parameter);
         $qb->andWhere('ed.year =:year')->setParameter('year', $board->getYear());
@@ -936,6 +936,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $data = [];
         foreach ($results as $result) {
             $data[$result['employeeName']] = [
+                'userId' => $result['userId'],
                 'mark' => $result['mark'],
                 'actualMark' => $result['actualMark'],
             ];

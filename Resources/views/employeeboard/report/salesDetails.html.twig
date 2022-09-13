@@ -366,7 +366,7 @@
                                                 {% set totalActualMark = totalActualMark + member.actualMark %}
                                                 {% set totalMark = totalMark + member.mark %}
                                                 <tr>
-                                                    <td>{{ key|default('') }}</td>
+                                                    <td>{{ '(' ~ member.userId ~ ') ' ~ key|default('') }}</td>
                                                     <td>{{ member.actualMark|default('') }}</td>
                                                     <td>{{ member.mark|default('') }}</td>
                                                     <td></td>
