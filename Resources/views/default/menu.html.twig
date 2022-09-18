@@ -64,6 +64,7 @@
 
     {% if is_granted("ROLE_DEVELOPER") %}
         <li><a class="dropdown-item loader" href="{{ path('update_all_kpi') }}">{{ 'Update All KPI'|trans }}</a></li>
+        <li><a class="dropdown-item loader" href="{{ path('update_line_manager') }}">{{ 'Update Line Manager'|trans }}</a></li>
     {% endif %}
 
 </ul>

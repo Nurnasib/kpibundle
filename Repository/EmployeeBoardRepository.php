@@ -47,6 +47,12 @@ class EmployeeBoardRepository extends EntityRepository
         $qb->addSelect('reportMode.slug AS reportFormatSlug');
 
         if (in_array('ROLE_LINE_MANAGER', $user->getRoles())){
+/*            foreach ($user->getDistrict() as $district) {
+                $qb->andWhere($qb->expr()->like("s.district", ':district'))
+                    ->setParameters([
+                        'district' => '%'. $district->name .'%'
+                    ]);
+            }*/
             $qb->andWhere('lm = :user')->setParameter('user', $user);
         }elseif (!in_array('ROLE_LINE_MANAGER', $user->getRoles()) && !in_array('ROLE_KPI_ADMIN', $user->getRoles())){
             $qb->andWhere('s.employee = :user')->setParameter('user', $user);

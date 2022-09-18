@@ -76,6 +76,7 @@ class EmployeeBoardController extends AbstractController
         $lineManagers = $userRepository->getLineManager();
         $user = $this->getUser();
         $entities = $this->getDoctrine()->getRepository(EmployeeBoard::class)->getEmployeeBoardList($user);
+
         $form = $this->createForm(KpiBoardSearchFilterFormType::class,null, ['user' => $user, 'lineManagers' => $lineManagers]);
         $form->handleRequest($request);
         if ($form->isSubmitted()){
@@ -1260,6 +1261,29 @@ class EmployeeBoardController extends AbstractController
         }
 
         $this->addFlash('success', 'All KPI are updated!');
+        return $this->redirectToRoute('kpi_employee_board');
+    }
+
+    /**
+     * @Route("/update-line-manager", name="update_line_manager")
+     * @Security("is_granted('ROLE_DEVELOPER')")
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function updateLineManagerInBoardFromHistory()
+    {
+        set_time_limit(0);
+        ignore_user_abort(true);
+
+        $boards = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findAll();
+
+        foreach ($boards as $board) {
+            $history = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'month' => $board->getMonth(), 'year' => $board->getYear()]);
+
+            $board->setLineManager($history->getLineManager());
+            $this->getDoctrine()->getManager()->flush();
+        }
+
+        $this->addFlash('success', 'Line Managers are updated!');
         return $this->redirectToRoute('kpi_employee_board');
     }
 
