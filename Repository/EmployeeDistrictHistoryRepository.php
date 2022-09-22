@@ -146,7 +146,7 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
         $qb->andWhere("employee.enabled = 1");
         $qb->andWhere("employee.isPermanent = true");
         $qb->andWhere('e.lineManager = :lineManager')->setParameter('lineManager', $emp);
-        $qb->andWhere('employee.permanentDate < :date')->setParameter('date', date('Y-m-d', strtotime("01-$month-$year")));
+        $qb->andWhere('employee.permanentDate <= :date')->setParameter('date', date('Y-m-d', strtotime("01-$month-$year")));
 
         return $qb->getQuery()->getResult();
     }
