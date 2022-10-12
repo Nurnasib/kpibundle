@@ -214,6 +214,9 @@ class EmployeeBoardRepository extends EntityRepository
                 $data[$result['lineManagerUserId']]['teamMember'][$result['userId']]['status'][$result['month']] = true;
             }
         }else{
+            //get team members
+            $teamMembers = $this->_em->getRepository(User::class)->getKpiEmployees($user);
+
             foreach ($results as $result) {
                 $data[$result['userId']]['name'] = $result['name'];
                 $data[$result['userId']]['userId'] = $result['userId'];
@@ -221,7 +224,18 @@ class EmployeeBoardRepository extends EntityRepository
                 $data[$result['userId']]['permanentStatus'] = $result['isPermanent'];
 
             }
+
+            //insert team members
+            foreach ($teamMembers as $teamMember) {
+                if (! isset($data[$teamMember['userId']])){
+                    $data[$teamMember['userId']]['name'] = $teamMember['employeeName'];
+                    $data[$teamMember['userId']]['userId'] = $teamMember['userId'];
+                    $data[$teamMember['userId']]['status'] = [];
+                    $data[$teamMember['userId']]['permanentStatus'] = $teamMember['isPermanent'];
+                }
+            }
         }
+
         return $data;
 
     }
