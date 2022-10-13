@@ -259,6 +259,7 @@ class EmployeeBoardRepository extends EntityRepository
         }
         $qb->andWhere('board.year = :year')->setParameter('year', $year);
         $qb->groupBy('employee.id');
+        $qb->orderBy('employee.name', 'ASC');
         return $qb->getQuery()->getResult();
     }
 
