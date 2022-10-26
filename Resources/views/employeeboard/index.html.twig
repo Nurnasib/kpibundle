@@ -138,7 +138,7 @@
                                     <td>{{ '(' ~ entity.userId ~ ') ' ~ entity.name|default('') }}</td>
                                     <td>{{ entity.designation|default('') }}</td>
                                     <td>{{ entity.reportFormat|default('') }}</td>
-                                    <td>{{ entity.lineManager|default('') }}</td>
+                                    <td>{{ '(' ~ entity.lineManagerUserId ~ ') ' ~ entity.lineManager|default('') }}</td>
                                     <td>{{ entity.district|default('') }}</td>
                                     <td>{{ entity.grade }}</td>
                                     <td>{{ entity.month ~ ',' ~ entity.year }}</td>
