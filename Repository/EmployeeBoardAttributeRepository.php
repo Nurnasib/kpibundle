@@ -1811,4 +1811,53 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         return count($qb->getQuery()->getArrayResult());
     }
 
+    public function getSalesGrowthReport($filterBy)
+    {
+        $qb = $this->createQueryBuilder('e');
+
+        $qb->select('SUM(e.mark) AS totalAchieveMark', 'SUM(e.actualMark) AS totalTargetMark');
+        $qb->addSelect('employee.id', 'employee.name', 'employee.userId');
+        $qb->addSelect('designation.name AS designationName');
+        $qb->addSelect('activity.name AS activityName');
+
+        $qb->join('e.employeeBoard', 'employee_board');
+        $qb->join('employee_board.employee', 'employee');
+        $qb->join('e.activity', 'activity');
+        $qb->leftJoin('employee.designation', 'designation');
+
+        $qb->where('activity.slug IN (:slugs)')->setParameter('slugs', $filterBy['slugs']);
+
+        if (! is_null($filterBy['employee'])){
+            $qb->andWhere('employee = :employee')->setParameter('employee', $filterBy['employee']);
+        }
+
+        if (! in_array('ROLE_KPI_ADMIN', $filterBy['loggedUser']->getRoles())){
+            $qb->andWhere('employee.lineManager = :lineManager')->setParameter('lineManager', $filterBy['loggedUser']);
+        }
+        $qb->andWhere('employee_board.month IN (:months)')->setParameter('months', $filterBy['months']);
+        $qb->andWhere('employee_board.year =:year')->setParameter('year', $filterBy['year']);
+
+        $qb->groupBy('employee.id');
+        $qb->addGroupBy('activity.id');
+        $qb->orderBy('employee.name', 'ASC');
+
+        $results = $qb->getQuery()->getArrayResult();
+
+        $data = [];
+
+        foreach ($results as $result) {
+            $data[$result['userId']]['userInfo'] = [
+                'userId' => $result['userId'],
+                'name' => $result['name'],
+                'designation' => $result['designationName'],
+            ];
+
+            $data[$result['userId']]['data'][$result['activityName']] = [
+                'totalTargetMark' => (float)$result['totalTargetMark'],
+                'totalAchieveMark' => (float)$result['totalAchieveMark'],
+            ];
+        }
+        return $data;
+    }
+
 }

@@ -10,6 +10,11 @@
                 <li><a class="dropdown-item" href="{{ path('monthly_generated_kpi_status') }}">{{ 'KPI Status'|trans }}</a></li>
                 <li><a class="dropdown-item" href="{{ path('all_team_member_summary') }}">{{ 'All Employee KPI'|trans }}</a></li>
                 <li><a class="dropdown-item" href="{{ path('team_member_summary') }}">{{ 'Employee Monthly KPI'|trans }}</a></li>
+                <li><a class="dropdown-item" href="{{ path('sales_percentage', {mode: 'feed'}) }}">{{ 'Sales Percentage'|trans }}</a></li>
+                <li><a class="dropdown-item" href="{{ path('sales_percentage', {mode: 'growth'}) }}">{{ 'Growth Percentage'|trans }}</a></li>
+                <li><a class="dropdown-item" href="{{ path('marks_percentage', {mode: 'feed'}) }}">{{ 'Sales Mark Percentage'|trans }}</a></li>
+                <li><a class="dropdown-item" href="{{ path('marks_percentage', {mode: 'growth'}) }}">{{ 'Growth Mark Percentage'|trans }}</a></li>
+                <li><a class="dropdown-item" href="{{ path('sales_growth_marks_summary') }}">{{ 'Sales & Growth Marks'|trans }}</a></li>
                 <li><a class="dropdown-item" href="{{ path('district_history') }}">{{ 'Employee District'|trans }}</a></li>
             </ul>
         </li>

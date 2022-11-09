@@ -77,4 +77,183 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
         }
         return $data;
     }
+
+
+    public function getSalesTargetAchievementReport($filterBy)
+    {
+
+        $qb = $this->createQueryBuilder('e');
+
+        $qb->select('SUM(e.targetQuantity) AS totalTargetQuantity', 'SUM(e.salesQuantity) AS totalSalesQuantity');
+        $qb->addSelect('employee.id', 'employee.name', 'employee.userId');
+        $qb->addSelect('designation.name AS designationName');
+        $qb->addSelect('mark_distribution.name AS markDistributionName');
+
+        $qb->join('e.employeeBoard', 'employee_board');
+        $qb->join('employee_board.employee', 'employee');
+        $qb->join('e.markDistribution', 'mark_distribution');
+        $qb->leftJoin('employee.designation', 'designation');
+
+        $qb->where('mark_distribution.salesMode = :salesMode')->setParameter('salesMode', $filterBy['salesMode']);
+
+        if (! is_null($filterBy['employee'])){
+            $qb->andWhere('employee = :employee')->setParameter('employee', $filterBy['employee']);
+        }
+
+        if (! in_array('ROLE_KPI_ADMIN', $filterBy['loggedUser']->getRoles())){
+            $qb->andWhere('employee.lineManager = :lineManager')->setParameter('lineManager', $filterBy['loggedUser']);
+        }
+        $qb->andWhere('employee_board.month IN (:months)')->setParameter('months', $filterBy['months']);
+        $qb->andWhere('employee_board.year =:year')->setParameter('year', $filterBy['year']);
+
+        $qb->groupBy('employee.id');
+        $qb->addGroupBy('mark_distribution.id');
+
+        $results = $qb->getQuery()->getArrayResult();
+
+        $data = [];
+
+        foreach ($results as $result) {
+            $data[$result['userId']]['userInfo'] = [
+                'userId' => $result['userId'],
+                'name' => $result['name'],
+                'designation' => $result['designationName'],
+
+            ];
+            if ($result['markDistributionName'] === 'Broiler Feed:  Sales Achievement:' ||
+                $result['markDistributionName'] === 'Broiler Feed:  Sales Achievement' ||
+                $result['markDistributionName'] === 'Product Sales Growth: Broiler'
+
+            ){
+                $result['markDistributionName'] = 'Broiler';
+
+            }elseif ($result['markDistributionName'] === 'Sonali Feed: Sales Achievement:' ||
+                $result['markDistributionName'] === 'Sonali Feed: Sales Achievement' ||
+                $result['markDistributionName'] === 'Product Sales Growth: Sonali'
+            ){
+                $result['markDistributionName'] = 'Sonali';
+
+            }elseif ($result['markDistributionName'] === 'Layer Feed: Sales Achievement:' ||
+                $result['markDistributionName'] === 'Layer Feed: Sales Achievement' ||
+                $result['markDistributionName'] === 'Product Sales Growth: Layer'
+            ){
+                $result['markDistributionName'] = 'Layer';
+
+            }elseif ($result['markDistributionName'] === 'Fish Feed: Sales Achievement:' ||
+                $result['markDistributionName'] === 'Fish Feed: Sales Achievement' ||
+                $result['markDistributionName'] === 'Product Sales Growth: Fish'
+            ){
+                $result['markDistributionName'] = 'Fish';
+
+            }elseif ($result['markDistributionName'] === 'Cattle Feed: Sales Achievement:' ||
+                $result['markDistributionName'] === 'Cattle Feed: Sales Achievement' ||
+                $result['markDistributionName'] === 'Product Sales Growth: Cattle'
+            ){
+                $result['markDistributionName'] = 'Cattle';
+
+            }
+            $data[$result['userId']]['data'][$result['markDistributionName']] = [
+                'totalTargetQuantity' => $result['totalTargetQuantity'],
+                'totalSalesQuantity' => $result['totalSalesQuantity'],
+            ];
+        }
+
+        foreach ($data as $key => $item) {
+            $data[$key]['sum']['sumTargetQuantity'] = array_sum(array_column($data[$key]['data'], 'totalTargetQuantity'));
+            $data[$key]['sum']['sumSalesQuantity'] = array_sum(array_column($data[$key]['data'], 'totalSalesQuantity'));
+        }
+
+        return $data;
+    }
+
+
+
+    public function getSalesTargetAchievementMarksReport($filterBy)
+    {
+
+        $qb = $this->createQueryBuilder('e');
+
+        $qb->select('SUM(e.mark) AS totalAchieveMark');
+        $qb->addSelect('employee.id', 'employee.name', 'employee.userId');
+        $qb->addSelect('designation.name AS designationName');
+        $qb->addSelect('mark_distribution.name AS markDistributionName', 'SUM(mark_distribution.mark) AS totalTargetMark');
+
+        $qb->join('e.employeeBoard', 'employee_board');
+        $qb->join('employee_board.employee', 'employee');
+        $qb->join('e.markDistribution', 'mark_distribution');
+        $qb->leftJoin('employee.designation', 'designation');
+
+        $qb->where('mark_distribution.salesMode = :salesMode')->setParameter('salesMode', $filterBy['salesMode']);
+
+        if (! is_null($filterBy['employee'])){
+            $qb->andWhere('employee = :employee')->setParameter('employee', $filterBy['employee']);
+        }
+
+        if (! in_array('ROLE_KPI_ADMIN', $filterBy['loggedUser']->getRoles())){
+            $qb->andWhere('employee.lineManager = :lineManager')->setParameter('lineManager', $filterBy['loggedUser']);
+        }
+        $qb->andWhere('employee_board.month IN (:months)')->setParameter('months', $filterBy['months']);
+        $qb->andWhere('employee_board.year =:year')->setParameter('year', $filterBy['year']);
+
+        $qb->groupBy('employee.id');
+        $qb->addGroupBy('mark_distribution.id');
+        $qb->orderBy('employee.name', 'ASC');
+
+        $results = $qb->getQuery()->getArrayResult();
+
+        $data = [];
+
+        foreach ($results as $result) {
+            $data[$result['userId']]['userInfo'] = [
+                'userId' => $result['userId'],
+                'name' => $result['name'],
+                'designation' => $result['designationName'],
+
+            ];
+            if ($result['markDistributionName'] === 'Broiler Feed:  Sales Achievement:' ||
+                $result['markDistributionName'] === 'Broiler Feed:  Sales Achievement' ||
+                $result['markDistributionName'] === 'Product Sales Growth: Broiler'
+
+            ){
+                $result['markDistributionName'] = 'Broiler';
+
+            }elseif ($result['markDistributionName'] === 'Sonali Feed: Sales Achievement:' ||
+                $result['markDistributionName'] === 'Sonali Feed: Sales Achievement' ||
+                $result['markDistributionName'] === 'Product Sales Growth: Sonali'
+            ){
+                $result['markDistributionName'] = 'Sonali';
+
+            }elseif ($result['markDistributionName'] === 'Layer Feed: Sales Achievement:' ||
+                $result['markDistributionName'] === 'Layer Feed: Sales Achievement' ||
+                $result['markDistributionName'] === 'Product Sales Growth: Layer'
+            ){
+                $result['markDistributionName'] = 'Layer';
+
+            }elseif ($result['markDistributionName'] === 'Fish Feed: Sales Achievement:' ||
+                $result['markDistributionName'] === 'Fish Feed: Sales Achievement' ||
+                $result['markDistributionName'] === 'Product Sales Growth: Fish'
+            ){
+                $result['markDistributionName'] = 'Fish';
+
+            }elseif ($result['markDistributionName'] === 'Cattle Feed: Sales Achievement:' ||
+                $result['markDistributionName'] === 'Cattle Feed: Sales Achievement' ||
+                $result['markDistributionName'] === 'Product Sales Growth: Cattle'
+            ){
+                $result['markDistributionName'] = 'Cattle';
+
+            }
+            $data[$result['userId']]['data'][$result['markDistributionName']] = [
+                'totalTargetMark' => $result['totalTargetMark'],
+                'totalAchieveMark' => $result['totalAchieveMark'],
+            ];
+        }
+
+        foreach ($data as $key => $item) {
+            $data[$key]['sum']['sumTotalTargetMark'] = array_sum(array_column($data[$key]['data'], 'totalTargetMark'));
+            $data[$key]['sum']['sumTotalAchieveMark'] = array_sum(array_column($data[$key]['data'], 'totalAchieveMark'));
+        }
+
+        return $data;
+    }
+
 }
