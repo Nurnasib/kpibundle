@@ -348,7 +348,8 @@ class KpiReportController extends AbstractController
         $filterBy = [
             'loggedUser' => $this->getUser(),
             'employee' => null,
-            'months' => $months,
+            'startMonth' => date('F'),
+            'endMonth' => date('F'),
             'year' => (int)date('Y'),
             'salesMode' => $mode,
         ];
@@ -357,13 +358,15 @@ class KpiReportController extends AbstractController
         $filterForm->handleRequest($request);
 
         if ($filterForm->isSubmitted()){
-            $startDate = @strtotime($filterForm->get('startMonth')->getData() . ' ' . $filterForm->get('year')->getData());
-            $endDate = @strtotime($filterForm->get('endMonth')->getData() . ' ' . $filterForm->get('year')->getData());
-            $months = $this->monthRange($startDate, $endDate);
+//            $startDate = @strtotime($filterForm->get('startMonth')->getData() . ' ' . $filterForm->get('year')->getData());
+//            $endDate = @strtotime($filterForm->get('endMonth')->getData() . ' ' . $filterForm->get('year')->getData());
+//            $months = $this->monthRange($startDate, $endDate);
 
             $filterBy['employee'] = $filterForm->get('employee')->getData();
             $filterBy['year'] = (int)$filterForm->get('year')->getData();
-            $filterBy['months'] = $this->monthRange($startDate, $endDate);
+//            $filterBy['months'] = $this->monthRange($startDate, $endDate);
+            $filterBy['startMonth'] = $filterForm->get('startMonth')->getData();
+            $filterBy['endMonth'] = $filterForm->get('endMonth')->getData();
 
         }
 

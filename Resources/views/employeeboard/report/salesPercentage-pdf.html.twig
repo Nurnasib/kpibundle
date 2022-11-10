@@ -21,7 +21,7 @@
     <thead>
     <tr>
         <th colspan="21">
-            {{ mode|capitalize }} Percentage ({{ filterBy['months']|first ~ ' - ' ~ filterBy['months']|last }}), {{ filterBy['year'] }}
+            {{ mode|capitalize }} Percentage ({{ filterBy['startMonth'] ~ ' - ' ~ filterBy['endMonth'] }}), {{ filterBy['year'] }}
             <br>
             {% if not is_granted('ROLE_KPI_ADMIN') %}
                 Line Manager: {{ '(' ~ app.user.userId ~ ') ' ~ app.user.name }}

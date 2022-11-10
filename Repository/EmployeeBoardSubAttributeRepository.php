@@ -103,7 +103,8 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
         if (! in_array('ROLE_KPI_ADMIN', $filterBy['loggedUser']->getRoles())){
             $qb->andWhere('employee.lineManager = :lineManager')->setParameter('lineManager', $filterBy['loggedUser']);
         }
-        $qb->andWhere('employee_board.month IN (:months)')->setParameter('months', $filterBy['months']);
+//        $qb->andWhere('employee_board.month IN (:months)')->setParameter('months', $filterBy['months']);
+        $qb->andWhere('employee_board.month =:month')->setParameter('month', $filterBy['endMonth']);
         $qb->andWhere('employee_board.year =:year')->setParameter('year', $filterBy['year']);
 
         $qb->groupBy('employee.id');
