@@ -21,10 +21,10 @@
             <div class="card mb-1">
                 <div class="card-header p-2">
                     {% if is_granted('ROLE_KPI_ADMIN') %}
-                        <h5>{{ 'Employee Sales Mark Summary'|trans }}</h5>
+                        <h5>{{ 'Employee ' ~ mode ~ ' Sales Mark Summary'|trans }}</h5>
 
                     {% else %}
-                        <h5>{{ 'KPI Team Member Sales Mark Summary for '|trans }}: {{ app.user.name }}</h5>
+                        <h5>{{ 'KPI Team Member ' ~ mode ~ ' Mark Summary for '|trans }}: {{ app.user.name }}</h5>
 
                     {% endif %}
                 </div>
