@@ -141,7 +141,7 @@
                                         <td>{{ details['data']['Broiler'] is defined ? details['data']['Broiler'].totalSalesQuantity|number_format(2) : '' }}</td>
                                         <td align="center">
                                             {% if details['data']['Broiler'] is defined and details['data']['Broiler'].totalTargetQuantity > 0 %}
-                                                {{ ((details['data']['Broiler'].totalSalesQuantity * 100) / details['data']['Broiler'].totalTargetQuantity)|number_format(2) }}
+                                                {{ (((details['data']['Broiler'].totalSalesQuantity / details['data']['Broiler'].totalTargetQuantity) - 1) * 100)|number_format(2) }}
                                             {% endif %}
                                         </td>
 
@@ -149,7 +149,7 @@
                                         <td>{{ details['data']['Sonali'] is defined ? details['data']['Sonali'].totalSalesQuantity|number_format(2) : '' }}</td>
                                         <td align="center">
                                             {% if details['data']['Sonali'] is defined and details['data']['Sonali'].totalTargetQuantity > 0 %}
-                                                {{ ((details['data']['Sonali'].totalSalesQuantity * 100) / details['data']['Sonali'].totalTargetQuantity)|number_format(2) }}
+                                                {{ (((details['data']['Sonali'].totalSalesQuantity / details['data']['Sonali'].totalTargetQuantity) - 1) * 100)|number_format(2) }}
                                             {% endif %}
                                         </td>
 
@@ -157,7 +157,7 @@
                                         <td>{{ details['data']['Layer'] is defined ? details['data']['Layer'].totalSalesQuantity|number_format(2) : '' }}</td>
                                         <td align="center">
                                             {% if details['data']['Layer'] is defined and details['data']['Layer'].totalTargetQuantity > 0 %}
-                                                {{ ((details['data']['Layer'].totalSalesQuantity * 100) / details['data']['Layer'].totalTargetQuantity)|number_format(2) }}
+                                                {{ (((details['data']['Layer'].totalSalesQuantity / details['data']['Layer'].totalTargetQuantity) - 1) * 100)|number_format(2) }}
                                             {% endif %}
                                         </td>
 
@@ -165,7 +165,7 @@
                                         <td>{{ details['data']['Fish'] is defined ? details['data']['Fish'].totalSalesQuantity|number_format(2) : '' }}</td>
                                         <td align="center">
                                             {% if details['data']['Fish'] is defined and details['data']['Fish'].totalTargetQuantity > 0 %}
-                                                {{ ((details['data']['Fish'].totalSalesQuantity * 100) / details['data']['Fish'].totalTargetQuantity)|number_format(2) }}
+                                                {{ (((details['data']['Fish'].totalSalesQuantity / details['data']['Fish'].totalTargetQuantity) - 1) * 100)|number_format(2) }}
                                             {% endif %}
                                         </td>
 
@@ -173,7 +173,7 @@
                                         <td>{{ details['data']['Cattle'] is defined ? details['data']['Cattle'].totalSalesQuantity|number_format(2) : '' }}</td>
                                         <td align="center">
                                             {% if details['data']['Cattle'] is defined and details['data']['Cattle'].totalTargetQuantity > 0 %}
-                                                {{ ((details['data']['Cattle'].totalSalesQuantity * 100) / details['data']['Cattle'].totalTargetQuantity)|number_format(2) }}
+                                                {{ (((details['data']['Cattle'].totalSalesQuantity / details['data']['Cattle'].totalTargetQuantity) - 1) * 100)|number_format(2) }}
                                             {% endif %}
                                         </td>
 
