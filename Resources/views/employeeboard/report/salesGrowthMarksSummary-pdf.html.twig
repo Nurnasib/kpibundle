@@ -59,18 +59,15 @@
             {% set salesPercentage = 0 %}
             {% set growthPercentage = 0 %}
 
-
             {% if details['data']['Sales'] is defined and details['data']['Sales'].totalTargetMark > 0 %}
 
-                {% set salesPercentage = (details['data']['Sales'].totalAchieveMark * 100) / details['data']['Sales'].totalTargetMark %}
+                {% set salesPercentage = (((details['data']['Sales'].totalAchieveMark / details['data']['Sales'].totalTargetMark) - 1) * 100) %}
             {% endif %}
 
             {% if details['data']['Sales Growth( Always consider among same period)'] is defined and details['data']['Sales Growth( Always consider among same period)'].totalTargetMark > 0 %}
 
-                {% set growthPercentage = (details['data']['Sales Growth( Always consider among same period)'].totalAchieveMark * 100) / details['data']['Sales Growth( Always consider among same period)'].totalTargetMark %}
+                {% set growthPercentage = (((details['data']['Sales Growth( Always consider among same period)'].totalAchieveMark / details['data']['Sales Growth( Always consider among same period)'].totalTargetMark) - 1) * 100) %}
             {% endif %}
-
-
 
             <tr>
                 <td>{{ details['userInfo'].userId }}</td>

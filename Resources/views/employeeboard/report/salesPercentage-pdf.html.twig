@@ -119,8 +119,8 @@
                 <td align="right">{{ details['sum']['sumTargetQuantity'] |number_format(2) }}</td>
                 <td align="right">{{ details['sum']['sumSalesQuantity'] |number_format(2) }}</td>
                 <td align="center">
-                    {% if details['sum']['sumTargetQuantity'] > 0 %}
-                        {{ ((details['sum']['sumSalesQuantity'] * 100) / details['sum']['sumTargetQuantity'])|number_format(2) }}
+                    {% if details['sum']['sumSalesQuantity'] > 0 %}
+                        {{ (((details['sum']['sumSalesQuantity'] / details['sum']['sumTargetQuantity']) - 1) * 100)|number_format(2) }}
                     {% endif %}
                 </td>
             </tr>
