@@ -165,23 +165,23 @@ class EmployeeController extends AbstractController
      * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="kpi_employee_edit")
      * @param Request $request
-     * @param User $post
+     * @param User $employee
      * @return Response
      * @throws \Exception
      */
-    public function edit(Request $request, User $post): Response
+    public function edit(Request $request, User $employee): Response
     {
         $data = $request->request->all();
         $terminal = $this->getUser()->getTerminal();
         $userRepo = $this->getDoctrine()->getRepository(User::class);
-        $form = $this->createForm(EditEmployeeFormType::class, $post, array('terminal' => $terminal,'userRepo' => $userRepo))
+        $form = $this->createForm(EditEmployeeFormType::class, $employee, array('terminal' => $terminal,'userRepo' => $userRepo))
             ->add('SaveAndCreate', SubmitType::class);
         $form->remove('phone');
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
 
             $em = $this->getDoctrine()->getManager();
-            $lastAssignReportFormat = $this->getDoctrine()->getRepository(EmployeeReportFormatHistory::class)->findOneBy(['employee' => $post], ['id' => 'DESC']);
+            $lastAssignReportFormat = $this->getDoctrine()->getRepository(EmployeeReportFormatHistory::class)->findOneBy(['employee' => $employee], ['id' => 'DESC']);
             $reportFormat = $form->getData()->getReportMode();
 
             $transferJoiningDate = null;
@@ -201,7 +201,8 @@ class EmployeeController extends AbstractController
                 $date = '01-'.$i.'-2021';
                 array_push($monthArray, (new \DateTime($date))->format('F'));
             }
-            $findHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findBy(['employee' => $post, 'month' => $monthArray, 'year' => date('Y')]);
+            $findHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findBy(['employee' => $employee, 'month' => $monthArray, 'year' => date('Y')]);
+
             foreach ($findHistory as $history) {
                 $history->setLineManager($form->getData()->getLineManager());
                 $em->persist($history);
@@ -220,7 +221,7 @@ class EmployeeController extends AbstractController
                 }
                 $monthArray = array_diff($months,$monthArray );
 
-                $findHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findBy(['employee' => $post, 'year' => $yearArray]);
+                $findHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findBy(['employee' => $employee, 'year' => $yearArray]);
 
                 foreach ($findHistory as $history) {
                     if ($history->getYear() != $transferJoiningDate->format('Y') || ($history->getYear() == $transferJoiningDate->format('Y') && !in_array($history->getMonth(), $monthArray))){
@@ -233,7 +234,7 @@ class EmployeeController extends AbstractController
 
                 }
             }else{
-                $findCurrentMonthHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $post, 'month' => date('F'), 'year' => date('Y')]);
+                $findCurrentMonthHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $employee, 'month' => date('F'), 'year' => date('Y')]);
                 $findCurrentMonthHistory->setDistrict(json_encode($districts));
                 $em->persist($findCurrentMonthHistory);
                 $em->flush();
@@ -244,7 +245,7 @@ class EmployeeController extends AbstractController
                 $reportFormatHistory = new EmployeeReportFormatHistory();
                 $date = new \DateTime('now');
 
-                $reportFormatHistory->setEmployee($post);
+                $reportFormatHistory->setEmployee($employee);
                 $reportFormatHistory->setReportFormat($reportFormat);
                 $reportFormatHistory->setMonth($date->format('F'));
                 $reportFormatHistory->setYear($date->format('Y'));
@@ -256,10 +257,10 @@ class EmployeeController extends AbstractController
 
 //            $em->flush();
             $this->addFlash('success', 'Employee details updated!');
-            return $this->redirectToRoute('kpi_employee_edit',array('id'=> $post->getId()));
+            return $this->redirectToRoute('kpi_employee_edit',array('id'=> $employee->getId()));
         }
         return $this->render('@TerminalbdKpi/employee/editRegister.html.twig', [
-            'post' => $post,
+            'employee' => $employee,
             'form' => $form->createView(),
         ]);
     }
