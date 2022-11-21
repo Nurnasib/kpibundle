@@ -95,402 +95,402 @@ class EmployeeController extends AbstractController
             'form' => $searchForm->createView()
         ]);
     }
-
-
-    /**
-     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
-     * @Route("/register", methods={"GET", "POST"}, name="kpi_employee_register")
-     * @param Request $request
-     * @return Response
-     * @throws \Exception
-     */
-    public function register(Request $request): Response
-    {
-//        $passwordEncoder = UserPasswordEncoderInterface::class;
-        $user = new User();
-        $data = $request->request->all();
-        $terminal = $this->getUser()->getTerminal();
-        $userRepo = $this->getDoctrine()->getRepository(User::class);
-        $locationRepo = $this->getDoctrine()->getRepository(Location::class);
-        $form = $this->createForm(EmployeeFormType::class, $user, array('terminal' => $terminal,'userRepo'=>$userRepo , 'locationRepo' => $locationRepo))
-            ->add('SaveAndCreate', SubmitType::class);
-        $form->handleRequest($request);
-        $errors = $this->getErrorsFromForm($form);
-        $em = $this->getDoctrine()->getManager();
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->get('kpi_bundle.user_manager')->setUserPassword($user, $form->get('password')->getData());
-            $user->setUserMode('KPI');
-            $user->setTerminal($terminal);
-            $em->persist($user);
-            $em->flush();
-
-
-            // add history
-            $districtsArray = [];
-            foreach ($user->getDistrict() as $district) {
-                $districtsArray[$district->getId()] = $district->getName();
-            }
-            $joiningYear = (new \DateTime($user->getJoiningDate()))->format('Y');
-            $currentYear = (new \DateTime('now'))->format('Y');
-
-            for ($i = $joiningYear; $i <= $currentYear; $i++){
-                for ($j = 1; $j <= 12; $j++){
-                    $date = '01-' . $j . '-' . $i;
-
-                    $history = new EmployeeDistrictHistory();
-                    $history->setEmployee($user);
-                    $history->setLineManager($user->getLineManager());
-                    $history->setDistrict(json_encode($districtsArray));
-                    $history->setMonth((new \DateTime($date))->format('F'));
-                    $history->setYear((new \DateTime($date))->format('Y'));
-                    $history->setCreatedAt(new \DateTime('now'));
-                    $em->persist($history);
-                    $em->flush();
-
-                }
-            }
-
-
-            $this->addFlash('success', 'Employee added successfully!');
-            return $this->redirectToRoute('kpi_employee');
-        }
-        return $this->render('@TerminalbdKpi/employee/register.html.twig', [
-            'id' => 'postForm',
-            'post' => $user,
-            'form' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
-     * @Route("/{id}/edit", methods={"GET", "POST"}, name="kpi_employee_edit")
-     * @param Request $request
-     * @param User $employee
-     * @return Response
-     * @throws \Exception
-     */
-    public function edit(Request $request, User $employee): Response
-    {
-        $data = $request->request->all();
-        $terminal = $this->getUser()->getTerminal();
-        $userRepo = $this->getDoctrine()->getRepository(User::class);
-        $form = $this->createForm(EditEmployeeFormType::class, $employee, array('terminal' => $terminal,'userRepo' => $userRepo))
-            ->add('SaveAndCreate', SubmitType::class);
-        $form->remove('phone');
-        $form->handleRequest($request);
-        if ($form->isSubmitted()) {
-
-            $em = $this->getDoctrine()->getManager();
-            $lastAssignReportFormat = $this->getDoctrine()->getRepository(EmployeeReportFormatHistory::class)->findOneBy(['employee' => $employee], ['id' => 'DESC']);
-            $reportFormat = $form->getData()->getReportMode();
-
-            $transferJoiningDate = null;
-            $districts = null;
-
-            if ($form['transferJoiningDate']->getData() != null){
-                $transferJoiningDate = new \DateTime($form['transferJoiningDate']->getData());
-
-            }
-
-            foreach ($form->getData()->getDistrict() as $district){
-                $districts[$district->getId()]= $district->getName();
-            }
-            // update line manager for current month to end of the year
-            $monthArray = [];
-            for ($i = date('m'); $i <= 12; $i++){
-                $date = '01-'.$i.'-2021';
-                array_push($monthArray, (new \DateTime($date))->format('F'));
-            }
-            $findHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findBy(['employee' => $employee, 'month' => $monthArray, 'year' => date('Y')]);
-
-            foreach ($findHistory as $history) {
-                $history->setLineManager($form->getData()->getLineManager());
-                $em->persist($history);
-                $em->flush();
-            }
-
-            // add history
-            if ($transferJoiningDate){
-                $months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-                $monthArray = [];
-                $yearArray = range($transferJoiningDate->format('Y'), date('Y'));
-
-                for ($i = $transferJoiningDate->format('m'); $i <= 12; $i++){
-                    $date = '01-'.$i.'-2021';
-                    array_push($monthArray, (new \DateTime($date))->format('F'));
-                }
-                $monthArray = array_diff($months,$monthArray );
-
-                $findHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findBy(['employee' => $employee, 'year' => $yearArray]);
-
-                foreach ($findHistory as $history) {
-                    if ($history->getYear() != $transferJoiningDate->format('Y') || ($history->getYear() == $transferJoiningDate->format('Y') && !in_array($history->getMonth(), $monthArray))){
-                        $history->setDistrict(json_encode($districts));
-                        $history->setUpdatedBy($this->getUser());
-                        $history->setUpdatedAt(new \DateTime('now'));
-                        $em->persist($history);
-                        $em->flush();
-                    }
-
-                }
-            }else{
-                $findCurrentMonthHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $employee, 'month' => date('F'), 'year' => date('Y')]);
-                $findCurrentMonthHistory->setDistrict(json_encode($districts));
-                $em->persist($findCurrentMonthHistory);
-                $em->flush();
-
-            }
-
-            if ($lastAssignReportFormat == null || $lastAssignReportFormat->getReportFormat()->getId() != $reportFormat->getId()){
-                $reportFormatHistory = new EmployeeReportFormatHistory();
-                $date = new \DateTime('now');
-
-                $reportFormatHistory->setEmployee($employee);
-                $reportFormatHistory->setReportFormat($reportFormat);
-                $reportFormatHistory->setMonth($date->format('F'));
-                $reportFormatHistory->setYear($date->format('Y'));
-                $reportFormatHistory->setUpdatedBy($this->getUser());
-                $em->persist($reportFormatHistory);
-                $em->flush();
-
-            }
-
+//
+//
+//    /**
+//     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
+//     * @Route("/register", methods={"GET", "POST"}, name="kpi_employee_register")
+//     * @param Request $request
+//     * @return Response
+//     * @throws \Exception
+//     */
+//    public function register(Request $request): Response
+//    {
+////        $passwordEncoder = UserPasswordEncoderInterface::class;
+//        $user = new User();
+//        $data = $request->request->all();
+//        $terminal = $this->getUser()->getTerminal();
+//        $userRepo = $this->getDoctrine()->getRepository(User::class);
+//        $locationRepo = $this->getDoctrine()->getRepository(Location::class);
+//        $form = $this->createForm(EmployeeFormType::class, $user, array('terminal' => $terminal,'userRepo'=>$userRepo , 'locationRepo' => $locationRepo))
+//            ->add('SaveAndCreate', SubmitType::class);
+//        $form->handleRequest($request);
+//        $errors = $this->getErrorsFromForm($form);
+//        $em = $this->getDoctrine()->getManager();
+//        if ($form->isSubmitted() && $form->isValid()) {
+//            $this->get('kpi_bundle.user_manager')->setUserPassword($user, $form->get('password')->getData());
+//            $user->setUserMode('KPI');
+//            $user->setTerminal($terminal);
+//            $em->persist($user);
 //            $em->flush();
-            $this->addFlash('success', 'Employee details updated!');
-            return $this->redirectToRoute('kpi_employee_edit',array('id'=> $employee->getId()));
-        }
-        return $this->render('@TerminalbdKpi/employee/editRegister.html.twig', [
-            'employee' => $employee,
-            'form' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
-     * @Route("/{id}/reset-password", methods={"GET", "POST"}, name="kpi_employee_password", options={"expose"=true})
-     * @param Request $request
-     * @param UserRepository $userRepository
-     * @param TranslatorInterface $translator
-     * @param UserPasswordEncoderInterface $passwordEncoder
-     * @param $id
-     * @return Response
-     */
-    public function changeUserPassword(Request $request,UserRepository $userRepository , TranslatorInterface $translator ,UserPasswordEncoderInterface $passwordEncoder,$id): Response
-    {
-        $user = $this->getUser();
-
-        /* @var $entity User */
-
-        $entity = $userRepository->findOneBy(['terminal'=> $user->getTerminal(),'id'=>$id]);
-        if($entity){
-            $password = 123456;
-            $entity->setPassword(
-                $passwordEncoder->encodePassword(
-                    $entity,
-                    $password
-                )
-            );
-            $this->getDoctrine()->getManager()->flush();
-            $message = $translator->trans('data.updated_successfully');
-            $this->addFlash('success', $message);
-        }
-        return $this->redirectToRoute('kpi_employee');
-
-    }
-
-
-    /**
-     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
-     * @Route("/{id}/reset-inline-password", methods={"GET", "POST"}, name="kpi_employee_inline_password", options={"expose"=true})
-     * @param Request $request
-     * @param UserRepository $userRepository
-     * @param TranslatorInterface $translator
-     * @param UserPasswordEncoderInterface $passwordEncoder
-     * @param $id
-     * @return Response
-     */
-    public function changeInlineUserPassword(Request $request,UserRepository $userRepository , TranslatorInterface $translator ,UserPasswordEncoderInterface $passwordEncoder,$id): Response
-    {
-        $data = $request->request->all();
-        $id = $data['pk'];
-        $user = $this->getUser();
-        
-        $entity = $userRepository->findOneBy(['terminal'=> $user->getTerminal(),'id'=>$id]);
-        if($entity){
-            $password = $data['value'];
-            $entity->setPassword(
-                $passwordEncoder->encodePassword(
-                    $entity,
-                    $password
-                )
-            );
-            $this->getDoctrine()->getManager()->flush();
-            $message = $translator->trans('data.updated_successfully');
-            $this->addFlash('success', $message);
-        }
-        return new JsonResponse(['status' => 200]);
-
-    }
-
-
-
-    private function getErrorsFromForm(FormInterface $form)
-    {
-        $errors = array();
-        foreach ($form->getErrors() as $error) {
-            $errors[] = $error->getMessage();
-        }
-        foreach ($form->all() as $childForm) {
-            if ($childForm instanceof FormInterface) {
-                if ($childErrors = $this->getErrorsFromForm($childForm)) {
-                    $errors[$childForm->getName()] = $childErrors;
-                }
-            }
-        }
-        return $errors;
-    }
-
-    /**
-     * @Route("/designation-select", name="kpi_designation_select", options={"expose"=true})
-     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
-     * @param SettingRepository $settingRepository
-     * @return JsonResponse
-     */
-
-    public function selectDesignation(SettingRepository $settingRepository)
-    {
-        $designations = $settingRepository->getDesignations();
-        return New JsonResponse($designations);
-    }
-
-    /**
-     * @param Request $request
-     * @param User $user
-     * @return JsonResponse
-     * @Route("/designation-inline-update/{id}", name="kpi_designation_inline_update", options={"expose"=true})
-     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
-     */
-    public function inlineUpdateDesignation(Request $request, User $user)
-    {
-
-        $data = $request->request->all();
-//        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['userId' => $userId]);
-
-        if (!$user) {
-            throw $this->createNotFoundException('Unable to find User');
-        }
-
-        $designation = $this->getDoctrine()->getRepository(Setting::class)->find($data['value']);
-        $user->setDesignation($designation);
-        $this->getDoctrine()->getManager()->flush();
-        return new JsonResponse(['status' => 200]);
-
-    }
-
-    /**
-     * @Route("/line-manager-select", name="kpi_line_manager_select", options={"expose"=true})
-     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
-     * @param UserRepository $repository
-     * @return JsonResponse
-     */
-
-    public function selectLineManager(UserRepository $repository)
-    {
-        $lineManagers = $repository->getLineManagerForInlineUpdate();
-        return new JsonResponse($lineManagers);
-    }
-
-    /**
-     * @param Request $request
-     * @param User $user
-     * @return JsonResponse
-     * @Route("/line-manager-inline-update/{id}", name="kpi_line_manager_inline_update", options={"expose"=true})
-     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
-     */
-    public function inlineUpdateLineManager(Request $request, User $user)
-    {
-
-        $data = $request->request->all();
-//        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['userId' => $userId]);
-
-        if (!$user) {
-            throw $this->createNotFoundException('Unable to find User');
-        }
-
-        $lineManager = $this->getDoctrine()->getRepository(User::class)->find($data['value']);
-        $user->setLineManager($lineManager);
-        $this->getDoctrine()->getManager()->flush();
-
-        // update line manager for current month to end of the year
-        $monthArray = [];
-        for ($i = date('m'); $i <= 12; $i++){
-            $date = '01-'.$i.'-2021';
-            array_push($monthArray, (new \DateTime($date))->format('F'));
-        }
-        $findHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findBy(['employee' => $user, 'month' => $monthArray, 'year' => date('Y')]);
-        foreach ($findHistory as $history) {
-            $history->setLineManager($lineManager);
-            $this->getDoctrine()->getManager()->persist($history);
-            $this->getDoctrine()->getManager()->flush();
-        }
-
-        return new JsonResponse(['status' => 200]);
-
-    }
-
-    /**
-     * @Route("/report-mode-select", name="kpi_report_mode_select", options={"expose"=true})
-     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
-     * @param SettingRepository $repository
-     * @return JsonResponse
-     */
-
-    public function selectReportMode(SettingRepository $repository)
-    {
-        $reportModes = $repository->getReportModes();
-        return new JsonResponse($reportModes);
-    }
-
-    /**
-     * @param Request $request
-     * @param User $user
-     * @return JsonResponse
-     * @Route("/report-mode-inline-update/{id}", name="kpi_report_mode_inline_update", options={"expose"=true})
-     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
-     */
-    public function inlineUpdateReportMode(Request $request, User $user)
-    {
-
-        $data = $request->request->all();
-//        $user = $this->getDoctrine()->getRepository(User::class)->find();
-
-        if (!$user) {
-            throw $this->createNotFoundException('Unable to find User');
-        }
-
-        $reportMode = $this->getDoctrine()->getRepository(Setting::class)->find($data['value']);
-
-        $lastAssignReportFormat = $this->getDoctrine()->getRepository(EmployeeReportFormatHistory::class)->findOneBy(['employee' => $user], ['id' => 'DESC']);
-
-        if ($lastAssignReportFormat == null || $lastAssignReportFormat->getReportFormat()->getId() != $reportMode->getId()){
-            $reportFormatHistory = new EmployeeReportFormatHistory();
-            $date = new \DateTime('now');
-
-            $reportFormatHistory->setEmployee($user);
-            $reportFormatHistory->setReportFormat($reportMode);
-            $reportFormatHistory->setMonth($date->format('F'));
-            $reportFormatHistory->setYear($date->format('Y'));
-            $reportFormatHistory->setUpdatedBy($this->getUser());
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($reportFormatHistory);
-        }
-
-
-        $user->setReportMode($reportMode);
-        $this->getDoctrine()->getManager()->flush();
-        return new JsonResponse(['status' => 200]);
-
-    }
+//
+//
+//            // add history
+//            $districtsArray = [];
+//            foreach ($user->getDistrict() as $district) {
+//                $districtsArray[$district->getId()] = $district->getName();
+//            }
+//            $joiningYear = (new \DateTime($user->getJoiningDate()))->format('Y');
+//            $currentYear = (new \DateTime('now'))->format('Y');
+//
+//            for ($i = $joiningYear; $i <= $currentYear; $i++){
+//                for ($j = 1; $j <= 12; $j++){
+//                    $date = '01-' . $j . '-' . $i;
+//
+//                    $history = new EmployeeDistrictHistory();
+//                    $history->setEmployee($user);
+//                    $history->setLineManager($user->getLineManager());
+//                    $history->setDistrict(json_encode($districtsArray));
+//                    $history->setMonth((new \DateTime($date))->format('F'));
+//                    $history->setYear((new \DateTime($date))->format('Y'));
+//                    $history->setCreatedAt(new \DateTime('now'));
+//                    $em->persist($history);
+//                    $em->flush();
+//
+//                }
+//            }
+//
+//
+//            $this->addFlash('success', 'Employee added successfully!');
+//            return $this->redirectToRoute('kpi_employee');
+//        }
+//        return $this->render('@TerminalbdKpi/employee/register.html.twig', [
+//            'id' => 'postForm',
+//            'post' => $user,
+//            'form' => $form->createView(),
+//        ]);
+//    }
+//
+//    /**
+//     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
+//     * @Route("/{id}/edit", methods={"GET", "POST"}, name="kpi_employee_edit")
+//     * @param Request $request
+//     * @param User $employee
+//     * @return Response
+//     * @throws \Exception
+//     */
+//    public function edit(Request $request, User $employee): Response
+//    {
+//        $data = $request->request->all();
+//        $terminal = $this->getUser()->getTerminal();
+//        $userRepo = $this->getDoctrine()->getRepository(User::class);
+//        $form = $this->createForm(EditEmployeeFormType::class, $employee, array('terminal' => $terminal,'userRepo' => $userRepo))
+//            ->add('SaveAndCreate', SubmitType::class);
+//        $form->remove('phone');
+//        $form->handleRequest($request);
+//        if ($form->isSubmitted()) {
+//
+//            $em = $this->getDoctrine()->getManager();
+//            $lastAssignReportFormat = $this->getDoctrine()->getRepository(EmployeeReportFormatHistory::class)->findOneBy(['employee' => $employee], ['id' => 'DESC']);
+//            $reportFormat = $form->getData()->getReportMode();
+//
+//            $transferJoiningDate = null;
+//            $districts = null;
+//
+//            if ($form['transferJoiningDate']->getData() != null){
+//                $transferJoiningDate = new \DateTime($form['transferJoiningDate']->getData());
+//
+//            }
+//
+//            foreach ($form->getData()->getDistrict() as $district){
+//                $districts[$district->getId()]= $district->getName();
+//            }
+//            // update line manager for current month to end of the year
+//            $monthArray = [];
+//            for ($i = date('m'); $i <= 12; $i++){
+//                $date = '01-'.$i.'-2021';
+//                array_push($monthArray, (new \DateTime($date))->format('F'));
+//            }
+//            $findHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findBy(['employee' => $employee, 'month' => $monthArray, 'year' => date('Y')]);
+//
+//            foreach ($findHistory as $history) {
+//                $history->setLineManager($form->getData()->getLineManager());
+//                $em->persist($history);
+//                $em->flush();
+//            }
+//
+//            // add history
+//            if ($transferJoiningDate){
+//                $months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+//                $monthArray = [];
+//                $yearArray = range($transferJoiningDate->format('Y'), date('Y'));
+//
+//                for ($i = $transferJoiningDate->format('m'); $i <= 12; $i++){
+//                    $date = '01-'.$i.'-2021';
+//                    array_push($monthArray, (new \DateTime($date))->format('F'));
+//                }
+//                $monthArray = array_diff($months,$monthArray );
+//
+//                $findHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findBy(['employee' => $employee, 'year' => $yearArray]);
+//
+//                foreach ($findHistory as $history) {
+//                    if ($history->getYear() != $transferJoiningDate->format('Y') || ($history->getYear() == $transferJoiningDate->format('Y') && !in_array($history->getMonth(), $monthArray))){
+//                        $history->setDistrict(json_encode($districts));
+//                        $history->setUpdatedBy($this->getUser());
+//                        $history->setUpdatedAt(new \DateTime('now'));
+//                        $em->persist($history);
+//                        $em->flush();
+//                    }
+//
+//                }
+//            }else{
+//                $findCurrentMonthHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $employee, 'month' => date('F'), 'year' => date('Y')]);
+//                $findCurrentMonthHistory->setDistrict(json_encode($districts));
+//                $em->persist($findCurrentMonthHistory);
+//                $em->flush();
+//
+//            }
+//
+//            if ($lastAssignReportFormat == null || $lastAssignReportFormat->getReportFormat()->getId() != $reportFormat->getId()){
+//                $reportFormatHistory = new EmployeeReportFormatHistory();
+//                $date = new \DateTime('now');
+//
+//                $reportFormatHistory->setEmployee($employee);
+//                $reportFormatHistory->setReportFormat($reportFormat);
+//                $reportFormatHistory->setMonth($date->format('F'));
+//                $reportFormatHistory->setYear($date->format('Y'));
+//                $reportFormatHistory->setUpdatedBy($this->getUser());
+//                $em->persist($reportFormatHistory);
+//                $em->flush();
+//
+//            }
+//
+////            $em->flush();
+//            $this->addFlash('success', 'Employee details updated!');
+//            return $this->redirectToRoute('kpi_employee_edit',array('id'=> $employee->getId()));
+//        }
+//        return $this->render('@TerminalbdKpi/employee/editRegister.html.twig', [
+//            'employee' => $employee,
+//            'form' => $form->createView(),
+//        ]);
+//    }
+//
+//    /**
+//     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
+//     * @Route("/{id}/reset-password", methods={"GET", "POST"}, name="kpi_employee_password", options={"expose"=true})
+//     * @param Request $request
+//     * @param UserRepository $userRepository
+//     * @param TranslatorInterface $translator
+//     * @param UserPasswordEncoderInterface $passwordEncoder
+//     * @param $id
+//     * @return Response
+//     */
+//    public function changeUserPassword(Request $request,UserRepository $userRepository , TranslatorInterface $translator ,UserPasswordEncoderInterface $passwordEncoder,$id): Response
+//    {
+//        $user = $this->getUser();
+//
+//        /* @var $entity User */
+//
+//        $entity = $userRepository->findOneBy(['terminal'=> $user->getTerminal(),'id'=>$id]);
+//        if($entity){
+//            $password = 123456;
+//            $entity->setPassword(
+//                $passwordEncoder->encodePassword(
+//                    $entity,
+//                    $password
+//                )
+//            );
+//            $this->getDoctrine()->getManager()->flush();
+//            $message = $translator->trans('data.updated_successfully');
+//            $this->addFlash('success', $message);
+//        }
+//        return $this->redirectToRoute('kpi_employee');
+//
+//    }
+//
+//
+//    /**
+//     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
+//     * @Route("/{id}/reset-inline-password", methods={"GET", "POST"}, name="kpi_employee_inline_password", options={"expose"=true})
+//     * @param Request $request
+//     * @param UserRepository $userRepository
+//     * @param TranslatorInterface $translator
+//     * @param UserPasswordEncoderInterface $passwordEncoder
+//     * @param $id
+//     * @return Response
+//     */
+//    public function changeInlineUserPassword(Request $request,UserRepository $userRepository , TranslatorInterface $translator ,UserPasswordEncoderInterface $passwordEncoder,$id): Response
+//    {
+//        $data = $request->request->all();
+//        $id = $data['pk'];
+//        $user = $this->getUser();
+//
+//        $entity = $userRepository->findOneBy(['terminal'=> $user->getTerminal(),'id'=>$id]);
+//        if($entity){
+//            $password = $data['value'];
+//            $entity->setPassword(
+//                $passwordEncoder->encodePassword(
+//                    $entity,
+//                    $password
+//                )
+//            );
+//            $this->getDoctrine()->getManager()->flush();
+//            $message = $translator->trans('data.updated_successfully');
+//            $this->addFlash('success', $message);
+//        }
+//        return new JsonResponse(['status' => 200]);
+//
+//    }
+//
+//
+//
+//    private function getErrorsFromForm(FormInterface $form)
+//    {
+//        $errors = array();
+//        foreach ($form->getErrors() as $error) {
+//            $errors[] = $error->getMessage();
+//        }
+//        foreach ($form->all() as $childForm) {
+//            if ($childForm instanceof FormInterface) {
+//                if ($childErrors = $this->getErrorsFromForm($childForm)) {
+//                    $errors[$childForm->getName()] = $childErrors;
+//                }
+//            }
+//        }
+//        return $errors;
+//    }
+//
+//    /**
+//     * @Route("/designation-select", name="kpi_designation_select", options={"expose"=true})
+//     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
+//     * @param SettingRepository $settingRepository
+//     * @return JsonResponse
+//     */
+//
+//    public function selectDesignation(SettingRepository $settingRepository)
+//    {
+//        $designations = $settingRepository->getDesignations();
+//        return New JsonResponse($designations);
+//    }
+//
+//    /**
+//     * @param Request $request
+//     * @param User $user
+//     * @return JsonResponse
+//     * @Route("/designation-inline-update/{id}", name="kpi_designation_inline_update", options={"expose"=true})
+//     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
+//     */
+//    public function inlineUpdateDesignation(Request $request, User $user)
+//    {
+//
+//        $data = $request->request->all();
+////        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['userId' => $userId]);
+//
+//        if (!$user) {
+//            throw $this->createNotFoundException('Unable to find User');
+//        }
+//
+//        $designation = $this->getDoctrine()->getRepository(Setting::class)->find($data['value']);
+//        $user->setDesignation($designation);
+//        $this->getDoctrine()->getManager()->flush();
+//        return new JsonResponse(['status' => 200]);
+//
+//    }
+//
+//    /**
+//     * @Route("/line-manager-select", name="kpi_line_manager_select", options={"expose"=true})
+//     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
+//     * @param UserRepository $repository
+//     * @return JsonResponse
+//     */
+//
+//    public function selectLineManager(UserRepository $repository)
+//    {
+//        $lineManagers = $repository->getLineManagerForInlineUpdate();
+//        return new JsonResponse($lineManagers);
+//    }
+//
+//    /**
+//     * @param Request $request
+//     * @param User $user
+//     * @return JsonResponse
+//     * @Route("/line-manager-inline-update/{id}", name="kpi_line_manager_inline_update", options={"expose"=true})
+//     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
+//     */
+//    public function inlineUpdateLineManager(Request $request, User $user)
+//    {
+//
+//        $data = $request->request->all();
+////        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['userId' => $userId]);
+//
+//        if (!$user) {
+//            throw $this->createNotFoundException('Unable to find User');
+//        }
+//
+//        $lineManager = $this->getDoctrine()->getRepository(User::class)->find($data['value']);
+//        $user->setLineManager($lineManager);
+//        $this->getDoctrine()->getManager()->flush();
+//
+//        // update line manager for current month to end of the year
+//        $monthArray = [];
+//        for ($i = date('m'); $i <= 12; $i++){
+//            $date = '01-'.$i.'-2021';
+//            array_push($monthArray, (new \DateTime($date))->format('F'));
+//        }
+//        $findHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findBy(['employee' => $user, 'month' => $monthArray, 'year' => date('Y')]);
+//        foreach ($findHistory as $history) {
+//            $history->setLineManager($lineManager);
+//            $this->getDoctrine()->getManager()->persist($history);
+//            $this->getDoctrine()->getManager()->flush();
+//        }
+//
+//        return new JsonResponse(['status' => 200]);
+//
+//    }
+//
+//    /**
+//     * @Route("/report-mode-select", name="kpi_report_mode_select", options={"expose"=true})
+//     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
+//     * @param SettingRepository $repository
+//     * @return JsonResponse
+//     */
+//
+//    public function selectReportMode(SettingRepository $repository)
+//    {
+//        $reportModes = $repository->getReportModes();
+//        return new JsonResponse($reportModes);
+//    }
+//
+//    /**
+//     * @param Request $request
+//     * @param User $user
+//     * @return JsonResponse
+//     * @Route("/report-mode-inline-update/{id}", name="kpi_report_mode_inline_update", options={"expose"=true})
+//     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
+//     */
+//    public function inlineUpdateReportMode(Request $request, User $user)
+//    {
+//
+//        $data = $request->request->all();
+////        $user = $this->getDoctrine()->getRepository(User::class)->find();
+//
+//        if (!$user) {
+//            throw $this->createNotFoundException('Unable to find User');
+//        }
+//
+//        $reportMode = $this->getDoctrine()->getRepository(Setting::class)->find($data['value']);
+//
+//        $lastAssignReportFormat = $this->getDoctrine()->getRepository(EmployeeReportFormatHistory::class)->findOneBy(['employee' => $user], ['id' => 'DESC']);
+//
+//        if ($lastAssignReportFormat == null || $lastAssignReportFormat->getReportFormat()->getId() != $reportMode->getId()){
+//            $reportFormatHistory = new EmployeeReportFormatHistory();
+//            $date = new \DateTime('now');
+//
+//            $reportFormatHistory->setEmployee($user);
+//            $reportFormatHistory->setReportFormat($reportMode);
+//            $reportFormatHistory->setMonth($date->format('F'));
+//            $reportFormatHistory->setYear($date->format('Y'));
+//            $reportFormatHistory->setUpdatedBy($this->getUser());
+//            $em = $this->getDoctrine()->getManager();
+//            $em->persist($reportFormatHistory);
+//        }
+//
+//
+//        $user->setReportMode($reportMode);
+//        $this->getDoctrine()->getManager()->flush();
+//        return new JsonResponse(['status' => 200]);
+//
+//    }
 
     /**
      * @Route("/hierarchy/{mode}",defaults={"mode" = null}, name="kpi_employee_hierarchy")
