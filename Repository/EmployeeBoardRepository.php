@@ -247,7 +247,7 @@ class EmployeeBoardRepository extends EntityRepository
         }
         $qb = $this->createQueryBuilder('board');
         $qb->join('board.employee', 'employee');
-        $qb->leftJoin('board.lineManager', 'lineManager');
+        $qb->leftJoin('employee.lineManager', 'lineManager');
         $qb->leftJoin('employee.designation', 'designation');
         $qb->select('board.id AS boardId', 'AVG(board.selfMark) AS selfMarkAvg', 'AVG(board.obtainMark) AS lineManagerMarkAvg');
         $qb->addSelect('employee.id AS employeeId', 'employee.userId', 'employee.name AS employeeName', 'employee.joiningDate');
@@ -267,8 +267,10 @@ class EmployeeBoardRepository extends EntityRepository
     {
         $qb = $this->createQueryBuilder('board');
         $qb->join('board.employee', 'employee');
+        $qb->leftJoin('board.lineManager','lineManager');
         $qb->select('board.month');
         $qb->addSelect('board.selfGrade', 'board.grade');
+        $qb->addSelect('lineManager.name as lineManagerName');
         $qb->where('board.year = :year')->setParameter('year', $year);
         $qb->andWhere('employee.id = :employee')->setParameter('employee', $employee->getId());
 
@@ -281,6 +283,7 @@ class EmployeeBoardRepository extends EntityRepository
                 'month' => $result['month'],
                 'selfGrade' => $result['selfGrade'],
                 'lineManagerGrade' => $result['grade'],
+                'lineManagerName' => $result['lineManagerName'],
             ];
         }
         ksort($data);

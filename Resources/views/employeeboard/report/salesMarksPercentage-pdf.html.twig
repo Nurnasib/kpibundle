@@ -89,7 +89,7 @@
                 <td align="right">{{ details['sum']['sumTotalAchieveMark'] |number_format(2) }}</td>
                 <td align="center">
                     {% if details['sum']['sumTotalTargetMark'] > 0 %}
-                        {{ (((details['sum']['sumTotalAchieveMark'] / details['sum']['sumTotalTargetMark']) - 1) * 100)|number_format(2) }}
+                        {{ ((details['sum']['sumTotalAchieveMark']*100) / details['sum']['sumTotalTargetMark'])|number_format(2) }}
                     {% endif %}
                 </td>
             </tr>
