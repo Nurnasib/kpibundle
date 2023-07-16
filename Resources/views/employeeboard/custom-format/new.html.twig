@@ -631,6 +631,20 @@
                                 {% endif %}
                                 </tbody>
                             </table>
+                            <h5 class="bg-secondary p-1 text-white h5 w-100 m-0">{{ 'Comments' }}</h5>
+                            <table class="table table-bordered">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th>Comments</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <th><textarea class="form-controll" name="comment" style="width: 100%" rows="5">{{ board.comment|default('') }}</textarea></th>
+                                </tr>
+                                </tbody>
+
+                            </table>
                             <div class="form-actions">
                                 <div class="col-md-6 ">
                                 </div>

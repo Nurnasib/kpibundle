@@ -153,6 +153,12 @@ class EmployeeBoard
      */
     private $lineManager;
 
+    /**
+     * @var string
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $comment;
+
     public function setId($id)
     {
         $this->id = $id;
@@ -485,6 +491,20 @@ class EmployeeBoard
         $this->lineManager = $lineManager;
     }
 
-    
+    /**
+     * @return string
+     */
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    /**
+     * @param string $comment
+     */
+    public function setComment(string $comment): void
+    {
+        $this->comment = $comment;
+    }
 
 }

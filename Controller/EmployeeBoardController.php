@@ -1179,6 +1179,8 @@ class EmployeeBoardController extends AbstractController
             $board->setProcess('in-progress');
         }
 
+        $board->setComment(isset($data['comment']) && $data['comment']!='' ? $data['comment'] : null);
+
         $board->setIsInput(true); //confirm Input
         $em->flush();
 
@@ -1192,6 +1194,7 @@ class EmployeeBoardController extends AbstractController
     public function processUpdate(EmployeeBoard $board, Request $request)
     {
         $marksAttribute = $request->request->all();
+        $em = $this->getDoctrine()->getManager();
 
         foreach ($marksAttribute['marksAttribute'] as $attributeId => $markDistributionId) {
             $attribute = $this->getDoctrine()->getRepository(MarkChart::class)->find($attributeId);
@@ -1206,7 +1209,7 @@ class EmployeeBoardController extends AbstractController
                 $boardAttribute->setMark($markDistribution->getMark());
             }
 
-            $this->getDoctrine()->getManager()->flush();
+            $em->flush();
 
         }
 
@@ -1215,6 +1218,10 @@ class EmployeeBoardController extends AbstractController
 
         $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1, 'status' => 1, 'name' => ['Values', 'Skill']]);
         $attributes = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->checkMarkOrSelfMark($board, $parameters); //get NULL selfMark & mark
+
+        $board->setComment(isset($marksAttribute['comment']) && $marksAttribute['comment']!='' ? $marksAttribute['comment'] : null);
+
+        $em->flush();
 
         if (!$attributes){
             $board->setProcess('in-progress');
