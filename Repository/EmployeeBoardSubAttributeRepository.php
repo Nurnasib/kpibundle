@@ -88,6 +88,7 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
         $qb->addSelect('employee.id', 'employee.name', 'employee.userId');
         $qb->addSelect('designation.name AS designationName');
         $qb->addSelect('mark_distribution.name AS markDistributionName');
+        $qb->addSelect('employee_board.month as kpiMonth', 'employee_board.kpiMonthYear');
 
         $qb->join('e.employeeBoard', 'employee_board');
         $qb->join('employee_board.employee', 'employee');
@@ -104,11 +105,15 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
             $qb->andWhere('employee.lineManager = :lineManager')->setParameter('lineManager', $filterBy['loggedUser']);
         }
 //        $qb->andWhere('employee_board.month IN (:months)')->setParameter('months', $filterBy['months']);
-        $qb->andWhere('employee_board.month =:month')->setParameter('month', $filterBy['endMonth']);
+        $startMonth = date('Y-m-d', strtotime($filterBy['year'].'-'.$filterBy['startMonth'].'-01'));
+        $endMonth = date('Y-m-t', strtotime($filterBy['year'].'-'.$filterBy['endMonth'].'-01'));
+        $qb->andWhere('employee_board.kpiMonthYear >=:startMonth')->setParameter('startMonth', $startMonth);
+        $qb->andWhere('employee_board.kpiMonthYear <=:endMonth')->setParameter('endMonth', $endMonth);
         $qb->andWhere('employee_board.year =:year')->setParameter('year', $filterBy['year']);
 
         $qb->groupBy('employee.id');
         $qb->addGroupBy('mark_distribution.id');
+        $qb->addGroupBy('employee_board.kpiMonthYear');
 
         $results = $qb->getQuery()->getArrayResult();
 
@@ -121,6 +126,8 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
                 'designation' => $result['designationName'],
 
             ];
+            $data[$result['userId']]['kpiMonths'][$result['kpiMonthYear']->format('m-Y')] = $result['kpiMonthYear']->format('M-Y');
+            
             if ($result['markDistributionName'] === 'Broiler Feed:  Sales Achievement:' ||
                 $result['markDistributionName'] === 'Broiler Feed:  Sales Achievement' ||
                 $result['markDistributionName'] === 'Product Sales Growth: Broiler'
@@ -153,12 +160,12 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
                 $result['markDistributionName'] = 'Cattle';
 
             }
-            $data[$result['userId']]['data'][$result['markDistributionName']] = [
+            $data[$result['userId']]['data'][$result['kpiMonthYear']->format('m-Y')][$result['markDistributionName']] = [
                 'totalTargetQuantity' => $result['totalTargetQuantity'],
                 'totalSalesQuantity' => $result['totalSalesQuantity'],
             ];
         }
-
+//dd($data);
         foreach ($data as $key => $item) {
             $data[$key]['sum']['sumTargetQuantity'] = array_sum(array_column($data[$key]['data'], 'totalTargetQuantity'));
             $data[$key]['sum']['sumSalesQuantity'] = array_sum(array_column($data[$key]['data'], 'totalSalesQuantity'));

@@ -20,7 +20,7 @@
 <table width="100%" cellspacing="0" cellpadding="0" border="1">
     <thead>
     <tr>
-        <th colspan="21">
+        <th colspan="22">
             {{ mode|capitalize }} Percentage ({{ filterBy['startMonth'] ~ ' - ' ~ filterBy['endMonth'] }}), {{ filterBy['year'] }}
             <br>
             {% if not is_granted('ROLE_KPI_ADMIN') %}
@@ -32,6 +32,7 @@
         <th rowspan="2">{{ 'Employee ID'|trans }}</th>
         <th rowspan="2">{{ 'Name'|trans }}</th>
         <th rowspan="2">{{ 'Designation'|trans }}</th>
+        <th rowspan="2">{{ 'Month'|trans }}</th>
         <th colspan="3" class="text-center">{{ 'Broiler'|trans }}</th>
         <th colspan="3" class="text-center">{{ 'Sonali'|trans }}</th>
         <th colspan="3" class="text-center">{{ 'Layer'|trans }}</th>
@@ -71,60 +72,124 @@
     {% if data is defined and data is not empty %}
 
         {% for details in data %}
-            <tr>
-                <td>{{ details['userInfo'].userId }}</td>
-                <td>{{ details['userInfo'].name }}</td>
-                <td>{{ details['userInfo'].designation }}</td>
-
-                <td align="right">{{ details['data']['Broiler'] is defined ? details['data']['Broiler'].totalTargetQuantity|number_format(2) : '' }}</td>
-                <td align="right">{{ details['data']['Broiler'] is defined ? details['data']['Broiler'].totalSalesQuantity|number_format(2) : '' }}</td>
-                <td align="center">
-                    {% if details['data']['Broiler'] is defined and details['data']['Broiler'].totalTargetQuantity > 0 %}
-{#                        {{ (((details['data']['Broiler'].totalSalesQuantity / details['data']['Broiler'].totalTargetQuantity) - 1) * 100)|number_format(2) }}#}
-                        {{ ((details['data']['Broiler'].totalSalesQuantity*100) / details['data']['Broiler'].totalTargetQuantity)|number_format(2) }}
+            {% set employeeRecordCount = 1 %}
+            {% for month, kpiMonth in details['kpiMonths'] %}
+                <tr>
+                    {% if employeeRecordCount==1 %}
+                        <td rowspan="{{ details['kpiMonths']|length }}">{{ details['userInfo'].userId }}</td>
+                        <td rowspan="{{ details['kpiMonths']|length }}">{{ details['userInfo'].name }}</td>
+                        <td rowspan="{{ details['kpiMonths']|length }}">{{ details['userInfo'].designation }}</td>
                     {% endif %}
-                </td>
+                    <td>{{ kpiMonth }}</td>
 
-                <td align="right">{{ details['data']['Sonali'] is defined ? details['data']['Sonali'].totalTargetQuantity|number_format(2) : '' }}</td>
-                <td align="right">{{ details['data']['Sonali'] is defined ? details['data']['Sonali'].totalSalesQuantity|number_format(2) : '' }}</td>
-                <td align="center">
-                    {% if details['data']['Sonali'] is defined and details['data']['Sonali'].totalTargetQuantity > 0 %}
-                        {{ ((details['data']['Sonali'].totalSalesQuantity*100) / details['data']['Sonali'].totalTargetQuantity)|number_format(2) }}
-                    {% endif %}
-                </td>
+                    <td>{{ details['data'][month]['Broiler'] is defined ? details['data'][month]['Broiler'].totalTargetQuantity|number_format(2) : '' }}</td>
+                    <td>{{ details['data'][month]['Broiler'] is defined ? details['data'][month]['Broiler'].totalSalesQuantity|number_format(2) : '' }}</td>
+                    <td align="center">
+                        {% if mode is same as 'feed' %}
+                            {% if details['data'][month]['Broiler'] is defined and details['data'][month]['Broiler'].totalTargetQuantity > 0 %}
+                                {#                                                {{ (((details['data'][month]['Broiler'].totalSalesQuantity / details['data'][month]['Broiler'].totalTargetQuantity) - 1) * 100)|number_format(2) }}#}
+                                {{ ((details['data'][month]['Broiler'].totalSalesQuantity*100) / details['data'][month]['Broiler'].totalTargetQuantity)|number_format(2) }}
+                            {% endif %}
+                        {% else %}
+                            {% if details['data'][month]['Broiler'] is defined and details['data'][month]['Broiler'].totalTargetQuantity > 0 %}
+                                {{ (((details['data'][month]['Broiler'].totalSalesQuantity / details['data'][month]['Broiler'].totalTargetQuantity) - 1) * 100)|number_format(2) }}
+                            {% endif %}
+                        {% endif %}
 
-                <td align="right">{{ details['data']['Layer'] is defined ? details['data']['Layer'].totalTargetQuantity|number_format(2) : '' }}</td>
-                <td align="right">{{ details['data']['Layer'] is defined ? details['data']['Layer'].totalSalesQuantity|number_format(2) : '' }}</td>
-                <td align="center">
-                    {% if details['data']['Layer'] is defined and details['data']['Layer'].totalTargetQuantity > 0 %}
-                        {{ ((details['data']['Layer'].totalSalesQuantity*100) / details['data']['Layer'].totalTargetQuantity)|number_format(2) }}
-                    {% endif %}
-                </td>
+                    </td>
 
-                <td align="right">{{ details['data']['Fish'] is defined ? details['data']['Fish'].totalTargetQuantity|number_format(2) : '' }}</td>
-                <td align="right">{{ details['data']['Fish'] is defined ? details['data']['Fish'].totalSalesQuantity|number_format(2) : '' }}</td>
-                <td align="center">
-                    {% if details['data']['Fish'] is defined and details['data']['Fish'].totalTargetQuantity > 0 %}
-                        {{ ((details['data']['Fish'].totalSalesQuantity*100) / details['data']['Fish'].totalTargetQuantity)|number_format(2) }}
-                    {% endif %}
-                </td>
+                    <td>{{ details['data'][month]['Sonali'] is defined ? details['data'][month]['Sonali'].totalTargetQuantity|number_format(2) : '' }}</td>
+                    <td>{{ details['data'][month]['Sonali'] is defined ? details['data'][month]['Sonali'].totalSalesQuantity|number_format(2) : '' }}</td>
+                    <td align="center">
+                        {% if mode is same as 'feed' %}
+                            {% if details['data'][month]['Sonali'] is defined and details['data'][month]['Sonali'].totalTargetQuantity > 0 %}
+                                {{ ((details['data'][month]['Sonali'].totalSalesQuantity*100) / details['data'][month]['Sonali'].totalTargetQuantity)|number_format(2) }}
+                            {% endif %}
+                        {% else %}
+                            {% if details['data'][month]['Sonali'] is defined and details['data'][month]['Sonali'].totalTargetQuantity > 0 %}
+                                {{ (((details['data'][month]['Sonali'].totalSalesQuantity / details['data'][month]['Sonali'].totalTargetQuantity) - 1) * 100)|number_format(2) }}
+                                {#                                                    {{ ((details['data'][month]['Sonali'].totalSalesQuantity*100) / details['data'][month]['Sonali'].totalTargetQuantity)|number_format(2) }}#}
+                            {% endif %}
+                        {% endif %}
 
-                <td align="right">{{ details['data']['Cattle'] is defined ? details['data']['Cattle'].totalTargetQuantity|number_format(2) : '' }}</td>
-                <td align="right">{{ details['data']['Cattle'] is defined ? details['data']['Cattle'].totalSalesQuantity|number_format(2) : '' }}</td>
-                <td align="center">
-                    {% if details['data']['Cattle'] is defined and details['data']['Cattle'].totalTargetQuantity > 0 %}
-                        {{ ((details['data']['Cattle'].totalSalesQuantity*100) / details['data']['Cattle'].totalTargetQuantity)|number_format(2) }}
-                    {% endif %}
-                </td>
+                    </td>
 
-                <td align="right">{{ details['sum']['sumTargetQuantity'] |number_format(2) }}</td>
-                <td align="right">{{ details['sum']['sumSalesQuantity'] |number_format(2) }}</td>
-                <td align="center">
-                    {% if details['sum']['sumSalesQuantity'] > 0 %}
-                        {{ ((details['sum']['sumSalesQuantity']*100) / details['sum']['sumTargetQuantity'])|number_format(2) }}
-                    {% endif %}
-                </td>
-            </tr>
+                    <td>{{ details['data'][month]['Layer'] is defined ? details['data'][month]['Layer'].totalTargetQuantity|number_format(2) : '' }}</td>
+                    <td>{{ details['data'][month]['Layer'] is defined ? details['data'][month]['Layer'].totalSalesQuantity|number_format(2) : '' }}</td>
+                    <td align="center">
+
+                        {% if mode is same as 'feed' %}
+                            {% if details['data'][month]['Layer'] is defined and details['data'][month]['Layer'].totalTargetQuantity > 0 %}
+                                {{ ((details['data'][month]['Layer'].totalSalesQuantity*100) / details['data'][month]['Layer'].totalTargetQuantity)|number_format(2) }}
+                            {% endif %}
+                        {% else %}
+                            {% if details['data'][month]['Layer'] is defined and details['data'][month]['Layer'].totalTargetQuantity > 0 %}
+                                {{ (((details['data'][month]['Layer'].totalSalesQuantity / details['data'][month]['Layer'].totalTargetQuantity) - 1) * 100)|number_format(2) }}
+                                {#                                                    {{ ((details['data'][month]['Layer'].totalSalesQuantity*100) / details['data'][month]['Layer'].totalTargetQuantity)|number_format(2) }}#}
+                            {% endif %}
+                        {% endif %}
+
+                    </td>
+
+                    <td>{{ details['data'][month]['Fish'] is defined ? details['data'][month]['Fish'].totalTargetQuantity|number_format(2) : '' }}</td>
+                    <td>{{ details['data'][month]['Fish'] is defined ? details['data'][month]['Fish'].totalSalesQuantity|number_format(2) : '' }}</td>
+                    <td align="center">
+
+                        {% if mode is same as 'feed' %}
+                            {% if details['data'][month]['Fish'] is defined and details['data'][month]['Fish'].totalTargetQuantity > 0 %}
+                                {{ ((details['data'][month]['Fish'].totalSalesQuantity*100) / details['data'][month]['Fish'].totalTargetQuantity)|number_format(2) }}
+                            {% endif %}
+                        {% else %}
+                            {% if details['data'][month]['Fish'] is defined and details['data'][month]['Fish'].totalTargetQuantity > 0 %}
+                                {{ (((details['data'][month]['Fish'].totalSalesQuantity / details['data'][month]['Fish'].totalTargetQuantity) - 1) * 100)|number_format(2) }}
+                                {#                                                    {{ ((details['data'][month]['Fish'].totalSalesQuantity*100) / details['data'][month]['Fish'].totalTargetQuantity)|number_format(2) }}#}
+                            {% endif %}
+                        {% endif %}
+
+                    </td>
+
+                    <td>{{ details['data'][month]['Cattle'] is defined ? details['data'][month]['Cattle'].totalTargetQuantity|number_format(2) : '' }}</td>
+                    <td>{{ details['data'][month]['Cattle'] is defined ? details['data'][month]['Cattle'].totalSalesQuantity|number_format(2) : '' }}</td>
+                    <td align="center">
+
+                        {% if mode is same as 'feed' %}
+                            {% if details['data'][month]['Cattle'] is defined and details['data'][month]['Cattle'].totalTargetQuantity > 0 %}
+                                {{ ((details['data'][month]['Cattle'].totalSalesQuantity*100) / details['data'][month]['Cattle'].totalTargetQuantity)|number_format(2) }}
+                            {% endif %}
+                        {% else %}
+                            {% if details['data'][month]['Cattle'] is defined and details['data'][month]['Cattle'].totalTargetQuantity > 0 %}
+                                {{ (((details['data'][month]['Cattle'].totalSalesQuantity / details['data'][month]['Cattle'].totalTargetQuantity) - 1) * 100)|number_format(2) }}
+                                {#                                                    {{ ((details['data'][month]['Cattle'].totalSalesQuantity*100) / details['data'][month]['Cattle'].totalTargetQuantity)|number_format(2) }}#}
+                            {% endif %}
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        {{ (details['data'][month]|arraySumColWise('totalTargetQuantity'))|number_format(2) }}
+                        {#                                            {{ details['sum']['sumTargetQuantity'] |number_format(2) }}#}
+                    </td>
+                    <td>
+                        {{ (details['data'][month]|arraySumColWise('totalSalesQuantity'))|number_format(2) }}
+                        {#                                            {{ details['sum']['sumSalesQuantity'] |number_format(2) }}#}
+                    </td>
+                    <td align="center">
+
+                        {% if mode is same as 'feed' %}
+                            {% if (details['data'][month]|arraySumColWise('totalSalesQuantity')) > 0 %}
+                                {{ (((details['data'][month]|arraySumColWise('totalSalesQuantity'))*100) / (details['data'][month]|arraySumColWise('totalTargetQuantity')))|number_format(2) }}
+                            {% endif %}
+                        {% else %}
+                            {% if (details['data'][month]|arraySumColWise('totalSalesQuantity')) > 0 %}
+                                {{ ((((details['data'][month]|arraySumColWise('totalSalesQuantity')) / (details['data'][month]|arraySumColWise('totalTargetQuantity'))) - 1) * 100)|number_format(2) }}
+                                {#                                                                                                    {{ (((details['data'][month]|arraySumColWise('totalSalesQuantity'))*100) / (details['data'][month]|arraySumColWise('totalTargetQuantity')))|number_format(2) }}#}
+                            {% endif %}
+                        {% endif %}
+
+                    </td>
+                </tr>
+                {% set employeeRecordCount = employeeRecordCount+1 %}
+            {% endfor %}
         {% endfor %}
     {% else %}
         <tr>

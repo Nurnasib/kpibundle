@@ -159,6 +159,11 @@ class EmployeeBoard
      */
     private $comment;
 
+    /**
+     * @ORM\Column(type="date", nullable=true)
+     */
+    private $kpiMonthYear;
+    
     public function setId($id)
     {
         $this->id = $id;
@@ -505,6 +510,18 @@ class EmployeeBoard
     public function setComment(string $comment): void
     {
         $this->comment = $comment;
+    }
+
+    public function getKpiMonthYear(): ?\DateTimeInterface
+    {
+        return $this->kpiMonthYear;
+    }
+
+    public function setKpiMonthYear(?\DateTimeInterface $kpiMonthYear): self
+    {
+        $this->kpiMonthYear = $kpiMonthYear;
+
+        return $this;
     }
 
 }

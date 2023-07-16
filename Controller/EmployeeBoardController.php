@@ -128,8 +128,9 @@ class EmployeeBoardController extends AbstractController
             }else{
                 $emp = $form['employee']->getData();
             }
-//            $monthYear = $data['employee_board_form']['monthYear'];
+
             $monthYear = str_replace(',', '-', $data['employee_board_form']['monthYear']);
+            $kpiMonthYear = date('Y-m-d', strtotime('01-'.$monthYear));
             $monthYearArray = explode(',', $data['employee_board_form']['monthYear']);
             $month = $monthYearArray[0];
             $year = $monthYearArray[1];
@@ -229,6 +230,7 @@ class EmployeeBoardController extends AbstractController
                 $board->setDistrict($districts);
                 $board->setCreated(new \DateTime());
                 $board->setUpdated(new \DateTime());
+                $board->setKpiMonthYear(new \DateTime($kpiMonthYear));
 
                 if ($format == 'custom-format'){
                     $board->setIsInput(false);
@@ -278,6 +280,8 @@ class EmployeeBoardController extends AbstractController
             $entity->setEmployeeSetup($setup);
             $entity->setMonth((string)$month);
             $entity->setYear((string)$year);
+            $kpiMonthYear = date('Y-m-d', strtotime('01-'.$month.'-',$year));
+            $entity->setKpiMonthYear(new \DateTime($kpiMonthYear));
             $em->persist($entity);
             $em->flush();
             $em->getRepository(EmployeeBoardAttribute::class)->insertMarkDistribution($setup,$entity,$entities);
