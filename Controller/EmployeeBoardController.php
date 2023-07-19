@@ -1263,7 +1263,7 @@ class EmployeeBoardController extends AbstractController
 
         $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
 
-        $boards = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findBy(['month'=>'June','year'=>'2023']);
+        $boards = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findAll();
 
         foreach ($boards as $board) {
             if(!str_contains($board->getReportMode()->getSlug(), 'custom')){
