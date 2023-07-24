@@ -635,4 +635,91 @@ class KpiReportController extends AbstractController
                     'attributesAndMarks'  => $attributesAndMarks
                 ]);*/
     }
+
+    /**
+     * @Route("/kpi-monthly-summery-report", name="kpi_monthly_summery_report")
+     * @param Request $request
+     * @param \Symfony\Component\HttpFoundation\Response
+     */
+    public function kpiMonthlySummery(Request $request, $mode='feed')
+    {
+        set_time_limit(0);
+        ini_set('memory_limit', '5000M');
+
+        $startDate = @strtotime(date('F') . ' ' . (int)date('Y'));
+        $endDate = @strtotime(date('F') . ' ' . (int)date('Y'));
+
+        $months = $this->monthRange($startDate, $endDate);
+        $data=[];
+
+        $filterBy = [
+            'loggedUser' => $this->getUser(),
+            'employee' => null,
+            'startMonth' => date('F'),
+            'endMonth' => date('F'),
+            'year' => (int)date('Y'),
+            'salesMode' => $mode,
+        ];
+
+        $filterForm = $this->createForm(SalesReportFilterFormType::class, null, ['user' => $this->getUser()]);
+        $filterForm->handleRequest($request);
+
+        if ($filterForm->isSubmitted()){
+//            $startDate = @strtotime($filterForm->get('startMonth')->getData() . ' ' . $filterForm->get('year')->getData());
+//            $endDate = @strtotime($filterForm->get('endMonth')->getData() . ' ' . $filterForm->get('year')->getData());
+//            $months = $this->monthRange($startDate, $endDate);
+
+            $filterBy['employee'] = $filterForm->get('employee')->getData();
+            $filterBy['year'] = (int)$filterForm->get('year')->getData();
+//            $filterBy['months'] = $this->monthRange($startDate, $endDate);
+            $filterBy['startMonth'] = $filterForm->get('startMonth')->getData();
+            $filterBy['endMonth'] = $filterForm->get('endMonth')->getData();
+
+            $data['previousYearSalesData'] = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getSalesTargetAchievementSummeryReport($filterBy, true);
+            $data['currentYearSalesData'] = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getSalesTargetAchievementSummeryReport($filterBy);
+//            dd($data);
+        }
+
+        if ($request->query->get('pdf')){
+
+            // Configure Dompdf according to your needs
+            $pdfOptions = new Options();
+            $pdfOptions->set('defaultFont', 'Arial, sans-serif');
+
+            // Instantiate Dompdf with our options
+            $dompdf = new Dompdf($pdfOptions);
+
+            // Retrieve the HTML generated in our twig file
+            $html = $this->renderView('@TerminalbdKpi/employeeboard/report/salesPercentage-pdf.html.twig', [
+                'data' => $data,
+                'filterBy' => $filterBy,
+                'mode' => $mode,
+
+            ]);
+
+            // Load HTML to Dompdf
+            $dompdf->loadHtml($html);
+
+            // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
+            $dompdf->setPaper('A3', 'landscape');
+
+            // Render the HTML as PDF
+            $dompdf->render();
+
+            // Output the generated PDF to Browser (force download)
+            $fileName = $request->get('_route') . '-' . time();
+            $dompdf->stream($fileName . ".pdf", [
+                "Attachment" => true
+            ]);
+            die();
+        }
+
+        return $this->render('@TerminalbdKpi/employeeboard/report/monthlySummeryReport.html.twig', [
+            'filterBy' => $filterBy,
+            'form' => $filterForm->createView(),
+            'data' => $data,
+            'mode' => $mode,
+        ]);
+    }
+
 }

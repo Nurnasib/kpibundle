@@ -1,0 +1,347 @@
+{% extends 'admin/layout.html.twig' %}
+{% block body_id 'kpi_domain_new' %}
+{% block body %}
+    <div class="pcoded-inner-content">
+        <!-- [ breadcrumb ] start -->
+        {#        <div class="page-header">
+                    <div class="page-block">
+                        <div class="row align-items-center">
+                            <ul class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                <li class="breadcrumb-item"><a
+                                            href="{{ path('kpi_employee_board') }}">  {{ 'KPI Employee Board'|trans }}</a></li>
+                                <li class="breadcrumb-item"><a href="javascript:">{{ 'Team Member Summary'|trans }}</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>#}
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="card mb-1">
+                <div class="card-header p-2">
+                    {% if is_granted('ROLE_KPI_ADMIN') %}
+                        <h5>{{ 'Employee ' ~ mode ~ ' Sales Percentage Report'|trans }}</h5>
+
+                    {% else %}
+                        <h5>{{ 'KPI Team Member ' ~ mode ~ ' Sales Summary for '|trans }}: {{ app.user.name }}</h5>
+
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card mb-3">
+                <div class="card-body p-2">
+                    <div class="col-md-10 offset-1">
+                        {{ form_start(form, {'attr':{'id': 'teamMemberSummerySearchForm'}}) }}
+                        <table class="table table-striped table-bordered table-hover dataTable">
+                            <thead class="thead-dark">
+                            <tr role="row" class="filter">
+                                <th colspan="2">
+                                        {{ form_label(form.employee, 'Employee') }}
+                                        {{ form_widget(form.employee) }}
+                                </th>
+                                <th colspan="2">
+                                    {{ form_label(form.startMonth, 'Start Month') }}
+                                    {{ form_widget(form.startMonth) }}
+
+                                </th>
+                                <th colspan="2">
+                                    {{ form_label(form.endMonth, 'End Month') }}
+                                    {{ form_widget(form.endMonth) }}
+                                </th>
+                                <th colspan="2">
+                                    {{ form_label(form.year) }}
+                                    {{ form_widget(form.year) }}
+                                </th>
+
+                                <th colspan="1">
+                                    <div class="btn-group" style="margin-top: 25px">
+                                        <button type="submit" name="search" class="btn btn-primary btn-sm"
+                                                title="Search" value="search"><i
+                                                    class="fa fa-search" aria-hidden="true"></i></button>
+                                        <a href="{{ path('sales_percentage', {mode: mode}) }}"
+                                           class="btn purple-bg btn-sm white-font" title="Reset" value="reset"><i
+                                                    class="fa fa-refresh" aria-hidden="true"></i></a>
+                                        <button type="submit" name="pdf" value="pdf" target="_blank" title="PDF"
+                                                class="btn blue-bg btn-sm white-font"><i
+                                                    class="fa fa-file-pdf"></i> PDF
+                                        </button>
+                                        {#<button type="button"  title="Excel"
+                                                id="button-excel"
+                                                class="btn green-bg white-font btn-sm"><i
+                                                    class="fa fa-file-excel"></i> Excel
+                                        </button>#}
+                                    </div>
+                                </th>
+                            </tr>
+                            </thead>
+                        </table>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if data is defined and data is not empty %}
+            <div class="row">
+                <div class="card">
+                    <div class="card-body"  style="padding: 0; margin: 10px; overflow: auto; height: 64vh">
+
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th data-a-h="center" class="border-0"><h3 class="text-center">NOURISH POULTRY AND HATCHERY LTD</h3></th>
+                            </tr>
+                            <tr>
+                                <th data-a-h="center" class="border-0"><h5 class="text-center">UTTARA, DHAKA.</h5></th>
+                            </tr>
+
+                            <tr>
+                                <td data-a-h="center" class="border-0" align="center">
+                                    <h6>{{ 'Monthly Report'|trans }}</h6>
+                                </td>
+                            </tr>
+                            </thead>
+                        </table>
+
+                        {% if data['currentYearSalesData'] is defined and data['currentYearSalesData'] is not empty %}
+                            {% for distributionName, distributionData in data['currentYearSalesData']['markDistributionName'] %}
+
+                            <h5>{{ distributionName }}</h5>
+
+                            <table class="table table-striped table-bordered table-hover details-table"
+                                   width="100%">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th rowspan="2">{{ 'Month'|trans }}</th>
+                                    <th rowspan="2">{{ 'Last Year Achive'|trans }}</th>
+                                    <th colspan="7">{{ 'Report Year'|trans }} - {{ filterBy['year'] }}</th>
+                                    <th rowspan="2">{{ 'Variance'|trans }}</th>
+                                    <th rowspan="2">{{ 'Growth Over Last Year'|trans }}</th>
+                                    <th rowspan="2">{{ 'Growth (%)'|trans }}</th>
+
+                                </tr>
+                                <tr>
+                                    <th class="text-center">{{ 'Target' }}</th>
+                                    <th class="text-center">{{ 'Achive' }}</th>
+                                    <th class="text-center">{{ '%' }}</th>
+                                    <th class="text-center">{{ 'variance' }}</th>
+                                    <th class="text-center">{{ 'Cum.Target' }}</th>
+                                    <th class="text-center">{{ 'Cum.Achive' }}</th>
+                                    <th class="text-center">{{ '%' }}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% set previousYearSalesAchiveTotal = 0 %}
+
+                                {% set cumSalesTarget=0 %}
+                                {% set cumSalesAchive=0 %}
+                                {% set monthCount = 0 %}
+
+                                {% set cumSalesTargetArray = [] %}
+                                {% set cumSalesAchiveArray = [] %}
+
+                                {% for monthKey, monthlyName in distributionData %}
+
+                                    {% set previousYearSalesAchive = data['previousYearSalesData'] is defined and data['previousYearSalesData'] is not empty
+                                        and data['previousYearSalesData']['data'] is defined and data['previousYearSalesData']['data'][distributionName] is defined
+                                        and data['previousYearSalesData']['data'][distributionName][monthKey] is defined ? data['previousYearSalesData']['data'][distributionName][monthKey]['totalSalesQuantity']:0 %}
+
+                                    {% set currentYearSalesTarget = data['currentYearSalesData'] is defined and data['currentYearSalesData'] is not empty
+                                        and data['currentYearSalesData']['data'] is defined and data['currentYearSalesData']['data'][distributionName] is defined
+                                        and data['currentYearSalesData']['data'][distributionName][monthKey] is defined ? data['currentYearSalesData']['data'][distributionName][monthKey]['totalTargetQuantity']: 0%}
+
+                                    {% set currentYearSalesAchive = data['currentYearSalesData'] is defined and data['currentYearSalesData'] is not empty
+                                        and data['currentYearSalesData']['data'] is defined and data['currentYearSalesData']['data'][distributionName] is defined
+                                        and data['currentYearSalesData']['data'][distributionName][monthKey] is defined ? data['currentYearSalesData']['data'][distributionName][monthKey]['totalSalesQuantity']: 0%}
+
+                                    {% set cumSalesTarget=cumSalesTarget+ currentYearSalesTarget%}
+                                    {% set cumSalesAchive=cumSalesAchive+ currentYearSalesAchive%}
+
+                                    {% set cumSalesTargetArray = cumSalesTargetArray|merge([cumSalesTarget]) %}
+                                    {% set cumSalesAchiveArray = cumSalesAchiveArray|merge([cumSalesAchive]) %}
+
+
+                                    {% set previousYearSalesAchiveTotal = previousYearSalesAchiveTotal + previousYearSalesAchive %}
+
+                                    {% set monthCount = monthCount+1 %}
+                                    <tr>
+                                        <td>{{ monthlyName }}</td>
+                                        <td>
+                                            {{ previousYearSalesAchive}}
+                                        </td>
+                                        <td>
+                                            {{ currentYearSalesTarget}}
+                                        </td>
+                                        <td>
+                                            {{ currentYearSalesAchive}}
+                                        </td>
+                                        <td>
+                                            {{ currentYearSalesTarget>0? ((currentYearSalesAchive*100)/currentYearSalesTarget)|number_format(2,'.',''): 0}}%
+                                        </td>
+                                        <td>
+                                            {{ currentYearSalesTarget-currentYearSalesAchive }}
+                                        </td>
+                                        <td>
+                                            {{ cumSalesTarget }}
+                                        </td>
+                                        <td>
+                                            {{ cumSalesAchive }}
+                                        </td>
+                                        <td>
+                                            {{ cumSalesTarget>0?((cumSalesAchive*100)/cumSalesTarget)|number_format(2,'.',''):0 }}
+                                        </td>
+
+                                        <td>
+                                            {{ cumSalesAchive-cumSalesTarget }}
+                                        </td>
+                                        <td>{{ currentYearSalesAchive-previousYearSalesAchive }}</td>
+                                        <td>
+                                            {{ cumSalesTarget>0?(((cumSalesAchive/cumSalesTarget)-1)*100)|number_format(2,'.',''):0 }}
+                                        </td>
+                                    </tr>
+
+                                {% endfor %}
+
+
+                                </tbody>
+                                <tfoot>
+                                <tr>
+                                    {% set currentYearSalesTargetTotal = data['currentYearSalesData'] is defined and data['currentYearSalesData'] is not empty
+                                        and data['currentYearSalesData']['dataForAverage'] is defined and data['currentYearSalesData']['dataForAverage'][distributionName] is defined ? data['currentYearSalesData']['dataForAverage'][distributionName]|arraySumColWise('totalTargetQuantity'): 0%}
+
+                                    {% set currentYearSalesAchiveTotal = data['currentYearSalesData'] is defined and data['currentYearSalesData'] is not empty
+                                        and data['currentYearSalesData']['dataForAverage'] is defined and data['currentYearSalesData']['dataForAverage'][distributionName] is defined ? data['currentYearSalesData']['dataForAverage'][distributionName]|arraySumColWise('totalSalesQuantity'): 0%}
+
+                                    {% set currentYearSalesCount = data['currentYearSalesData'] is defined and data['currentYearSalesData'] is not empty
+                                        and data['currentYearSalesData']['dataForAverage'] is defined and data['currentYearSalesData']['dataForAverage'][distributionName] is defined ? data['currentYearSalesData']['dataForAverage'][distributionName]|length:1%}
+
+                                    {% set previousYearSalesAchiveAvg = (previousYearSalesAchiveTotal/monthCount)|number_format(2, '.', '') %}
+                                    {% set currentYearSalesTargetAvg = (currentYearSalesTargetTotal/currentYearSalesCount)|number_format(2, '.', '') %}
+                                    {% set currentYearSalesAchiveAvg = (currentYearSalesAchiveTotal/currentYearSalesCount)|number_format(2, '.', '') %}
+
+                                    {% set cumSalesTargetArraySum = cumSalesTargetArray|arraySum %}
+                                    {% set cumSalesTargetAvg = (cumSalesTargetArraySum/monthCount)|number_format(2, '.', '') %}
+
+                                    {% set cumSalesAchiveArraySum = cumSalesAchiveArray|arraySum %}
+                                    {% set cumSalesAchiveAvg = (cumSalesAchiveArraySum/monthCount)|number_format(2, '.', '') %}
+
+
+                                    <th>Average</th>
+                                    <th>
+                                        {{ previousYearSalesAchiveAvg }}
+                                    </th>
+                                    <th>
+                                        {{ currentYearSalesTargetAvg }}
+                                    </th>
+                                    <th>
+                                        {{ currentYearSalesAchiveAvg }}
+                                    </th>
+                                    <th>
+                                        {{ currentYearSalesTargetAvg>0? ((currentYearSalesAchiveAvg*100)/currentYearSalesTargetAvg)|number_format(2,'.',''):''}}%
+                                    </th>
+
+                                    <th>
+                                        {{ currentYearSalesTargetAvg-currentYearSalesAchiveAvg }}
+                                    </th>
+                                    <th>
+                                        {{ cumSalesTargetAvg }}
+                                    </th>
+                                    <th>
+                                        {{ cumSalesAchiveAvg }}
+                                    </th>
+                                    <th>
+                                        {{ cumSalesTargetAvg>0?((cumSalesAchiveAvg*100)/cumSalesTargetAvg)|number_format(2,'.',''):0 }}
+                                    </th>
+                                    <th>
+                                        {{ cumSalesAchiveAvg-cumSalesTargetAvg }}
+                                    </th>
+                                    <th>
+                                        {{ currentYearSalesAchiveAvg-previousYearSalesAchiveAvg }}
+                                    </th>
+                                    <th>
+                                        {{ cumSalesTargetAvg>0?(((cumSalesAchiveAvg/cumSalesTargetAvg)-1)*100)|number_format(2,'.',''):0 }}
+                                    </th>
+                                </tr>
+                                </tfoot>
+                            </table>
+
+                            {% endfor %}
+
+                        {% endif %}
+
+
+                    </div>
+                </div>
+            </div>
+            {% else %}
+                <div class="row">
+                    <div class="card">
+                        <div class="card-header py-3 text-center font-italic">
+                            {{ 'No record has been found!'|trans }}
+                        </div>
+                    </div>
+                </div>
+        {% endif %}
+        <!-- [ Main Content ] end -->
+    </div>
+{% endblock %}
+ {% block cssBlock %}
+     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+     <style>
+         table.details-table thead {
+             position: sticky;
+             top: -2px;
+             background-color: #dbdee3 !important;
+             border-bottom-color: #4C9EE7!important;
+         }
+     </style>
+ {% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+    <script src="{{ asset('assets/js/tableToExcel.js') }}"></script>
+
+    <script>
+        const button = document.querySelector("#button-excel");
+
+        if(button){
+            button.addEventListener("click", e => {
+                e.preventDefault();
+                let table = document.querySelector(".download-excel");
+                TableToExcel.convert(table, {
+                    name: "{{ app.request.get('_route') }}.xlsx",
+                    sheet: {
+                        name: "Sheet 1"
+                    }
+                });
+            });
+        }
+
+    </script>
+{% endblock %}
+{% block documentready %}
+    {{ parent() }}
+    $('#inputMonth').datepicker({
+    changeMonth: true,
+    changeYear: true,
+    dateFormat: 'MM,yy',
+
+    onClose: function() {
+    var iMonth = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+    var iYear = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+    $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
+    },
+
+    beforeShow: function() {
+    if ((selDate = $(this).val()).length > 0)
+    {
+    iYear = selDate.substring(selDate.length - 4, selDate.length);
+    iMonth = jQuery.inArray(selDate.substring(0, selDate.length - 5), $(this).datepicker('option', 'monthNames'));
+    $(this).datepicker('option', 'defaultDate', new Date(iYear, iMonth, 1));
+    $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
+    }
+    }
+    });
+{% endblock %}

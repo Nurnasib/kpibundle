@@ -174,6 +174,98 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
         return $data;
     }
 
+    public function getSalesTargetAchievementSummeryReport($filterBy, $prviousYear=false)
+    {
+        
+        $data = [];
+        if (isset($filterBy['employee']) && $filterBy['employee']!='') {
+            $qb = $this->createQueryBuilder('e');
+
+            $qb->select('SUM(e.targetQuantity) AS totalTargetQuantity', 'SUM(e.salesQuantity) AS totalSalesQuantity');
+            $qb->addSelect('employee.id', 'employee.name', 'employee.userId');
+            $qb->addSelect('designation.name AS designationName');
+            $qb->addSelect('mark_distribution.name AS markDistributionName');
+            $qb->addSelect('employee_board.month as kpiMonth', 'employee_board.kpiMonthYear');
+
+            $qb->join('e.employeeBoard', 'employee_board');
+            $qb->join('employee_board.employee', 'employee');
+            $qb->join('e.markDistribution', 'mark_distribution');
+            $qb->leftJoin('employee.designation', 'designation');
+
+            $qb->where('mark_distribution.salesMode = :salesMode')->setParameter('salesMode', $filterBy['salesMode']);
+            $qb->andWhere('employee = :employee')->setParameter('employee', $filterBy['employee']);
+
+            if (!in_array('ROLE_KPI_ADMIN', $filterBy['loggedUser']->getRoles())) {
+                $qb->andWhere('employee.lineManager = :lineManager')->setParameter('lineManager', $filterBy['loggedUser']);
+            }
+            
+            $year = $prviousYear==true?$filterBy['year']-1:$filterBy['year'];
+            
+            $startMonth = date('Y-m-d', strtotime($year . '-' . $filterBy['startMonth'] . '-01'));
+            $endMonth = date('Y-m-t', strtotime($year . '-' . $filterBy['endMonth'] . '-01'));
+            $qb->andWhere('employee_board.kpiMonthYear >=:startMonth')->setParameter('startMonth', $startMonth);
+            $qb->andWhere('employee_board.kpiMonthYear <=:endMonth')->setParameter('endMonth', $endMonth);
+            $qb->andWhere('employee_board.year =:year')->setParameter('year', $year);
+
+            $qb->groupBy('employee.id');
+            $qb->addGroupBy('mark_distribution.id');
+            $qb->addGroupBy('employee_board.kpiMonthYear');
+
+            $results = $qb->getQuery()->getArrayResult();
+
+
+            foreach ($results as $result) {
+                if ($result['markDistributionName'] === 'Broiler Feed:  Sales Achievement:' ||
+                    $result['markDistributionName'] === 'Broiler Feed:  Sales Achievement' ||
+                    $result['markDistributionName'] === 'Product Sales Growth: Broiler'
+
+                ) {
+                    $result['markDistributionName'] = 'Broiler';
+
+                } elseif ($result['markDistributionName'] === 'Sonali Feed: Sales Achievement:' ||
+                    $result['markDistributionName'] === 'Sonali Feed: Sales Achievement' ||
+                    $result['markDistributionName'] === 'Product Sales Growth: Sonali'
+                ) {
+                    $result['markDistributionName'] = 'Sonali';
+
+                } elseif ($result['markDistributionName'] === 'Layer Feed: Sales Achievement:' ||
+                    $result['markDistributionName'] === 'Layer Feed: Sales Achievement' ||
+                    $result['markDistributionName'] === 'Product Sales Growth: Layer'
+                ) {
+                    $result['markDistributionName'] = 'Layer';
+
+                } elseif ($result['markDistributionName'] === 'Fish Feed: Sales Achievement:' ||
+                    $result['markDistributionName'] === 'Fish Feed: Sales Achievement' ||
+                    $result['markDistributionName'] === 'Product Sales Growth: Fish'
+                ) {
+                    $result['markDistributionName'] = 'Fish';
+
+                } elseif ($result['markDistributionName'] === 'Cattle Feed: Sales Achievement:' ||
+                    $result['markDistributionName'] === 'Cattle Feed: Sales Achievement' ||
+                    $result['markDistributionName'] === 'Product Sales Growth: Cattle'
+                ) {
+                    $result['markDistributionName'] = 'Cattle';
+
+                }
+                $data['markDistributionName'][$result['markDistributionName']][$result['kpiMonthYear']->format('m')] = $result['kpiMonthYear']->format('F');
+                
+//                $data['markDistributionName'][$result['markDistributionName']] = $result['markDistributionName'];
+                
+                $data['data'][$result['markDistributionName']][$result['kpiMonthYear']->format('m')] = [
+                    'totalTargetQuantity' => $result['totalTargetQuantity'],
+                    'totalSalesQuantity' => $result['totalSalesQuantity'],
+                ];
+
+                $data['dataForAverage'][$result['markDistributionName']][] = [
+                    'totalTargetQuantity' => $result['totalTargetQuantity'],
+                    'totalSalesQuantity' => $result['totalSalesQuantity'],
+                ];
+            }
+        }
+
+        return $data;
+    }
+
 
 
     public function getSalesTargetAchievementMarksReport($filterBy)
