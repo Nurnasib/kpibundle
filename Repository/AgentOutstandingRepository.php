@@ -132,6 +132,35 @@ class AgentOutstandingRepository extends EntityRepository
         return $data;
     }
 
+    public function getMonthYearDistrictsWiseOutstanding($locations, $year, $month)
+    {
+        $em = $this->_em;
+
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.district','d');
+        $qb->select('e.month', 'SUM(e.actualAmount) AS actualAmount', 'SUM(e.limitAmount) AS limitAmount', 'SUM(e.outstanding) AS outstanding');
+        $qb->addSelect('d.name AS districtName');
+        $qb->where('d.id IN (:districts)')->setParameter('districts',$locations);
+        $qb->andWhere('e.year =:year')->setParameter('year',$year);
+        $qb->andWhere('e.month =:month')->setParameter('month',$month);
+        $qb->groupBy('e.month');
+        $qb->addGroupBy('e.year');
+        $results = $qb->getQuery()->getArrayResult();
+
+        $data = [];
+        if($results){
+            foreach ($results as $result){
+                $data[$result['month']] = [
+                    'actualAmount' => (double)$result['actualAmount'],
+                    'limitAmount' => (double)$result['limitAmount'],
+                    'outstanding' => (double)$result['outstanding'],
+                ];
+            }
+        }
+
+        return $data;
+    }
+
     public function getMonthYearOutstanding($monthYear, $agentId, $districtId)
     {
         $year = isset($monthYear['year']) ? $monthYear['year']:'';

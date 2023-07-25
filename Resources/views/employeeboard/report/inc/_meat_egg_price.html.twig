@@ -1,0 +1,35 @@
+
+<table class="table table-striped table-bordered table-hover download-excel">
+    {% if data['meatAndEggPrice']['records'] is defined and data['meatAndEggPrice']['records'] is not empty %}
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Avg. Price</th>
+            {% if months is defined and months is not empty %}
+                {% for month in months %}
+                    <th scope="col" style="text-align: center"><span style="display:block; transform: rotate(-30deg);text-align: center; min-width: 65px; padding: 0!important;">{{ month|date('F') }}</span></th>
+                {% endfor %}
+            {% endif %}
+        </tr>
+        </thead>
+            <tbody>
+            {% for chickType, details in data['meatAndEggPrice']['records'] %}
+                <tr>
+                    <td data-a-v="middle">{{ chickType }}</td>
+                    <td data-t="n" >{{ details|length>0?((details|arraySum)/(details|length))|number_format(2,'.',''):'' }}</td>
+                    {% if months is defined and months is not empty %}
+                        {% for month in months %}
+                            <td data-t="n" align="center">
+                                {{ details[month] is defined ? details[month]|number_format(2) : '' }}
+                            </td>
+                        {% endfor %}
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+    {% else %}
+        <tbody>
+        <td colspan="{{ months is defined ? months|length+5 :0 }}"><h4>No record found.</h4></td>
+        </tbody>
+    {% endif %}
+</table>

@@ -10,7 +10,14 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Terminalbd\CrmBundle\Entity\CompanyWiseFeedSale;
+use Terminalbd\CrmBundle\Entity\ComplainDifferentProductDetails;
+use Terminalbd\CrmBundle\Entity\DailyChickPriceDetails;
+use Terminalbd\CrmBundle\Entity\PoultryMeatEggPrice;
+use Terminalbd\CrmBundle\Entity\Setting;
+use Terminalbd\KpiBundle\Entity\AgentDocSaleCollection;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
+use Terminalbd\KpiBundle\Entity\AgentOutstanding;
 use Terminalbd\KpiBundle\Entity\EmployeeBoard;
 use Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute;
 use Terminalbd\KpiBundle\Entity\EmployeeBoardSubAttribute;
@@ -665,21 +672,57 @@ class KpiReportController extends AbstractController
         $filterForm->handleRequest($request);
 
         if ($filterForm->isSubmitted()){
-//            $startDate = @strtotime($filterForm->get('startMonth')->getData() . ' ' . $filterForm->get('year')->getData());
-//            $endDate = @strtotime($filterForm->get('endMonth')->getData() . ' ' . $filterForm->get('year')->getData());
-//            $months = $this->monthRange($startDate, $endDate);
+
+            $startDate = @strtotime($filterForm->get('startMonth')->getData() . ' ' . $filterForm->get('year')->getData());
+            $endDate = @strtotime($filterForm->get('endMonth')->getData() . ' ' . $filterForm->get('year')->getData());
+            $months = $this->monthRange($startDate, $endDate);
+
+//            dd($months);
 
             $filterBy['employee'] = $filterForm->get('employee')->getData();
             $filterBy['year'] = (int)$filterForm->get('year')->getData();
-//            $filterBy['months'] = $this->monthRange($startDate, $endDate);
+            $filterBy['months'] = $months;
             $filterBy['startMonth'] = $filterForm->get('startMonth')->getData();
             $filterBy['endMonth'] = $filterForm->get('endMonth')->getData();
 
+            $outstandingAndDocSales=[];
+            if(sizeof($months)>0){
+                foreach ($months as $month) {
+                    $districtHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $filterForm->get('employee')->getData(), 'month' => $month, 'year' => $filterBy['year']]);
+                    $districts = $districtHistory ? $districtHistory->getDistrict() : '';
+                    $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
+                    $outstandingAndDocSales['outstanding'][$month] = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getMonthYearDistrictsWiseOutstanding($districtsId, $filterBy['year'], $month);
+                    $outstandingAndDocSales['docSales'][$month] = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getMonthYearDistrictsWiseDocSales($districtsId, $filterBy['year'], $month);
+                }
+            }
+
+            $data['avgDocPrice'] = $this->getDoctrine()->getRepository(DailyChickPriceDetails::class)->getEmployeeMonthCompanyWiseAvgDocPriceMonthly($filterBy);
+
+            $data ['meatAndEggPrice'] = $this->getDoctrine()->getRepository(PoultryMeatEggPrice::class)->getMeatEggPriceEmployeeAndDateRangeWiseReport($filterBy);
+
+
+//            dd($data['meatAndEggPrice']);
+            
+            
             $data['previousYearSalesData'] = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getSalesTargetAchievementSummeryReport($filterBy, true);
             $data['currentYearSalesData'] = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getSalesTargetAchievementSummeryReport($filterBy);
-//            dd($data);
-        }
 
+            $data['outstandingAndDocSales'] = $outstandingAndDocSales;
+
+            $data['previousYearTeamMemberSalesData'] = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getTeamMemberSalesTargetAchievementSummeryReport($filterBy, true);
+            $data['currentYearTeamMemberSalesData'] = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getTeamMemberSalesTargetAchievementSummeryReport($filterBy);
+
+            $data['companyWiseFeedSales'] = $this->getDoctrine()->getRepository(CompanyWiseFeedSale::class)->getCompanyWiseFeedSaleForMonthlyReport( $filterBy);
+            $data['companyWiseFeedSales']['species'] = $this->getDoctrine()->getRepository(Setting::class)->getAllProductTypeForMonthlyReport();
+
+            $data['docComplain'] = $this->getDoctrine()->getRepository(ComplainDifferentProductDetails::class)->getComplainReportByEmployeeForMonthlyReport($filterBy, 'COMPLAIN_DOC');
+
+            $data['feedComplain'] = $this->getDoctrine()->getRepository(ComplainDifferentProductDetails::class)->getComplainReportByEmployeeForMonthlyReport($filterBy, 'COMPLAIN_FEED');
+
+
+//            dd($data['docComplain']);
+        }
+        
         if ($request->query->get('pdf')){
 
             // Configure Dompdf according to your needs
@@ -719,7 +762,9 @@ class KpiReportController extends AbstractController
             'form' => $filterForm->createView(),
             'data' => $data,
             'mode' => $mode,
+            'months' => $months,
         ]);
     }
+
 
 }
