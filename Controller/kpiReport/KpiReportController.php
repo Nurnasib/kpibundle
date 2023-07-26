@@ -13,6 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Terminalbd\CrmBundle\Entity\CompanyWiseFeedSale;
 use Terminalbd\CrmBundle\Entity\ComplainDifferentProductDetails;
 use Terminalbd\CrmBundle\Entity\DailyChickPriceDetails;
+use Terminalbd\CrmBundle\Entity\NewFarmerIntroduce\FarmerIntroduceDetails;
 use Terminalbd\CrmBundle\Entity\PoultryMeatEggPrice;
 use Terminalbd\CrmBundle\Entity\Setting;
 use Terminalbd\KpiBundle\Entity\AgentDocSaleCollection;
@@ -686,7 +687,7 @@ class KpiReportController extends AbstractController
             $filterBy['endMonth'] = $filterForm->get('endMonth')->getData();
 
             $outstandingAndDocSales=[];
-            if(sizeof($months)>0){
+            if(sizeof($months)>0 && $filterBy['employee']!=''){
                 foreach ($months as $month) {
                     $districtHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $filterForm->get('employee')->getData(), 'month' => $month, 'year' => $filterBy['year']]);
                     $districts = $districtHistory ? $districtHistory->getDistrict() : '';
@@ -718,6 +719,11 @@ class KpiReportController extends AbstractController
             $data['docComplain'] = $this->getDoctrine()->getRepository(ComplainDifferentProductDetails::class)->getComplainReportByEmployeeForMonthlyReport($filterBy, 'COMPLAIN_DOC');
 
             $data['feedComplain'] = $this->getDoctrine()->getRepository(ComplainDifferentProductDetails::class)->getComplainReportByEmployeeForMonthlyReport($filterBy, 'COMPLAIN_FEED');
+
+            $report = $this->getDoctrine()->getRepository(Setting::class)->findOneBy(['settingType'=>'FARMER_REPORT','slug'=>'farmer-introduce-report-cattle', 'status'=>1]);
+
+            $data['cattleFarmIntroduce'] = $this->getDoctrine()->getRepository(FarmerIntroduceDetails::class)->getFarmerIntroduceReportByEmployeeDateForKpiMonthlyReport($report, $filterBy);
+
 
 
 //            dd($data['docComplain']);

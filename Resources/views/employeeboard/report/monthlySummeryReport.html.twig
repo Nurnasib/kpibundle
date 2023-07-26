@@ -20,13 +20,7 @@
         <div class="row">
             <div class="card mb-1">
                 <div class="card-header p-2">
-                    {% if is_granted('ROLE_KPI_ADMIN') %}
-                        <h5>{{ 'Employee ' ~ mode ~ ' Sales Percentage Report'|trans }}</h5>
-
-                    {% else %}
-                        <h5>{{ 'KPI Team Member ' ~ mode ~ ' Sales Summary for '|trans }}: {{ app.user.name }}</h5>
-
-                    {% endif %}
+                    <h5>{{ 'Employee Monthly Report'|trans }}</h5>
                 </div>
             </div>
         </div>
@@ -496,8 +490,14 @@
 
                         {% endif %}
 
-                        {% if data['companyWiseFeedSales'] is defined and data['companyWiseFeedSales'] is not empty %}
-                        <h4>{{ 'Cmpany Wise Sales' }}</h4>
+                        {% if data['cattleFarmIntroduce'] is defined and data['cattleFarmIntroduce'] is not empty %}
+                        <h4>{{ 'Cattle Farm Introduce Status' }}</h4>
+                            {% include('@TerminalbdKpi/employeeboard/report/inc/_cattle_farmer_introduce.html.twig') %}
+
+                        {% endif %}
+
+                        {% if data['companyWiseFeedSales'] is defined and data['companyWiseFeedSales'] is not empty and data['companyWiseFeedSales']['records'] is defined and data['companyWiseFeedSales']['records'] is not empty %}
+                        <h4>{{ 'Company Wise Sales' }}</h4>
                             {% include('@TerminalbdKpi/employeeboard/report/inc/_company_wise_feed_sale.html.twig') %}
 
                         {% endif %}
