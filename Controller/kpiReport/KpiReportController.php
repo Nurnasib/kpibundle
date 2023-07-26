@@ -10,6 +10,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Terminalbd\CrmBundle\Entity\Challenger;
 use Terminalbd\CrmBundle\Entity\CompanyWiseFeedSale;
 use Terminalbd\CrmBundle\Entity\ComplainDifferentProductDetails;
 use Terminalbd\CrmBundle\Entity\DailyChickPriceDetails;
@@ -724,9 +725,14 @@ class KpiReportController extends AbstractController
 
             $data['cattleFarmIntroduce'] = $this->getDoctrine()->getRepository(FarmerIntroduceDetails::class)->getFarmerIntroduceReportByEmployeeDateForKpiMonthlyReport($report, $filterBy);
 
+            $data['challengesProblem'] = $this->getDoctrine()->getRepository(Challenger::class)->getChallengerByEmployeeForKpiMonthlyReport('challenges-problem', $filterBy);
+            $data['challengesIdea'] = $this->getDoctrine()->getRepository(Challenger::class)->getChallengerByEmployeeForKpiMonthlyReport('challenges-idea', $filterBy);
+            $data['challengesCompetitorActivity'] = $this->getDoctrine()->getRepository(Challenger::class)->getChallengerByEmployeeForKpiMonthlyReport('competitors-activity', $filterBy);
 
 
-//            dd($data['docComplain']);
+
+
+//            dd($data['challengesProblem']);
         }
         
         if ($request->query->get('pdf')){
@@ -739,10 +745,11 @@ class KpiReportController extends AbstractController
             $dompdf = new Dompdf($pdfOptions);
 
             // Retrieve the HTML generated in our twig file
-            $html = $this->renderView('@TerminalbdKpi/employeeboard/report/salesPercentage-pdf.html.twig', [
-                'data' => $data,
+            $html = $this->renderView('@TerminalbdKpi/employeeboard/report/monthlySummeryReport-pdf.html.twig', [
                 'filterBy' => $filterBy,
+                'data' => $data,
                 'mode' => $mode,
+                'months' => $months,
 
             ]);
 

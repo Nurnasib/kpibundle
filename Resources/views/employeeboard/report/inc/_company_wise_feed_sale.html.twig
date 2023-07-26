@@ -1,45 +1,43 @@
-<table class="table table-striped table-bordered table-hover">
     {% if data['companyWiseFeedSales']['records'] is defined and data['companyWiseFeedSales']['records'] is not empty %}
         {% for chickType, companyWiseData in data['companyWiseFeedSales']['records'] %}
-            <thead class="thead-dark">
-            <tr>
-                <th scope="col" colspan="{{ months is defined ? months|length+2 :0 }}" style="text-align: left; background-color: yellow; font-size: 20px">{{ data['companyWiseFeedSales']['species'][chickType]['name']|default('')  }}</th>
-            </tr>
-            <tr>
+            <table class="table table-striped table-bordered table-hover">
 
-                <th scope="col">Company</th>
-                {% if months is defined and months is not empty %}
-                    {% for month in months %}
-                        <th scope="col" style="text-align: center"><span style="display:block; transform: rotate(-30deg);text-align: center; min-width: 65px; padding: 0!important;">{{ month }}</span></th>
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col" colspan="{{ months is defined ? months|length+2 :0 }}" style="text-align: left; background-color: yellow; font-size: 20px">{{ data['companyWiseFeedSales']['species'][chickType]['name']|default('')  }}</th>
+                    </tr>
+                    <tr>
+
+                        <th scope="col">Company</th>
+                        {% if months is defined and months is not empty %}
+                            {% for month in months %}
+                                <th scope="col" style="text-align: center"><span style="display:block; transform: rotate(-30deg);text-align: center; min-width: 65px; padding: 0!important;">{{ month }}</span></th>
+                            {% endfor %}
+                        {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    {% for company, details in companyWiseData %}
+                        <tr>
+
+                            <td>{{ company }}</td>
+
+                            {% if months is defined and months is not empty %}
+                                {% for month in months %}
+                                    <td data-t="n" align="center">
+                                        {{ details[month] is defined ? details[month]|number_format(2) : '' }}
+                                    </td>
+                                {% endfor %}
+                            {% endif %}
+                        </tr>
                     {% endfor %}
-                {% endif %}
-            </tr>
-            </thead>
-            <tbody>
 
-            {% for company, details in companyWiseData %}
-                <tr>
+                    </tbody>
+            </table>
 
-                    <td>{{ company }}</td>
-
-                    {% if months is defined and months is not empty %}
-                        {% for month in months %}
-                            <td data-t="n" align="center">
-                                {{ details[month] is defined ? details[month]|number_format(2) : '' }}
-                            </td>
-                        {% endfor %}
-                    {% endif %}
-                </tr>
-            {% endfor %}
-
-            </tbody>
         {% endfor %}
     {% else %}
-        <tbody>
-        <tr>
-            <td colspan="{{ months is defined ? months|length+2 :0 }}">No record found.</td>
-        </tr>
-        </tbody>
+        {{ 'No record found.'|trans }}
     {% endif %}
 
-</table>
