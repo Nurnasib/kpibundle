@@ -1,0 +1,156 @@
+{% for distributionName, distributionData in data['currentYearSalesData'] %}
+
+    <h5>{{ distributionName }}</h5>
+
+    <table class="table table-striped table-bordered table-hover details-table"
+           width="100%">
+        <thead class="thead-dark">
+        <tr>
+            <th rowspan="2">{{ 'Month'|trans }}</th>
+            <th rowspan="2">{{ 'Last Year Achive'|trans }}</th>
+            <th colspan="7">{{ 'Report Year'|trans }} - {{ filterBy['year'] }}</th>
+            <th rowspan="2">{{ 'Variance'|trans }}</th>
+            <th rowspan="2">{{ 'Growth Over Last Year'|trans }}</th>
+            <th rowspan="2">{{ 'Growth (%)'|trans }}</th>
+
+        </tr>
+        <tr>
+            <th class="text-center">{{ 'Target' }}</th>
+            <th class="text-center">{{ 'Achive' }}</th>
+            <th class="text-center">{{ '%' }}</th>
+            <th class="text-center">{{ 'variance' }}</th>
+            <th class="text-center">{{ 'Cum.Target' }}</th>
+            <th class="text-center">{{ 'Cum.Achive' }}</th>
+            <th class="text-center">{{ '%' }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% set previousYearSalesAchiveTotal = 0 %}
+
+        {% set cumSalesTarget=0 %}
+        {% set cumSalesAchive=0 %}
+        {% set monthCount = 0 %}
+
+        {% set cumSalesTargetArray = [] %}
+        {% set cumSalesAchiveArray = [] %}
+
+        {% for monthKey, monthlyRecord in distributionData %}
+
+            {% set previousYearSalesAchive = data['previousYearSalesData'] is defined and data['previousYearSalesData'] is not empty
+                and data['previousYearSalesData'] is defined and data['previousYearSalesData'][distributionName] is defined
+                and data['previousYearSalesData'][distributionName][monthKey] is defined ? data['previousYearSalesData'][distributionName][monthKey]['totalSalesQuantity']:0 %}
+
+            {% set currentYearSalesTarget = monthlyRecord['totalTargetQuantity'] is defined ? monthlyRecord['totalTargetQuantity'] : 0%}
+
+            {% set currentYearSalesAchive = monthlyRecord['totalSalesQuantity'] is defined ? monthlyRecord['totalSalesQuantity'] : 0%}
+
+            {% set cumSalesTarget=cumSalesTarget+ currentYearSalesTarget %}
+            {% set cumSalesAchive=cumSalesAchive+ currentYearSalesAchive %}
+
+            {% set cumSalesTargetArray = cumSalesTargetArray|merge([cumSalesTarget]) %}
+            {% set cumSalesAchiveArray = cumSalesAchiveArray|merge([cumSalesAchive]) %}
+
+
+            {% set previousYearSalesAchiveTotal = previousYearSalesAchiveTotal + previousYearSalesAchive %}
+
+            {% set monthCount = monthCount+1 %}
+            <tr>
+                <td>{{ monthKey }} </td>
+                <td>
+                    {{ previousYearSalesAchive|number_format(2, '.', '') }}
+                </td>
+                <td>
+                    {{ currentYearSalesTarget|number_format(2, '.', '') }}
+                </td>
+                <td>
+                    {{ currentYearSalesAchive|number_format(2, '.', '') }}
+                </td>
+                <td>
+                    {{ currentYearSalesTarget>0? ((currentYearSalesAchive*100)/currentYearSalesTarget)|number_format(2,'.',''): 0}}%
+                </td>
+                <td>
+                    {{ (currentYearSalesAchive-currentYearSalesTarget)|number_format(2, '.', '') }}
+                </td>
+                <td>
+                    {{ cumSalesTarget|number_format(2, '.', '') }}
+                </td>
+                <td>
+                    {{ cumSalesAchive|number_format(2, '.', '') }}
+                </td>
+                <td>
+                    {{ cumSalesTarget>0?((cumSalesAchive*100)/cumSalesTarget)|number_format(2,'.',''):0 }}%
+                </td>
+
+                <td>
+                    {{ (cumSalesAchive-cumSalesTarget)|number_format(2, '.', '') }}
+                </td>
+                <td>{{ (currentYearSalesAchive-previousYearSalesAchive)|number_format(2, '.', '') }}</td>
+                <td>
+                    {{ cumSalesTarget>0?(((cumSalesAchive/cumSalesTarget)-1)*100)|number_format(2,'.',''):0 }}%
+                </td>
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+        <tfoot>
+        <tr>
+            {% set currentYearSalesTargetTotal = data['currentYearSalesData'] is defined and data['currentYearSalesData'] is not empty
+                and data['currentYearSalesData'][distributionName] is defined ? data['currentYearSalesData'][distributionName]|arraySumColWise('totalTargetQuantity'): 0%}
+
+            {% set currentYearSalesAchiveTotal = data['currentYearSalesData'] is defined and data['currentYearSalesData'] is not empty
+                and data['currentYearSalesData'][distributionName] is defined ? data['currentYearSalesData'][distributionName]|arraySumColWise('totalSalesQuantity'): 0%}
+
+            {% set currentYearSalesCount = data['currentYearSalesData'] is defined and data['currentYearSalesData'] is not empty
+                and data['currentYearSalesData'][distributionName] is defined ? data['currentYearSalesData'][distributionName]|length:1%}
+
+            {% set previousYearSalesAchiveAvg = (previousYearSalesAchiveTotal/monthCount)|number_format(2, '.', '') %}
+            {% set currentYearSalesTargetAvg = (currentYearSalesTargetTotal/currentYearSalesCount)|number_format(2, '.', '') %}
+            {% set currentYearSalesAchiveAvg = (currentYearSalesAchiveTotal/currentYearSalesCount)|number_format(2, '.', '') %}
+
+            {% set cumSalesTargetArraySum = cumSalesTargetArray|arraySum %}
+            {% set cumSalesTargetAvg = (cumSalesTargetArraySum/monthCount)|number_format(2, '.', '') %}
+
+            {% set cumSalesAchiveArraySum = cumSalesAchiveArray|arraySum %}
+            {% set cumSalesAchiveAvg = (cumSalesAchiveArraySum/monthCount)|number_format(2, '.', '') %}
+
+            <th>Average</th>
+            <th>
+                {{ previousYearSalesAchiveAvg }}
+            </th>
+            <th>
+                {{ currentYearSalesTargetAvg }}
+            </th>
+            <th>
+                {{ currentYearSalesAchiveAvg }}
+            </th>
+            <th>
+                {{ currentYearSalesTargetAvg>0? ((currentYearSalesAchiveAvg*100)/currentYearSalesTargetAvg)|number_format(2,'.',''):''}}%
+            </th>
+
+            <th>
+                {{ currentYearSalesAchiveAvg-currentYearSalesTargetAvg }}
+            </th>
+            <th>
+                {{ cumSalesTargetAvg }}
+            </th>
+            <th>
+                {{ cumSalesAchiveAvg }}
+            </th>
+            <th>
+                {{ cumSalesTargetAvg>0?((cumSalesAchiveAvg*100)/cumSalesTargetAvg)|number_format(2,'.',''):0 }}
+            </th>
+            <th>
+                {{ cumSalesAchiveAvg-cumSalesTargetAvg }}
+            </th>
+            <th>
+                {{ currentYearSalesAchiveAvg-previousYearSalesAchiveAvg }}
+            </th>
+            <th>
+                {{ cumSalesTargetAvg>0?(((cumSalesAchiveAvg/cumSalesTargetAvg)-1)*100)|number_format(2,'.',''):0 }}
+            </th>
+        </tr>
+        </tfoot>
+    </table>
+
+{% endfor %}

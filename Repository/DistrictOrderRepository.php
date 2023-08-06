@@ -195,4 +195,32 @@ class DistrictOrderRepository extends EntityRepository
 
     }
 
+    public function getSalesTargetAndAchievementForMonthlyReport($locations, $filterBy, $month, $prviousYear=false)
+    {
+        $year = $prviousYear==true?$filterBy['year']-1:$filterBy['year'];
+
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.product','product');
+        $qb->join('e.district','d');
+        $qb->select('product.id as id','SUM(e.quantity) as totalSalesQuantity','SUM(e.targetQuantity) as totalTargetQuantity');
+        $qb->addSelect('product.name as productName', 'e.month as monthName', 'e.year');
+        $qb->where('d.id IN (:districts)')->setParameter('districts',$locations);
+
+//        $qb->andWhere('e.month IN (:months)')->setParameter('months', $filterBy['months']);
+        $qb->andWhere('e.month =:month')->setParameter('month', $month);
+
+
+        $qb->andWhere('e.year = :year')->setParameter('year', $year);
+        $qb->groupBy('product.id');
+        $qb->addGroupBy('e.month');
+        $qb->addGroupBy('e.year');
+        $result = $qb->getQuery()->getArrayResult();
+        $data = array();
+        foreach ($result as $row){
+            $data[$row['productName']][$row['monthName']] = $row;
+        }
+        return $data;
+
+    }
+
 }

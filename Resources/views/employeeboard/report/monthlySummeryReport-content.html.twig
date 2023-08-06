@@ -38,434 +38,86 @@
     </tr>
 </table>
 
+<h4>{{ 'Sales' }}</h4>
 {% if data['currentYearSalesData'] is defined and data['currentYearSalesData'] is not empty %}
-    <h4>{{ 'Sales' }}</h4>
-    {% for distributionName, distributionData in data['currentYearSalesData']['markDistributionName'] %}
+    {% include('@TerminalbdKpi/employeeboard/report/inc/_feed_sale.html.twig') %}
+{% else %}
+    <p>No record found.</p>
+{% endif%}
 
-        <h5>{{ distributionName }}</h5>
-
-        <table class="table table-striped table-bordered table-hover details-table"
-               width="100%">
-            <thead class="thead-dark">
-            <tr>
-                <th rowspan="2">{{ 'Month'|trans }}</th>
-                <th rowspan="2">{{ 'Last Year Achive'|trans }}</th>
-                <th colspan="7">{{ 'Report Year'|trans }} - {{ filterBy['year'] }}</th>
-                <th rowspan="2">{{ 'Variance'|trans }}</th>
-                <th rowspan="2">{{ 'Growth Over Last Year'|trans }}</th>
-                <th rowspan="2">{{ 'Growth (%)'|trans }}</th>
-
-            </tr>
-            <tr>
-                <th class="text-center">{{ 'Target' }}</th>
-                <th class="text-center">{{ 'Achive' }}</th>
-                <th class="text-center">{{ '%' }}</th>
-                <th class="text-center">{{ 'variance' }}</th>
-                <th class="text-center">{{ 'Cum.Target' }}</th>
-                <th class="text-center">{{ 'Cum.Achive' }}</th>
-                <th class="text-center">{{ '%' }}</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% set previousYearSalesAchiveTotal = 0 %}
-
-            {% set cumSalesTarget=0 %}
-            {% set cumSalesAchive=0 %}
-            {% set monthCount = 0 %}
-
-            {% set cumSalesTargetArray = [] %}
-            {% set cumSalesAchiveArray = [] %}
-
-            {% for monthKey, monthlyName in distributionData %}
-
-                {% set previousYearSalesAchive = data['previousYearSalesData'] is defined and data['previousYearSalesData'] is not empty
-                    and data['previousYearSalesData']['data'] is defined and data['previousYearSalesData']['data'][distributionName] is defined
-                    and data['previousYearSalesData']['data'][distributionName][monthKey] is defined ? data['previousYearSalesData']['data'][distributionName][monthKey]['totalSalesQuantity']:0 %}
-
-                {% set currentYearSalesTarget = data['currentYearSalesData'] is defined and data['currentYearSalesData'] is not empty
-                    and data['currentYearSalesData']['data'] is defined and data['currentYearSalesData']['data'][distributionName] is defined
-                    and data['currentYearSalesData']['data'][distributionName][monthKey] is defined ? data['currentYearSalesData']['data'][distributionName][monthKey]['totalTargetQuantity']: 0%}
-
-                {% set currentYearSalesAchive = data['currentYearSalesData'] is defined and data['currentYearSalesData'] is not empty
-                    and data['currentYearSalesData']['data'] is defined and data['currentYearSalesData']['data'][distributionName] is defined
-                    and data['currentYearSalesData']['data'][distributionName][monthKey] is defined ? data['currentYearSalesData']['data'][distributionName][monthKey]['totalSalesQuantity']: 0%}
-
-                {% set cumSalesTarget=cumSalesTarget+ currentYearSalesTarget %}
-                {% set cumSalesAchive=cumSalesAchive+ currentYearSalesAchive %}
-
-                {% set cumSalesTargetArray = cumSalesTargetArray|merge([cumSalesTarget]) %}
-                {% set cumSalesAchiveArray = cumSalesAchiveArray|merge([cumSalesAchive]) %}
-
-
-                {% set previousYearSalesAchiveTotal = previousYearSalesAchiveTotal + previousYearSalesAchive %}
-
-                {% set monthCount = monthCount+1 %}
-                <tr>
-                    <td>{{ monthlyName }}</td>
-                    <td>
-                        {{ previousYearSalesAchive|number_format(2, '.', '') }}
-                    </td>
-                    <td>
-                        {{ currentYearSalesTarget|number_format(2, '.', '') }}
-                    </td>
-                    <td>
-                        {{ currentYearSalesAchive|number_format(2, '.', '') }}
-                    </td>
-                    <td>
-                        {{ currentYearSalesTarget>0? ((currentYearSalesAchive*100)/currentYearSalesTarget)|number_format(2,'.',''): 0}}%
-                    </td>
-                    <td>
-                        {{ (currentYearSalesAchive-currentYearSalesTarget)|number_format(2, '.', '') }}
-                    </td>
-                    <td>
-                        {{ cumSalesTarget|number_format(2, '.', '') }}
-                    </td>
-                    <td>
-                        {{ cumSalesAchive|number_format(2, '.', '') }}
-                    </td>
-                    <td>
-                        {{ cumSalesTarget>0?((cumSalesAchive*100)/cumSalesTarget)|number_format(2,'.',''):0 }}%
-                    </td>
-
-                    <td>
-                        {{ (cumSalesAchive-cumSalesTarget)|number_format(2, '.', '') }}
-                    </td>
-                    <td>{{ (currentYearSalesAchive-previousYearSalesAchive)|number_format(2, '.', '') }}</td>
-                    <td>
-                        {{ cumSalesTarget>0?(((cumSalesAchive/cumSalesTarget)-1)*100)|number_format(2,'.',''):0 }}%
-                    </td>
-                </tr>
-
-            {% endfor %}
-
-
-            </tbody>
-            <tfoot>
-            <tr>
-                {% set currentYearSalesTargetTotal = data['currentYearSalesData'] is defined and data['currentYearSalesData'] is not empty
-                    and data['currentYearSalesData']['dataForAverage'] is defined and data['currentYearSalesData']['dataForAverage'][distributionName] is defined ? data['currentYearSalesData']['dataForAverage'][distributionName]|arraySumColWise('totalTargetQuantity'): 0%}
-
-                {% set currentYearSalesAchiveTotal = data['currentYearSalesData'] is defined and data['currentYearSalesData'] is not empty
-                    and data['currentYearSalesData']['dataForAverage'] is defined and data['currentYearSalesData']['dataForAverage'][distributionName] is defined ? data['currentYearSalesData']['dataForAverage'][distributionName]|arraySumColWise('totalSalesQuantity'): 0%}
-
-                {% set currentYearSalesCount = data['currentYearSalesData'] is defined and data['currentYearSalesData'] is not empty
-                    and data['currentYearSalesData']['dataForAverage'] is defined and data['currentYearSalesData']['dataForAverage'][distributionName] is defined ? data['currentYearSalesData']['dataForAverage'][distributionName]|length:1%}
-
-                {% set previousYearSalesAchiveAvg = (previousYearSalesAchiveTotal/monthCount)|number_format(2, '.', '') %}
-                {% set currentYearSalesTargetAvg = (currentYearSalesTargetTotal/currentYearSalesCount)|number_format(2, '.', '') %}
-                {% set currentYearSalesAchiveAvg = (currentYearSalesAchiveTotal/currentYearSalesCount)|number_format(2, '.', '') %}
-
-                {% set cumSalesTargetArraySum = cumSalesTargetArray|arraySum %}
-                {% set cumSalesTargetAvg = (cumSalesTargetArraySum/monthCount)|number_format(2, '.', '') %}
-
-                {% set cumSalesAchiveArraySum = cumSalesAchiveArray|arraySum %}
-                {% set cumSalesAchiveAvg = (cumSalesAchiveArraySum/monthCount)|number_format(2, '.', '') %}
-
-
-                <th>Average</th>
-                <th>
-                    {{ previousYearSalesAchiveAvg }}
-                </th>
-                <th>
-                    {{ currentYearSalesTargetAvg }}
-                </th>
-                <th>
-                    {{ currentYearSalesAchiveAvg }}
-                </th>
-                <th>
-                    {{ currentYearSalesTargetAvg>0? ((currentYearSalesAchiveAvg*100)/currentYearSalesTargetAvg)|number_format(2,'.',''):''}}%
-                </th>
-
-                <th>
-                    {{ currentYearSalesAchiveAvg-currentYearSalesTargetAvg }}
-                </th>
-                <th>
-                    {{ cumSalesTargetAvg }}
-                </th>
-                <th>
-                    {{ cumSalesAchiveAvg }}
-                </th>
-                <th>
-                    {{ cumSalesTargetAvg>0?((cumSalesAchiveAvg*100)/cumSalesTargetAvg)|number_format(2,'.',''):0 }}
-                </th>
-                <th>
-                    {{ cumSalesAchiveAvg-cumSalesTargetAvg }}
-                </th>
-                <th>
-                    {{ currentYearSalesAchiveAvg-previousYearSalesAchiveAvg }}
-                </th>
-                <th>
-                    {{ cumSalesTargetAvg>0?(((cumSalesAchiveAvg/cumSalesTargetAvg)-1)*100)|number_format(2,'.',''):0 }}
-                </th>
-            </tr>
-            </tfoot>
-        </table>
-
-    {% endfor %}
-
+<h4>{{ 'Outstanding'|trans }}</h4>
+{% if data['outstandingAndDocSales'] is defined and data['outstandingAndDocSales'] is not empty %}
+    {% include('@TerminalbdKpi/employeeboard/report/inc/_outstanding.html.twig') %}
+{% else %}
+    <p>No record found.</p>
 {% endif %}
 
-            {% if data['outstandingAndDocSales'] is defined and data['outstandingAndDocSales'] is not empty %}
-                <h5>{{ 'Outstanding'|trans }}</h5>
-                <table class="table table-striped table-bordered table-hover details-table"
-                       width="100%">
-                    <thead class="thead-dark">
-                    <tr>
-                        <th rowspan="2">{{ 'Month'|trans }}</th>
-                        <th class="text-center" colspan="3">{{ 'Feed'|trans }}</th>
-                        <th class="text-center" colspan="3">{{ 'DOC'|trans }}</th>
-                    </tr>
-                    <tr>
-                        <th class="text-center">{{ 'Credit Limit' }}</th>
-                        <th class="text-center">{{ 'Uasge' }}</th>
-                        <th class="text-center">{{ '+-' }}</th>
+<h4>{{ 'Team Members' }}</h4>
 
-                        <th class="text-center">{{ 'Sales Value' }}</th>
-                        <th class="text-center">{{ 'Collection' }}</th>
-                        <th class="text-center">{{ '%' }}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% set feedCreditLimitArray = [] %}
-                    {% set feedActualAmountArray = [] %}
-                    {% set feedOutstandingArray = [] %}
-
-                    {% set docSalesAmountArray = [] %}
-                    {% set docSalesCollectionArray = [] %}
-
-                    {% for month in months %}
-                        {% set feedCreditLimit = data['outstandingAndDocSales']['outstanding'] is defined
-                            and data['outstandingAndDocSales']['outstanding'][month] is defined
-                            and data['outstandingAndDocSales']['outstanding'][month] is not empty
-                            and data['outstandingAndDocSales']['outstanding'][month][month] is defined ? data['outstandingAndDocSales']['outstanding'][month][month]['limitAmount'] : ''  %}
-
-                        {% if feedCreditLimit !='' %}
-                            {% set feedCreditLimitArray = feedCreditLimitArray|merge([feedCreditLimit]) %}
-                        {% endif %}
-
-                        {% set feedActualAmount = data['outstandingAndDocSales']['outstanding'] is defined
-                            and data['outstandingAndDocSales']['outstanding'][month] is defined
-                            and data['outstandingAndDocSales']['outstanding'][month] is not empty
-                            and data['outstandingAndDocSales']['outstanding'][month][month] is defined ? data['outstandingAndDocSales']['outstanding'][month][month]['actualAmount'] : ''  %}
-
-                        {% if feedActualAmount !='' %}
-                            {% set feedActualAmountArray = feedActualAmountArray|merge([feedActualAmount]) %}
-                        {% endif %}
-
-                        {% set feedOutstanding = data['outstandingAndDocSales']['outstanding'] is defined
-                            and data['outstandingAndDocSales']['outstanding'][month] is defined
-                            and data['outstandingAndDocSales']['outstanding'][month] is not empty
-                            and data['outstandingAndDocSales']['outstanding'][month][month] is defined ? data['outstandingAndDocSales']['outstanding'][month][month]['outstanding'] : ''  %}
-
-                        {% if feedOutstanding !='' %}
-                            {% set feedOutstandingArray = feedOutstandingArray|merge([feedOutstanding]) %}
-                        {% endif %}
-
-                        {% set docSalesAmount = data['outstandingAndDocSales']['docSales'] is defined
-                            and data['outstandingAndDocSales']['docSales'][month] is defined
-                            and data['outstandingAndDocSales']['docSales'][month] is not empty
-                            and data['outstandingAndDocSales']['docSales'][month][month] is defined ? data['outstandingAndDocSales']['docSales'][month][month]['salesAmount'] : ''  %}
-
-                        {% if docSalesAmount !='' %}
-                            {% set docSalesAmountArray = docSalesAmountArray|merge([docSalesAmount]) %}
-                        {% endif %}
-
-                        {% set docSalesCollection = data['outstandingAndDocSales']['docSales'] is defined
-                            and data['outstandingAndDocSales']['docSales'][month] is defined
-                            and data['outstandingAndDocSales']['docSales'][month] is not empty
-                            and data['outstandingAndDocSales']['docSales'][month][month] is defined ? data['outstandingAndDocSales']['docSales'][month][month]['collectionAmount'] : ''  %}
-
-                        {% if docSalesCollection !='' %}
-                            {% set docSalesCollectionArray = docSalesCollectionArray|merge([docSalesCollection]) %}
-                        {% endif %}
-
-                        {% set docPercentage = docSalesAmount != '' and docSalesCollection !='' and  docSalesAmount > 0 ? (docSalesCollection/docSalesAmount)*100 : '' %}
-                        <tr>
-                            <td>{{ month }}</td>
-                            <td class="text-right">{{ feedCreditLimit != '' ? feedCreditLimit|number_format(2, '.', ',') : '' }}</td>
-                            <td class="text-right">{{ feedActualAmount !='' ? feedActualAmount|number_format(2, '.', ',') : '' }}</td>
-                            <td class="text-right">{{ feedOutstanding !='' ? feedOutstanding|number_format(2, '.', ',') : '' }}</td>
-                            <td class="text-right">{{ docSalesAmount !='' ? docSalesAmount|number_format(2, '.', ',') : '' }}</td>
-                            <td class="text-right">{{ docSalesCollection !='' ? docSalesCollection|number_format(2, '.', ',') : '' }}</td>
-                            <td class="text-right">{{ docPercentage !='' ? docPercentage|number_format(2, '.', ',') ~'%' : '' }}</td>
-                        </tr>
-
-                    {% endfor %}
-                    {% set docAvgPercentage = docSalesAmountArray|length >0 and docSalesCollectionArray|length >0 and  docSalesAmountArray|arraySum > 0 ? (docSalesCollectionArray|arraySum/docSalesAmountArray|arraySum)*100 : '' %}
-
-                    <tr>
-                        <th>Average</th>
-                        <th class="text-right">{{ feedCreditLimitArray|length >0 ? ((feedCreditLimitArray|arraySum)/(feedCreditLimitArray|length))|number_format(2, '.', ',') : '' }}</th>
-                        <th class="text-right">{{ feedActualAmountArray|length >0 ? ((feedActualAmountArray|arraySum)/(feedActualAmountArray|length))|number_format(2, '.', ',') : '' }}</th>
-                        <th class="text-right">{{ feedOutstandingArray|length >0 ? ((feedOutstandingArray|arraySum)/(feedOutstandingArray|length))|number_format(2, '.', ',') : '' }}</th>
-                        <th class="text-right">{{ docSalesAmountArray|length >0 ? ((docSalesAmountArray|arraySum)/(docSalesAmountArray|length))|number_format(2, '.', ',') : '' }}</th>
-                        <th class="text-right">{{ docSalesCollectionArray|length >0 ? ((docSalesCollectionArray|arraySum)/(docSalesCollectionArray|length))|number_format(2, '.', ',') : '' }}</th>
-                        <th class="text-right">{{ docAvgPercentage != '' ? docAvgPercentage|number_format(2) ~'%' : '' }}</th>
-
-                    </tr>
-                    </tbody>
-
-                </table>
-
-            {% endif %}
-
-
-
-            {% if data['currentYearTeamMemberSalesData'] is defined and data['currentYearTeamMemberSalesData'] is not empty %}
-                <h4>{{ 'Team Members' }}</h4>
-
-                {% for distributionName, distributionData in data['currentYearTeamMemberSalesData']['data'] %}
-
-                    <h5>{{ distributionName }}</h5>
-
-                    <table class="table table-striped table-bordered table-hover details-table"
-                           width="100%">
-                        <thead class="thead-dark">
-                        <tr>
-                            <th rowspan="2">{{ 'Team Members '|trans }}</th>
-                            <th rowspan="2">{{ 'Last Year This Month'|trans }}</th>
-                            <th colspan="4">{{ 'Current Month'|trans }} - {{ filterBy['endMonth'] ~' - '~ filterBy['year'] }}</th>
-                            <th colspan="5">{{ 'Cummalitive'|trans }} - {{ filterBy['year'] }}</th>
-
-                        </tr>
-                        <tr>
-                            <th class="text-center">{{ 'Target' }}</th>
-                            <th class="text-center">{{ 'Achive' }}</th>
-                            <th class="text-center">{{ '%' }}</th>
-                            <th class="text-center">{{ 'Variance (Ach-Last Year Sales)' }}</th>
-                            <th class="text-center">{{ 'Cum.Target' }}</th>
-                            <th class="text-center">{{ 'Cum.Achive' }}</th>
-                            <th class="text-center">{{ '%' }}</th>
-                            <th class="text-center">{{ 'Variance' }}</th>
-                            <th class="text-center">{{ 'variance (Ach-Traget)' }}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% set previousYearSalesAchiveTotal = 0 %}
-
-                        {% set cumSalesTarget=0 %}
-                        {% set cumSalesAchive=0 %}
-                        {% set monthCount = 0 %}
-
-                        {% set cumSalesTargetArray = [] %}
-                        {% set cumSalesAchiveArray = [] %}
-
-                        {% for employeeId, employeeData in distributionData %}
-
-                            {% set employeeName = data['currentYearTeamMemberSalesData'] is defined
-                                and data['currentYearTeamMemberSalesData'] is not empty
-                                and data['currentYearTeamMemberSalesData']['userInfo'] is defined
-                                and data['currentYearTeamMemberSalesData']['userInfo'][employeeId] is defined ? data['currentYearTeamMemberSalesData']['userInfo'][employeeId]['name']:'' %}
-
-                            {% set previousYearTeamMemberSalesAchive = data['previousYearTeamMemberSalesData'] is defined
-                                and data['previousYearTeamMemberSalesData'] is not empty
-                                and data['previousYearTeamMemberSalesData']['data'] is defined
-                                and data['previousYearTeamMemberSalesData']['data'][distributionName] is defined
-                                and data['previousYearTeamMemberSalesData']['data'][distributionName][employeeId] is defined ? data['previousYearTeamMemberSalesData']['data'][distributionName][employeeId]['totalSalesQuantity']:'' %}
-
-                            {% set currentYearTeamMemberSalesTarget = employeeData['totalTargetQuantity'] is defined ? employeeData['totalTargetQuantity'] : ''  %}
-                            {% set currentYearTeamMemberSalesAchive = employeeData['totalSalesQuantity'] is defined ? employeeData['totalSalesQuantity'] : ''  %}
-
-                            {% set cumSalesTarget=cumSalesTarget + (currentYearTeamMemberSalesTarget !=''? currentYearTeamMemberSalesTarget:0) %}
-                            {% set cumSalesAchive=cumSalesAchive+ (currentYearTeamMemberSalesAchive !=''? currentYearTeamMemberSalesAchive:0)%}
-
-
-                            <tr>
-                                <td>{{ employeeName }} {{ employeeId }}</td>
-                                <td>
-                                    {{ previousYearTeamMemberSalesAchive != '' ? previousYearTeamMemberSalesAchive|number_format(2, '.', '') : ''}}
-                                </td>
-                                <td>
-                                    {{ currentYearTeamMemberSalesTarget != '' ? currentYearTeamMemberSalesTarget|number_format(2, '.', '') : ''}}
-                                </td>
-                                <td>
-                                    {{ currentYearTeamMemberSalesAchive != '' ? currentYearTeamMemberSalesAchive|number_format(2, '.', '') : ''}}
-                                </td>
-
-                                <td>
-                                    {{  currentYearTeamMemberSalesTarget != '' and currentYearTeamMemberSalesTarget>0 and currentYearTeamMemberSalesAchive != '' ? ((currentYearTeamMemberSalesAchive*100)/currentYearTeamMemberSalesTarget)|number_format(2,'.',''): ''}}%
-                                </td>
-                                <td>
-                                    {{  currentYearTeamMemberSalesTarget != '' and currentYearTeamMemberSalesAchive != '' ? currentYearTeamMemberSalesTarget-currentYearTeamMemberSalesAchive : '' }}
-                                </td>
-
-                                <td>
-                                    {{ cumSalesTarget|number_format(2, '.', '') }}
-                                </td>
-                                <td>
-                                    {{ cumSalesAchive|number_format(2, '.', '') }}
-                                </td>
-                                <td>
-                                    {{ cumSalesTarget>0?((cumSalesAchive*100)/cumSalesTarget)|number_format(2,'.',''):0 }}
-                                </td>
-
-                                <td>
-                                    {{ (cumSalesAchive-cumSalesTarget)|number_format(2, '.', '') }}
-                                </td>
-                                <td>{{ (previousYearTeamMemberSalesAchive != '' or currentYearTeamMemberSalesAchive != '') ? ((currentYearTeamMemberSalesAchive!=''?currentYearTeamMemberSalesAchive:0)-(previousYearTeamMemberSalesAchive!=''?previousYearTeamMemberSalesAchive:0))|number_format(2, '.', '') : '' }}</td>
-
-                            </tr>
-
-                        {% endfor %}
-
-
-                        </tbody>
-                    </table>
-
-                {% endfor %}
-
-            {% endif %}
-
+{% if data['currentYearTeamMemberSalesData'] is defined and data['currentYearTeamMemberSalesData'] is not empty %}
+    {% include('@TerminalbdKpi/employeeboard/report/inc/_team_member_feed_sale.html.twig') %}
+{% else %}
+    <p>No record found.</p>
+{% endif %}
+            <h4>{{ 'Problems' }}</h4>
             {% if data['challengesProblem'] is defined and data['challengesProblem'] is not empty %}
-                <h4>{{ 'Problems' }}</h4>
                 {% include('@TerminalbdKpi/employeeboard/report/inc/problems.html.twig') %}
-
+                {% else %}
+                <p>No record found.</p>
             {% endif %}
 
-
+            <h4>{{ 'Idea' }}</h4>
             {% if data['challengesIdea'] is defined and data['challengesIdea'] is not empty %}
-                <h4>{{ 'Idea' }}</h4>
                 {% include('@TerminalbdKpi/employeeboard/report/inc/_idea.html.twig') %}
-
+                {% else %}
+                <p>No record found.</p>
             {% endif %}
 
+            <h4>{{ 'Competitor Activity' }}</h4>
             {% if data['challengesCompetitorActivity'] is defined and data['challengesCompetitorActivity'] is not empty %}
-                <h4>{{ 'Competitor Activity' }}</h4>
                 {% include('@TerminalbdKpi/employeeboard/report/inc/_competitor-activity.html.twig') %}
-
+            {% else %}
+                <p>No record found.</p>
             {% endif %}
 
+            <h4>{{ 'DOC Price' }}</h4>
             {% if data['avgDocPrice'] is defined and data['avgDocPrice'] is not empty %}
-                <h4>{{ 'DOC Price' }}</h4>
                 {% include('@TerminalbdKpi/employeeboard/report/inc/_doc_price_company_wise.html.twig') %}
-
+            {% else %}
+                <p>No record found.</p>
             {% endif %}
 
+            <h4>{{ 'Meat & Egg Price' }}</h4>
             {% if data['meatAndEggPrice'] is defined and data['meatAndEggPrice'] is not empty %}
-                <h4>{{ 'Meat & Egg Price' }}</h4>
                 {% include('@TerminalbdKpi/employeeboard/report/inc/_meat_egg_price.html.twig') %}
-
+            {% else %}
+                <p>No record found.</p>
             {% endif %}
 
+            <h4>{{ 'Cattle Farm Introduce Status' }}</h4>
             {% if data['cattleFarmIntroduce'] is defined and data['cattleFarmIntroduce'] is not empty %}
-                <h4>{{ 'Cattle Farm Introduce Status' }}</h4>
                 {% include('@TerminalbdKpi/employeeboard/report/inc/_cattle_farmer_introduce.html.twig') %}
-
+            {% else %}
+                <p>No record found.</p>
             {% endif %}
 
-
+            <h4>{{ 'Complain Feed' }}</h4>
             {% if data['feedComplain'] is defined and data['feedComplain'] is not empty %}
-                <h4>{{ 'Complain Feed' }}</h4>
                 {% include('@TerminalbdKpi/employeeboard/report/inc/_feed_complain.html.twig') %}
+            {% else %}
+                <p>No record found.</p>
             {% endif %}
 
+            <h4>{{ 'Complain DOC' }}</h4>
             {% if data['docComplain'] is defined and data['docComplain'] is not empty %}
-                <h4>{{ 'Complain DOC' }}</h4>
                 {% include('@TerminalbdKpi/employeeboard/report/inc/_doc_complain.html.twig') %}
+            {% else %}
+                <p>No record found.</p>
             {% endif %}
 
+            <h4>{{ 'Company Wise Sales' }}</h4>
             {% if data['companyWiseFeedSales'] is defined and data['companyWiseFeedSales'] is not empty and data['companyWiseFeedSales']['records'] is defined and data['companyWiseFeedSales']['records'] is not empty %}
-                <h4>{{ 'Company Wise Sales' }}</h4>
                 {% include('@TerminalbdKpi/employeeboard/report/inc/_company_wise_feed_sale.html.twig') %}
-
+            {% else %}
+                <p>No record found.</p>
             {% endif %}

@@ -174,7 +174,7 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
         return $data;
     }
 
-    public function getSalesTargetAchievementSummeryReport($filterBy, $prviousYear=false)
+    /*public function getSalesTargetAchievementSummeryReport($filterBy, $prviousYear=false)
     {
         
         $data = [];
@@ -261,7 +261,7 @@ class EmployeeBoardSubAttributeRepository extends EntityRepository
         }
 
         return $data;
-    }
+    }*/
 
     public function getTeamMemberSalesTargetAchievementSummeryReport($filterBy, $prviousYear=false)
     {
