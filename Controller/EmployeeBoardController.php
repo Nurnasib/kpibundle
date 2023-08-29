@@ -1256,14 +1256,22 @@ class EmployeeBoardController extends AbstractController
      * @Security("is_granted('ROLE_DEVELOPER')")
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function updateAllkpi()
+    public function updateAllkpi(Request $request)
     {
+
+        $year = $request->query->get('year');
+        $month = $request->query->get('month');
+
         set_time_limit(0);
         ignore_user_abort(true);
 
         $parameters = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(['level' => 1,'status' => 1]);
 
-        $boards = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findAll();
+        if ($year && $month){
+            $boards = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findBy(['year' => $year, 'month' => $month]);
+        }else{
+            $boards = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findAll();
+        }
 
         foreach ($boards as $board) {
             if(!str_contains($board->getReportMode()->getSlug(), 'custom')){
