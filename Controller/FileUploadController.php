@@ -290,6 +290,9 @@ class FileUploadController extends AbstractController
             case "district-sales-target":
 
                 $notInsertedData = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->insertTargetAmount($file, $keys, $allData, $month, $year);
+                
+
+                $this->insertDataDistrictWise($file);
 
                 if($notInsertedData){
                     $spreadsheet = new Spreadsheet();
@@ -329,6 +332,7 @@ class FileUploadController extends AbstractController
                     $writer->setIncludeCharts(true);
                     $writer->save($filePath);
 
+
                     return $this->file($filePath)->deleteFileAfterSend();
                 }
                 break;
@@ -358,7 +362,6 @@ class FileUploadController extends AbstractController
             array_push($months, \DateTime::createFromFormat('!m', $i)->format('F'));
         }
         $agentOrders = $this->getDoctrine()->getRepository(AgentOrder::class)->getDistrictWiseTotalProductSales($month, $year);
-
 
         foreach ($agentOrders as $key => $agentOrder){
 
@@ -407,9 +410,9 @@ class FileUploadController extends AbstractController
 
         }
 
-        $file->setStatus(2);
-
-        $em->persist($file);
+//        $file->setStatus(2);
+//
+//        $em->persist($file);
         $em->flush();
         
         $this->addFlash('success', 'Data migrate successfully!');

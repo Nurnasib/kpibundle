@@ -184,7 +184,8 @@ class AgentOrderRepository extends EntityRepository
             //Find agent
 //            $feedAgentGroup = $em->getRepository(Setting::class)->findOneBy(array('slug' => 'feed'));
 
-            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' =>$agentIdValue, 'district' => $district, 'status' => 1]);
+//            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' =>$agentIdValue, 'district' => $district, 'status' => 1]);
+            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' =>$agentIdValue, 'district' => $district]);
 //
 //            if (!$findAgent) {
 //                $agent = new Agent();

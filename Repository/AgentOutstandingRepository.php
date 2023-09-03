@@ -56,7 +56,8 @@ class AgentOutstandingRepository extends EntityRepository
 //            $agentGroup = $em->getRepository(Setting::class)->findOneBy(['slug' => 'feed', 'status' => 1]);
 
             //Find agent
-            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' => $record['AgentId'], 'district' => $district,'status' => 1]);
+//            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' => $record['AgentId'], 'district' => $district,'status' => 1]);
+            $findAgent = $em->getRepository(Agent::class)->findOneBy(['agentId' => $record['AgentId'], 'district' => $district]);
             if ($findAgent) {
 
                 $findAgentOutstanding = $this->findOneBy(['agent' => $findAgent, 'district' => $district, 'month' => $month, 'year' => $year]);
