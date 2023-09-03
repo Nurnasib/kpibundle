@@ -292,7 +292,7 @@ class FileUploadController extends AbstractController
                 $notInsertedData = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->insertTargetAmount($file, $keys, $allData, $month, $year);
                 
 
-                $this->insertDataDistrictWise($file);
+//                $this->insertDataDistrictWise($file);
 
                 if($notInsertedData){
                     $spreadsheet = new Spreadsheet();
@@ -410,9 +410,9 @@ class FileUploadController extends AbstractController
 
         }
 
-//        $file->setStatus(2);
-//
-//        $em->persist($file);
+        $file->setStatus(2);
+
+        $em->persist($file);
         $em->flush();
         
         $this->addFlash('success', 'Data migrate successfully!');
