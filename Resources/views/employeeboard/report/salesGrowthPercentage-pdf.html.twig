@@ -73,6 +73,14 @@
         {% set employeeRecordCount = 1 %}
         {% if employeeData is not empty %}
             {% for monthName, details in employeeData %}
+                {% set prevBroilerTotalSales = data['salesData'][employeeId][monthName][filterBy['year']-1] is defined and data['salesData'][employeeId][monthName][filterBy['year']-1] is defined and data['salesData'][employeeId][monthName][filterBy['year']-1]['Broiler'] is defined ? data['salesData'][employeeId][monthName][filterBy['year']-1]['Broiler']['totalSalesQuantity'] : 0 %}
+                {% set prevSonaliTotalSales = data['salesData'][employeeId][monthName][filterBy['year']-1] is defined and data['salesData'][employeeId][monthName][filterBy['year']-1] is defined and data['salesData'][employeeId][monthName][filterBy['year']-1]['Sonali'] is defined ? data['salesData'][employeeId][monthName][filterBy['year']-1]['Sonali']['totalSalesQuantity'] : 0 %}
+                {% set prevLayerTotalSales = data['salesData'][employeeId][monthName][filterBy['year']-1] is defined and data['salesData'][employeeId][monthName][filterBy['year']-1] is defined and data['salesData'][employeeId][monthName][filterBy['year']-1]['Layer'] is defined ? data['salesData'][employeeId][monthName][filterBy['year']-1]['Layer']['totalSalesQuantity'] : 0 %}
+                {% set prevFishTotalSales = data['salesData'][employeeId][monthName][filterBy['year']-1] is defined and data['salesData'][employeeId][monthName][filterBy['year']-1] is defined and data['salesData'][employeeId][monthName][filterBy['year']-1]['Fish'] is defined ? data['salesData'][employeeId][monthName][filterBy['year']-1]['Fish']['totalSalesQuantity'] : 0 %}
+                {% set prevCattleTotalSales = data['salesData'][employeeId][monthName][filterBy['year']-1] is defined and data['salesData'][employeeId][monthName][filterBy['year']-1] is defined and data['salesData'][employeeId][monthName][filterBy['year']-1]['Cattle'] is defined ? data['salesData'][employeeId][monthName][filterBy['year']-1]['Cattle']['totalSalesQuantity'] : 0 %}
+
+                {% set prevLineTotal = prevBroilerTotalSales+prevSonaliTotalSales+prevLayerTotalSales+prevFishTotalSales+prevCattleTotalSales %}
+
                 <tr>
                     {% if employeeRecordCount==1 %}
                         <td rowspan="{{ employeeData|length }}">{{ data['employeeInfo'][employeeId]['employeeId']|default('') }}</td>
@@ -81,55 +89,55 @@
                     {% endif %}
                     <td>{{ monthName }}</td>
 
-                    <td>{{ details[filterBy['year']]['Broiler'] is defined ? details[filterBy['year']]['Broiler']['totalTargetQuantity']|number_format(2) : '' }}</td>
+                    <td>{{ prevBroilerTotalSales|number_format(2) }}</td>
                     <td>{{ details[filterBy['year']]['Broiler'] is defined ? details[filterBy['year']]['Broiler']['totalSalesQuantity']|number_format(2) : '' }}</td>
                     <td align="center">
-                        {% if details[filterBy['year']]['Broiler'] is defined and details[filterBy['year']]['Broiler']['totalTargetQuantity'] > 0 %}
-                            {{ ((details[filterBy['year']]['Broiler']['totalSalesQuantity']*100) / details[filterBy['year']]['Broiler']['totalTargetQuantity'])|number_format(2) }}
+                        {% if prevBroilerTotalSales > 0 %}
+                            {{ (((details[filterBy['year']]['Broiler']['totalSalesQuantity']/prevBroilerTotalSales)-1)*100)|number_format(2,'.','') }}
                         {% endif %}
                     </td>
 
-                    <td>{{ details[filterBy['year']]['Sonali'] is defined ? details[filterBy['year']]['Sonali']['totalTargetQuantity']|number_format(2) : '' }}</td>
+                    <td>{{ prevSonaliTotalSales|number_format(2) }}</td>
                     <td>{{ details[filterBy['year']]['Sonali'] is defined ? details[filterBy['year']]['Sonali']['totalSalesQuantity']|number_format(2) : '' }}</td>
                     <td align="center">
-                        {% if details[filterBy['year']]['Sonali'] is defined and details[filterBy['year']]['Sonali']['totalTargetQuantity'] > 0 %}
-                            {{ ((details[filterBy['year']]['Sonali']['totalSalesQuantity']*100) / details[filterBy['year']]['Sonali']['totalTargetQuantity'])|number_format(2) }}
+                        {% if prevSonaliTotalSales > 0 %}
+                            {{ (((details[filterBy['year']]['Sonali']['totalSalesQuantity']/prevSonaliTotalSales)-1)*100)|number_format(2,'.','') }}
                         {% endif %}
                     </td>
 
-                    <td>{{ details[filterBy['year']]['Layer'] is defined ? details[filterBy['year']]['Layer']['totalTargetQuantity']|number_format(2) : '' }}</td>
+                    <td>{{ prevLayerTotalSales|number_format(2) }}</td>
                     <td>{{ details[filterBy['year']]['Layer'] is defined ? details[filterBy['year']]['Layer']['totalSalesQuantity']|number_format(2) : '' }}</td>
                     <td align="center">
-                        {% if details[filterBy['year']]['Layer'] is defined and details[filterBy['year']]['Layer']['totalTargetQuantity'] > 0 %}
-                            {{ ((details[filterBy['year']]['Layer']['totalSalesQuantity']*100) / details[filterBy['year']]['Layer']['totalTargetQuantity'])|number_format(2) }}
+                        {% if prevLayerTotalSales > 0 %}
+                            {{ (((details[filterBy['year']]['Layer']['totalSalesQuantity']/prevLayerTotalSales)-1)*100)|number_format(2,'.','') }}
                         {% endif %}
                     </td>
 
-                    <td>{{ details[filterBy['year']]['Fish'] is defined ? details[filterBy['year']]['Fish']['totalTargetQuantity']|number_format(2) : '' }}</td>
+                    <td>{{ prevFishTotalSales|number_format(2) }}</td>
                     <td>{{ details[filterBy['year']]['Fish'] is defined ? details[filterBy['year']]['Fish']['totalSalesQuantity']|number_format(2) : '' }}</td>
                     <td align="center">
-                        {% if details[filterBy['year']]['Fish'] is defined and details[filterBy['year']]['Fish']['totalTargetQuantity'] > 0 %}
-                            {{ ((details[filterBy['year']]['Fish']['totalSalesQuantity']*100) / details[filterBy['year']]['Fish']['totalTargetQuantity'])|number_format(2) }}
+                        {% if prevFishTotalSales > 0 %}
+                            {{ (((details[filterBy['year']]['Fish']['totalSalesQuantity']/prevFishTotalSales)-1)*100)|number_format(2,'.','') }}
                         {% endif %}
                     </td>
 
-                    <td>{{ details[filterBy['year']]['Cattle'] is defined ? details[filterBy['year']]['Cattle']['totalTargetQuantity']|number_format(2) : '' }}</td>
+                    <td>{{ prevCattleTotalSales|number_format(2) }}</td>
                     <td>{{ details[filterBy['year']]['Cattle'] is defined ? details[filterBy['year']]['Cattle']['totalSalesQuantity']|number_format(2) : '' }}</td>
                     <td align="center">
-                        {% if details[filterBy['year']]['Cattle'] is defined and details[filterBy['year']]['Cattle']['totalTargetQuantity'] > 0 %}
-                            {{ ((details[filterBy['year']]['Cattle']['totalSalesQuantity']*100) / details[filterBy['year']]['Cattle']['totalTargetQuantity'])|number_format(2) }}
+                        {% if prevFishTotalSales > 0 %}
+                            {{ (((details[filterBy['year']]['Cattle']['totalSalesQuantity']/prevCattleTotalSales)-1)*100)|number_format(2,'.','') }}
                         {% endif %}
                     </td>
 
                     <td>
-                        {{ (details[filterBy['year']]|arraySumColWise('totalTargetQuantity'))|number_format(2) }}
+                        {{ prevLineTotal|number_format(2) }}
                     </td>
                     <td>
                         {{ (details[filterBy['year']]|arraySumColWise('totalSalesQuantity'))|number_format(2) }}
                     </td>
                     <td align="center">
-                        {% if (details[filterBy['year']]|arraySumColWise('totalSalesQuantity')) > 0 %}
-                            {{ (((details[filterBy['year']]|arraySumColWise('totalSalesQuantity'))*100) / (details[filterBy['year']]|arraySumColWise('totalTargetQuantity')))|number_format(2) }}
+                        {% if prevLineTotal > 0 %}
+                            {{ (((details[filterBy['year']]|arraySumColWise('totalSalesQuantity')/prevLineTotal)-1)*100)|number_format(2) }}
                         {% endif %}
                     </td>
 

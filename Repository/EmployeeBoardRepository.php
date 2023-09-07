@@ -13,6 +13,7 @@ namespace Terminalbd\KpiBundle\Repository;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
+use Terminalbd\KpiBundle\Entity\DistrictOrder;
 use Terminalbd\KpiBundle\Entity\EmployeeBoardAttribute;
 use function Doctrine\ORM\QueryBuilder;
 
@@ -390,6 +391,48 @@ class EmployeeBoardRepository extends EntityRepository
 //            ["employeeId" => "ID-12345", "value" => 25],
 //            ["employeeId" => "ID-12543", "value" => 70],
 //        ];
+    }
+
+    public function salesPercentageReport($filterBy, $prviousYear=false){
+
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.employee', 'employee');
+        $qb->leftJoin('employee.designation', 'designation');
+        $qb->leftJoin('employee.lineManager', 'lineManager');
+        $qb->select('e.month', 'e.year', 'e.district');
+        $qb->addSelect('employee.id as employeeId', 'employee.userId as employeeUserId', 'employee.name as employeeName');
+        $qb->addSelect('designation.id as designationId', 'designation.name as designationName');
+
+        $year = $filterBy['year'];
+
+        $qb->where('e.year =:year')->setParameter('year', $year);
+        $qb->andWhere('e.month IN (:months)')->setParameter('months', $filterBy['months']);
+
+        if (isset($filterBy['employee']) && $filterBy['employee'] !=''){
+            $qb->andWhere('employee = :employee')->setParameter('employee', $filterBy['employee']);
+        }
+
+        if (! in_array('ROLE_KPI_ADMIN', $filterBy['loggedUser']->getRoles())){
+            $qb->andWhere('employee.lineManager = :lineManager')->setParameter('lineManager', $filterBy['loggedUser']);
+        }
+
+        $qb->orderBy('e.kpiMonthYear', 'ASC');
+
+        $results = $qb->getQuery()->getArrayResult();
+        $returnArray=[];
+        if($results){
+            foreach ($results as $result) {
+
+                $districtIds = $result['district'] ? array_keys(json_decode($result['district'], true)):[];
+                $returnArray['employeeInfo'][$result['employeeId']] = ['employeeName'=>$result['employeeName'], 'employeeId'=>$result['employeeUserId'], 'designationName'=>$result['designationName']];
+
+                $targetSalesAndAchived = $this->getEntityManager()->getRepository(DistrictOrder::class)->getSalesTargetAndAchievementForSalePercentageReport($districtIds, $year, $result['month'], $prviousYear );
+
+                $returnArray['salesData'][$result['employeeId']][$result['month']]=$targetSalesAndAchived[$result['month']];
+            }
+        }
+//dd($returnArray);
+        return $returnArray;
     }
 
 }

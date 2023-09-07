@@ -354,7 +354,7 @@ class KpiReportController extends AbstractController
         $endDate = @strtotime(date('F') . ' ' . (int)date('Y'));
 
         $months = $this->monthRange($startDate, $endDate);
-
+        $data = [];
         $filterBy = [
             'loggedUser' => $this->getUser(),
             'employee' => null,
@@ -368,20 +368,22 @@ class KpiReportController extends AbstractController
         $filterForm->handleRequest($request);
 
         if ($filterForm->isSubmitted()){
-//            $startDate = @strtotime($filterForm->get('startMonth')->getData() . ' ' . $filterForm->get('year')->getData());
-//            $endDate = @strtotime($filterForm->get('endMonth')->getData() . ' ' . $filterForm->get('year')->getData());
-//            $months = $this->monthRange($startDate, $endDate);
-
+            $startDate = @strtotime($filterForm->get('startMonth')->getData() . ' ' . $filterForm->get('year')->getData());
+            $endDate = @strtotime($filterForm->get('endMonth')->getData() . ' ' . $filterForm->get('year')->getData());
+            $months = $this->monthRange($startDate, $endDate);
+//dd($months);
             $filterBy['employee'] = $filterForm->get('employee')->getData();
             $filterBy['year'] = (int)$filterForm->get('year')->getData();
-//            $filterBy['months'] = $this->monthRange($startDate, $endDate);
+            $filterBy['months'] = $months;
             $filterBy['startMonth'] = $filterForm->get('startMonth')->getData();
             $filterBy['endMonth'] = $filterForm->get('endMonth')->getData();
 
+            if($mode=='growth'){
+                $data = $this->getDoctrine()->getRepository(EmployeeBoard::class)->salesPercentageReport($filterBy, true);
+            }else{
+                $data = $this->getDoctrine()->getRepository(EmployeeBoard::class)->salesPercentageReport($filterBy);
+            }
         }
-
-        $data = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getSalesTargetAchievementReport($filterBy);
-
         if ($request->query->get('pdf')){
 
             // Configure Dompdf according to your needs
@@ -390,14 +392,23 @@ class KpiReportController extends AbstractController
 
             // Instantiate Dompdf with our options
             $dompdf = new Dompdf($pdfOptions);
+            $html='';
+            if($mode=='growth'){
+                $html= $this->renderView('@TerminalbdKpi/employeeboard/report/salesGrowthPercentage-pdf.html.twig', [
+                    'filterBy' => $filterBy,
+                    'data' => $data,
+                    'mode' => $mode,
+                ]);
+            }else{
+                // Retrieve the HTML generated in our twig file
+                $html = $this->renderView('@TerminalbdKpi/employeeboard/report/salesPercentage-pdf.html.twig', [
+                    'data' => $data,
+                    'filterBy' => $filterBy,
+                    'mode' => $mode,
 
-            // Retrieve the HTML generated in our twig file
-            $html = $this->renderView('@TerminalbdKpi/employeeboard/report/salesPercentage-pdf.html.twig', [
-                'data' => $data,
-                'filterBy' => $filterBy,
-                'mode' => $mode,
+                ]);
+            }
 
-            ]);
 
             // Load HTML to Dompdf
             $dompdf->loadHtml($html);
@@ -414,6 +425,15 @@ class KpiReportController extends AbstractController
                 "Attachment" => true
             ]);
             die();
+        }
+
+        if($mode=='growth'){
+            return $this->render('@TerminalbdKpi/employeeboard/report/salesGrowthPercentage.html.twig', [
+                'filterBy' => $filterBy,
+                'form' => $filterForm->createView(),
+                'data' => $data,
+                'mode' => $mode,
+            ]);
         }
 
         return $this->render('@TerminalbdKpi/employeeboard/report/salesPercentage.html.twig', [

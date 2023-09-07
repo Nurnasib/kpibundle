@@ -223,4 +223,31 @@ class DistrictOrderRepository extends EntityRepository
 
     }
 
+    public function getSalesTargetAndAchievementForSalePercentageReport($locations, $year, $month, $prviousYear)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.product','product');
+        $qb->join('e.district','d');
+        $qb->select('product.id as id','SUM(e.quantity) as totalSalesQuantity','SUM(e.targetQuantity) as totalTargetQuantity');
+        $qb->addSelect('product.name as productName', 'e.month as monthName', 'e.year');
+
+        $qb->where('d.id IN (:districts)')->setParameter('districts',$locations);
+        $qb->andWhere('e.month =:month')->setParameter('month', $month);
+
+        $years = $prviousYear==true?[(string)($year-1), (string)$year]:[$year];
+
+        $qb->andWhere('e.year IN (:year)')->setParameter('year', $years);
+
+        $qb->groupBy('product.id');
+        $qb->addGroupBy('e.month');
+        $qb->addGroupBy('e.year');
+        $results = $qb->getQuery()->getArrayResult();
+        $data = array();
+        foreach ($results as $row){
+            $data[$row['monthName']][$row['year']][$row['productName']] = $row;
+        }
+        return $data;
+
+    }
+
 }
