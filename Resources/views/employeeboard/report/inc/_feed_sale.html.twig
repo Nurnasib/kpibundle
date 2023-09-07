@@ -86,7 +86,7 @@
                 </td>
                 <td>{{ (currentYearSalesAchive-previousYearSalesAchive)|number_format(2, '.', '') }}</td>
                 <td>
-                    {{ cumSalesTarget>0?(((cumSalesAchive/cumSalesTarget)-1)*100)|number_format(2,'.',''):0 }}%
+                    {{ previousYearSalesAchive>0?(((currentYearSalesAchive/previousYearSalesAchive)-1)*100)|number_format(2,'.',''):0 }}%
                 </td>
             </tr>
 
@@ -147,7 +147,7 @@
                 {{ currentYearSalesAchiveAvg-previousYearSalesAchiveAvg }}
             </th>
             <th>
-                {{ cumSalesTargetAvg>0?(((cumSalesAchiveAvg/cumSalesTargetAvg)-1)*100)|number_format(2,'.',''):0 }}
+                {{ previousYearSalesAchiveAvg>0?(((currentYearSalesAchiveAvg/previousYearSalesAchiveAvg)-1)*100)|number_format(2,'.',''):0 }}
             </th>
         </tr>
         </tfoot>
