@@ -186,7 +186,7 @@ class AgentOrder
     /**
      * @param MarkChart $product
      */
-    public function setProduct(MarkChart $product): void
+    public function setProduct(MarkChart $product)
     {
         $this->product = $product;
     }
