@@ -8,21 +8,19 @@
             <thead class="thead-dark">
             <tr>
                 <th rowspan="2">{{ 'Team Members '|trans }}</th>
-                <th rowspan="2">{{ 'Last Year This Month'|trans }}</th>
-                <th colspan="4">{{ 'Current Month'|trans }} - {{ filterBy['endMonth'] ~' - '~ filterBy['year'] }}</th>
-                <th colspan="5">{{ 'Cummalitive'|trans }} - {{ filterBy['year'] }}</th>
+                <th rowspan="2">{{ 'Last Year average'|trans }}</th>
+                <th colspan="4">This Year({{ filterBy['year'] }})Averge</th>
+                <th colspan="2">Comparison with last Year</th>
 
             </tr>
             <tr>
                 <th class="text-center">{{ 'Target' }}</th>
-                <th class="text-center">{{ 'Achive' }}</th>
+                <th class="text-center">{{ 'Sales' }}</th>
                 <th class="text-center">{{ '%' }}</th>
-                <th class="text-center">{{ 'Variance (Ach-Last Year Sales)' }}</th>
-                <th class="text-center">{{ 'Cum.Target' }}</th>
-                <th class="text-center">{{ 'Cum.Achive' }}</th>
-                <th class="text-center">{{ '%' }}</th>
-                <th class="text-center">{{ 'Variance' }}</th>
-                <th class="text-center">{{ 'variance (Ach-Traget)' }}</th>
+                <th class="text-center">{{ 'Variance (Ach-Target)' }}</th>
+
+                <th class="text-center">{{ 'Growth(%)' }}</th>
+                <th class="text-center">{{ 'Growth Volume' }}</th>
             </tr>
             </thead>
             <tbody>
@@ -37,7 +35,16 @@
 
             {% for employeeId, employeeData in distributionData %}
 
-                {% set employeeName = data['currentYearTeamMemberSalesData'] is defined
+                {% set previousYearTeamMemberSalesAchive = data['previousYearTeamMemberSalesData'] is defined
+                    and data['previousYearTeamMemberSalesData'] is not empty
+                    and data['previousYearTeamMemberSalesData']['data'] is defined
+                    and data['previousYearTeamMemberSalesData']['data'][distributionName] is defined
+                    and data['previousYearTeamMemberSalesData']['data'][distributionName][employeeId] is defined ? data['previousYearTeamMemberSalesData']['data'][distributionName][employeeId]|arraySumColWise('totalSalesQuantity')|number_format(2,'.','')/data['previousYearTeamMemberSalesData']['data'][distributionName][employeeId]|length:'' %}
+
+                {% set currentYearTeamMemberSalesTarget = employeeData is not empty ? employeeData|arraySumColWise('totalTargetQuantity')/employeeData|length : ''  %}
+                {% set currentYearTeamMemberSalesAchive = employeeData is not empty ? employeeData|arraySumColWise('totalSalesQuantity')/employeeData|length : ''  %}
+
+                {#{% set employeeName = data['currentYearTeamMemberSalesData'] is defined
                     and data['currentYearTeamMemberSalesData'] is not empty
                     and data['currentYearTeamMemberSalesData']['userInfo'] is defined
                     and data['currentYearTeamMemberSalesData']['userInfo'][employeeId] is defined ? data['currentYearTeamMemberSalesData']['userInfo'][employeeId]['name']:'' %}
@@ -54,40 +61,32 @@
                 {% set cumSalesTarget=cumSalesTarget + (currentYearTeamMemberSalesTarget !=''? currentYearTeamMemberSalesTarget:0) %}
                 {% set cumSalesAchive=cumSalesAchive+ (currentYearTeamMemberSalesAchive !=''? currentYearTeamMemberSalesAchive:0)%}
 
-
+#}
                 <tr>
-                    <td>{{ employeeName }}</td>
+                    <td>{{ data['currentYearTeamMemberSalesData']['employeeInfo'][employeeId]['name']|default('') }}</td>
                     <td>
-                        {{ previousYearTeamMemberSalesAchive != '' ? previousYearTeamMemberSalesAchive|number_format(2, '.', '') : ''}}
+                        {{ previousYearTeamMemberSalesAchive|number_format(2) }}
+
                     </td>
                     <td>
-                        {{ currentYearTeamMemberSalesTarget != '' ? currentYearTeamMemberSalesTarget|number_format(2, '.', '') : ''}}
+                        {{ currentYearTeamMemberSalesTarget|number_format(2) }}
                     </td>
                     <td>
-                        {{ currentYearTeamMemberSalesAchive != '' ? currentYearTeamMemberSalesAchive|number_format(2, '.', '') : ''}}
+                        {{ currentYearTeamMemberSalesAchive|number_format(2) }}
+                    </td>
+                    <td>
+                        {{ currentYearTeamMemberSalesTarget >0 ? ((currentYearTeamMemberSalesAchive/currentYearTeamMemberSalesTarget)*100)|number_format(0) ~'%':'' }}
+                    </td>
+                    <td>
+                        {{ (currentYearTeamMemberSalesAchive - currentYearTeamMemberSalesTarget)|number_format(2)  }}
                     </td>
 
                     <td>
-                        {{  currentYearTeamMemberSalesTarget != '' and currentYearTeamMemberSalesTarget>0 and currentYearTeamMemberSalesAchive != '' ? ((currentYearTeamMemberSalesAchive*100)/currentYearTeamMemberSalesTarget)|number_format(2,'.',''): ''}}%
+                        {{ previousYearTeamMemberSalesAchive >0 ? (((currentYearTeamMemberSalesAchive/previousYearTeamMemberSalesAchive)-1)*100)|number_format(1) ~'%':'' }}
                     </td>
                     <td>
-                        {{  currentYearTeamMemberSalesTarget != '' and currentYearTeamMemberSalesAchive != '' ? currentYearTeamMemberSalesTarget-currentYearTeamMemberSalesAchive : '' }}
+                        {{ (currentYearTeamMemberSalesAchive - previousYearTeamMemberSalesAchive)|number_format(2)  }}
                     </td>
-
-                    <td>
-                        {{ cumSalesTarget|number_format(2, '.', '') }}
-                    </td>
-                    <td>
-                        {{ cumSalesAchive|number_format(2, '.', '') }}
-                    </td>
-                    <td>
-                        {{ cumSalesTarget>0?((cumSalesAchive*100)/cumSalesTarget)|number_format(2,'.',''):0 }}
-                    </td>
-
-                    <td>
-                        {{ (cumSalesAchive-cumSalesTarget)|number_format(2, '.', '') }}
-                    </td>
-                    <td>{{ (previousYearTeamMemberSalesAchive != '' or currentYearTeamMemberSalesAchive != '') ? ((currentYearTeamMemberSalesAchive!=''?currentYearTeamMemberSalesAchive:0)-(previousYearTeamMemberSalesAchive!=''?previousYearTeamMemberSalesAchive:0))|number_format(2, '.', '') : '' }}</td>
 
                 </tr>
 

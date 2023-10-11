@@ -708,8 +708,12 @@ class KpiReportController extends AbstractController
             $filterBy['startMonth'] = $filterForm->get('startMonth')->getData();
             $filterBy['endMonth'] = $filterForm->get('endMonth')->getData();
 
+//dd($teamMembers);
             $outstandingAndDocSales=[];
+            $teamMemberOutstandingAndDocSales=[];
             if(sizeof($months)>0 && $filterBy['employee']!=''){
+                $teamMembers = $this->getDoctrine()->getRepository(User::class)->getPermanentTeamMemberByLineManager($filterForm->get('employee')->getData());
+//                dd($teamMembers);
                 foreach ($months as $month) {
                     $districtHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $filterForm->get('employee')->getData(), 'month' => $month, 'year' => $filterBy['year']]);
                     $districts = $districtHistory ? $districtHistory->getDistrict() : '';
@@ -719,9 +723,25 @@ class KpiReportController extends AbstractController
 
                     $outstandingAndDocSales['feedSalesDataPreviousYear'][] = $this->getDoctrine()->getRepository(DistrictOrder::class)->getSalesTargetAndAchievementForMonthlyReport($districtsId, $filterBy, $month, true);
                     $outstandingAndDocSales['feedSalesData'][] = $this->getDoctrine()->getRepository(DistrictOrder::class)->getSalesTargetAndAchievementForMonthlyReport($districtsId, $filterBy, $month);
-
                 }
+
+
+                if(sizeof($teamMembers)>0){
+                    foreach ($teamMembers as $teamMember) {
+                        foreach ($months as $month) {
+                            $teamMemberDistrictHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $teamMember['id'], 'month' => $month, 'year' => $filterBy['year']]);
+                            $teamMemberDistricts = $teamMemberDistrictHistory ? $teamMemberDistrictHistory->getDistrict() : '';
+                            $teamMemberDistrictsId = $teamMemberDistricts ? array_keys(json_decode($teamMemberDistricts, true)) : [];
+
+                            $teamMemberOutstandingAndDocSales['feedSalesDataPreviousYear'][$teamMember['id']][] = $this->getDoctrine()->getRepository(DistrictOrder::class)->getSalesTargetAndAchievementForMonthlyReport($teamMemberDistrictsId, $filterBy, $month, true);
+                            $teamMemberOutstandingAndDocSales['feedSalesData'][$teamMember['id']][] = $this->getDoctrine()->getRepository(DistrictOrder::class)->getSalesTargetAndAchievementForMonthlyReport($teamMemberDistrictsId, $filterBy, $month);
+                        }
+                    }
+                }
+
             }
+
+
             $proviousYearFeedSales = [];
             if(isset($outstandingAndDocSales['feedSalesDataPreviousYear']) && sizeof($outstandingAndDocSales['feedSalesDataPreviousYear']) > 0){
                 foreach ($outstandingAndDocSales['feedSalesDataPreviousYear'] as $feedSalesData) {
@@ -745,6 +765,37 @@ class KpiReportController extends AbstractController
                 }
             }
 
+            $proviousYearTeamMembersFeedSales = [];
+            if(isset($teamMemberOutstandingAndDocSales['feedSalesDataPreviousYear']) && sizeof($teamMemberOutstandingAndDocSales['feedSalesDataPreviousYear']) > 0){
+                foreach ($teamMemberOutstandingAndDocSales['feedSalesDataPreviousYear'] as $employeeId => $employeeWiseData) {
+                    foreach ($employeeWiseData as $feedSalesData) {
+                        foreach ($feedSalesData as $breedName =>  $breedWiseData) {
+                            foreach ($breedWiseData as $monthName =>  $value) {
+                                $proviousYearTeamMembersFeedSales['data'][$breedName][$employeeId][]=$value;
+                            }
+                        }
+                    }
+                }
+            }
+
+            $currentYearTeamMembersFeedSales = [];
+            if(isset($teamMemberOutstandingAndDocSales['feedSalesData']) && sizeof($teamMemberOutstandingAndDocSales['feedSalesData']) > 0){
+                foreach ($teamMemberOutstandingAndDocSales['feedSalesData'] as $employeeId => $employeeWiseData) {
+                    foreach ($employeeWiseData as $feedSalesData) {
+                        foreach ($feedSalesData as $breedName =>  $breedWiseData) {
+                            foreach ($breedWiseData as $monthName =>  $value) {
+                                $currentYearTeamMembersFeedSales['employeeInfo'][$employeeId] = $teamMembers[$employeeId];
+                                $currentYearTeamMembersFeedSales['data'][$breedName][$employeeId][]=$value;
+                            }
+                        }
+                    }
+                }
+            }
+
+//            dd($currentYearTeamMembersFeedSales['data']);
+
+
+
 //            dd($currentYearFeedSales);
 
             $data['avgDocPrice'] = $this->getDoctrine()->getRepository(DailyChickPriceDetails::class)->getEmployeeMonthCompanyWiseAvgDocPriceMonthly($filterBy);
@@ -762,9 +813,14 @@ class KpiReportController extends AbstractController
 
             $data['outstandingAndDocSales'] = $outstandingAndDocSales;
 
-            $data['previousYearTeamMemberSalesData'] = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getTeamMemberSalesTargetAchievementSummeryReport($filterBy, true);
-            $data['currentYearTeamMemberSalesData'] = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getTeamMemberSalesTargetAchievementSummeryReport($filterBy);
-//dd($data['currentYearTeamMemberSalesData']);
+//            $data['previousYearTeamMemberSalesData'] = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getTeamMemberSalesTargetAchievementSummeryReport($filterBy, true);
+            $data['previousYearTeamMemberSalesData'] = $proviousYearTeamMembersFeedSales;
+//            $data['currentYearTeamMemberSalesData'] = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getTeamMemberSalesTargetAchievementSummeryReport($filterBy);
+            $data['currentYearTeamMemberSalesData'] = $currentYearTeamMembersFeedSales;
+
+//            dd( $proviousYearTeamMembersFeedSales, $currentYearTeamMembersFeedSales);
+
+
             $data['companyWiseFeedSales'] = $this->getDoctrine()->getRepository(CompanyWiseFeedSale::class)->getCompanyWiseFeedSaleForMonthlyReport( $filterBy);
             $data['companyWiseFeedSales']['species'] = $this->getDoctrine()->getRepository(Setting::class)->getAllProductTypeForMonthlyReport();
 
