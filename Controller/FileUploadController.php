@@ -292,7 +292,7 @@ class FileUploadController extends AbstractController
                 $notInsertedData = $this->getDoctrine()->getRepository(LocationSalesTarget::class)->insertTargetAmount($file, $keys, $allData, $month, $year);
                 
 
-                $this->insertDataDistrictWise($file);
+//                $this->insertDataDistrictWise($file);
 
                 if($notInsertedData){
                     $spreadsheet = new Spreadsheet();
