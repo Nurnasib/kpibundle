@@ -50,6 +50,7 @@ class AgentOutstandingRepository extends EntityRepository
         foreach ($data as $record){
             $record['ActualAmount'] = (double)str_replace(',', '',$record['Net Outstanding']);
             $record['LimitAmount'] = (double)str_replace(',', '',$record['Limit']);
+            $record['AgentId'] = isset( $record['AgentId']) ? $record['AgentId'] : (isset($record['Agent Id']) ? $record['Agent Id'] : null);
 
             $district = $em->getRepository(Location::class)->findOneBy(['level' => 4,'code' => $record['DistrictId']]);
 
