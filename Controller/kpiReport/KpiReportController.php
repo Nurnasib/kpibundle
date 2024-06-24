@@ -397,12 +397,14 @@ class KpiReportController extends AbstractController
             // Instantiate Dompdf with our options
             $dompdf = new Dompdf($pdfOptions);
             $html='';
+            $fileName='';
             if($mode=='growth'){
                 $html= $this->renderView('@TerminalbdKpi/employeeboard/report/salesGrowthPercentage-pdf.html.twig', [
                     'filterBy' => $filterBy,
                     'data' => $data,
                     'mode' => $mode,
                 ]);
+                $fileName = 'growth_'.$request->get('_route') . '-' . time();
             }else{
                 // Retrieve the HTML generated in our twig file
                 $html = $this->renderView('@TerminalbdKpi/employeeboard/report/salesPercentage-pdf.html.twig', [
@@ -411,6 +413,7 @@ class KpiReportController extends AbstractController
                     'mode' => $mode,
 
                 ]);
+                $fileName = $request->get('_route') . '-' . time();
             }
 
 
@@ -424,7 +427,7 @@ class KpiReportController extends AbstractController
             $dompdf->render();
 
             // Output the generated PDF to Browser (force download)
-            $fileName = $request->get('_route') . '-' . time();
+
             $dompdf->stream($fileName . ".pdf", [
                 "Attachment" => true
             ]);
