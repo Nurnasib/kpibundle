@@ -389,6 +389,10 @@ class KpiReportController extends AbstractController
             // Configure Dompdf according to your needs
             $pdfOptions = new Options();
             $pdfOptions->set('defaultFont', 'Arial, sans-serif');
+            $pdfOptions->set('isHtml5ParserEnabled', true);
+            $pdfOptions->set('isRemoteEnabled', true);
+            $pdfOptions->set('debugCss', true); // Useful for debugging CSS issues
+            $pdfOptions->set('isPhpEnabled', true);
 
             // Instantiate Dompdf with our options
             $dompdf = new Dompdf($pdfOptions);
