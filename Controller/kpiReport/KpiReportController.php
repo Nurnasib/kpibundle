@@ -8,6 +8,7 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Terminalbd\CrmBundle\Entity\Challenger;
@@ -696,9 +697,19 @@ class KpiReportController extends AbstractController
             'endMonth' => date('F'),
             'year' => (int)date('Y'),
             'salesMode' => $mode,
+            'reportType' => null
         ];
 
         $filterForm = $this->createForm(SalesReportFilterFormType::class, null, ['user' => $this->getUser()]);
+        //add field
+        $filterForm->add('reportType', ChoiceType::class, [
+            'choices' => [
+                'Sales & Outstanding'=> 'sales_outstanding',
+                'Competitors & Activities'=>'competitor_activities',
+            ],
+            'required' => false,
+            'placeholder' => 'Select Type',
+        ]);
         $filterForm->handleRequest($request);
 
         if ($filterForm->isSubmitted()){
@@ -714,6 +725,7 @@ class KpiReportController extends AbstractController
             $filterBy['months'] = $months;
             $filterBy['startMonth'] = $filterForm->get('startMonth')->getData();
             $filterBy['endMonth'] = $filterForm->get('endMonth')->getData();
+            $filterBy['reportType'] = $filterForm->get('reportType')->getData();
 
 //dd($teamMembers);
             $outstandingAndDocSales=[];

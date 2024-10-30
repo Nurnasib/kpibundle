@@ -1,0 +1,101 @@
+<table class="table">
+    <tr>
+        <th data-a-h="center" class="border-0">
+            <h3 class="text-center">NOURISH POULTRY AND HATCHERY LTD</h3>
+        </th>
+    </tr>
+    <tr>
+        <th data-a-h="center" class="border-0">
+            <h5 class="text-center">UTTARA, DHAKA.</h5>
+        </th>
+    </tr>
+
+    <tr>
+        <td data-a-h="center" class="border-0" align="center">
+            <h6>{{ 'Monthly Report'|trans }}</h6>
+        </td>
+    </tr>
+</table>
+
+<table style="margin-bottom: 15px; color: #000" width="100%">
+    <tr>
+        <td class="border-0">
+            <h6>
+                Employee Name: {{ filterBy['employee'].name|default('') }}
+            </h6>
+        </td>
+        <td class="border-0">
+            <h6>
+                Employee Id: {{ filterBy['employee'].userId|default('') }}
+            </h6>
+        </td>
+        <td class="border-0">
+            <h6>
+                Designation: {{ filterBy['employee'].designation.name|default('') }}
+            </h6>
+        </td>
+    </tr>
+</table>
+
+<h4>{{ 'Problems' }}</h4>
+{% if data['challengesProblem'] is defined and data['challengesProblem'] is not empty %}
+    {% include('@TerminalbdKpi/employeeboard/report/inc/problems.html.twig') %}
+{% else %}
+    <p>No record found.</p>
+{% endif %}
+
+<h4>{{ 'Idea' }}</h4>
+{% if data['challengesIdea'] is defined and data['challengesIdea'] is not empty %}
+    {% include('@TerminalbdKpi/employeeboard/report/inc/_idea.html.twig') %}
+{% else %}
+    <p>No record found.</p>
+{% endif %}
+
+<h4>{{ 'Competitor Activity' }}</h4>
+{% if data['challengesCompetitorActivity'] is defined and data['challengesCompetitorActivity'] is not empty %}
+    {% include('@TerminalbdKpi/employeeboard/report/inc/_competitor-activity.html.twig') %}
+{% else %}
+    <p>No record found.</p>
+{% endif %}
+
+<h4>{{ 'DOC Price' }}</h4>
+{% if data['avgDocPrice'] is defined and data['avgDocPrice'] is not empty %}
+    {% include('@TerminalbdKpi/employeeboard/report/inc/_doc_price_company_wise.html.twig') %}
+{% else %}
+    <p>No record found.</p>
+{% endif %}
+
+<h4>{{ 'Meat & Egg Price' }}</h4>
+{% if data['meatAndEggPrice'] is defined and data['meatAndEggPrice'] is not empty %}
+    {% include('@TerminalbdKpi/employeeboard/report/inc/_meat_egg_price.html.twig') %}
+{% else %}
+    <p>No record found.</p>
+{% endif %}
+
+<h4>{{ 'Cattle Farm Introduce Status' }}</h4>
+{% if data['cattleFarmIntroduce'] is defined and data['cattleFarmIntroduce'] is not empty %}
+    {% include('@TerminalbdKpi/employeeboard/report/inc/_cattle_farmer_introduce.html.twig') %}
+{% else %}
+    <p>No record found.</p>
+{% endif %}
+
+<h4>{{ 'Complain Feed' }}</h4>
+{% if data['feedComplain'] is defined and data['feedComplain'] is not empty %}
+    {% include('@TerminalbdKpi/employeeboard/report/inc/_feed_complain.html.twig') %}
+{% else %}
+    <p>No record found.</p>
+{% endif %}
+
+<h4>{{ 'Complain DOC' }}</h4>
+{% if data['docComplain'] is defined and data['docComplain'] is not empty %}
+    {% include('@TerminalbdKpi/employeeboard/report/inc/_doc_complain.html.twig') %}
+{% else %}
+    <p>No record found.</p>
+{% endif %}
+
+<h4>{{ 'Company Wise Sales' }}</h4>
+{% if data['companyWiseFeedSales'] is defined and data['companyWiseFeedSales'] is not empty and data['companyWiseFeedSales']['records'] is defined and data['companyWiseFeedSales']['records'] is not empty %}
+    {% include('@TerminalbdKpi/employeeboard/report/inc/_company_wise_feed_sale.html.twig') %}
+{% else %}
+    <p>No record found.</p>
+{% endif %}

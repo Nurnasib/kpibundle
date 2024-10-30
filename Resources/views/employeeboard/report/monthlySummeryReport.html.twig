@@ -49,6 +49,10 @@
                                     {{ form_label(form.year) }}
                                     {{ form_widget(form.year) }}
                                 </th>
+                                <th colspan="2">
+                                    {{ form_label(form.reportType) }}
+                                    {{ form_widget(form.reportType) }}
+                                </th>
 
                                 <th colspan="1">
                                     <div class="btn-group" style="margin-top: 25px">
@@ -81,7 +85,13 @@
             <div class="row">
                 <div class="card">
                     <div class="card-body"  style="padding: 0; margin: 10px; overflow: auto; height: 64vh">
-                        {% include('@TerminalbdKpi/employeeboard/report/monthlySummeryReport-content.html.twig') %}
+                        {% if filterBy['reportType'] is defined and filterBy['reportType']=='sales_outstanding' %}
+                            {% include('@TerminalbdKpi/employeeboard/report/monthlySummeryReport-content-for-sales-outstanding.html.twig') %}
+                        {% elseif filterBy['reportType'] is defined and filterBy['reportType']=='competitor_activities' %}
+                            {% include('@TerminalbdKpi/employeeboard/report/monthlySummeryReport-content-for-competitor-activities.html.twig') %}
+                        {% else %}
+                            {% include('@TerminalbdKpi/employeeboard/report/monthlySummeryReport-content.html.twig') %}
+                        {% endif %}
                     </div>
                 </div>
             </div>

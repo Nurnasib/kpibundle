@@ -32,6 +32,12 @@
     </style>
 </head>
 <body>
-{% include('@TerminalbdKpi/employeeboard/report/monthlySummeryReport-content.html.twig') %}
+{% if filterBy['reportType'] is defined and filterBy['reportType']=='sales_outstanding' %}
+    {% include('@TerminalbdKpi/employeeboard/report/monthlySummeryReport-content-for-sales-outstanding.html.twig') %}
+{% elseif filterBy['reportType'] is defined and filterBy['reportType']=='competitor_activities' %}
+    {% include('@TerminalbdKpi/employeeboard/report/monthlySummeryReport-content-for-competitor-activities.html.twig') %}
+{% else %}
+    {% include('@TerminalbdKpi/employeeboard/report/monthlySummeryReport-content.html.twig') %}
+{% endif %}
 </body>
 </html>
