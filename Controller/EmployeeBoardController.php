@@ -864,25 +864,25 @@ class EmployeeBoardController extends AbstractController
             if ($mark >= 4){
                 $boardAttribute->setMark(4);
             }else{
-                $boardAttribute->setMark($mark);
+                $boardAttribute->setMark((float)$mark);
             }
         }elseif (in_array($boardAttribute->getAttribute()->getSlug(), $markTwoAttributeSlug)){
             if ($mark >= 2){
                 $boardAttribute->setMark(2);
             }else{
-                $boardAttribute->setMark($mark);
+                $boardAttribute->setMark((float)$mark);
             }
         }elseif (in_array($boardAttribute->getAttribute()->getSlug(), $markOneAttributeSlug)){
             if ($mark >= 1){
                 $boardAttribute->setMark(1);
             }else{
-                $boardAttribute->setMark($mark);
+                $boardAttribute->setMark((float)$mark);
             }
         }elseif (in_array($boardAttribute->getAttribute()->getSlug(), $markThreeAttributeSlug)){
             if ($mark >= 3){
                 $boardAttribute->setMark(3);
             }else{
-                $boardAttribute->setMark($mark);
+                $boardAttribute->setMark((float)$mark);
             }
         }
         $em->persist($boardAttribute);
