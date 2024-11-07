@@ -1,0 +1,137 @@
+
+<table class="table">
+    <tr>
+        <th data-a-h="center" class="border-0">
+            <h3 class="text-center">NOURISH POULTRY AND HATCHERY LTD</h3>
+        </th>
+    </tr>
+    <tr>
+        <th data-a-h="center" class="border-0">
+            <h5 class="text-center">UTTARA, DHAKA.</h5>
+        </th>
+    </tr>
+
+    <tr>
+        <td data-a-h="center" class="border-0" align="center">
+            <h6>{{ 'Monthly Report'|trans }}</h6>
+        </td>
+    </tr>
+</table>
+
+<table class="table table-bordered download-excel">
+    <head>
+        <tr>
+            <th data-a-v="middle" rowspan="2" style="width: 3%" scope="col">S/N</th>
+            <th data-a-v="middle" rowspan="2">Month</th>
+            <th data-a-h="center" class="text-center" colspan="3" scope="col">{{ 'Employee'|trans }}</th>
+            <th data-a-v="middle" class="text-center" rowspan="2" style="width: 10%" scope="col">Line Manager</th>
+            <th data-a-v="middle" rowspan="2" title="Problems">Problems</th>
+            <th data-a-v="middle" rowspan="2" title="Idea">Idea</th>
+            <th data-a-v="middle" rowspan="2" title="Competitors activity">Competitors activity</th>
+            <th data-a-h="center" class="text-center" colspan="{{ chickTypes|length }}" title="DOC Price Broiler">DOC Price Broiler</th>
+            <th data-a-h="center" class="text-center" colspan="{{ breedTypes|length }}" title="DOC Complain">DOC Complain</th>
+            <th data-a-h="center" class="text-center" colspan="{{ feedTypes|length }}" title="DOC Complain">Feed Complain</th>
+            <th data-a-h="center" class="text-center" colspan="{{ meatTypes|length }}" title="DOC Complain">Meat Price</th>
+            <th data-a-h="center" class="text-center" colspan="{{ eggTypes|length }}" title="DOC Complain">Egg Price</th>
+
+            {% for breedSlug, breedName in breedNameArray %}
+                <th data-a-h="center" class="text-center" colspan="{{ productsName[breedSlug] is defined ?  productsName[breedSlug]|length : 0 }}" title="{{ breedSlug }}">{{ breedName }}</th>
+            {% endfor %}
+
+        </tr>
+        <tr>
+            <th style="width: 5%" scope="col">{{ 'Id'|trans }}</th>
+            <th style="width: 10%" scope="col">{{ 'Name'|trans }}</th>
+            <th style="width: 10%" scope="col">{{ 'Design'|trans }}</th>
+
+            {% for chickType in chickTypes %}
+                <th scope="col">{{ chickType.name }}</th>
+            {% endfor %}
+
+            {% for breedTypeId, breedTypeName in breedTypes %}
+                <th scope="col">{{ breedTypeName }}</th>
+            {% endfor %}
+            {% for feedTypeId, feedTypeName in feedTypes %}
+                <th scope="col">{{ feedTypeName }}</th>
+            {% endfor %}
+
+            {% for meatType in meatTypes %}
+                <th scope="col">{{ meatType.name }}</th>
+            {% endfor %}
+            {% for eggType in eggTypes %}
+                <th scope="col">{{ eggType.name }}</th>
+            {% endfor %}
+
+            {% for breedSlug, breedName in breedNameArray %}
+                {% if productsName[breedSlug] is defined and productsName[breedSlug] is not empty %}
+                    {% for product in productsName[breedSlug] %}
+                        <th class="{{ product.id }}" scope="col">{{ product.name }}</th>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </tr>
+    </head>
+    <tbody>
+    {% if months is not empty %}
+        {% for monthKey, monthName in months %}
+            {% set loopCount = 0 %}
+            {% if employees is defined and  employees is not empty %}
+                {% for lineManagerId, lineManagerData in employees %}
+                    {% if lineManagerData is not empty %}
+                        {% for index, employee in lineManagerData %}
+                            {% set loopCount = loopCount+1 %}
+                            {% set isChallengesProblem = data['challengesProblem'] is defined and data['challengesProblem'][monthKey] is defined and data['challengesProblem'][monthKey][employee.id] is defined and data['challengesProblem'][monthKey][employee.id]['totalRecords'] > 0 ? '<i class="fa fa-check green" aria-hidden="true"><span style="display:none">Y</span></i>':'<i class="fa fa-times red" aria-hidden="true"><span style="display:none">X</span></i>' %}
+                            {% set isChallengesIdea = data['challengesIdea'] is defined and data['challengesIdea'][monthKey] is defined and data['challengesIdea'][monthKey][employee.id] is defined and data['challengesIdea'][monthKey][employee.id]['totalRecords'] > 0 ? '<i class="fa fa-check green" aria-hidden="true"><span style="display:none">Y</span></i>':'<i class="fa fa-times red" aria-hidden="true"><span style="display:none">X</span></i>' %}
+                            {% set isChallengesCompetitorActivity = data['challengesCompetitorActivity'] is defined and data['challengesCompetitorActivity'][monthKey] is defined and data['challengesCompetitorActivity'][monthKey][employee.id] is defined and data['challengesCompetitorActivity'][monthKey][employee.id]['totalRecords'] > 0 ? '<i class="fa fa-check green" aria-hidden="true"><span style="display:none">Y</span></i>':'<i class="fa fa-times red" aria-hidden="true"><span style="display:none">X</span></i>' %}
+                            <tr>
+                                <td>{{ loopCount }}</td>
+                                <td>{{ monthName }}</td>
+                                <td>{{ employee.userId }}</td>
+                                <td>{{ employee.name }}</td>
+                                <td>{{ employee.designationName }}</td>
+                                <td>{{ employee.lineManagerName }}</td>
+                                <td data-a-h="center" class="text-center">{{ isChallengesProblem|raw }}</td>
+                                <td data-a-h="center" class="text-center">{{ isChallengesIdea|raw }}</td>
+                                <td data-a-h="center" class="text-center">{{ isChallengesCompetitorActivity|raw }}</td>
+                                {% for chickType in chickTypes %}
+                                    {% set isDocPrice = data['docPrice'] is defined and data['docPrice'][monthKey] is defined and data['docPrice'][monthKey][employee.id] is defined and data['docPrice'][monthKey][employee.id][chickType.id] is defined and data['docPrice'][monthKey][employee.id][chickType.id] > 0 ? '<i class="fa fa-check green" aria-hidden="true"><span style="display:none">Y</span></i>':'<i class="fa fa-times red" aria-hidden="true"><span style="display:none">X</span></i>' %}
+                                    <td data-a-h="center" class="text-center">{{ isDocPrice|raw }}</td>
+                                {% endfor %}
+
+                                {% for breedTypeId, breedTypeName in breedTypes %}
+                                    {% set isDocComplain = data['docComplain'] is defined and data['docComplain'][monthKey] is defined and data['docComplain'][monthKey][employee.id] is defined and data['docComplain'][monthKey][employee.id][breedTypeId] is defined and data['docComplain'][monthKey][employee.id][breedTypeId]['totalRecords'] > 0 ? '<i class="fa fa-check green" aria-hidden="true"><span style="display:none">Y</span></i>':'<i class="fa fa-times red" aria-hidden="true"><span style="display:none">X</span> </i>' %}
+                                    <td data-a-h="center" class="text-center">{{ isDocComplain|raw }}</td>
+                                {% endfor %}
+
+                                {% for feedTypeId, feedTypeName in feedTypes %}
+                                    {% set isFeedComplain = data['feedComplain'] is defined and data['feedComplain'][monthKey] is defined and data['feedComplain'][monthKey][employee.id] is defined and data['feedComplain'][monthKey][employee.id][feedTypeId] is defined and data['feedComplain'][monthKey][employee.id][feedTypeId]['totalRecords'] > 0 ? '<i class="fa fa-check green" aria-hidden="true"><span style="display:none">Y</span></i>':'<i class="fa fa-times red" aria-hidden="true"><span style="display:none">X</span> </i>' %}
+                                    <td data-a-h="center" class="text-center">{{ isFeedComplain|raw }}</td>
+                                {% endfor %}
+                                {% for meatType in meatTypes %}
+                                    {% set isMeatPrice = data['meatAndEggPrice'] is defined and data['meatAndEggPrice'][monthKey] is defined and data['meatAndEggPrice'][monthKey][employee.id] is defined and data['meatAndEggPrice'][monthKey][employee.id][meatType.id] is defined and data['meatAndEggPrice'][monthKey][employee.id][meatType.id]['totalRecords'] > 0 ? '<i class="fa fa-check green" aria-hidden="true"><span style="display:none">Y</span></i>':'<i class="fa fa-times red" aria-hidden="true"><span style="display:none">X</span> </i>' %}
+                                    <td data-a-h="center" class="text-center">{{ isMeatPrice|raw }}</td>
+                                {% endfor %}
+                                {% for eggType in eggTypes %}
+                                    {% set isFeedComplain = data['meatAndEggPrice'] is defined and data['meatAndEggPrice'][monthKey] is defined and data['meatAndEggPrice'][monthKey][employee.id] is defined and data['meatAndEggPrice'][monthKey][employee.id][eggType.id] is defined and data['meatAndEggPrice'][monthKey][employee.id][eggType.id]['totalRecords'] > 0 ? '<i class="fa fa-check green" aria-hidden="true"><span style="display:none">Y</span></i>':'<i class="fa fa-times red" aria-hidden="true"><span style="display:none">X</span> </i>' %}
+                                    <td data-a-h="center" class="text-center">{{ isFeedComplain|raw }}</td>
+                                {% endfor %}
+
+                                {% for breedSlug, breedName in breedNameArray %}
+                                    {% if productsName[breedSlug] is defined and productsName[breedSlug] is not empty %}
+                                        {% for product in productsName[breedSlug] %}
+                                            {% set isFeedSale = data['companyWiseFeedSales'] is defined and data['companyWiseFeedSales'][monthKey] is defined and data['companyWiseFeedSales'][monthKey][employee.id] is defined and data['companyWiseFeedSales'][monthKey][employee.id][product.id] is defined and data['companyWiseFeedSales'][monthKey][employee.id][product.id]|length > 0 ? '<i class="fa fa-check green" aria-hidden="true"><span style="display:none">Y</span></i>':'<i class="fa fa-times red" aria-hidden="true"><span style="display:none">X</span> </i>' %}
+                                            <td data-a-h="center" class="text-center">{{ isFeedSale|raw }}</td>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+        {% endfor %}
+    {% endif %}
+    </tbody>
+</table>

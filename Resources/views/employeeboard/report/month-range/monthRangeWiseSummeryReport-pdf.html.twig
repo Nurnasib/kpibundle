@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>KPI-Sales</title>
+    <style>
+        table{
+            width: 100%!important;
+        }
+        table tr td, table tr th {
+            padding: 5px;
+            border: 1px solid #000000;
+        }
+        table tr td.border-0, table tr th.border-0 {
+            border: none;
+        }
+        table tr td h3, table tr td h5, table tr td h6 {
+            margin: 0px;
+            padding: 2px;
+            line-height: normal;
+        }
+        .border-0{
+            border: none;
+        }
+
+        body {
+            font-size: 12px !important;
+        }
+    </style>
+</head>
+<body>
+{% include('@TerminalbdKpi/employeeboard/report/month-range/monthRangeWiseSummeryReport-content.html.twig') %}
+</body>
+</html>

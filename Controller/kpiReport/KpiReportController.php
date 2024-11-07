@@ -13,11 +13,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Terminalbd\CrmBundle\Entity\Challenger;
 use Terminalbd\CrmBundle\Entity\CompanyWiseFeedSale;
+use Terminalbd\CrmBundle\Entity\ComplainDifferentProduct;
 use Terminalbd\CrmBundle\Entity\ComplainDifferentProductDetails;
 use Terminalbd\CrmBundle\Entity\DailyChickPriceDetails;
 use Terminalbd\CrmBundle\Entity\NewFarmerIntroduce\FarmerIntroduceDetails;
 use Terminalbd\CrmBundle\Entity\PoultryMeatEggPrice;
 use Terminalbd\CrmBundle\Entity\Setting;
+use Terminalbd\KpiBundle\Form\MonthRangeWiseSummeryReportFormType;
 use Terminalbd\KpiBundle\Entity\AgentDocSaleCollection;
 use Terminalbd\KpiBundle\Entity\AgentOrder;
 use Terminalbd\KpiBundle\Entity\AgentOutstanding;
@@ -903,6 +905,215 @@ class KpiReportController extends AbstractController
             'mode' => $mode,
             'months' => $months,
         ]);
+    }
+
+    /**
+     * @Route("/kpi-month-range-wise-summery-report", name="kpi_month_range_wise_summery_report")
+     * @param Request $request
+     * @param \Symfony\Component\HttpFoundation\Response
+     */
+    public function kpiMonthRangeWiseSummery(Request $request, $mode='feed')
+    {
+        set_time_limit(0);
+        ini_set('memory_limit', '5000M');
+
+        $startDate = @strtotime(date('F') . ' ' . (int)date('Y'));
+        $endDate = @strtotime(date('F') . ' ' . (int)date('Y'));
+
+        $months = $this->monthRange($startDate, $endDate);
+        $data=[];
+
+        $filterBy = [
+            'loggedUser' => $this->getUser(),
+            'employee' => null,
+            'startMonth' => date('F'),
+            'endMonth' => date('F'),
+            'year' => (int)date('Y'),
+            'salesMode' => $mode,
+        ];
+        $userRepo = $this->getDoctrine()->getRepository(User::class);
+        $filterForm = $this->createForm(MonthRangeWiseSummeryReportFormType::class, null, ['userRepo'=>$userRepo, 'method' => 'GET']);
+
+
+//        $filterForm = $this->createForm(SalesReportFilterFormType::class, null, ['user' => $this->getUser()]);
+
+        $filterForm->handleRequest($request);
+
+        $employees=[];
+        $fromDate = date('Y-m');
+        $toDate = date('Y-m');
+        $months=[];
+        $filterBy = [];
+
+        if ($filterForm->isSubmitted()){
+
+            $filterBy = $filterForm->getData();
+            $lineManager = isset($filterBy['lineManager']) && $filterBy['lineManager'] != '' ? $filterBy['lineManager'] : null;
+            $employee = isset($filterBy['employee']) && $filterBy['employee'] != '' ? $filterBy['employee'] : null;
+            $fromDate = isset($filterBy['fromDate']) ? $filterBy['fromDate']->format("Y-m") : date('Y-m');
+            $toDate = isset($filterBy['toDate']) ? $filterBy['toDate']->format("Y-m") : date('Y-m');
+            $roleSplitArray = [];
+            $userRoles = [];
+            $employeeArray=[];
+
+            foreach ($this->getUser()->getRoles() as $role) {
+                $roleSplitArray = array_merge(explode('_', $role), $roleSplitArray);
+            }
+
+            if (in_array('ADMIN', $roleSplitArray)) {
+                if (in_array('ROLE_CRM_POULTRY_ADMIN', $this->getUser()->getRoles())) {
+                    array_push($userRoles, 'ROLE_CRM_POULTRY_USER');
+                }
+                if (in_array('ROLE_CRM_CATTLE_ADMIN', $this->getUser()->getRoles())) {
+                    array_push($userRoles, 'ROLE_CRM_CATTLE_USER');
+                }
+                if (in_array('ROLE_CRM_AQUA_ADMIN', $this->getUser()->getRoles())) {
+                    array_push($userRoles, 'ROLE_CRM_AQUA_USER');
+                }
+                if (in_array('ROLE_CRM_SALES_MARKETING_ADMIN', $this->getUser()->getRoles())) {
+                    array_push($userRoles, 'ROLE_CRM_SALES_MARKETING_USER');
+                }
+                $employeeArray = $this->getDoctrine()->getRepository(User::class)->getRoleWiseEmployees($userRoles);
+            }elseif (!in_array('ADMIN', $roleSplitArray) && in_array('ROLE_LINE_MANAGER', $this->getUser()->getRoles())){
+                $employeeArray = $this->getDoctrine()->getRepository(User::class)->getEmployeesByEmployeeIds($this->getUser());
+            }
+            if($lineManager){
+                $employeeArray = $this->getDoctrine()->getRepository(User::class)->getEmployeesByEmployeeIds($lineManager);
+            }
+            if($employee){
+                $employeeArray = $this->getDoctrine()->getRepository(User::class)->getEmployeesByEmployeeIds($employee->getLineManager(), $employee->getId());
+            }
+
+            $uniqueEmployees = [];
+            if(isset($employeeArray['employee']) && sizeof($employeeArray['employee'])>0){
+                $uniqueEmployees = $this->unique_array($employeeArray['employee'], 'id');
+            }
+            if(sizeof($uniqueEmployees)>0){
+                foreach ($uniqueEmployees as $employee) {
+                    $employees[$employee['lineManagerId']][] = $employee;
+                }
+            }
+
+            $startDate = date('Y-m-01', strtotime($fromDate));
+            $endDate = date('Y-m-t', strtotime($toDate));
+            $months = $this->getMonthsInRange($startDate, $endDate);
+
+            $employeeIds = array_column($uniqueEmployees, 'id');
+
+            $data['challengesProblem'] = $this->getDoctrine()->getRepository(Challenger::class)->getChallengerByMonthRangeAndEmployeeIdsForKpiMonthlyReport('challenges-problem', $startDate, $endDate, $employeeIds);
+            $data['challengesIdea'] = $this->getDoctrine()->getRepository(Challenger::class)->getChallengerByMonthRangeAndEmployeeIdsForKpiMonthlyReport('challenges-idea', $startDate, $endDate, $employeeIds);
+            $data['challengesCompetitorActivity'] = $this->getDoctrine()->getRepository(Challenger::class)->getChallengerByMonthRangeAndEmployeeIdsForKpiMonthlyReport('competitors-activity', $startDate, $endDate, $employeeIds);
+
+            $data['docPrice'] = $this->getDoctrine()->getRepository(DailyChickPriceDetails::class)->getDocPriceByMonthRangeWise($startDate, $endDate, $employeeIds);
+
+            $data['docComplain'] = $this->getDoctrine()->getRepository(ComplainDifferentProductDetails::class)->getComplainReportByMonthRangeAndEmployeeIds($startDate, $endDate, $employeeIds, 'COMPLAIN_DOC');
+
+            $data['feedComplain'] = $this->getDoctrine()->getRepository(ComplainDifferentProductDetails::class)->getComplainReportByMonthRangeAndEmployeeIds($startDate, $endDate, $employeeIds, 'COMPLAIN_FEED');
+            $data ['meatAndEggPrice'] = $this->getDoctrine()->getRepository(PoultryMeatEggPrice::class)->getMeatEggPriceByEmployeeIdsAndDateRangeWiseReport($startDate, $endDate, $employeeIds);
+
+            $data['companyWiseFeedSales'] = $this->getDoctrine()->getRepository(CompanyWiseFeedSale::class)->getCompanyWiseFeedSaleByEmployeeIdsMonthRange( $startDate, $endDate, $employeeIds);
+
+        }
+
+        $meatAndEggTypes = $this->getDoctrine()->getRepository(Setting::class)->findBy(array('settingType'=>'MEAT_EGG_TYPE', 'status' => 1));
+        $meatTypes = $meatAndEggTypes ? array_filter($meatAndEggTypes, function($setting){
+            return $setting->getSlug() == 'broiler-meat' || $setting->getSlug() == 'sonali-meat';
+        }) : [];
+
+        $eggTypes = $meatAndEggTypes ? array_filter($meatAndEggTypes, function($setting){
+            return $setting->getSlug() == 'brown-layer-egg' || $setting->getSlug() == 'white-layer-egg';
+        }) : [];
+
+        $chickTypes = $this->getDoctrine()->getRepository(Setting::class)->findBy(array('settingType'=>'CHICK_TYPE', 'status' => 1));
+        $breedTypes = $this->getDoctrine()->getRepository(ComplainDifferentProduct::class)->getComplainBreedAndFeedByType('COMPLAIN_DOC');
+        $feedTypes = $this->getDoctrine()->getRepository(ComplainDifferentProduct::class)->getComplainBreedAndFeedByType('COMPLAIN_FEED');
+
+        $breedNameArray = [
+            'poultry-layer-chicks'=>'Doc Production',
+            'poultry'=>'Poultry feed Sales',
+//            'poultry-boiler-chicks',
+            'cattle'=>'Cattle feed Sales',
+            'fish'=>'Fish feed Sales',
+        ];
+        $productsName = [];
+        foreach ($breedNameArray as $breed_name=>$breedTitle) {
+            $breedParam = $breed_name;
+            $breedExplode = explode('-', $breed_name);
+            $breed_name = isset($breedExplode[0]) ? $breedExplode[0] : '';
+            $breedType = isset($breedExplode[1]) ? $breedExplode[1] : null;
+
+            $breedNameObj = $this->getDoctrine()->getRepository(Setting::class)->findOneBy(array('status'=>1, 'settingType'=>'BREED_NAME','slug'=>$breed_name.'-breed'));
+
+            $farmTypesByParent = $this->getDoctrine()->getRepository(Setting::class)->findBy(array('status'=>1,'settingType'=>'FARM_TYPE','parent'=>$breedNameObj));
+
+            $farmTypeId = [];
+            if($farmTypesByParent){
+                foreach ($farmTypesByParent as $value){
+                    $farmTypeId[]= $value->getId();
+                }
+            }
+
+            if($breedType=='boiler'){
+                $productsName[$breedParam] = $this->getDoctrine()->getRepository(Setting::class)->getProductTypeForBoilerChickByBreedName($farmTypeId);
+            }elseif($breedType=='layer'){
+                $productsName[$breedParam] = $this->getDoctrine()->getRepository(Setting::class)->getProductTypeForLayerChickByBreedName($farmTypeId);
+            }else{
+                $productsName[$breedParam] = $this->getDoctrine()->getRepository(Setting::class)->getProductTypeWithOutChickByBreedName($farmTypeId);
+            }
+        }
+
+        return $this->render('@TerminalbdKpi/employeeboard/report/month-range/monthRangeWiseSummeryReport.html.twig', [
+            'filterBy' => $filterBy,
+            'form' => $filterForm->createView(),
+            'data' => $data,
+            'mode' => $mode,
+            'months' => $months,
+            'employees' => $employees,
+            'chickTypes' => $chickTypes,
+            'breedTypes' => $breedTypes,
+            'feedTypes' => $feedTypes,
+            'meatTypes' => $meatTypes,
+            'eggTypes' => $eggTypes,
+            'productsName' => $productsName,
+            'breedNameArray' => $breedNameArray
+        ]);
+    }
+
+
+    private function getMonthsInRange($startDate, $endDate) {
+        $start = new \DateTime($startDate);
+        $end = new \DateTime($endDate);
+        $end->modify('first day of next month');
+
+        $interval = new \DateInterval('P1M');
+        $datePeriod = new \DatePeriod($start, $interval, $end);
+
+        $months = [];
+        foreach ($datePeriod as $date) {
+            $months[$date->format('Y-m')] = $date->format('M Y');
+        }
+
+        return $months;
+    }
+
+
+    public function unique_array($my_array, $key) {
+        $result = array();   // Initialize an empty array to store the unique values
+        $i = 0;              // Initialize a counter
+        $key_array = array(); // Initialize an array to keep track of encountered keys
+
+        // Iterate through each element in the input array
+        foreach($my_array as $val) {
+            // Check if the key value is not already present in the key array
+            if (!in_array($val[$key], $key_array)) {
+                $key_array[$i] = $val[$key];  // Store the key value in the key array
+                $result[$i] = $val;           // Store the entire element in the result array
+            }
+            $i++;  // Increment the counter
+        }
+
+        // Return the array containing unique values based on the specified key
+        return $result;
     }
 
 
