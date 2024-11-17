@@ -990,7 +990,10 @@ class KpiReportController extends AbstractController
             }
             if(sizeof($uniqueEmployees)>0){
                 foreach ($uniqueEmployees as $employee) {
-                    $employees[$employee['lineManagerId']][] = $employee;
+                    if(isset($employee['serviceModeSlug']) && $employee['serviceModeSlug']=='sales-marketing'){
+                        $employees[$employee['lineManagerId']][] = $employee;
+                    }
+//                    $employees[$employee['lineManagerId']][] = $employee;
                 }
             }
 
