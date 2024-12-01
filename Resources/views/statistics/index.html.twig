@@ -20,12 +20,12 @@
             <div class="card mb-1">
                 <div class="card-header p-2">
                     <h5>KPI Statistics</h5>
-{#                    <button class="btn btn-sm btn-warning float-right print"><i class="fa fa-print"></i> Print</button>#}
+                    <button type="button" class="btn btn-sm btn-warning float-right print"><i class="fa fa-print"></i> Print</button>
                 </div>
                 <div class="card-body" id="print-area">
-                    <div class="row">
+                    <div class="row top_bottom_section">
                         <div class="col-md-6">
-                            <div class="row" id="top-ten-filter">
+                            <div class="row print-hidden" id="top-ten-filter">
                                 <div class="col">
 {#                                    <h6 class="mb-0">{{ 'Top 10 People'|trans|upper }}</h6>#}
                                     <form action="{{ path('kpi_statistics_top_ten_refresh') }}"
@@ -84,7 +84,7 @@
 
 
                         <div class="col-md-6">
-                            <div class="row">
+                            <div class="row print-hidden">
                                 <div class="col">
 {#                                    <h6 class="mb-0">{{ 'Bottom 10 People'|trans|upper }}</h6>#}
                                     <form action="{{ path('kpi_statistics_bottom_ten_refresh') }}"
@@ -145,9 +145,9 @@
                     {#</div>#}
 
 
-                    <div class="row">
+                    <div class="row margin-top-15 kpi_statistics_section">
                         <div class="col-md-6"></div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 print-hidden">
                             <div class="row">
                                 <div class="col">
 {#                                    <h6 class="mb-0">{{ 'KPI Status'|trans|upper }}</h6>#}
@@ -298,6 +298,17 @@
         .chartdiv {
             width: 100%;
         }
+        @media print {
+            .print-hidden {
+                display: none;
+            }
+            .page_break_before {
+                page-break-before: always;
+            }
+            .margin-top-15 {
+                margin-top: 30px!important;
+            }
+        }
     </style>
 {% endblock %}
 {% block javascripts %}
@@ -324,7 +335,7 @@
                     success: function (res) {
                         $("#data-loader-kpi-statistics-area").fadeOut();
                         $("#kpi-statistics-refresh-area").html(res.html);
-
+                        $('.kpi_statistics_section').addClass('page_break_before');
                     }
                 })
             }
@@ -346,7 +357,6 @@
                     data: {topTenPeopleFormatSlug: topTenPeopleFormatSlug, startMonthYear: startMonthYear, endMonthYear: endMonthYear},
                     success: function (res) {
                         $("#kpi-statistics-top-ten-refresh-area").html(res.html);
-
                     }
                 })
             }
@@ -367,7 +377,6 @@
                     data: {bottomTenPeopleFormatSlug: bottomTenPeopleFormatSlug, startMonthYear: startMonthYear, endMonthYear: endMonthYear},
                     success: function (res) {
                         $("#kpi-statistics-bottom-ten-refresh-area").html(res.html);
-
                     }
                 })
             }
@@ -386,16 +395,13 @@
         // KPI statistics reset
         $("button#kpi-statistics-reset").on("click", function () {
             $("#kpi-statistics-refresh-area").html('');
+            $('.kpi_statistics_section').removeClass('page_break_before');
         });
 
         // Print Page
-/*        $("button.print").click(function () {
-            $('#print-area').kinziPrint({
-                importCSS: true,
-                // header: $('.print-header-content').html(),
-                // footer: $('.print-footer-content').html()
-            });
-        });*/
+        $("button.print").click(function () {
+            window.print();
+        });
 
 
         // Month Year Picker

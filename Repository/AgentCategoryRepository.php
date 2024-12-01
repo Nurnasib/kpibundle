@@ -948,4 +948,36 @@ class AgentCategoryRepository extends EntityRepository
 
         return $agentUpgrade;
     }
+
+    //get data by agentIds and between month and year range
+
+    public function getAgentCategoryByAgentIds($agentIds, $startDate, $endDate)
+    {
+        $startDate = date('Y-m-01', strtotime($startDate));
+        $endDate = date('Y-m-t', strtotime($endDate));
+
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.agent', 'agent');
+        $qb->select('e.id', 'AVG(e.quantity) as avgQuantity', 'e.month', 'e.year');
+        $qb->addSelect('agent.id AS agentAutoId', 'agent.agentId as agentId', 'agent.name AS agentName');
+//        $qb->addSelect('MONTH(STR_TO_DATE(CONCAT(e.year, "-", e.month, "-01"), "%Y-%M-%d")) AS monthNumber');
+        $qb->where('agent.id IN (:agentIds)')->setParameter('agentIds', $agentIds);
+        $qb->andWhere("STR_TO_DATE(CONCAT(e.year, '-', e.month,'-01'), '%Y-%M-%d') >=:startDate")->setParameter('startDate', $startDate);
+        $qb->andWhere("STR_TO_DATE(CONCAT(e.year, '-', e.month,'-01'), '%Y-%M-%d') <=:endDate")->setParameter('endDate', $endDate);
+
+        $qb->groupBy( 'e.year', 'agent.id');
+        $results = $qb->getQuery()->getArrayResult();
+        $returnArray = [];
+
+        if($results){
+            foreach ($results as $result) {
+                $returnArray['year'][$result['year']] = $result['year'];
+                $returnArray['data'][$result['agentAutoId']][$result['year']] = $result;
+            }
+        }
+
+        return $returnArray;
+    }
+
+
 }

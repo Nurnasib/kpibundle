@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Mpdf\Mpdf;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -865,14 +866,16 @@ class KpiReportController extends AbstractController
         
         if ($request->query->get('pdf')){
 
-            // Configure Dompdf according to your needs
-            $pdfOptions = new Options();
-            $pdfOptions->set('defaultFont', 'Arial, sans-serif');
 
-            // Instantiate Dompdf with our options
-            $dompdf = new Dompdf($pdfOptions);
-
-            // Retrieve the HTML generated in our twig file
+            $mpdf = new Mpdf([
+                'tempDir' => __DIR__ . '/../../../../../public/temp',
+                'default_font_size' => 14,
+                'default_font' => 'SolaimanLipi',
+//    'autoScriptToLang' => true,
+                'autoLangToFont' => true,
+//                'autoVietnamese' => true,
+                'mode' => 'utf-8',
+            ]);
             $html = $this->renderView('@TerminalbdKpi/employeeboard/report/monthlySummeryReport-pdf.html.twig', [
                 'filterBy' => $filterBy,
                 'data' => $data,
@@ -881,21 +884,10 @@ class KpiReportController extends AbstractController
 
             ]);
 
-            // Load HTML to Dompdf
-            $dompdf->loadHtml($html);
-
-            // (Optional) Setup the paper size and orientation 'portrait' or 'landscape'
-            $dompdf->setPaper('A3', 'landscape');
-
-            // Render the HTML as PDF
-            $dompdf->render();
-
-            // Output the generated PDF to Browser (force download)
-            $fileName = $request->get('_route') . '-' . time();
-            $dompdf->stream($fileName . ".pdf", [
-                "Attachment" => true
-            ]);
-            die();
+            $mpdf->WriteHTML($html);
+            // render the pdf
+            $mpdf->Output(time().'_kpi_monthly_summery_report.pdf', 'D');
+            die;
         }
 
         return $this->render('@TerminalbdKpi/employeeboard/report/monthlySummeryReport.html.twig', [
