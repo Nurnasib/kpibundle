@@ -95,6 +95,73 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         return $data;
     }
 
+    public function allEmployeeBoardSummaryReport( $requestData )
+    {
+        $monthName  = isset( $requestData['month'] ) && $requestData['month'] != "" ? $requestData['month'] : date('F');
+        $year       = isset( $requestData['year'] ) && $requestData['year'] != "" ? $requestData['year'] : date('Y');
+//dd($monthName, $year, $requestData);
+        $qb = $this->createQueryBuilder('e');
+        $qb->join("e.employeeBoard", 'employeeBoard');
+        $qb->join('employeeBoard.employee', 'employee');
+        $qb->leftJoin( 'employee.lineManager', 'lineManager' );
+        $qb->leftJoin('employee.designation', 'designation');
+        $qb->leftJoin('employeeBoard.reportMode', 'reportMode');
+        $qb->join("e.parameter", 'parameter');
+        $qb->join("e.activity", 'activity');
+
+        $qb->select('parameter.name AS parameterName');
+        $qb->addSelect('SUM(e.actualMark) AS actualMark', 'SUM(e.mark) AS mark', 'SUM(e.selfMark) AS selfMark');
+        $qb->addSelect('activity.name AS activityName');
+        $qb->addSelect('employeeBoard.id AS employeeBoardId', 'employeeBoard.selfGrade', 'employeeBoard.grade');
+        $qb->addSelect('employee.id AS employeeAutoId', 'employee.name AS employeeName', 'employee.userId AS employeeUserId', 'employee.joiningDate');
+        $qb->addSelect('lineManager.name AS lineManagerName');
+        $qb->addSelect('reportMode.name AS reportModeName');
+        $qb->addSelect('designation.name AS designationName');
+
+        $qb->where('employeeBoard.status =:status')->setParameter('status', 1);
+
+        $qb->andWhere('employeeBoard.month = :month')->setParameter('month', $monthName);
+
+        $qb->andWhere('employeeBoard.year = :year')->setParameter('year', $year);
+
+
+        $qb->groupBy("activity.id");
+        $qb->addGroupBy("employeeBoard.id");
+
+        $results = $qb->getQuery()->getArrayResult();
+        $data = [];
+        foreach ($results as $result){
+            $selfMark = $result['selfMark'];
+            if ($result['parameterName'] === 'Core Responsibilities'){
+                $selfMark = $result['mark'];
+            }
+
+            $result['selfMark'] = $selfMark;
+            
+            $employeeInfo = array(
+                'id' => $result['employeeAutoId'],
+                'name' => $result['employeeName'],
+                'userId' => $result['employeeUserId'],
+                'joiningDate' => $result['joiningDate'],
+                'reportMode' => $result['reportModeName'],
+                'lineManagerName' => $result['lineManagerName'] ? $result['lineManagerName'] : '',
+                'designationName' => $result['designationName'] ? $result['designationName'] : '',
+                'selfGrade' => $result['selfGrade'],
+                'grade' => $result['grade'],
+            );
+                    
+            //board information
+            $data['board'][ $result['employeeBoardId'] ] = $employeeInfo;
+            
+            $data['records'][ $result['employeeBoardId'] ][ $result['parameterName'] ][] = $result;
+            
+            $data['total'][ $result['employeeBoardId'] ][] = $result;
+        }
+
+        return $data;
+
+    }
+
     public function insertMarkDistribution(EmployeeBoard $board, $parameters)
     {
         $em = $this->_em;

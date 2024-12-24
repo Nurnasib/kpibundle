@@ -1,0 +1,292 @@
+{% extends 'admin/layout.html.twig' %}
+{% block body_id 'kpi_domain_new' %}
+{% block body %}
+    <div class="pcoded-inner-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header hidden-print">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                        <li class="breadcrumb-item"> <a href="{{ path('kpi_employee_board') }}">  {{ 'KPI Employee Board'|trans }}</a></li>
+                        <li class="breadcrumb-item"> <a href="javascript:">{{ 'Employee KPI Summary'|trans }}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="card">
+                <div class="card-header">
+                    <h5>{{ 'KPI Summary Report '|trans }}</h5>
+                    <div class="card-header-right hidden-print">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
+{#                            <a href="{{ path('kpi_employee_board') }}" class="btn btn-sm gray-bg white-font"><i class="fa fa-th-list"></i>{{ 'KPI Board'|trans }}</a>#}
+{#                            <a href="{{ path('kpi_details_report',{'id':board.id}) }}" class="btn btn-sm green-bg white-font"><i class="fa fa-th-list"></i>{{ 'KPI Details'|trans }}</a>#}
+                            <a href="javascript:void(0)" onclick="window.print()" class="btn yellow-bg white-font"><i class="fa fa-print"></i> Print</a>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card">
+                <div class="portlet">
+{#                    <h5 class="hidden show-print">{{ 'KPI Summary Report'|trans }}</h5>#}
+
+                    {#<div class="portlet-title">
+                        <div class="caption">{{ 'KPI Summary for '|trans }}: {{ board.employee.name }} </div>
+                        <div class="btn-group float-right">
+                            <a href="{{ path('kpi_summary_report_print',{'id':board.id}) }}" target="_blank" class="btn yellow-bg white-font"><i class="fa fa-print"></i> Print</a>
+                        </div>
+                    </div>#}
+                      <div class="portlet-body form">
+                          <div class="row hidden-print">
+                              <div class="col-md-12">
+                                  <div class="col-md-6">
+                                      {{ form_start(form) }}
+                                      <table class="table table-striped table-bordered table-hover dataTable">
+                                          <thead class="thead-dark">
+                                          <tr role="row" class="filter">
+                                              <th colspan="2">
+                                                  {{ form_label(form.month, 'Month') }}
+                                                  {{ form_widget(form.month) }}
+                                              </th>
+
+                                              <th colspan="2">
+                                                  {{ form_label(form.year) }}
+                                                  {{ form_widget(form.year) }}
+                                              </th>
+
+                                              <th colspan="1">
+                                                  <div class="btn-group" style="margin-top: 25px">
+                                                      <button type="submit" name="search" class="btn btn-primary btn-sm"
+                                                              title="Search" value="search"><i
+                                                                  class="fa fa-search" aria-hidden="true"></i></button>
+
+                                                  </div>
+                                              </th>
+                                          </tr>
+                                          </thead>
+                                      </table>
+                                      {{ form_end(form) }}
+                                  </div>
+                              </div>
+
+                          </div>
+                        <div class="row form-body">
+
+                            <div class="portlet-body form">
+                                <div class="row form-body">
+                                    {# New format END #}
+                                    {#                                    {{ dump(entities) }}#}
+                                    {% if entities['records'] is defined and entities['records'] is not empty and entities is iterable %}
+
+                                        {% for boardId, boardEntities in entities['records'] %}
+
+                                            {% set employeeName = entities['board'][boardId]['name'] %}
+                                            {% set joiningDate = entities['board'][boardId]['joiningDate'] %}
+                                            {% set reportMode = entities['board'][boardId]['reportMode'] %}
+                                            {% set lineManagerName = entities['board'][boardId]['lineManagerName'] %}
+                                            {% set userId = entities['board'][boardId]['userId'] %}
+                                            {% set designationName = entities['board'][boardId]['designationName'] %}
+                                            {% set selfGrade = entities['board'][boardId]['selfGrade'] %}
+                                            {% set grade = entities['board'][boardId]['grade'] %}
+
+                                            {% set totalActualMark = entities['total'][boardId]|arraySumColWise('actualMark') %}
+                                            {% set totalObtainMark = entities['total'][boardId]|arraySumColWise('mark') %}
+                                            {% set totalSelfMark = entities['total'][boardId]|arraySumColWise('selfMark') %}
+
+                                            <table class="table table-striped table-bordered table-hover">
+                                                <thead class="thead-dark">
+                                                <tr>
+                                                    <th style="width: 70%" colspan="4">
+                                                        <ul class="header-info">
+                                                            <li>Name of the Employee: {{ employeeName }}</li>
+                                                            <li>Date of Joining: {{ joiningDate|date('d-m-Y') }}</li>
+                                                            <li>Line Manager: {{ lineManagerName }}</li>
+                                                            <li>Format: {{ reportMode|default('') }}</li>
+                                                        </ul>
+                                                    </th>
+                                                    <th style="width: 30%" colspan="4">
+                                                        <ul class="header-info">
+                                                            <li>Emp ID: {{ userId }}</li>
+                                                            <li>Designation: {{ designationName }}</li>
+                                                        </ul>
+                                                    </th>
+                                                </tr>
+
+                                                <tr>
+                                                    <th scope="col" style="width: 22%; text-align: center">{{ 'Parameter'|trans }}</th>
+                                                    <th scope="col">{{ 'Activity'|trans }}</th>
+                                                    <th scope="col" style="text-align: center">{{ 'Marks'|trans }}</th>
+                                                    <th scope="col" style="text-align: center">{{ 'Obtain Marks'|trans }}</th>
+                                                    <th scope="col" style="text-align: center">%</th>
+                                                    <th scope="col" style="text-align: center">{{ 'Grade'|trans }}</th>
+                                                    <th scope="col" style="text-align: center">{{ 'Self Mark'|trans }}</th>
+                                                    <th scope="col" style="text-align: center">{{ 'Self Grade'|trans }}</th>
+                                                </tr>
+                                                </thead>
+
+                                                <tbody>
+                                                {% for key, activities in boardEntities %}
+                                                    {% for activity in activities %}
+                                                        {% set markPercentage = (activity.mark * 100) / activity.actualMark %}
+                                                        <tr>
+                                                            {% if(loop.index==1) %}
+                                                                <td rowspan="{{ activities|length }}">{{ key }}</td>
+                                                            {% endif %}
+                                                            <td>{{ activity.activityName }}</td>
+                                                            <td>{{ activity.actualMark }}</td>
+                                                            <td>{{ activity.mark }}</td>
+                                                            <td>{{ markPercentage|number_format(2) }}</td>
+
+                                                            {% if (loop.parent.loop.first) and loop.first %}
+                                                                <td style="text-align: center; font-size: 35px; font-weight: 900" rowspan="{{ (boardEntities|multiArrayLength) + 1 }}">{{ grade }}</td>
+                                                            {% endif %}
+                                                            <td>
+                                                                {% if key is same as 'Core Responsibilities' %}
+                                                                    {{ activity.mark }}
+                                                                {% else %}
+                                                                    {{ activity.selfMark }}
+                                                                {% endif %}
+                                                            </td>
+                                                            {% if (loop.parent.loop.first) and loop.first %}
+                                                                <td style="text-align: center; font-size: 35px; font-weight: 900" rowspan="{{ (boardEntities|multiArrayLength) + 1 }}">{{ selfGrade }}</td>
+                                                            {% endif %}
+                                                        </tr>
+                                                    {% endfor %}
+                                                {% endfor %}
+{#                                                {{ dump(boardEntities) }}#}
+                                                <tr>
+                                                    <td colspan="2" align="right" style="padding-right: 100px"><b>All Total</b></td>
+                                                    <td><b>{{ totalActualMark|number_format(2) }}</b></td>
+                                                    <td><b>{{ totalObtainMark|number_format(2) }}</b></td>
+                                                    <td>
+                                                        <b>
+                                                            {% if totalActualMark > 0 %}
+                                                                {{ ((totalObtainMark * 100) / totalActualMark)|number_format(2) }}
+                                                            {% else %}
+                                                                0.00
+                                                            {% endif %}
+                                                        </b>
+                                                    </td>
+                                                    <td><b>{{ totalSelfMark|number_format(2) }}</b></td>
+                                                </tr>
+                                                </tbody>
+
+                                                <tfoot>
+                                                <tr>
+                                                    <th colspan="8" class="text-center" style="padding: 10px; font-weight: 700;">Grade (A=>80%, B+=75-79%,  B=70%-74%,  C=65%-70%,  D<65%)</th>
+                                                </tr>
+                                                </tfoot>
+                                            </table>
+
+
+                                        {% endfor %}
+
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                        </div>
+                      </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
+{% endblock %}
+ {% block cssBlock %}
+
+
+     <style>
+         @media print {
+             .card{
+                border: 0;
+                box-shadow: none;
+                margin: 0!important;
+             }
+
+         }
+         .activity li{
+
+         }
+         .activity li .attribute{
+
+         }
+         .activity li .attribute li .markDistribution{
+
+         }
+
+         .parameter{
+             position: relative;
+             border-left: 34px solid #369;
+             padding-left: 10px;
+             width: 50px;
+         }
+
+         .parameter span {
+             position: absolute;
+             top: 50%;
+             left: 30px;
+             background: none;
+             transform-origin: 0 0;
+             transform: rotate(-90deg);
+             width: 200px;
+         }
+
+
+         .attribute-markDistribution{
+             width: 220px;
+         }
+
+         .markDistribution{
+             padding-left: 15px;
+             width: 220px;
+         }
+         .markDistribution li{
+             margin-left: 0;
+             padding-left: 0;
+         }
+
+         .activity-name{
+             width: 120px;
+         }
+
+         .activity-attribute{
+             width: 220px;
+         }
+         .attribute-name{
+             width: 480px;
+         }
+         .attribute-mark{
+             width: 70px;
+         }
+         .attribute-score{
+             width: 70px;
+         }
+
+         .list-unstyled li {
+             color: #2b2e38;
+         }
+         ul.header-info {
+             margin: 0;
+             padding: 0;
+             display: flex;
+             flex-wrap: wrap;
+         }
+         ul.header-info li {
+             list-style: none;
+             width: 50%;
+         }
+     </style>
+
+     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+ {% endblock  %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+{% endblock  %}

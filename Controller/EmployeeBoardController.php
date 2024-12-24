@@ -44,6 +44,7 @@ use Terminalbd\KpiBundle\Entity\MarkChart;
 use Terminalbd\KpiBundle\Entity\SetupMatrix;
 use Terminalbd\KpiBundle\Form\EmployeeBoardFormType;
 use Terminalbd\KpiBundle\Form\KpiBoardSearchFilterFormType;
+use Terminalbd\KpiBundle\Form\KpiBoardSummeryReportFilterFormType;
 
 
 /**
@@ -513,6 +514,35 @@ class EmployeeBoardController extends AbstractController
             'totalObtainMark' => $totalObtainMark,
             'totalActualMark' => $totalActualMark,
             'totalSelfMark' => $totalSelfMark,
+        ]);
+
+    }
+    
+    /**
+     *
+     * @Route("/all-employee-report-summary", methods={"GET"}, name="kpi_all_employee_summary_report")
+     * @Security("is_granted('ROLE_USER')")
+     */
+    public function allEmployeeReportSummary( Request $request): Response
+    {
+
+        set_time_limit(0);
+        ini_set('memory_limit', '5000M');
+        
+        $form = $this->createForm(KpiBoardSummeryReportFilterFormType::class , null);
+        $form->handleRequest($request);
+        $marks = [];
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            
+            $marks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->allEmployeeBoardSummaryReport( $data );
+        }
+        
+        
+        return $this->render('@TerminalbdKpi/employeeboard/report/all-employee-summery/summary.html.twig', [
+//            'board' => $board,
+            'entities' => $marks,
+            'form' => $form->createView(),
         ]);
 
     }
