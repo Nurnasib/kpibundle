@@ -130,8 +130,12 @@
                                                            href="{{ path('kpi_summary_report', {id:teamMemberSummary[employeeId]['data'][month]['boardId']}) }}"><i
                                                                     class="feather icon-file"></i> Summary</a>
                                                         <a class="btn btn-mini blue-bg white-font" target="_blank"
-                                                           href="{% if 'custom' in teamMemberSummary[employeeId]['data'][month]['boardReportFormatSlug'] %} {{ path('kpi_report_sales_achievement_custom_format',{id:teamMemberSummary[employeeId]['data'][month]['boardId']}) }} {% else %} {{ path('kpi_report_sales_achievement',{id:teamMemberSummary[employeeId]['data'][month]['boardId']}) }} {% endif %}"><i
-                                                                    class="feather icon-file"></i> Achieve</a>
+                                                           href="{% if 'custom' in teamMemberSummary[employeeId]['data'][month]['boardReportFormatSlug'] %}
+                                                                        {{ path('kpi_report_sales_achievement_custom_format',{id:teamMemberSummary[employeeId]['data'][month]['boardId']}) }}
+                                                                    {% else %}
+                                                                        {{ path('kpi_report_sales_achievement',{id:teamMemberSummary[employeeId]['data'][month]['boardId']}) }}
+                                                                    {% endif %}">
+                                                            <i class="feather icon-file"></i> Achieve</a>
                                                     </div>
                                                 </td>
                                             </tr>

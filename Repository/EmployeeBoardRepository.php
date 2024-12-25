@@ -27,6 +27,20 @@ use function Doctrine\ORM\QueryBuilder;
  */
 class EmployeeBoardRepository extends EntityRepository
 {
+    
+    public function findByMonthYear( $month, $year)
+    {
+
+//        dd($month, $year);
+        
+        return $this->createQueryBuilder('s')
+            ->where('s.month = :month')
+            ->andWhere('s.year = :year')
+            ->setParameter('month', $month)
+            ->setParameter('year', $year)
+            ->getQuery()
+            ->getResult();
+    }
 
     public function getEmployeeBoardList(User $user)
     {

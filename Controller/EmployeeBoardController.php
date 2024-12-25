@@ -817,6 +817,145 @@ class EmployeeBoardController extends AbstractController
 
 
     /**
+     * @Security("is_granted('ROLE_USER')")
+     * @Route("/report-sales-achievement-all-employee/{mode}", defaults={"mode" = null}, methods={"GET"}, name="kpi_report_sales_achievement_all_employee")
+     * @param EmployeeBoard $board
+     * @param $mode
+     * @param Request $request
+     * @return Response
+     */
+    public function salesAchievementSummaryForAllEmployee( $mode, Request $request): Response
+    {
+        set_time_limit(0);
+        ini_set('memory_limit', '5000M');
+
+        $form = $this->createForm(KpiBoardSummeryReportFilterFormType::class , null);
+        $form->handleRequest($request);
+
+        $employeeBoards = null;
+
+        $employeeBoardsData = [];
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            $month = $data['month'] ? $data['month'] : date('F');
+
+            $year = $data['year'] ? $data['year'] : date('Y');
+
+
+            $employeeBoards = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findByMonthYear($month, $year);
+
+
+            /* @var $board EmployeeBoard */
+            foreach ($employeeBoards as $board){
+
+                //custom format
+                $reportMode = $board->getReportMode()->getSlug();
+                if (str_contains($reportMode, 'custom')) {
+
+                    $outstandingMark = 0;
+                    $docSaleMark = 0;
+                    $parameter = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(array('slug'=>'core-responsibilities','status'=>1));
+
+                    $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getKpiSummaryForFeedAndGrowth($board);
+
+                    $outstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->findBy(['employeeBoard' => $board]);
+                    $findOutstandingAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['slug' => 'outstanding-limit-vs-actual-feed']);
+                    if ($findOutstandingAttribute){
+                        $outstandingBoardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findOutstandingAttribute]);
+                        if ($outstandingBoardAttribute){
+                            $outstandingMark = $outstandingBoardAttribute->getMark();
+                        }
+                    }
+
+                    $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->findBy(['employeeBoard' => $board]);
+                    $findDocSaleAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['slug' => 'doc-sales-collection']);
+
+                    if ($findDocSaleAttribute){
+                        $docSaleBoardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findDocSaleAttribute]);
+                        if ($docSaleBoardAttribute){
+                            $docSaleMark = $docSaleBoardAttribute->getMark();
+                        }
+                    }
+
+
+                    $findAgentUpgradeAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['slug' => 'agent-upgradation']);
+
+                    $agentUpgradation = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board,'attribute' => $findAgentUpgradeAttribute]);
+
+
+                    $employeeBoardsData[ $board->getEmployee()->getId() ] = [
+                        'board' => $board,
+                        'feedAndGrowth' => $feedAndGrowth,
+                        'outstanding' => $outstanding,
+                        'outstandingMark' => $outstandingMark,
+                        'docSale' => $docSale,
+                        'docSaleMark' => $docSaleMark,
+                        'agentUpgradation' => $agentUpgradation,
+                    ];
+
+                } else {
+
+                    $districtHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'month' => $board->getMonth(), 'year' => $board->getYear()]);
+                    $districts = $districtHistory ? $districtHistory->getDistrict() : '';
+                    $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
+
+                    $employee = $board->getEmployee();
+
+                    $getEmployeesByLineManager = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->getTeamMembers($employee, $board->getMonth(), $board->getYear());
+
+                    $employeeArrs = [];
+                    foreach ($getEmployeesByLineManager as $childEmployee){
+                        if(!empty($childEmployee)){
+                            $employeeArrs[] = $childEmployee->getEmployee()->getId();
+                        }
+                    }
+
+                    $parameter = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(array('slug'=>'core-responsibilities','status'=>1));
+
+                    $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardSubAttribute::class)->getKpiSummaryForFeedAndGrowth($board);
+
+                    $outstanding = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getLocationWiseOutstanding($districtsId, $board);
+                    $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getLocationWiseDocSales($districtsId, $board);
+
+                    $individualTeamMemberMarks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getIndividualTeamMemberMarks($employeeArrs, $parameter, $board);
+
+                    $dCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithDcategory($board, $districtsId);
+
+                    $cCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithCcategory($board, $districtsId);
+
+                    $agentUpgradationDetails = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentUpgradation($board, $districtsId);
+
+                    $employeeBoardsData[ $board->getEmployee()->getId() ] = [
+                        'board' => $board,
+                        'feedAndGrowth' => $feedAndGrowth,
+                        'outstanding' => $outstanding,
+                        'dCategoryUpgrade' => $dCategoryUpgrade,
+                        'cCategoryUpgrade' => $cCategoryUpgrade,
+                        'agentUpgradationDetails' => $agentUpgradationDetails,
+                        'docSale' => $docSale,
+                        'individualTeamMemberMarks' => $individualTeamMemberMarks,
+                    ];
+
+                }
+
+            }
+
+        }
+
+        
+        return $this->render('@TerminalbdKpi/employeeboard/report/all-employee-summery/salesDetailsForAllEmployee.html.twig', [
+            'boards' => $employeeBoards,
+            'employeeBoardsData' => $employeeBoardsData,
+            'form' => $form->createView(),
+        ]);        
+        
+        
+
+
+    }
+    /**
      * @Route("/{id}/approve", methods={"GET"}, name="kpi_approve")
      * @param EmployeeBoard $board
      * @return Response
