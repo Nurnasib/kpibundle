@@ -1,0 +1,184 @@
+{% extends 'admin/layout.html.twig' %}
+{% block body_id 'kpi_domain_new' %}
+{% block body %}
+    {#    {{ dump(board.employee.reportMode.slug) }}#}
+    <div class="pcoded-inner-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header hidden-print">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                        <li class="breadcrumb-item"><a
+                                    href="{{ path('kpi_employee_board') }}">  {{ 'KPI Employee Board'|trans }}</a></li>
+                        <li class="breadcrumb-item"><a href="javascript:">{{ 'Employee KPI Summary'|trans }}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="card">
+                <div class="card-header">
+                    <h5>{{ 'KPI Achievement'|trans }}</h5>
+                    <div class="card-header-right hidden-print">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
+                            {% if boards is defined and boards is not empty %}
+                                <a href="javascript:void(0)" onclick="window.print()" class="btn yellow-bg white-font"><i class="fa fa-print"></i> Print</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card">
+
+                <div class="row hidden-print">
+                    <div class="col-md-12">
+                        <div class="col-md-6">
+                            {{ form_start(form) }}
+                            <table class="table table-striped table-bordered table-hover dataTable">
+                                <thead class="thead-dark">
+                                <tr role="row" class="filter">
+                                    <th colspan="2">
+                                        {{ form_label(form.month, 'Month') }}
+                                        {{ form_widget(form.month) }}
+                                    </th>
+
+                                    <th colspan="2">
+                                        {{ form_label(form.year) }}
+                                        {{ form_widget(form.year) }}
+                                    </th>
+
+                                    <th colspan="1">
+                                        <div class="btn-group" style="margin-top: 25px">
+                                            <button type="submit" name="search" class="btn btn-primary btn-sm"
+                                                    title="Search" value="search"><i
+                                                        class="fa fa-search" aria-hidden="true"></i></button>
+
+                                        </div>
+                                    </th>
+                                </tr>
+                                </thead>
+                            </table>
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
+
+                </div>
+
+                {% if boards is defined and boards is not empty %}
+
+                    {% for board in boards %}
+{#                        custom format#}
+                        {% if 'custom' in board.reportMode.slug %}
+                            {% include '@TerminalbdKpi/employeeboard/report/all-employee-summery/partial/custom.html.twig' %}
+                        {% else %}
+                            {% include '@TerminalbdKpi/employeeboard/report/all-employee-summery/partial/regular.html.twig' %}
+                        {% endif %}
+                        <div class="page-break"></div>
+                    {% endfor %}
+
+                {% endif %}
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
+{% endblock %}
+ {% block cssBlock %}
+    {{ parent() }}
+     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+
+     <style>
+         .activity li {
+
+         }
+
+         .activity li .attribute {
+
+         }
+
+         .activity li .attribute li .markDistribution {
+
+         }
+
+         .parameter {
+             position: relative;
+             border-left: 34px solid #369;
+             padding-left: 10px;
+             width: 50px;
+         }
+
+         .parameter span {
+             position: absolute;
+             top: 50%;
+             left: 30px;
+             background: none;
+             transform-origin: 0 0;
+             transform: rotate(-90deg);
+             width: 200px;
+         }
+
+
+         .attribute-markDistribution {
+             width: 220px;
+         }
+
+         .markDistribution {
+             padding-left: 15px;
+             width: 220px;
+         }
+
+         .markDistribution li {
+             margin-left: 0;
+             padding-left: 0;
+         }
+
+         .activity-name {
+             width: 120px;
+         }
+
+         .activity-attribute {
+             width: 220px;
+         }
+
+         .attribute-name {
+             width: 480px;
+         }
+
+         .attribute-mark {
+             width: 70px;
+         }
+
+         .attribute-score {
+             width: 70px;
+         }
+
+         @media print {
+
+                .page-break {
+                    page-break-after: always!important;
+                }
+
+             .h5{
+                 color: #000000 !important;
+             }
+             .text-white {
+                 color: #000000 !important;
+             }
+             .caption{
+                 color: #000000 !important;
+             }
+             .portlet.box.green>.portlet-title, .portlet.green, .portlet>.portlet-body.green {
+                 background-color: #000000 !important;
+             }
+         }
+     </style>
+
+ {% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+{% endblock %}

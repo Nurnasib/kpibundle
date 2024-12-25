@@ -1,0 +1,137 @@
+<div class="portlet">
+    <div class="portlet-body form text-dark">
+        <div class="row form-body">
+            <div class="form-inner-no-space">
+
+                <table width="100%" class="mb-2 employee-details">
+                    <thead>
+                    <tr>
+                        <td><b>{{ 'Employee Name:'|trans }}</b> {{ board.employee.name }}</td>
+                        <td><b>{{ 'Designation:'|trans }}</b> {{ board.employee.designation.name }}</td>
+                        <td><b>{{ 'Format:'|trans }}</b> {{ board.reportMode.name|default('') }}</td>
+                    </tr>
+                    <tr>
+                        <td><b>{{ 'Employee Id:'|trans }}</b> {{ board.employee.userId }}</td>
+
+                        <td><b>{{ 'Month & Year:'|trans }}</b> {{ board.month }},{{ board.year }}</td>
+                        <td></td>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+            {% if employeeBoardsData[board.employee.id]['feedAndGrowth'] is not empty %}
+                {% for key, item in employeeBoardsData[board.employee.id]['feedAndGrowth']|ksort %}
+                    <h5 class="bg-secondary p-1 text-white h5 w-100">{{ key == 'feed' ? 'Sales Feed Achivement' : 'Product Sales Growth' }}</h5>
+                    <table class="table table-striped table-bordered table-hover" id="datatable">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">{{ 'Mark Parameter'|trans }}</th>
+                            <th scope="col"
+                                width="20%">{{ key == 'feed' ? 'Target Quantity' : 'Previous Year' }}</th>
+                            <th scope="col" width="20%">{{ 'Sales Quantity'|trans }}</th>
+                            <th scope="col" width="20%">{{ 'Percentage'|trans }}</th>
+                            <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% if item is not empty %}
+                            {% for attribute in item %}
+                                <tr>
+                                    <td>{{ attribute.markParameter|default('') }}</td>
+                                    <td>{{ attribute.targetQuantity|default('') }}</td>
+                                    <td>{{ attribute.salesQuantity|default('') }}</td>
+                                    <td>{{ attribute.percentage|number_format(2) }} %</td>
+                                    <td>{{ attribute.mark|default('') }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="10" align="center">{{ 'No record found!'|trans }}</td>
+                            </tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                {% endfor %}
+            {% endif %}
+            <h5 class="h5 bg-secondary p-1 text-white w-100">{{ 'Outstanding'|trans }}</h5>
+            <table class="table table-striped table-bordered table-hover">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col" width="20%">{{ 'Total Actual Amount'|trans }}</th>
+                    <th scope="col" width="20%">{{ 'Total Limit Amount'|trans }}</th>
+                    <th scope="col" width="20%">{{ 'Outstanding'|trans }}</th>
+                    <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if employeeBoardsData[board.employee.id]['outstanding'] is not empty %}
+                    {% for record in employeeBoardsData[board.employee.id]['outstanding'] %}
+                        <tr>
+                            <td>{{ record.actualAmount|number_format(2,'.',',')|default() }}</td>
+                            <td>{{ record.limitAmount|number_format(2,'.',',')|default() }}</td>
+                            <td>{{ record.outstanding|number_format(2,'.')|default() }}</td>
+                            <td>{{ employeeBoardsData[board.employee.id]['outstandingMark']|default() }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" align="center">{{ 'No record found!'|trans }}</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+
+            <h5 class="h5 bg-secondary p-1 text-white w-100">{{ 'DOC sales collection'|trans }}</h5>
+            <table class="table table-striped table-bordered table-hover">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col" width="20%">{{ 'Total Sales Amount'|trans }}</th>
+                    <th scope="col" width="20%">{{ 'Total Collection Amount'|trans }}</th>
+                    <th scope="col" width="10%">{{ 'Percentage'|trans }}</th>
+                    <th scope="col" width="10%">{{ 'Marks'|trans }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if employeeBoardsData[board.employee.id]['docSale'] is not empty %}
+                    {% for record in employeeBoardsData[board.employee.id]['docSale'] %}
+                        <tr>
+                            <td>{{ record.sales|number_format(2,'.', ',')|default() }}</td>
+                            <td>{{ record.collection|number_format(2,'.',',')|default() }}</td>
+                            <td>
+                                {% if record.sales > 0 %}
+                                    {{ (record.collection * 100) / record.sales }} %
+                                {% endif %}
+                            </td>
+                            <td>{{ employeeBoardsData[board.employee.id]['docSaleMark']|default(0) }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" align="center">{{ 'No record found!'|trans }}</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+
+            <h5 class="h5 bg-secondary p-1 text-white w-100">{{ 'Agent Upgradation'|trans }}</h5>
+            <table class="table table-striped table-bordered table-hover" style="margin-top: 0 !important;">
+                <thead class="thead-dark">
+                <tr>
+                    <th>
+                        {{ 'Total Agent:'|trans }}
+                        {% if employeeBoardsData[board.employee.id]['agentUpgradation'] is defined and employeeBoardsData[board.employee.id]['agentUpgradation'] is not empty %}{{ employeeBoardsData[board.employee.id]['agentUpgradation'].targetAmount|default(0) }}{% endif %}
+                    </th>
+                    <th>
+                        {{ 'Total Growth Agent:'|trans }}
+                        {% if employeeBoardsData[board.employee.id]['agentUpgradation'] is defined and employeeBoardsData[board.employee.id]['agentUpgradation'] is not empty %}{{ employeeBoardsData[board.employee.id]['agentUpgradation'].targetAchievement|default(0) }}{% endif %}
+                    </th>
+                    <th>
+                        {{ 'Growth Agent percentage:'|trans }}
+                        {% if employeeBoardsData[board.employee.id]['agentUpgradation'] is defined and employeeBoardsData[board.employee.id]['agentUpgradation'] is not empty %}{{ employeeBoardsData[board.employee.id]['agentUpgradation'].targetAmount > 0 ? ((( employeeBoardsData[board.employee.id]['agentUpgradation'].targetAchievement * 100) / employeeBoardsData[board.employee.id]['agentUpgradation'].targetAmount)|number_format(2)) : 0 }} % {% endif %}
+                    </th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
