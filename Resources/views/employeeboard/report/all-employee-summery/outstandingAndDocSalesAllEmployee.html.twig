@@ -1,0 +1,277 @@
+{% extends 'admin/layout.html.twig' %}
+{% block body_id 'kpi_domain_new' %}
+{% block body %}
+    {#    {{ dump(board.employee.reportMode.slug) }}#}
+    <div class="pcoded-inner-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header hidden-print">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                        <li class="breadcrumb-item"><a
+                                    href="{{ path('kpi_employee_board') }}">  {{ 'KPI Employee Board'|trans }}</a></li>
+                        <li class="breadcrumb-item"><a href="javascript:">{{ 'Employee Outstanding and Doc Sales'|trans }}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="card">
+                <div class="card-header">
+                    <h5>{{ 'KPI Outstanding and DOC Sales'|trans }}</h5>
+                    <div class="card-header-right hidden-print">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
+                            {% if employeeInfo is defined and employeeInfo['employeeInfo'] is defined and employeeInfo['employeeInfo'] is not empty %}
+                                <a href="javascript:void(0)" onclick="window.print()" class="btn yellow-bg white-font"><i class="fa fa-print"></i> Print</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card">
+
+                <div class="row hidden-print">
+                    <div class="col-md-12">
+                        <div class="col-md-4">
+                            {{ form_start(form) }}
+                            <table class="table table-striped table-bordered table-hover dataTable">
+                                <thead class="thead-dark">
+                                <tr role="row" class="filter">
+                                    <th colspan="2">
+                                        {{ form_label(form.year) }}
+                                        {{ form_widget(form.year) }}
+                                    </th>
+
+                                    <th colspan="1">
+                                        <div class="btn-group" style="margin-top: 25px">
+                                            <button type="submit" name="search" class="btn btn-primary btn-sm"
+                                                    title="Search" value="search"><i
+                                                        class="fa fa-search" aria-hidden="true"></i></button>
+
+                                        </div>
+                                    </th>
+                                </tr>
+                                </thead>
+                            </table>
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="portlet">
+                    <div class="portlet-body form text-dark">
+                        <div class="row form-body">
+                            <div class="col-md-12">
+                                <table class="table table-striped table-bordered table-hover">
+                                    <thead class="thead-dark">
+
+                                    <tr>
+                                        <th colspan="3">Employee</th>
+                                        <th rowspan="2">Month</th>
+                                        <th colspan="4">Outstanding</th>
+                                        <th colspan="4">DOC sales collection</th>
+                                    </tr>
+
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Designation</th>
+
+                                        <th>Total Outstanding</th>
+                                        <th>Total Limit Amount</th>
+                                        <th>Usage/Outstanding</th>
+                                        <th>Marks</th>
+
+                                        <th>Total Sales Amount</th>
+                                        <th>Total Collection Amount</th>
+                                        <th>Percentage</th>
+                                        <th>Marks</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% if employeeBoardsData['records'] is defined and employeeBoardsData['records'] is not empty %}
+
+                                        {% for employeeAutoId, employeeData in employeeBoardsData['records'] %}
+
+                                            {% set employeeName = employeeInfo['employeeInfo'][employeeAutoId]['employeeName'] %}
+                                            {% set employeeId = employeeInfo['employeeInfo'][employeeAutoId]['employeeId'] %}
+                                            {% set designationName = employeeInfo['employeeInfo'][employeeAutoId]['designationName'] %}
+
+                                            {% set count = 0 %}
+                                            {% for monthName, records in employeeData %}
+
+                                                {% set actualAmount = records['outstanding'][monthName]['actualAmount']|default(0) %}
+                                                {% set limitAmount = records['outstanding'][monthName]['limitAmount']|default(0) %}
+                                                {% set outstanding = records['outstanding'][monthName]['outstanding']|default(0) %}
+                                                {% set mark = records['outstanding']['mark']|default(0) %}
+                                                {% set reportFormatSlug = records['reportFormatSlug'] %}
+                                                {% set outstandingMark = records['outstandingMark']|default(0) %}
+                                                {% set boardId = records['boardId'] %}
+
+                                                {% set docSale = records['docSale'] %}
+                                                {% set totalSalesAmount = docSale[monthName]['salesAmount']|default(0) %}
+                                                {% set totalCollectionAmount = docSale[monthName]['collectionAmount']|default(0) %}
+                                                {% set docSaleMark = records['docSaleMark']|default(0) %}
+
+                                                {#                                                    {% set percentage = docSale['percentage']|default(0) %}#}
+                                                {#                                                    {% set docSaleMark = docSale['mark']|default(0) %}#}
+
+                                                <tr>
+                                                    {% if count == 0 %}
+                                                    <td rowspan="{{ employeeData|length }}">
+                                                        {{ employeeId }}
+                                                        {#                                                            {{  reportFormatSlug }} {{ boardId }}#}
+                                                    </td>
+                                                    <td rowspan="{{ employeeData|length }}">{{ employeeName }}</td>
+                                                    <td rowspan="{{ employeeData|length }}">{{ designationName }}</td>
+                                                    {% endif %}
+                                                    <td>{{ monthName }}</td>
+                                                    <td>{{ actualAmount|number_format(0) }}</td>
+                                                    <td>{{ limitAmount|number_format(0) }}</td>
+                                                    <td>{{ outstanding|number_format(0) }}</td>
+                                                    {% if 'custom' in reportFormatSlug %}
+                                                        <td>{{ outstandingMark }}</td>
+                                                    {% else %}
+                                                        <td>{{ mark }}</td>
+
+                                                    {% endif %}
+
+                                                    <td>{{ totalSalesAmount|number_format(0) }}</td>
+                                                    <td>{{ totalCollectionAmount|number_format(0) }}</td>
+                                                    <td>
+                                                        {% if totalCollectionAmount != 0 %}
+                                                            {{ ((totalSalesAmount * 100) / totalCollectionAmount)|number_format(2,'.', ',')|default(0) }} %
+                                                        {% else %}
+                                                            0.00%
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>{{ docSaleMark }}</td>
+                                                </tr>
+
+                                                {% set count = count + 1 %}
+
+
+                                            {% endfor %}
+
+                                        {% endfor %}
+
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="15" align="center">{{ 'No record found!'|trans }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="page-break"></div>
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
+{% endblock %}
+ {% block cssBlock %}
+    {{ parent() }}
+     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+
+     <style>
+         .activity li {
+
+         }
+
+         .activity li .attribute {
+
+         }
+
+         .activity li .attribute li .markDistribution {
+
+         }
+
+         .parameter {
+             position: relative;
+             border-left: 34px solid #369;
+             padding-left: 10px;
+             width: 50px;
+         }
+
+         .parameter span {
+             position: absolute;
+             top: 50%;
+             left: 30px;
+             background: none;
+             transform-origin: 0 0;
+             transform: rotate(-90deg);
+             width: 200px;
+         }
+
+
+         .attribute-markDistribution {
+             width: 220px;
+         }
+
+         .markDistribution {
+             padding-left: 15px;
+             width: 220px;
+         }
+
+         .markDistribution li {
+             margin-left: 0;
+             padding-left: 0;
+         }
+
+         .activity-name {
+             width: 120px;
+         }
+
+         .activity-attribute {
+             width: 220px;
+         }
+
+         .attribute-name {
+             width: 480px;
+         }
+
+         .attribute-mark {
+             width: 70px;
+         }
+
+         .attribute-score {
+             width: 70px;
+         }
+
+         @media print {
+
+                .page-break {
+                    page-break-after: always!important;
+                }
+
+             .h5{
+                 color: #000000 !important;
+             }
+             .text-white {
+                 color: #000000 !important;
+             }
+             .caption{
+                 color: #000000 !important;
+             }
+             .portlet.box.green>.portlet-title, .portlet.green, .portlet>.portlet-body.green {
+                 background-color: #000000 !important;
+             }
+         }
+     </style>
+
+ {% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+{% endblock %}

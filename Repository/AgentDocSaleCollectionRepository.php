@@ -94,6 +94,7 @@ class AgentDocSaleCollectionRepository extends EntityRepository
         $result = $qb->getQuery()->getOneOrNullResult();
         return $result;
     }
+    
     public function getLocationWiseDocSales($locations, EmployeeBoard $board)
     {
         $em = $this->_em;

@@ -4,15 +4,16 @@
         <li><a class="dropdown-item" href="{{ path('kpi_statistics_index') }}">{{ 'KPI Statistics'|trans }}</a></li>
     {% endif %}
 
-    {% if is_granted("ROLE_KPI_ADMIN") or is_granted("ROLE_LINE_MANAGER") or is_granted("ROLE_DEVELOPER") %}
+    {% if is_granted("ROLE_KPI_ADMIN") or is_granted("ROLE_LINE_MANAGER") or is_granted("ROLE_DEVELOPER") or is_granted("ROLE_KPI_REPORT_ADMIN") %}
         <li><a class="dropdown-item" href="javascript:">{{ 'Report'|trans }}</a>
             <ul>
                 <li><a class="dropdown-item" href="{{ path('monthly_generated_kpi_status') }}">{{ 'KPI Status'|trans }}</a></li>
                 <li><a class="dropdown-item" href="{{ path('all_team_member_summary') }}">{{ 'All Employee KPI'|trans }}</a></li>
                 <li><a class="dropdown-item" href="{{ path('kpi_all_employee_summary_report') }}">{{ 'Employees KPI Summery'|trans }}</a></li>
 
-                {% if is_granted("ROLE_DEVELOPER") %}
+                {% if is_granted("ROLE_DEVELOPER") or is_granted("ROLE_KPI_REPORT_ADMIN") %}
                     <li><a class="dropdown-item" href="{{ path('kpi_report_sales_achievement_all_employee') }}">{{ 'Employees KPI Achievement'|trans }}</a></li>
+                    <li><a class="dropdown-item" href="{{ path('kpi_report_outstanding_and_doc_sales_all_employee') }}">{{ 'Employees Outstanding and Doc Sales'|trans }}</a></li>
                 {% endif %}
 
                 <li><a class="dropdown-item" href="{{ path('team_member_summary') }}">{{ 'Employee Monthly KPI'|trans }}</a></li>

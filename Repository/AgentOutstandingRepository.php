@@ -163,6 +163,27 @@ class AgentOutstandingRepository extends EntityRepository
         return $data;
     }
 
+
+
+    public function getMarksByBoard( $board )
+    {
+        $em = $this->_em;
+        
+        if ($board->getEmployee()->getReportMode()->getSlug() == 'agm-kpi'){
+            $outstandingSlug = 'agm-outstanding-limit-vs-actual-feed';
+        }elseif ($board->getEmployee()->getReportMode()->getSlug() == 'rsm-arsm-kpi'){
+            $outstandingSlug = 'rsm-outstanding-limit-vs-actual-feed';
+        }else{
+            $outstandingSlug = 'outstanding-limit-vs-actual-feed';
+        }
+        $outstandingDistribution = $em->getRepository(MarkChart::class)->findOneBy(array('slug' => $outstandingSlug));
+        $employeeBoardAttributeForOutStandingLimit = $em->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $outstandingDistribution]);
+        $data = $employeeBoardAttributeForOutStandingLimit ? (int)$employeeBoardAttributeForOutStandingLimit->getMark() : 0;
+        
+        return $data;
+
+    }
+
     public function getMonthYearOutstanding($monthYear, $agentId, $districtId)
     {
         $year = isset($monthYear['year']) ? $monthYear['year']:'';

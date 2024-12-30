@@ -817,7 +817,7 @@ class EmployeeBoardController extends AbstractController
 
 
     /**
-     * @Security("is_granted('ROLE_USER')")
+     * @Security("is_granted('ROLE_KPI_REPORT_ADMIN') or is_granted('ROLE_DEVELOPER')")
      * @Route("/report-sales-achievement-all-employee/{mode}", defaults={"mode" = null}, methods={"GET"}, name="kpi_report_sales_achievement_all_employee")
      * @param EmployeeBoard $board
      * @param $mode
@@ -944,14 +944,163 @@ class EmployeeBoardController extends AbstractController
 
         }
 
-        
         return $this->render('@TerminalbdKpi/employeeboard/report/all-employee-summery/salesDetailsForAllEmployee.html.twig', [
             'boards' => $employeeBoards,
             'employeeBoardsData' => $employeeBoardsData,
             'form' => $form->createView(),
         ]);        
-        
-        
+
+    }
+
+    /**
+     * @Security("is_granted('ROLE_KPI_REPORT_ADMIN') or is_granted('ROLE_DEVELOPER')")
+     * @Route("/report-outstanding-and-doc-sales-all-employee", methods={"GET"}, name="kpi_report_outstanding_and_doc_sales_all_employee")
+     * @param EmployeeBoard $board
+     * @param $mode
+     * @param Request $request
+     * @return Response
+     */
+    public function salesOutstandingAndDocSalesForAllEmployee( Request $request): Response
+    {
+        set_time_limit(0);
+        ini_set('memory_limit', '5000M');
+
+        $form = $this->createForm(KpiBoardSummeryReportFilterFormType::class , null);
+
+        $form->remove('month');
+        $form->handleRequest($request);
+
+        $employeeInfo = [];
+
+        $employeeBoardsData = [];
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            $year = $data['year'] ? $data['year'] : date('Y');
+
+
+            $employeeBoards = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findByYear( $year );
+            $parameter = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(array('slug'=>'core-responsibilities','status'=>1));
+            $findOutstandingAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['slug' => 'outstanding-limit-vs-actual-feed']);
+            $findDocSaleAttribute = $this->getDoctrine()->getRepository(MarkChart::class)->findOneBy(['slug' => 'doc-sales-collection']);
+
+            /* @var $board EmployeeBoard */
+            foreach ($employeeBoards as $board){
+
+                $employeeInfo['employeeInfo'][ $board->getEmployee()->getId() ] = [
+                    'employeeName' => $board->getEmployee()->getName(),
+                    'employeeId' => $board->getEmployee()->getUserId(),
+                    'lineManagerName' => $board->getEmployee()->getLineManager() ? $board->getEmployee()->getLineManager()->getName() : '',
+                    'designationName' => $board->getEmployee()->getDesignation() ? $board->getEmployee()->getDesignation()->getName() : '',
+                ];
+
+                $reportFormatName = $board->getReportMode()->getName();
+                //custom format
+                $reportMode = $board->getReportMode()->getSlug();
+                if (str_contains($reportMode, 'custom')) {
+
+                    $outstandingMark = 0;
+                    $docSaleMark = 0;
+
+                    $outstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->findBy(['employeeBoard' => $board]);
+                    $outstandingArray = [];
+                    foreach ( $outstanding as $outstandingItem ){
+                        $outstandingArray[ $outstandingItem->getEmployeeBoard()->getMonth() ] = [
+                            "actualAmount" => $outstandingItem->getActualAmount(),
+                            "limitAmount" => $outstandingItem->getLimitAmount(),
+                            "outstanding" => $outstandingItem->getOutstanding(),
+                        ];
+                    }
+
+                    if ( $findOutstandingAttribute ){
+                        $outstandingBoardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findOutstandingAttribute]);
+                        if ( $outstandingBoardAttribute ){
+                            $outstandingMark = $outstandingBoardAttribute->getMark();
+                        }
+                    }
+                    
+                    $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->findBy(['employeeBoard' => $board]);
+
+                    $docSaleArray = [];
+
+                    if($docSale){
+                        foreach ( $docSale as $docSaleItem ){
+                            $docSaleArray[ $docSaleItem->getEmployeeBoard()->getMonth() ] = [
+                                "salesAmount" => $docSaleItem->getSales(),
+                                "collectionAmount" => $docSaleItem->getCollection(),
+                            ];
+                        }
+                    }
+                    
+                    if ($findDocSaleAttribute){
+                        $docSaleBoardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findDocSaleAttribute]);
+                        if ($docSaleBoardAttribute){
+                            $docSaleMark = $docSaleBoardAttribute->getMark();
+                        }
+                    }
+
+
+                    $employeeBoardsData['records'][ $board->getEmployee()->getId() ][ $board->getMonth() ] = [
+                        'boardId' => $board->getId(),
+                        'outstanding' => $outstandingArray,
+                        'outstandingMark' => $outstandingMark,
+                        'docSale' => $docSaleArray,
+                        'docSaleMark' => $docSaleMark,
+                        'reportFormatName' => $reportFormatName,
+                        'reportFormatSlug' => $reportMode,
+                    ];
+
+                } else {
+
+                    $docSaleMark = 0;
+
+                    $districtHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy( [
+                        'employee' => $board->getEmployee(),
+                        'month' => $board->getMonth(),
+                        'year' => $board->getYear()
+                    ] );
+
+                    $districts = $districtHistory ? $districtHistory->getDistrict() : '';
+                    $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
+
+                    $outstanding = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getMonthYearDistrictsWiseOutstanding($districtsId, $board->getYear(), $board->getMonth());
+                    $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getMonthYearDistrictsWiseDocSales($districtsId, $board->getYear(), $board->getMonth());
+                    
+                    $mark = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getMarksByBoard( $board );
+
+                    $outstanding['mark'] = $mark;
+
+                    if ($findDocSaleAttribute){
+                        $docSaleBoardAttribute = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->findOneBy(['employeeBoard' => $board, 'attribute' => $findDocSaleAttribute]);
+                        if ($docSaleBoardAttribute){
+                            $docSaleMark = $docSaleBoardAttribute->getMark();
+                        }
+                    }
+                    
+                    $employeeBoardsData['records'][ $board->getEmployee()->getId() ][ $board->getMonth() ] = [
+                        'boardId' => $board->getId(),
+                        'outstanding' => $outstanding,
+                        'docSale' => $docSale,
+                        'docSaleMark' => $docSaleMark,
+                        'reportFormatName' => $reportFormatName,
+                        'reportFormatSlug' => $reportMode,
+                    ];
+
+                }
+
+            }
+
+        }
+
+
+        return $this->render('@TerminalbdKpi/employeeboard/report/all-employee-summery/outstandingAndDocSalesAllEmployee.html.twig', [
+            'employeeInfo' => $employeeInfo,
+            'employeeBoardsData' => $employeeBoardsData,
+            'form' => $form->createView(),
+        ]);
+
+
 
 
     }
