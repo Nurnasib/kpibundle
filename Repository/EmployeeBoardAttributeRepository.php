@@ -1599,9 +1599,9 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     $returnValue[$growthSlug] = 13;
                 } elseif ($action < 15 and $action >= 10){
                     $returnValue[$growthSlug] = 12;
-                } elseif ($action < 10 and $action >= 6){
+                } elseif ($action < 10 and $action >= 5){
                     $returnValue[$growthSlug] = 6;
-                } elseif ($action < 6 and $action > 0){
+                } elseif ($action < 5 and $action >= 0.5){
                     $returnValue[$growthSlug] = 1;
                 } else {
                     $returnValue[$growthSlug] = 0;
