@@ -1,0 +1,185 @@
+{% extends 'admin/layout.html.twig' %}
+{% block body_id 'kpi_domain_new' %}
+{% block body %}
+    <div class="pcoded-inner-content">
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="card mb-1">
+                <div class="card-header p-2">
+                    <h5>{{ 'KPI Team Member Summary (with Target) for '|trans }}: {{ app.user.name }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card mb-3">
+                <div class="card-body p-2">
+                    <div class="col-md-10 offset-1">
+                        {{ form_start(form) }}
+                        <table class="table table-striped table-bordered table-hover dataTable">
+                            <thead class="thead-dark">
+                            <tr role="row" class="filter">
+                                <th colspan="2">
+                                    {{ form_label(form.startMonth, 'Start Month') }}
+                                    {{ form_widget(form.startMonth) }}
+                                </th>
+                                <th colspan="2">
+                                    {{ form_label(form.endMonth, 'End Month') }}
+                                    {{ form_widget(form.endMonth) }}
+                                </th>
+                                <th colspan="2">
+                                    {{ form_label(form.kpiFormat, 'KPI Format') }}
+                                    {{ form_widget(form.kpiFormat) }}
+                                </th>
+                                <th colspan="2">
+                                    {{ form_label(form.year) }}
+                                    {{ form_widget(form.year) }}
+                                </th>
+
+                                <th colspan="1">
+                                    <div class="btn-group" style="margin-top: 25px">
+                                        <button type="submit" name="search" class="btn btn-primary btn-sm"
+                                                title="Search" value="search"><i
+                                                    class="fa fa-search" aria-hidden="true"></i></button>
+                                        <a href="{{ path('all_team_member_summary_with_target') }}"
+                                           class="btn purple-bg btn-sm white-font" title="Reset" value="reset"><i
+                                                    class="fa fa-refresh" aria-hidden="true"></i></a>
+                                        <button type="submit" name="excel" value="excel" target="_blank" title="Excel" id="button-excel"
+                                                class="btn green-bg white-font btn-sm"><i
+                                                    class="fa fa-file-excel"></i> Excel
+                                        </button>
+                                    </div>
+                                </th>
+                            </tr>
+                            </thead>
+                        </table>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if teamMemberSummary is defined %}
+            {% if teamMemberSummary is not empty %}
+                <div class="row">
+                    <div class="card">
+                        <div class="card-header pt-0 pb-0">
+                        </div>
+                        <div class="card-body" style="padding: 0; margin: 10px; overflow: auto">
+                            <table class="table table-striped table-bordered table-hover download-excel" width="100%"
+                                   id="details-table">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th rowspan="2">{{ 'Employee ID'|trans }}</th>
+                                    <th rowspan="2">{{ 'Employee'|trans }}</th>
+                                    <th rowspan="2">{{ 'Designation'|trans }}</th>
+                                    <th rowspan="2">{{ 'Format'|trans }}</th>
+                                    <th rowspan="2">{{ 'Month'|trans }}</th>
+                                    {% if activitiesName is defined and activitiesName is not empty %}
+                                        {% for name in activitiesName %}
+                                            <th colspan="2" class="text-center">{{ name|default('') }}</th>
+                                        {% endfor %}
+                                    {% endif %}
+                                    <th rowspan="2">{{ 'Mark'|trans }}</th>
+                                    <th rowspan="2">{{ 'Grade'|trans }}</th>
+                                    <th rowspan="2" data-exclude="true" class="text-center">{{ "Action Button" }}</th>
+                                </tr>
+                                <tr>
+                                    {% if activitiesName is defined and activitiesName is not empty %}
+                                        {% for name in activitiesName %}
+                                            <th class="text-center">{{ 'Ach.'|trans }}</th>
+                                            <th class="text-center">{{ 'Target'|trans }}</th>
+                                        {% endfor %}
+                                    {% endif %}
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% if teamMemberSummary is not empty %}
+                                    {% for employeeId, details in teamMemberSummary %}
+                                        {% for month, activities in details['mark'] %}
+                                            <tr>
+                                                {% if loop.first %}
+                                                    <td data-t="s" rowspan="{{ details['mark']|length }}">{{ employeeId }}</td>
+                                                    <td rowspan="{{ details['mark']|length }}">{{ details['data']['employeeName'] }}</td>
+                                                    <td rowspan="{{ details['mark']|length }}">{{ details['data']['designation'] }}</td>
+                                                    <td rowspan="{{ details['mark']|length }}">{{ details['data'][month]['reportMode'] }}</td>
+                                                {% endif %}
+                                                <td>{{ month }}</td>
+                                                {% if activitiesName is defined and activitiesName is not empty %}
+                                                    {% for name in activitiesName %}
+                                                        <td data-t="n">{{ teamMemberSummary[employeeId]['mark'][month][name]|default(0) }}</td>
+                                                        <td data-t="n">{{ teamMemberSummary[employeeId]['target'][month][name]|default(0) }}</td>
+                                                    {% endfor %}
+                                                {% endif %}
+                                                <td data-t="n">{{ teamMemberSummary[employeeId]['data'][month]['obtainMark']|default(0) }}</td>
+                                                <td data-t="s">{{ teamMemberSummary[employeeId]['data'][month]['grade']|default('') }}</td>
+
+                                                <td data-exclude="true" align="right">
+                                                    <div class="btn-group">
+                                                        <a class="btn btn-mini btn-info" target="_blank"
+                                                           href="{{ path('kpi_details_report', {id:teamMemberSummary[employeeId]['data'][month]['boardId']}) }}"><i
+                                                                    class="feather icon-file"></i> Details</a>
+                                                        <a class="btn btn-mini purple-bg white-font" target="_blank"
+                                                           href="{{ path('kpi_summary_report', {id:teamMemberSummary[employeeId]['data'][month]['boardId']}) }}"><i
+                                                                    class="feather icon-file"></i> Summary</a>
+                                                        <a class="btn btn-mini blue-bg white-font" target="_blank"
+                                                           href="{% if 'custom' in teamMemberSummary[employeeId]['data'][month]['boardReportFormatSlug'] %}
+                                                                        {{ path('kpi_report_sales_achievement_custom_format',{id:teamMemberSummary[employeeId]['data'][month]['boardId']}) }}
+                                                                    {% else %}
+                                                                        {{ path('kpi_report_sales_achievement',{id:teamMemberSummary[employeeId]['data'][month]['boardId']}) }}
+                                                                    {% endif %}">
+                                                            <i class="feather icon-file"></i> Achieve</a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endfor %}
+                                {% endif %}
+                                </tbody>
+                                <tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="row">
+                    <div class="card">
+                        <div class="card-header py-3 text-center font-italic">
+                            {{ 'No record has been found!'|trans }}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+        <!-- [ Main Content ] end -->
+    </div>
+{% endblock %}
+ {% block cssBlock %}
+     <link rel="stylesheet" href="{{ asset('assets/module/css/app.css') }}">
+     <style>
+         .ui-datepicker-calendar {
+             display: none
+         }
+     </style>
+ {% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/javascript" src="{{ asset('assets/module/js/app.js') }}"></script>
+    <script src="{{ asset('assets/js/tableToExcel.js') }}"></script>
+
+    <script>
+        const button = document.querySelector("#button-excel");
+
+        button.addEventListener("click", e => {
+            e.preventDefault();
+            let table = document.querySelector(".download-excel");
+            TableToExcel.convert(table, {
+                name: "{{ app.request.get('_route') }}.xlsx",
+                sheet: {
+                    name: "Sheet 1"
+                }
+            });
+        });
+    </script>
+{% endblock %}
+{% block documentready %}
+    {{ parent() }}
+{% endblock %}

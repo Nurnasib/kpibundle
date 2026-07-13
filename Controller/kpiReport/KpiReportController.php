@@ -235,6 +235,54 @@ class KpiReportController extends AbstractController
     }
 
     /**
+     * @Route("/all-team-member-summary-with-target", name="all_team_member_summary_with_target")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function allTeamMemberSummaryWithTarget(Request $request)
+    {
+        set_time_limit(0);
+        ini_set('memory_limit', '5000M');
+
+        $lineManagers = $this->getDoctrine()->getRepository(User::class)->getLineManager();
+
+        $filterBy = [
+            "kpiFormat" => null,
+            "startMonth" => date('F'),
+            "endMonth" => date('F'),
+            "year" => (int)date('Y'),
+        ];
+        $StartDate = @strtotime(date('F') . ' ' . (int)date('Y'));
+        $StopDate = @strtotime(date('F') . ' ' . (int)date('Y'));
+
+        $months = $this->monthRange($StartDate, $StopDate);
+
+        $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $this->getUser());
+        $activitiesName = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getActivities();
+
+        $filterForm = $this->createForm(TeamMemberSummaryFilterFormType::class, null, ['user' => $this->getUser(), 'lineManagers' => $lineManagers])->remove('lineManager')->remove('employee');
+        $filterForm->handleRequest($request);
+        if ($filterForm->isSubmitted()) {
+            $filterBy = $filterForm->getData();
+
+            $filterBy['kpiFormat'] = $filterBy['kpiFormat'] ? $filterBy['kpiFormat']->getId() : null;
+            $StartDate = @strtotime($filterBy['startMonth'] . ' ' . $filterBy['year']);
+            $StopDate = @strtotime($filterBy['endMonth'] . ' ' . $filterBy['year']);
+
+            $months = $this->monthRange($StartDate, $StopDate);
+            $teamMemberSummary = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getTeamMemberSummary($filterBy, $months, $this->getUser());
+        }
+
+        return $this->render('@TerminalbdKpi/employeeboard/report/allTeamMemberSummaryWithTarget.html.twig', [
+            'filterBy' => $filterBy,
+            'form' => $filterForm->createView(),
+            'teamMemberSummary' => $teamMemberSummary,
+            'months' => $months,
+            'activitiesName' => $activitiesName,
+        ]);
+    }
+
+    /**
      * @param Request $request
      * @Route("/district-history", name="district_history")
      * @return \Symfony\Component\HttpFoundation\Response

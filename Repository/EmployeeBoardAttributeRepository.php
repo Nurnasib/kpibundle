@@ -1759,6 +1759,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         $qb->join('e.activity', 'activity');
 
         $qb->select('SUM(e.mark) as mark');
+        $qb->addSelect('SUM(e.actualMark) as target');
         $qb->addSelect('employee.name AS employeeName','employee.id AS employeeId', 'employee.userId');
         $qb->addSelect('activity.name AS activityName','activity.id AS activityId');
         $qb->addSelect('designation.name AS employeeDesignation');
@@ -1798,6 +1799,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 //            $data[$result['userId']]['activityName'] = $this->getActivities();
 //            $data[$result['userId']]['activityName'][$result['activityName']]= $result['activityName'];
             $data[$result['userId']]['mark'][$result['month']][$result['activityName']]= $result['mark'];
+            $data[$result['userId']]['target'][$result['month']][$result['activityName']]= $result['target'];
         }
 
         return $data;
