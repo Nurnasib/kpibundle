@@ -58,6 +58,7 @@ class MonthRangeWiseSummeryReportFormType extends AbstractType
                     return $er->createQueryBuilder('e')
                         ->join('e.userGroup', 'userGroup')
                         ->andWhere("userGroup.slug = :slug")->setParameter('slug', 'employee')
+                        ->andWhere("e.userMode = :userMode")->setParameter('userMode', 'KPI')
                         ->orderBy('e.name', 'ASC');
 
                 },

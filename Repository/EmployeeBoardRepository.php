@@ -272,7 +272,8 @@ class EmployeeBoardRepository extends EntityRepository
         $qb->join('board.employee', 'employee');
         $qb->leftJoin('employee.lineManager', 'lineManager');
         $qb->leftJoin('employee.designation', 'designation');
-        $qb->select('board.id AS boardId', 'AVG(board.selfMark) AS selfMarkAvg', 'AVG(board.obtainMark) AS lineManagerMarkAvg');
+//        $qb->select('board.id AS boardId', 'AVG(board.selfMark) AS selfMarkAvg', 'AVG(board.obtainMark) AS lineManagerMarkAvg');
+        $qb->select('AVG(board.selfMark) AS selfMarkAvg', 'AVG(board.obtainMark) AS lineManagerMarkAvg');
         $qb->addSelect('employee.id AS employeeId', 'employee.userId', 'employee.name AS employeeName', 'employee.joiningDate');
         $qb->addSelect('lineManager.name AS lineManagerName');
         $qb->addSelect('designation.name AS designationName');
@@ -450,7 +451,9 @@ class EmployeeBoardRepository extends EntityRepository
 
                 $targetSalesAndAchived = $this->getEntityManager()->getRepository(DistrictOrder::class)->getSalesTargetAndAchievementForSalePercentageReport($districtIds, $year, $result['month'], $prviousYear );
 
-                $returnArray['salesData'][$result['employeeId']][$result['month']]=$targetSalesAndAchived[$result['month']];
+                $returnArray['salesData'][$result['employeeId']][$result['month']] = isset($targetSalesAndAchived[$result['month']])
+                    ? $targetSalesAndAchived[$result['month']]
+                    : [$year => []];
             }
         }
 //dd($returnArray);
