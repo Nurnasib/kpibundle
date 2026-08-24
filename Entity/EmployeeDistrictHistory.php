@@ -136,9 +136,9 @@ class EmployeeDistrictHistory
 
 
     /**
-     * @return User
+     * @return User|null
      */
-    public function getUpdatedBy(): User
+    public function getUpdatedBy(): ?User
     {
         return $this->updatedBy;
     }
@@ -217,9 +217,9 @@ class EmployeeDistrictHistory
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTime|null
      */
-    public function getUpdatedAt(): \DateTime
+    public function getUpdatedAt(): ?\DateTime
     {
         return $this->updatedAt;
     }

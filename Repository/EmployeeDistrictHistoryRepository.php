@@ -114,9 +114,11 @@ class EmployeeDistrictHistoryRepository extends EntityRepository
         $qb = $this->createQueryBuilder('e');
 
         $qb->join('e.employee', 'employee');
+        $qb->leftJoin('e.updatedBy', 'updatedBy');
         $qb->where('employee.id = :employeeId')->setParameter('employeeId', $employee->getId());
-
-        $qb->select('e');
+        
+        $qb->select('e.id', 'e.district', 'e.month', 'e.year', 'e.createdAt', 'e.updatedAt');
+        $qb->addSelect('updatedBy.name AS updatedByName');
         $qb->orderBy('e.year', 'DESC');
 
         $records = $qb->getQuery()->getArrayResult();
