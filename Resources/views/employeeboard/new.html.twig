@@ -102,7 +102,7 @@
                                                 <tr>
                                                     {% if entity.parameter.status == 1 %}
                                                         {% if(count==1) %}
-                                                            <td rowspan="{{ parameters|multiArrayLength }}" class="parameter"><span>{{ entity.parameter.name }}</span></td>
+                                                            <td rowspan="{{ parameters|multiArrayLength }}" class="parameter"><span style="max-height: {{ (parameters|multiArrayLength) * 24 }}px">{{ entity.parameter.name }}</span></td>
                                                         {% endif %}
                                                         {% if entity.activity.status == 1 %}
                                                             {% if(countActity==1) %}
@@ -202,20 +202,16 @@ select.markDistribution {
     font-weight: bold;
 }
 .parameter{
-    position: relative;
-    /*    border-left: 34px solid #369;
-        padding-left: 10px;
-        width: 50px;*/
+    text-align: center;
+    vertical-align: middle;
 }
 
 .parameter span {
-    position: absolute;
-    top: 50%;
-    /*left: 30px;*/
-    background: none;
-    transform-origin: 0 0;
-    transform: rotate(-90deg) translateX(-50%);
-    /*width: 200px;*/
+    display: inline-block;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    line-height: 1.25;
+    white-space: normal;
 }
 
 
