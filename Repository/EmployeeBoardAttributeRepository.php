@@ -1036,6 +1036,94 @@ class EmployeeBoardAttributeRepository extends EntityRepository
         }
     }
 
+    /**
+     * Read-only, tenure-bounded recompute of Feed & Growth for the "Employee's Own
+     * KPI" view. WRITES NOTHING. Derives each product's cumulative over only the
+     * months the employee actually owned, by subtracting the stored cumulative
+     * snapshot at the month BEFORE tenure start from the snapshot at the board month.
+     * $tenureStartMonthNumber = calendar month (1-12) of the employee's first KPI
+     * board that year; if 1 (or no earlier snapshot exists) nothing is subtracted.
+     * Returns the SAME shape as getKpiSummaryForFeedAndGrowth().
+     */
+    public function getOwnTenureFeedAndGrowth(EmployeeBoard $board, array $districtsId, int $tenureStartMonthNumber): array
+    {
+        $data = ['feed' => [], 'growth' => []];
+        if (empty($districtsId)) {
+            return $data;
+        }
+
+        $em = $this->_em;
+        $doRepo = $em->getRepository(DistrictOrder::class);
+
+        $current = $doRepo->getLocationWiseCumulativeByMonth($districtsId, $board->getYear(), $board->getMonth());
+        $base = [];
+        if ($tenureStartMonthNumber > 1) {
+            $baseMonthName = date('F', mktime(0, 0, 0, $tenureStartMonthNumber - 1, 1));
+            $base = $doRepo->getLocationWiseCumulativeByMonth($districtsId, $board->getYear(), $baseMonthName);
+        }
+
+        $mode = $board->getEmployee()->getReportMode() ? $board->getEmployee()->getReportMode()->getSlug() : '';
+        if ($mode === 'poultry-service' || $mode === 'lab-service') {
+            $suffix = '-poultry-service';
+        } elseif ($mode === 'aqua-service') {
+            $suffix = '-aqua-service';
+        } elseif ($mode === 'cattle-service') {
+            $suffix = '-cattle-service';
+        } else {
+            $suffix = '';
+        }
+
+        foreach ($current as $productId => $cur) {
+            $slug = $cur['slug'];
+            $b = $base[$productId] ?? ['cumulativeQuantity' => 0, 'cumulativeTargetQuantity' => 0, 'salesGrouthPreviousQuantity' => 0];
+
+            $tenureSales  = (float) $cur['cumulativeQuantity']       - (float) $b['cumulativeQuantity'];
+            $tenureTarget = (float) $cur['cumulativeTargetQuantity'] - (float) $b['cumulativeTargetQuantity'];
+            $tenurePrev   = (float) $cur['salesGrouthPreviousQuantity'] - (float) $b['salesGrouthPreviousQuantity'];
+
+            $growthSlug = 'growth-' . $slug . $suffix;
+
+            switch ($suffix) {
+                case '-poultry-service':
+                    $feedMark   = (float) ($this->salesTargetCalculationPoultryService($slug, $tenureTarget, $tenureSales)[$slug . $suffix] ?? 0);
+                    $growthMark = (float) ($this->salesGrowthCalculationPoultryService($slug, $tenurePrev, $tenureSales)[$growthSlug] ?? 0);
+                    break;
+                case '-aqua-service':
+                    $feedMark   = (float) ($this->salesTargetCalculationAquaService($slug, $tenureTarget, $tenureSales)[$slug . $suffix] ?? 0);
+                    $growthMark = (float) ($this->salesGrowthCalculationAquaService($slug, $tenurePrev, $tenureSales)[$growthSlug] ?? 0);
+                    break;
+                case '-cattle-service':
+                    $feedMark   = (float) ($this->salesTargetCalculationCattleService($slug, $tenureTarget, $tenureSales)[$slug . $suffix] ?? 0);
+                    $growthMark = (float) ($this->salesGrowthCalculationCattleService($slug, $tenurePrev, $tenureSales)[$growthSlug] ?? 0);
+                    break;
+                default:
+                    $feedMark = (float) $this->salesTargetCalculation($tenureTarget, $tenureSales);
+                    $gc = $this->salesGrowthCalculation($slug, $tenurePrev, $tenureSales);
+                    $growthMark = (float) (is_array($gc) ? ($gc[$growthSlug] ?? 0) : 0);
+            }
+
+            $feedDistribution   = $em->getRepository(MarkChart::class)->findOneBy(['salesMode' => 'feed',   'slug' => $slug . $suffix]);
+            $growthDistribution = $em->getRepository(MarkChart::class)->findOneBy(['salesMode' => 'growth', 'slug' => $growthSlug]);
+
+            $data['feed'][] = [
+                'markParameter'  => $feedDistribution ? $feedDistribution->getName() : $slug,
+                'targetQuantity' => $tenureTarget,
+                'salesQuantity'  => $tenureSales,
+                'percentage'     => $tenureTarget > 0 ? ($tenureSales * 100) / $tenureTarget : 0,
+                'mark'           => $feedMark,
+            ];
+            $data['growth'][] = [
+                'markParameter'  => $growthDistribution ? $growthDistribution->getName() : $growthSlug,
+                'targetQuantity' => $tenurePrev,
+                'salesQuantity'  => $tenureSales,
+                'percentage'     => $tenurePrev > 0 ? (($tenureSales - $tenurePrev) * 100) / $tenurePrev : 0,
+                'mark'           => $growthMark,
+            ];
+        }
+
+        return $data;
+    }
+
     public function salesTargetCalculationPoultryService($productSlug, $target, $sales)
     {
         $returnValue = [];

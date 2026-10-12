@@ -696,6 +696,91 @@ class EmployeeBoardController extends AbstractController
     }
 
     /**
+     * @Security("is_granted('ROLE_USER')")
+     * @Route("/{id}/report-sales-achievement-own/{mode}", defaults={"mode" = null}, methods={"GET"}, name="kpi_report_sales_achievement_own")
+     * @param EmployeeBoard $board
+     * @param $mode
+     * @param Request $request
+     * @return Response
+     */
+    public function salesAchievementSummaryOwn(EmployeeBoard $board, $mode, Request $request): Response
+    {
+        $districtHistory = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'month' => $board->getMonth(), 'year' => $board->getYear()]);
+        $districts = $districtHistory ? $districtHistory->getDistrict() : '';
+        $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
+
+        $employee = $board->getEmployee();
+        $getEmployeesByLineManager = $this->getDoctrine()->getRepository(EmployeeDistrictHistory::class)->getTeamMembers($employee, $board->getMonth(), $board->getYear());
+        $employeeArrs = [];
+        foreach ($getEmployeesByLineManager as $childEmployee) {
+            if (!empty($childEmployee)) {
+                $employeeArrs[] = $childEmployee->getEmployee()->getId();
+            }
+        }
+        $parameter = $this->getDoctrine()->getRepository(MarkChart::class)->findBy(array('slug' => 'core-responsibilities', 'status' => 1));
+
+        // tenure start = employee's FIRST KPI board month this year
+        $yearBoards = $this->getDoctrine()->getRepository(EmployeeBoard::class)->findBy(['employee' => $employee, 'year' => $board->getYear()]);
+        $tenureStartMonthNumber = (int) date('n', strtotime($board->getMonth()));
+        foreach ($yearBoards as $yb) {
+            $m = (int) date('n', strtotime($yb->getMonth()));
+            if ($m > 0 && $m < $tenureStartMonthNumber) {
+                $tenureStartMonthNumber = $m;
+            }
+        }
+
+        // tenure-bounded recompute instead of the stored (from-January) summary
+        $feedAndGrowth = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)
+            ->getOwnTenureFeedAndGrowth($board, $districtsId, $tenureStartMonthNumber);
+
+        if (str_contains($board->getReportMode()->getSlug(), 'custom')) {
+            $outstanding = $this->getDoctrine()->getRepository(AgentOutstandingForCustomFormat::class)->getOutstanding($board);
+            $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollectionForCustomFormat::class)->getDocSale($board);
+        } else {
+            $outstanding = $this->getDoctrine()->getRepository(AgentOutstanding::class)->getLocationWiseOutstanding($districtsId, $board);
+            $docSale = $this->getDoctrine()->getRepository(AgentDocSaleCollection::class)->getLocationWiseDocSales($districtsId, $board);
+        }
+
+        $individualTeamMemberMarks = $this->getDoctrine()->getRepository(EmployeeBoardAttribute::class)->getIndividualTeamMemberMarks($employeeArrs, $parameter, $board);
+        $dCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithDcategory($board, $districtsId);
+        $cCategoryUpgrade = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentWithCcategory($board, $districtsId);
+        $agentUpgradationDetails = $this->getDoctrine()->getRepository(AgentCategory::class)->getAgentUpgradation($board, $districtsId);
+
+        $viewParams = [
+            'board' => $board,
+            'feedAndGrowth' => $feedAndGrowth,
+            'outstanding' => $outstanding,
+            'dCategoryUpgrade' => $dCategoryUpgrade,
+            'cCategoryUpgrade' => $cCategoryUpgrade,
+            'agentUpgradationDetails' => $agentUpgradationDetails,
+            'docSale' => $docSale,
+            'individualTeamMemberMarks' => $individualTeamMemberMarks,
+            'ownTenure' => true,
+            'tenureStartMonth' => date('F', mktime(0, 0, 0, $tenureStartMonthNumber, 1)),
+        ];
+
+        if ($mode == 'pdf') {
+            $pdfOptions = new Options();
+            $pdfOptions->set('defaultFont', 'Arial, sans-serif');
+            $dompdf = new Dompdf($pdfOptions);
+            $dompdf->loadHtml($this->renderView('@TerminalbdKpi/employeeboard/report/salesDetailsPdf.html.twig', $viewParams));
+            $dompdf->setPaper('legal', 'portrait');
+            $dompdf->render();
+            $fileName = "Own KPI Achievement-" . $board->getEmployee()->getName() . '(' . $board->getMonth() . ',' . $board->getYear() . ')';
+            $dompdf->stream($fileName . ".pdf", ["Attachment" => false]);
+        } elseif ($mode == 'excel') {
+            $html = $this->renderView('@TerminalbdKpi/employeeboard/report/salesDetailsExcel.html.twig', $viewParams);
+            $fileName = 'Own KPI Achivement-' . '(' . $board->getEmployee()->getUserId() . ')' . $board->getEmployee()->getName() . '(' . $board->getMonth() . ',' . $board->getYear() . ').xls';
+            header("Content-Type: application/vnd.ms-excel; charset=utf-8");
+            header("Content-Disposition: attachment; filename=$fileName");
+            echo $html;
+            die();
+        }
+
+        return $this->render('@TerminalbdKpi/employeeboard/report/salesDetails.html.twig', $viewParams);
+    }
+
+    /**
      *
      * @Route("/{id}/report-sales-achievement-custom-format/{mode}", defaults={"mode" = null}, methods={"GET"}, name="kpi_report_sales_achievement_custom_format")
      * @param EmployeeBoard $board

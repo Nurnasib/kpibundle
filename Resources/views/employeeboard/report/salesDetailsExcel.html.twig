@@ -1,3 +1,10 @@
+{% if ownTenure|default(false) %}
+<table>
+    <tr>
+        <td colspan="6"><b>Employee's Own KPI</b> &mdash; cumulative counted from <b>{{ tenureStartMonth }} {{ board.year }}</b> (the employee's first KPI month), not from January.</td>
+    </tr>
+</table>
+{% endif %}
 <table>
     <thead>
     <tr>

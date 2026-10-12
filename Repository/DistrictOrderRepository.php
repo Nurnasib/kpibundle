@@ -195,6 +195,36 @@ class DistrictOrderRepository extends EntityRepository
 
     }
 
+    /**
+     * Read-only. Per-product cumulative snapshot (from-January) for ONE month,
+     * summed across the given districts. Used by the "Employee's Own KPI" view to
+     * take the delta between two months. Mirrors getLocationWiseTotalProductSalesTarget
+     * but is parameterised by month and returns only the cumulative columns it needs.
+     */
+    public function getLocationWiseCumulativeByMonth($locations, $year, $month)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.product', 'product');
+        $qb->join('e.district', 'd');
+        $qb->select('product.id as id', 'product.slug as slug');
+        $qb->addSelect(
+            'SUM(e.cumulativeQuantity) AS cumulativeQuantity',
+            'SUM(e.cumulativeTargetQuantity) AS cumulativeTargetQuantity',
+            'SUM(e.salesGrouthPreviousQuantity) AS salesGrouthPreviousQuantity'
+        );
+        $qb->where('d.id IN (:districts)')->setParameter('districts', $locations);
+        $qb->andWhere('e.year = :year')->setParameter('year', $year);
+        $qb->andWhere('e.month = :month')->setParameter('month', $month);
+        $qb->groupBy('product.id');
+        $result = $qb->getQuery()->getArrayResult();
+
+        $data = [];
+        foreach ($result as $row) {
+            $data[$row['id']] = $row;
+        }
+        return $data;
+    }
+
     public function getSalesTargetAndAchievementForMonthlyReport($locations, $filterBy, $month, $prviousYear=false)
     {
         $year = $prviousYear==true?$filterBy['year']-1:$filterBy['year'];
