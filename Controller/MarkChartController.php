@@ -29,12 +29,22 @@ use Terminalbd\KpiBundle\Form\MarkChartFormType;
 /**
  * @Route("/kpi/mark-chart")
  * @author Md Shafiqul Islam <shafiqabs@gmail.com>
- * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DOMAIN')")
+ *
+ * Class gate = the VIEW audience (all KPI roles + line manager + developer).
+ * Note: Sensio merges the class-level and method-level security expressions and
+ * enforces all of them (they are AND-ed), so a method-level rule can only narrow
+ * this, never widen it. The edit/management actions below each carry their own
+ * "ROLE_KPI_ADMIN or ROLE_DEVELOPER" rule, which AND-ed with this class gate
+ * resolves to exactly KPI admin + developer. The read-only matrix view inherits
+ * this class gate unchanged.
+ *
+ * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_KPI_REPORT_ADMIN') or is_granted('ROLE_KPI_EXECUTIVE') or is_granted('ROLE_KPI_OFFICER') or is_granted('ROLE_KPI_USER') or is_granted('ROLE_LINE_MANAGER') or is_granted('ROLE_DEVELOPER')")
  */
 class MarkChartController extends AbstractController
 {
     /**
      * @Route("/", methods={"GET"}, name="kpi_markchart")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DEVELOPER')")
      */
     public function index(): Response
     {
@@ -44,6 +54,7 @@ class MarkChartController extends AbstractController
 
     /**
      * @Route("/new", methods={"GET", "POST"}, name="kpi_markchart_new")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DEVELOPER')")
      * @param Request $request
      * @return Response
      */
@@ -78,6 +89,7 @@ class MarkChartController extends AbstractController
      * Displays a form to edit an existing Post entity.
      *
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="kpi_markchart_edit")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DEVELOPER')")
      * @param Request $request
      * @param MarkChart $entity
      * @return Response
@@ -108,6 +120,7 @@ class MarkChartController extends AbstractController
      * Deletes a Setting entity.
      *
      * @Route("/{id}/delete", methods={"GET"}, name="kpi_markchart_delete")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DEVELOPER')")
      * @param $id
      * @return Response
      */
@@ -124,6 +137,7 @@ class MarkChartController extends AbstractController
     /**
      *
      * @Route("/markchart-matrix", methods={"GET"}, name="kpi_markchart_matrix")
+     * Read-only view: inherits the class gate (all KPI roles + line manager + developer).
      * @param Request $request
      * @return Response
      */
@@ -152,6 +166,7 @@ class MarkChartController extends AbstractController
     /**
      *
      * @Route("/{id}/update-ordering", methods={"GET"}, name="kpi_markchart_format_ordering")
+     * @Security("is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DEVELOPER')")
      * @param Request $request
      * @param $id
      * @return JsonResponse

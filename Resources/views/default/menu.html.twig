@@ -30,7 +30,7 @@
         </li>
     {% endif %}
 
-    {% if is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DEVELOPER') %}
+    {% if is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_KPI_REPORT_ADMIN') or is_granted('ROLE_KPI_EXECUTIVE') or is_granted('ROLE_KPI_OFFICER') or is_granted('ROLE_KPI_USER') or is_granted('ROLE_LINE_MANAGER') or is_granted('ROLE_DEVELOPER') %}
         <li><a class="dropdown-item" href="{{ path('kpi_markchart_matrix') }}">{{ 'KPI Format'|trans }}</a>
 
 {#            <ul>#}
@@ -43,6 +43,9 @@
 
 {#            </ul>#}
         </li>
+    {% endif %}
+
+    {% if is_granted('ROLE_KPI_ADMIN') or is_granted('ROLE_DEVELOPER') %}
 {#        <li><a class="dropdown-item" href="{{ path('kpi_location_sales') }}">{{ 'District Sales Target'|trans }}</a></li>#}
         <li><a class="dropdown-item" href="javascript:">{{ 'Sales'|trans }}</a>
             <ul>
