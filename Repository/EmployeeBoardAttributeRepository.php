@@ -166,6 +166,10 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     {
         $em = $this->_em;
 
+        // Drop any attributes left over from a different format so the board is
+        // scored only against the format it was actually created under.
+        $this->removeStaleFormatAttributes($board);
+
         $employeeDistrictHistory = $this->_em->getRepository(EmployeeDistrictHistory::class)->findOneBy(['employee' => $board->getEmployee(), 'year' => $board->getYear(), 'month' => $board->getMonth()]);
         $districts = $employeeDistrictHistory ? $employeeDistrictHistory->getDistrict() : '';
         $districtsId = $districts ? array_keys(json_decode($districts, true)) : [];
@@ -176,8 +180,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     if (!empty($activity->getChildren())) {
                         foreach ($activity->getChildren() as $attribute){
                             $exist = $this->findOneBy(array('employeeBoard' => $board, 'attribute' => $attribute));
-                            if (empty($exist) and !empty($board->getEmployee()->getReportMode())) {
-                                $markChartAttribute = $em->getRepository(MarkChart::class)->findUserMarkAttribute($board->getEmployee()->getReportMode()->getId(), $attribute->getId());
+                            if (empty($exist) and !empty($board->getReportMode())) {
+                                $markChartAttribute = $em->getRepository(MarkChart::class)->findUserMarkAttribute($board->getReportMode()->getId(), $attribute->getId());
                                 if ($markChartAttribute) {
                                     $entity = new EmployeeBoardAttribute();
                                     $entity->setEmployeeBoard($board);
@@ -235,8 +239,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     if (!empty($activity->getChildren())) {
                         foreach ($activity->getChildren() as $attribute){
                             $exist = $this->findOneBy(array('employeeBoard' => $board, 'attribute' => $attribute));
-                            if (empty($exist) and !empty($board->getEmployee()->getReportMode())) {
-                                $markChartAttribute = $em->getRepository(MarkChart::class)->findUserMarkAttribute($board->getEmployee()->getReportMode()->getId(), $attribute->getId());
+                            if (empty($exist) and !empty($board->getReportMode())) {
+                                $markChartAttribute = $em->getRepository(MarkChart::class)->findUserMarkAttribute($board->getReportMode()->getId(), $attribute->getId());
                                 if ($markChartAttribute) {
                                     $entity = new EmployeeBoardAttribute();
                                     $entity->setEmployeeBoard($board);
@@ -273,6 +277,53 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 //        $this->agentSalesGrowth($board);
         $this->gradeUpdate($board);
 
+    }
+
+    /**
+     * Remove board attributes that do not belong to the board's own format.
+     * These rows appear when an employee's report format is changed and a
+     * recalculation inserts the new format's attributes on top of the old ones,
+     * inflating the actual-mark denominator and silently rewriting past grades.
+     *
+     * MarkChart.reportMode is many-to-many, so an attribute may be shared by
+     * several formats. We only delete an attribute when it IS format-scoped
+     * (linked to at least one format) yet the board's own format is NOT among
+     * them. Attributes with no format at all (sub-attribute parents, sales,
+     * etc.) are never touched.
+     */
+    private function removeStaleFormatAttributes(EmployeeBoard $board)
+    {
+        $boardFormat = $board->getReportMode();
+        if (empty($boardFormat)) {
+            return;
+        }
+
+        $linkedToBoardFormat = $this->_em->createQueryBuilder()
+            ->select('mc.id')
+            ->from(MarkChart::class, 'mc')
+            ->join('mc.reportMode', 'f')
+            ->where('mc = attribute')
+            ->andWhere('f = :boardFormat');
+
+        $qb = $this->createQueryBuilder('e');
+        $qb->join('e.attribute', 'attribute');
+        $qb->join('attribute.reportMode', 'anyFormat'); // only format-scoped attributes
+        $qb->where('e.employeeBoard = :board');
+        $qb->andWhere($qb->expr()->not($qb->expr()->exists($linkedToBoardFormat->getDQL())));
+        $qb->setParameter('board', $board);
+        $qb->setParameter('boardFormat', $boardFormat);
+        $qb->groupBy('e.id');
+
+        $staleAttributes = $qb->getQuery()->getResult();
+
+        if (!$staleAttributes) {
+            return;
+        }
+
+        foreach ($staleAttributes as $staleAttribute) {
+            $this->_em->remove($staleAttribute);
+        }
+        $this->_em->flush();
     }
 
     public function gradeUpdate(EmployeeBoard $board)
@@ -560,6 +611,9 @@ class EmployeeBoardAttributeRepository extends EntityRepository
     public function updateSalesProcess(EmployeeBoard $board, $districtsId)
     {
         $em = $this->_em;
+        // Branch on the board's own format, not the employee's current one, so a
+        // later format change does not re-score past boards.
+        $reportModeSlug = $board->getReportMode() ? $board->getReportMode()->getSlug() : null;
         $entities = "";
 /*        $locations = $board->getEmployee()->getDistrict();
         $arrs = array();
@@ -584,7 +638,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 $entity = new EmployeeBoardSubAttribute();
                 $distribution = $em->getRepository(MarkChart::class)->find($parameter['id']);
 
-                if ($board->getEmployee()->getReportMode()->getSlug() == 'poultry-service' || $board->getEmployee()->getReportMode()->getSlug() == 'lab-service') {
+                if ($reportModeSlug == 'poultry-service' || $reportModeSlug == 'lab-service') {
                     $distributionPoultry = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode' => 'feed', 'slug' => $distribution->getSlug() . '-poultry-service'));
 
                     $exist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard' => $board, 'markDistribution' => $distributionPoultry));
@@ -636,7 +690,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     }
 //                    Sales Growth END
 
-                } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'aqua-service') {
+                } elseif ($reportModeSlug == 'aqua-service') {
                     $distributionAqua = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode' => 'feed', 'slug' => $distribution->getSlug() . '-aqua-service'));
 
                     $exist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard' => $board, 'markDistribution' => $distributionAqua));
@@ -687,7 +741,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                     }
 //                    Sales Growth END
 
-                } elseif ($board->getEmployee()->getReportMode()->getSlug() == 'cattle-service') {
+                } elseif ($reportModeSlug == 'cattle-service') {
                     $distributionCattle = $em->getRepository(MarkChart::class)->findOneBy(array('salesMode' => 'feed', 'slug' => $distribution->getSlug() . '-cattle-service'));
 
                     $exist = $em->getRepository(EmployeeBoardSubAttribute::class)->findOneBy(array('employeeBoard' => $board, 'markDistribution' => $distributionCattle));
@@ -879,10 +933,11 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             }
         }*/
 
+        $reportModeSlug = $board->getReportMode() ? $board->getReportMode()->getSlug() : null;
         $outstandingAmount = $em->getRepository(AgentOutstanding::class)->getLocationWiseTotalOutstanding($districtsId, $board->getYear(), $board->getMonth());
-        if ($board->getEmployee()->getReportMode()->getSlug() == 'agm-kpi'){
+        if ($reportModeSlug == 'agm-kpi'){
             $outstandingSlug = 'agm-outstanding-limit-vs-actual-feed';
-        }elseif ($board->getEmployee()->getReportMode()->getSlug() == 'rsm-arsm-kpi'){
+        }elseif ($reportModeSlug == 'rsm-arsm-kpi'){
             $outstandingSlug = 'rsm-outstanding-limit-vs-actual-feed';
         }else{
             $outstandingSlug = 'outstanding-limit-vs-actual-feed';
@@ -1062,7 +1117,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
             $base = $doRepo->getLocationWiseCumulativeByMonth($districtsId, $board->getYear(), $baseMonthName);
         }
 
-        $mode = $board->getEmployee()->getReportMode() ? $board->getEmployee()->getReportMode()->getSlug() : '';
+        $mode = $board->getReportMode() ? $board->getReportMode()->getSlug() : '';
         if ($mode === 'poultry-service' || $mode === 'lab-service') {
             $suffix = '-poultry-service';
         } elseif ($mode === 'aqua-service') {
@@ -1742,7 +1797,8 @@ class EmployeeBoardAttributeRepository extends EntityRepository
 
     public function outstandingLimitCalculation(EmployeeBoard $board, $outstandingValue)
     {
-            if ($board->getEmployee()->getReportMode()->getSlug() == 'agm-kpi'){
+            $reportModeSlug = $board->getReportMode() ? $board->getReportMode()->getSlug() : null;
+            if ($reportModeSlug == 'agm-kpi'){
                 if ($outstandingValue >= 1500000) {
                     return 0;
                 } elseif ($outstandingValue >= 1400000 && $outstandingValue < 1500000) {
@@ -1756,7 +1812,7 @@ class EmployeeBoardAttributeRepository extends EntityRepository
                 } else{
                     return 5;
                 }
-            }elseif ($board->getEmployee()->getReportMode()->getSlug() == 'rsm-arsm-kpi'){
+            }elseif ($reportModeSlug == 'rsm-arsm-kpi'){
                 if ($outstandingValue >= 1000000) {
                     return 0;
                 } elseif ($outstandingValue >= 900000 && $outstandingValue < 1000000) {

@@ -1,0 +1,170 @@
+{% extends 'admin/layout.html.twig' %}
+{% block body_id 'kpi_domain_new' %}
+
+{% macro num(value) %}{% if value is null %}-{% elseif value == value|round %}{{ value|round }}{% else %}{{ value|number_format(2) }}{% endif %}{% endmacro %}
+
+{% block body %}
+    {% import _self as m %}
+    <div class="pcoded-inner-content">
+        <div class="row">
+            <div class="card mb-1">
+                <div class="card-header p-2">
+                    <h5>{{ 'Employee KPI (Month Range)'|trans }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card mb-3">
+                <div class="card-body p-2">
+                    <div class="col-md-10 offset-1">
+                        {{ form_start(form) }}
+                        <table class="table table-striped table-bordered table-hover dataTable">
+                            <thead class="thead-dark">
+                            <tr role="row" class="filter">
+                                <th colspan="3">
+                                    {{ form_label(form.employee, 'Employee') }}
+                                    {{ form_widget(form.employee) }}
+                                </th>
+                                <th colspan="2">
+                                    {{ form_label(form.startMonth, 'Start Month') }}
+                                    {{ form_widget(form.startMonth) }}
+                                </th>
+                                <th colspan="2">
+                                    {{ form_label(form.endMonth, 'End Month') }}
+                                    {{ form_widget(form.endMonth) }}
+                                </th>
+                                <th colspan="2">
+                                    {{ form_label(form.year) }}
+                                    {{ form_widget(form.year) }}
+                                </th>
+                                <th colspan="1">
+                                    <div class="btn-group" style="margin-top: 25px">
+                                        <button type="submit" name="search" class="btn btn-primary btn-sm" title="Search" value="search">
+                                            <i class="fa fa-search" aria-hidden="true"></i></button>
+                                        <a href="{{ path('kpi_employee_month_range_report') }}" class="btn purple-bg btn-sm white-font" title="Reset">
+                                            <i class="fa fa-refresh" aria-hidden="true"></i></a>
+                                        {% if report and report.boards is not empty %}
+                                            <button type="button" title="Excel" id="button-excel" class="btn green-bg white-font btn-sm">
+                                                <i class="fa fa-file-excel"></i> Excel</button>
+                                        {% endif %}
+                                    </div>
+                                </th>
+                            </tr>
+                            </thead>
+                        </table>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if submitted %}
+            {% if report is null %}
+                <div class="row"><div class="card"><div class="card-header py-3 text-center font-italic">
+                    {{ 'Please select an employee.'|trans }}
+                </div></div></div>
+            {% elseif report.boards is empty %}
+                <div class="row"><div class="card"><div class="card-header py-3 text-center font-italic">
+                    {{ 'No KPI has been generated for'|trans }} ({{ report.empId }}) {{ report.name }},
+                    {{ months|first }}{% if months|length > 1 %} - {{ months|last }}{% endif %} {{ year }}.
+                </div></div></div>
+            {% else %}
+                <div class="row">
+                    <div class="card">
+                        <div class="card-body" style="padding: 0; margin: 10px; overflow: auto">
+                            {# data-* attributes below only affect the Excel export (tableToExcel.js) #}
+                            {% set xh %}data-f-bold="true" data-a-wrap="true" data-a-h="center" data-a-v="middle"{% endset %}
+                            <table class="table table-striped table-bordered table-hover download-excel" width="100%"
+                                   data-cols-width="{{ [6, 10, 24, 24, 14, 16, 20]|merge(report.items|map(i => 14))|merge([12, 10])|join(',') }}">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th rowspan="2" {{ xh }}>{{ 'Sl No'|trans }}</th>
+                                    <th rowspan="2" {{ xh }}>{{ 'Emp'|trans }}</th>
+                                    <th rowspan="2" {{ xh }}>{{ 'Name'|trans }}</th>
+                                    <th rowspan="2" {{ xh }}>{{ 'LM'|trans }}</th>
+                                    <th rowspan="2" {{ xh }}>{{ 'Region'|trans }}</th>
+                                    <th rowspan="2" {{ xh }}>{{ 'Month'|trans }}</th>
+                                    <th rowspan="2" {{ xh }}>{{ 'KPI format'|trans }}</th>
+                                    {% for group in report.activityGroups %}
+                                        <th colspan="{{ group.count }}" class="text-center" {{ xh }}>{{ group.name|default('-') }}</th>
+                                    {% endfor %}
+                                    <th rowspan="2" class="text-center" {{ xh }}>{{ 'Total Mark'|trans }}</th>
+                                    <th rowspan="2" class="text-center" {{ xh }}>{{ 'Grade'|trans }}</th>
+                                </tr>
+                                <tr data-height="75">
+                                    {% for item in report.items %}
+                                        <th class="text-center" style="min-width: 110px; white-space: normal" {{ xh }}>{{ item.name }}</th>
+                                    {% endfor %}
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for month in months %}
+                                    {% set board = report.boards[month]|default(null) %}
+                                    <tr>
+                                        <td data-t="n">{{ loop.index }}</td>
+                                        {% if loop.first %}
+                                            <td data-t="s" rowspan="{{ months|length }}">{{ report.empId }}</td>
+                                            <td rowspan="{{ months|length }}">{{ report.name }}</td>
+                                            <td rowspan="{{ months|length }}">{{ report.lineManager }}</td>
+                                            <td rowspan="{{ months|length }}">{{ report.region }}</td>
+                                        {% endif %}
+                                        <td data-t="s">{{ month }} {{ year }}{% if board and board.process != 'approved' %}*{% endif %}</td>
+                                        <td>{{ board ? board.reportModeName|default('-') : '-' }}</td>
+                                        {% for itemId, item in report.items %}
+                                            {% set cell = report.cells[itemId][month]|default(null) %}
+                                            {% if cell %}
+                                                <td data-t="n" class="text-center"
+                                                    title="{{ 'Max'|trans }} {{ m.num(cell.maxMark) }}{% if cell.target is not null %} · {{ 'Target'|trans }} {{ m.num(cell.target) }} · {{ 'Achievement'|trans }} {{ m.num(cell.achievement) }}{% endif %}">{{ m.num(cell.mark) }}</td>
+                                            {% else %}
+                                                <td class="text-center">-</td>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if board %}
+                                            <td data-t="s" class="text-center">{{ m.num(board.obtainMark) }} / {{ m.num(board.actualMark) }}</td>
+                                            <td data-t="s" class="text-center">{{ board.grade|default('-') }}</td>
+                                        {% else %}
+                                            <td class="text-center">-</td>
+                                            <td class="text-center">-</td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                <tr class="font-weight-bold">
+                                    <td colspan="7" class="text-right" data-f-bold="true" data-a-h="right">{{ 'Total'|trans }}</td>
+                                    {% for item in report.items %}
+                                        <td data-t="s" class="text-center" data-f-bold="true" data-a-h="center">{{ m.num(item.mark) }} / {{ m.num(item.max) }}</td>
+                                    {% endfor %}
+                                    <td data-t="s" class="text-center" data-f-bold="true" data-a-h="center">{{ m.num(report.total.mark) }} / {{ m.num(report.total.max) }}</td>
+                                    <td></td>
+                                </tr>
+                                </tfoot>
+                            </table>
+                            <small class="text-muted d-block mt-1">
+                                {{ 'Cells show the mark obtained; hover a cell for max mark, target and achievement. "-" = no KPI generated for that month.'|trans }}
+                                {% if report.pending %}{{ '* = KPI not yet approved; marks may still change.'|trans }}{% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('assets/js/tableToExcel.js') }}"></script>
+    <script>
+        const excelButton = document.querySelector("#button-excel");
+        if (excelButton) {
+            excelButton.addEventListener("click", function (e) {
+                e.preventDefault();
+                TableToExcel.convert(document.querySelector(".download-excel"), {
+                    name: "employee-kpi-{{ report ? report.empId : '' }}-{{ months|first|default('') }}-{{ months|last|default('') }}-{{ year }}.xlsx",
+                    sheet: {name: "KPI"}
+                });
+            });
+        }
+    </script>
+{% endblock %}
