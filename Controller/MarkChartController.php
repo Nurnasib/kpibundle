@@ -12,6 +12,8 @@
 namespace Terminalbd\KpiBundle\Controller;
 
 use App\Entity\Core\Setting;
+use PhpOffice\PhpSpreadsheet\Reader\Html as HtmlReader;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -152,6 +154,27 @@ class MarkChartController extends AbstractController
             if ($boardAttribute->getParent()->getParent()){
                 $arrayData[$boardAttribute->getParent()->getParent()->getId()][$boardAttribute->getParent()->getId()][] = $boardAttribute;
             }
+        }
+        if ($request->query->has('excel') && $report) {
+            $html = $this->renderView('@TerminalbdKpi/markchart/kpi-format-excel.html.twig', [
+                'arrayData' => $arrayData,
+                'report' => $report,
+            ]);
+            $spreadsheet = (new HtmlReader())->loadFromString($html);
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('KPI Format');
+            foreach (['A' => 22, 'B' => 25, 'C' => 45, 'D' => 8, 'E' => 30] as $col => $width) {
+                $sheet->getColumnDimension($col)->setWidth($width);
+            }
+            $sheet->getStyle('A1:E' . $sheet->getHighestRow())->getAlignment()->setWrapText(true)->setVertical('top');
+            $sheet->getStyle('A1:E2')->getFont()->setBold(true);
+
+            ob_start();
+            (new Xlsx($spreadsheet))->save('php://output');
+            return new Response(ob_get_clean(), 200, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment; filename="KPI-Format-' . $report->getSlug() . '.xlsx"',
+            ]);
         }
         $entities = $this->getDoctrine()->getRepository(Setting::class)->getChildRecords('report-mode');
         return $this->render('@TerminalbdKpi/markchart/kpi-format.html.twig',[

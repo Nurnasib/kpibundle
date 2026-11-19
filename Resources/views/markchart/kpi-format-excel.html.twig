@@ -1,0 +1,21 @@
+<table>
+    <tr><th colspan="5">KPI- for {{ report.name }}</th></tr>
+    <tr><th>Parameter</th><th>Activity</th><th>Attributes</th><th>Marks</th><th>Mark Distribution</th></tr>
+    {% for parameters in arrayData %}
+        {% set count = 1 %}
+        {% for activity in parameters %}
+            {% set countActivity = 1 %}
+            {% for entity in activity %}
+                <tr>
+                    {% if count == 1 %}<td rowspan="{{ parameters|multiArrayLength }}">{{ entity.parent.parent.name }}</td>{% endif %}
+                    {% if countActivity == 1 %}<td rowspan="{{ activity|length }}">{{ entity.parent.name }}</td>{% endif %}
+                    <td>{{ entity.name }}</td>
+                    <td>{{ entity.mark }}</td>
+                    <td>{% for children in entity.children|filter(c => c.status == 1) %}{% if not loop.first %}<br>{% endif %}{{ children.name }}{% endfor %}</td>
+                </tr>
+                {% set countActivity = 0 %}
+                {% set count = count + 1 %}
+            {% endfor %}
+        {% endfor %}
+    {% endfor %}
+</table>

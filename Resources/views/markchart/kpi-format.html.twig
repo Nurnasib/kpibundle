@@ -38,6 +38,9 @@
                     <div class="portlet box green ">
                         <div class="portlet-title">
                             <div class="caption">{{ report ? report.name : '' }}</div>
+                            <div style="float: right; padding-right: 15px" class="caption">
+                                <a href="{{ path('kpi_markchart_matrix', {'slug': report.slug, 'excel': 1}) }}" class="btn blue-bg btn-sm white-font"><i class="fa fa-file-excel"></i> Download Excel</a>
+                            </div>
                         </div>
                         <div class="portlet-body form">
                             {#<div class="row">
